@@ -3,7 +3,7 @@ Web Server is a project which you create your own HTPP server.
 
 -Project Concept:
 	
-   1-What is a HTTP? Is an application-layer protocl which transmits
+   	1-What is a HTTP? Is an application-layer protocl which transmits
 	data via HTML, JSON, etc... between the Web Browser and the Web Server.
  
 	2-How it works?
