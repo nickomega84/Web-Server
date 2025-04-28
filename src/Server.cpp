@@ -104,20 +104,30 @@ int Server::accept()
 	return (new_socket);
 }
 
-std::vector<char> Server::read(int socket)
+/* bytes_read = recv(new_socket, buffer, sizeof(buffer), 0);
+- new_socket: el file descriptor del socket del cliente (devuelto por accept()).
+- buffer: lugar donde se almacenarán los datos recibidos.
+- sizeof(buffer): cantidad máxima de bytes que se puede leer.
+- 0: sin flags especiales. */
+
+std::vector<char> Server::recv(int new_socket)
 {
-	long bytes_read;
+	int bytes_read;
 	char buffer[1024];
 	std::vector<char> data;
 
-	while ((bytes_read = ::read(socket, buffer, sizeof(buffer))) > 0) //data() devuelve un puntero a la memoria interna del vector
-		data.insert(data.end(), buffer, buffer + bytes_read);
+	bytes_read = ::recv(new_socket, buffer, sizeof(buffer), 0);
 	if (bytes_read < 0)
-		throw std::runtime_error("Error reading socket");
+		throw std::runtime_error("In recv");
+	else
+	{
+		data.insert(data.end(), buffer, buffer + bytes_read);
+		printf("Received message: %s\n", buffer);
+	}
 	return (data);
 }
 
-void Server::write(int socket, std::string httpMessage)
+void Server::send(std::string message, int new_socket)
 {
-	::write(socket, httpMessage.c_str(), httpMessage.size());
+	::send(new_socket, message.c_str(), message.size(), 0);
 }

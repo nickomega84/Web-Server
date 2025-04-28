@@ -31,6 +31,6 @@ class Server
 
 	int accept();
 
-	std::vector<char> read(int socket);
-	void write(int socket, std::string httpMessage);
+	std::vector<char> recv(int new_socket);
+	void send(std::string message, int new_socket);
 };
