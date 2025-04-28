@@ -21,7 +21,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "$(COLOR_GREEN)------------ MESSAGE: $@ COMPILED ------------$(COLOR_RESET)"
 
 client:
-	gcc $(SRC_DIR)/*.c -o "client" && ./client
+	gcc client_dir/*.c -o "client" && ./client
 	@echo "$(COLOR_GREEN)------------ MESSAGE: CLIENT READY ------------$(COLOR_RESET)"
 
 clean:
