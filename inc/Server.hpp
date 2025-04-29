@@ -9,14 +9,13 @@
 #include <iostream>
 #include <vector>
 
-#define PORT 8080
+#define PORT 8080 //80 (HTTP), 443 (HTTPS), 22 (SSH), 8080 (aplicaciones web) 
 
 class Server
 {
 	private:
-	int server_port;
-	int	server_fd;
 	struct sockaddr_in address; //For IP networking, we use struct sockaddr_in, which is defined in the header netinet/in.h. Before calling bind, we need to fill out this structure.
+	int	server_fd;
 	std::vector<int> new_sockets;
 
 	Server(const Server& other);

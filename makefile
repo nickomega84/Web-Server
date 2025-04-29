@@ -21,7 +21,8 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "$(COLOR_GREEN)------------ MESSAGE: $@ COMPILED ------------$(COLOR_RESET)"
 
 client:
-	gcc client_dir/*.c -o "client" && ./client
+	@rm -fr client
+	gcc client_dir/*.c -o "client"
 	@echo "$(COLOR_GREEN)------------ MESSAGE: CLIENT READY ------------$(COLOR_RESET)"
 
 clean:
@@ -35,7 +36,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re client
 
 COLOR_GREEN = \033[0;32m
 COLOR_RESET = \033[0m
