@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <sys/epoll.h>
+#include <sys/epoll.h> //epoll
+#include <fcntl.h> //epoll flags
 #include <netinet/in.h>
 #include <iostream>
 #include <vector>
@@ -32,4 +33,6 @@ class Server
 
 	std::string recv(int new_socket);
 	void send(std::string message, int new_socket);
+
+	void epoll();
 };

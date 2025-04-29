@@ -125,11 +125,26 @@ void Server::send(std::string message, int new_socket)
 }
 
 
-/* int epoll_create(int size);  // Crea la instancia epoll
-- size: Se usaba en versiones antiguas de Linux, pero no es relevante en sistemas modernos. Se puede poner cualquier valor. Se va a ingnorar. Por convención se suele poner 1.
-Devuelve: Un descriptor de archivo para la instancia epoll. */
+/* 
+Epoll is an API (Application Programming Interface, es un puente entre aplicaciones). Monitors multiple file descriptors to see if I/O is possible on any of them.
 
-/* int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);  // Añadir o modificar sockets
+    The central concept of the epoll API is the epoll instance, an  in-ker‐
+    nel data structure which, can be considered as a container for two lists:
+
+    • The interest list (sometimes also called the epoll set): the  set  of
+      file descriptors that the process has registered an interest in moni‐
+      toring.
+    • The ready list: the set of file descriptors that are "ready" for I/O.
+      The  ready  list  is a subset of (or, more precisely, a set of refer‐
+      ences to) the file descriptors in the interest list.  The ready  list
+      is dynamically populated by the kernel as a result of I/O (In and Out) activity on
+      those file descriptors.
+
+int epoll_create(int size); // creates  a new epoll instance and returns a file descriptor referring to that instance.
+- size: Se usaba en versiones antiguas de Linux, pero no es relevante en sistemas modernos. Se puede poner cualquier valor. Se va a ingnorar. Por convención se suele poner 1.
+Devuelve: Un descriptor de archivo para la instancia epoll.
+
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);  // Añadir o modificar sockets
 - epfd: Descriptor de epoll creado con epoll_create1().
 - op: Operación a realizar:
     EPOLL_CTL_ADD: Añadir un socket a epoll.
@@ -147,42 +162,71 @@ struct epoll_event
 EPOLLIN indica que el socket tiene datos listos para ser leídos.
 EPOLLOUT descriptor de archivo está listo para escritura sin bloquear, lo que significa que puedes enviar datos (send(), write(), etc.) sin preocuparte de que la operación se bloquee mientras el socket espera estar disponible. Cuando un socket TCP está congestionado (por ejemplo, por muchos datos que aún no han sido enviados), la llamada a send() podría bloquear el proceso si el buffer de envío está lleno. EPOLLOUT te permite saber cuándo es seguro escribir sin bloqueo, evitando esperas innecesarias.
 EPOLLERR (Error en el descriptor de archivo) Indica que ocurrió un error en el socket (por ejemplo, desconexión abrupta o fallo en la conexión). Siempre se monitorea automáticamente, pero conviene incluirlo en epoll_data_t
-EPOLLHUP (Hang-up, cierre de conexión) Se activa cuando el otro extremo del socket ha cerrado la conexión. Siempre se monitorea automáticamente, pero conviene incluirlo en epoll_data_t */
+EPOLLHUP (Hang-up, cierre de conexión) Se activa cuando el otro extremo del socket ha cerrado la conexión. Siempre se monitorea automáticamente, pero conviene incluirlo en epoll_data_t 
 
-/* int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout); */  // Esperar eventos
+typedef union epoll_data {
+    void        *ptr;
+    int          fd;
+    uint32_t     u32;
+    uint64_t     u64;
+} epoll_data_t;
+- ptr: Un puntero genérico que puedes usar para apuntar a estructuras personalizadas, contextos, buffers, etc.
+- fd: El descriptor de archivo directamente.
+- u32 y u64: Puedes usarlos para almacenar datos enteros adicionales (por ejemplo, identificadores, flags, etc).
 
-/* void Server::epoll()
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout); //waits for I/O events, blocking the calling thread if no events are currently available.
+
+- epfd: El descriptor de archivo devuelto por epoll_create.
+- events: Puntero a un arreglo de estructuras epoll_event donde se almacenarán los eventos que el kernel detecte.
+- maxevents: Número máximo de eventos que el arreglo events puede contener. Debe ser mayor que 0.
+- timeout: Tiempo de espera en milisegundos:
+	* 0: retorno inmediato (polling no bloqueante).
+	* -1: espera indefinidamente hasta que ocurra un evento.
+	* > 0: espera hasta ese número de milisegundos.
+Devuelve el número de descriptores de archivo listos (i.e. número de elementos llenados en events) si tiene éxito.
+Devuelve -1 si ocurre un error y establece errno.
+*/
+
+void Server::epoll()
 {
-    int epfd = epoll_create(1);  // Crear epoll instance
-    if (epfd < 0)
-		throw runtime_error("Error on epoll_create");
+	int epollfd = epoll_create(1);
+    if (epollfd < 0)
+		throw std::runtime_error("Error on epoll_create");
 
-    struct epoll_event ev;
-    ev.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;  // EPOLLIN modifica el comportamiento de epoll_wait(), indica que queremos monitorear si hay datos disponibles para lectura en el sockfd. Si epoll_wait() detecta actividad en el socket con EPOLLIN, retorna el descriptor de archivo como listo para lectura. Si no incluimos EPOLLIN, el descriptor de archivo no será monitoreado para lectura y no recibirás notificaciones cuando haya datos disponibles.
-    ev.data.fd = sockfd;
+	std::vector<struct epoll_event> interest_list; //por cada fd que manejemos con epoll debemos tener una estructura epoll_event
+	int i = 0;
+	struct epoll_event tmp;
+	for (std::vector<int>::iterator it = new_sockets.begin(); it != new_sockets.begin(); it++)
+	{
+		i++;
+		tmp.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;  // EPOLLIN modifica el comportamiento de epoll_wait(), indica que queremos monitorear si hay datos disponibles para lectura en el sockfd. Si epoll_wait() detecta actividad en el socket con EPOLLIN, retorna el descriptor de archivo como listo para lectura. Si no incluimos EPOLLIN, el descriptor de archivo no será monitoreado para lectura y no recibirás notificaciones cuando haya datos disponibles.
+		tmp.data.fd = *it;
+		
 
-    if (epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev) < 0)
-		throw runtime_error("Error on epoll_ctl");
+	    if (epoll_ctl(epollfd, EPOLL_CTL_ADD, *it, &interest_list[i]) < 0)
+			throw std::runtime_error("Error on epoll_ctl");
+	}
+	
+	int max_events = 10; // Tamaño de evenQueue
+    struct epoll_event event_queue[max_events]; // Buffer para eventos. Cada vez que uno de los fd que estamo sobservando emita un evento lo almacenamos aqui
 
-    struct epoll_event events[10]; // Buffer para eventos
     while (1)
 	{
-        int num_events = epoll_wait(epfd, events, 10, -1);  // Esperar eventos indefinidamente
-        for (int i = 0; i < num_events; i++) 
+        int events_ready = epoll_wait(epollfd, event_queue, max_events, -1);
+        for (int i = 0; i < events_ready; i++)
 		{
-            if (events[i].events & EPOLLIN) 
+			std::cout << "Got an event " << event_queue[i].events << "for fd: " << event_queue[i].data.fd << std::endl;
+			if (event_queue[i].events & EPOLLIN) 
 			{
                 char buffer[1024];
-                ssize_t bytes = recv(events[i].data.fd, buffer, sizeof(buffer), 0);
-                if (bytes > 0) 
+                ssize_t bytes_read = ::recv(event_queue[i].data.fd, buffer, sizeof(buffer), 0);
+                if (bytes_read > 0)
 				{
-                    buffer[bytes] = '\0';
-                    printf("Mensaje recibido: %s\n", buffer);
+                    buffer[bytes_read] = '\0';
+                    printf("Mesage received: %s\n", buffer);
                 }
             }
         }
     }
-    close(epfd);
-    close(sockfd);
-    return 0;
-} */
+    close(epollfd);
+}

@@ -12,8 +12,9 @@ int	main()
 		{
 			std::cout << "Waiting for a client" << std::endl;
 			socket = server.accept();
-			input = server.recv(socket);
-			std::cout << "received: " << input << std::endl; 
+/* 			input = server.recv(socket);
+			std::cout << "received: " << input << std::endl;  */
+			server.epoll();
 			server.send("DAMN SON WHERE YOU FIND THIS", socket);
 		}
 	}
