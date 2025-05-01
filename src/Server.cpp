@@ -34,9 +34,9 @@ Server::~Server()
 {
 	if (server_socket > 0)
 		close(server_socket);
-	for (std::vector<int>::iterator it = new_sockets.begin(); it != new_sockets.end(); it++)
+	for (std::vector<int>::iterator it = client_sockets.begin(); it != client_sockets.end(); it++)
 		close(*it);
-	new_sockets.clear();
+	client_sockets.clear();
 }
 
 
@@ -59,9 +59,9 @@ addrlen: Es el tamaño de la estructura sockaddr que contiene la dirección. Usu
 
 //LISTEN
 /* int listen(int sockfd, int backlog);
-listen() convierte un socket de servidor en un socket de escucha. Hace que el servidor este preparado para aceptar conexiones entrantes de clientes. 
+listen() convierte un socket de servidor en un socket de escucha. Hace que el servidor este preparado para aceptar connectiones entrantes de clientes. 
 sockfd: el descriptor de archivo del socket.
-backlog: el número máximo de conexiones pendientes que el sistema puede mantener en la cola para ser aceptadas por accept(). */
+backlog: el número máximo de connectiones pendientes que el sistema puede mantener en la cola para ser aceptadas por accept(). */
 
 void Server::setUpServer()
 {
@@ -93,7 +93,61 @@ int epoll_create(int size); // creates  a new epoll instance and returns a file 
 - size: Se usaba en versiones antiguas de Linux, pero no es relevante en sistemas modernos. Se puede poner cualquier valor. Se va a ingnorar. Por convención se suele poner 1.
 Devuelve: Un descriptor de archivo para la instancia epoll.
 
-int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);  // Añadir o modificar sockets
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout); //waits for I/O events, blocking the calling thread if no events are currently available.
+
+- epfd: El descriptor de archivo devuelto por epoll_create.
+- events: Puntero a un arreglo de estructuras epoll_event donde se almacenarán los eventos que el kernel detecte.
+- maxevents: Número máximo de eventos que el arreglo events puede contener. Debe ser mayor que 0.
+- timeout: Tiempo de espera en milisegundos:
+	* 0: retorno inmediato (polling no bloqueante).
+	* -1: espera indefinidamente hasta que ocurra un evento.
+	* > 0: espera hasta ese número de milisegundos.
+Devuelve el número de descriptores de archivo listos (i.e. número de elementos llenados en events) si tiene éxito.
+Devuelve -1 si ocurre un error y establece errno.
+*/
+
+void Server::epoll()
+{	
+	int epollfd = epoll_create(1);
+    if (epollfd < 0)
+		throw std::runtime_error("Error on epoll_create");
+
+	epoll_ctl_call(epollfd, server_socket, EPOLLIN); // agregamos el socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en server_socket
+
+	std::cout << "WAITING FOR CONNECTIONS:" << std::endl << std::endl;
+	struct epoll_event events[MAX_EVENTS]; // epoll wait escribe aqui cuando recibe eventos de los sockets que está rastreando. Si el número de eventos recibido sobrepasa MAX_EVENTS, recibira los sobrantes en la siguiente llamada a epoll_wait()
+    while (1)
+	{
+        int event_nmb = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+		if (event_nmb == -1)
+			throw std::runtime_error("Error on epoll_wait()");
+
+        for (int i = 0; i < event_nmb; i++)
+		{
+			if (events[i].data.fd == server_socket) // si registramos una lectura en server_socket, tenemos una nueva conexión
+			{
+				int client_socket = accept_connection(server_socket);
+				epoll_ctl_call(epollfd, client_socket, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP); // los sockets de los clientes deberan estar atentos a leer y escribir (de acuerdo al subject) // si un mismo socket de cliente recibe varios eventos a la vez, se acumulan todos en epoll_event.events
+            }
+			else // el evento no es una nueva conexión
+			{
+				if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
+				{
+					close_client_socket(events[i].data.fd);
+					continue;
+				}	
+				if (events[i].events & EPOLLIN) // .events es un uint32_t, & es el operador: bitwise AND, la condición sera verdad si los bits que corresponden al valor de EPOLLIN están activos
+					recv_data(events[i].data.fd);
+				if (events[i].events & EPOLLOUT) 
+					send_data("Hello from the server. I could be in the beach right now ;_;", events[i].data.fd);
+			}
+		}
+    }
+	close(epollfd);
+}
+
+
+/* int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);  // Añadir o modificar sockets
 - epfd: Descriptor de epoll creado con epoll_create1().
 - op: Operación a realizar:
     EPOLL_CTL_ADD: Añadir un socket a epoll.
@@ -122,82 +176,33 @@ typedef union epoll_data {
 - ptr: Un puntero genérico que puedes usar para apuntar a estructuras personalizadas, contextos, buffers, etc.
 - fd: El descriptor de archivo directamente.
 - u32 y u64: Puedes usarlos para almacenar datos enteros adicionales (por ejemplo, identificadores, flags, etc).
-
-int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout); //waits for I/O events, blocking the calling thread if no events are currently available.
-
-- epfd: El descriptor de archivo devuelto por epoll_create.
-- events: Puntero a un arreglo de estructuras epoll_event donde se almacenarán los eventos que el kernel detecte.
-- maxevents: Número máximo de eventos que el arreglo events puede contener. Debe ser mayor que 0.
-- timeout: Tiempo de espera en milisegundos:
-	* 0: retorno inmediato (polling no bloqueante).
-	* -1: espera indefinidamente hasta que ocurra un evento.
-	* > 0: espera hasta ese número de milisegundos.
-Devuelve el número de descriptores de archivo listos (i.e. número de elementos llenados en events) si tiene éxito.
-Devuelve -1 si ocurre un error y establece errno.
 */
 
-void Server::epoll()
+void	Server::epoll_ctl_call(int epollfd, int socket, uint32_t events)
 {
-	struct epoll_event event;
-	
-	int epollfd = epoll_create(1);
-    if (epollfd < 0)
-		throw std::runtime_error("Error on epoll_create");
+	struct epoll_event event_struct;
 
-	event.events = EPOLLIN; // agregamos el socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en server_socket
-	event.data.fd = server_socket;
-	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, server_socket, &event) < 0) 
-		throw std::runtime_error("Error on epoll_ctl with server_socket");
-
-	struct epoll_event event_queue[MAX_EVENTS]; // epoll wait escribe aqui cuando recibe eventos de los sockets que está rastreando. Si el número de eventos recibido sobrepasa MAX_EVENTS, recibira los sobrantes en la siguiente llamada a epoll_wait()
-    while (1)
-	{
-        int event_nmb = epoll_wait(epollfd, event_queue, MAX_EVENTS, -1);
-		if (event_nmb == -1)
-			throw runtime_error("Error on epoll_wait()");
-        for (int i = 0; i < event_nmb; i++)
-		{
-			if (event_queue[i].data.fd == server_socket) // si registramos una lectura en server_socket -> tenemos una nueva conexión
-			{
-				int client_socket = Server::accept_conexion();
-
-				event.events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP; // los sockets de los clientes deberan estar atentos a leer y escribir (de acuerdo al subject) // si un mismo socket de cliente recibe varios eventos a la vez, se acumulan todos en epoll_event.events
-				event.data.fd = client_socket;
-				if (epoll_ctl(epollfd, EPOLL_CTL_ADD, client_socket, &event) < 0) // lo añadimos a event_queue
-					throw std::runtime_error("Error on epoll_ctl with client_socket");
-            }
-			else // el evento no es una nueva conexión
-			{
-				if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
-				{
-					Server::close_client_socket(events[i].data.fd);
-					continue;
-				}	
-				if (events[i].events & EPOLLIN) // .events es un uint32_t, & es el operador: bitwise AND, la condición sera verdad si los bits que corresponden al valor de EPOLLIN están activos
-					Server::recv_data(events[i].data.fd);
-				if (events[i].events & EPOLLOUT) 
-					Server::send_data("Hello from the server. I could be in the beach right now ;_;", events[i].data.fd);
-			}
-		}
-    }
-	close(epollfd);
+	event_struct.events = events; // agregamos el socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en server_socket
+	event_struct.data.fd = socket;
+	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, socket, &event_struct) < 0)
+		throw std::runtime_error("Error on epoll_ctl");
 }
 
 
 /* int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
-Se usa en servidores para aceptar conexiones entrantes desde un cliente. Una vez que un cliente intenta conectarse al servidor, accept crea un nuevo socket para manejar la comunicación con ese cliente, dejando el socket original (el de escucha) disponible para aceptar otras conexiones.
+Se usa en servidores para aceptar connectiones entrantes desde un cliente. Una vez que un cliente intenta conectarse al servidor, accept crea un nuevo socket para manejar la comunicación con ese cliente, dejando el socket original (el de escucha) disponible para aceptar otras connectiones.
 sockfd: El descriptor de archivo del socket de escucha.
 addr: Un puntero a una estructura sockaddr. Utilizado para almacenar la información sobre la dirección del cliente que se conecta. En este caso no nos interesa guardar esa información, así que ponemos NULL.
 addrlen: El tamaño de la estructura sockaddr que está siendo pasada. Inicialmente, este valor debe ser el tamaño de la estructura que se espera, y después de la llamada a accept, contendrá el tamaño real de la dirección del cliente. */
 
-int Server::accept_conexion()
+int Server::accept_connection(int server_socket)
 {
-	int client_socket;
+	int client_socket = -1;
 
-	if ((client_socket = ::accept(client_socket, NULL, NULL)) < 0)
-		throw std::runtime_error("Error accepting incoming conexion");
+	if ((client_socket = ::accept(server_socket, NULL, NULL)) < 0)
+		throw std::runtime_error("Error accepting incoming connection");
 	client_sockets.push_back(client_socket);
-	std::cout << "New conexion accepted(), fd:" << client_socket << std::endl;
+	std::cout << "New connection accepted() fd = " << client_socket << std::endl;
 	return (client_socket);
 }
 
@@ -210,15 +215,15 @@ int Server::accept_conexion()
 
 std::string Server::recv_data(const int new_socket) const
 {
-	int bytes_read;
 	char buffer[BUF_SIZE];
-	std::string input;
 
-	bytes_read = ::recv(new_socket, buffer, sizeof(buffer), 0);
+	int bytes_read = ::recv(new_socket, buffer, sizeof(buffer), 0);
 	if (bytes_read < 0)
-		throw std::runtime_error("In recv");
+		throw std::runtime_error("Error on recv");
+	if (bytes_read == 0)
+		throw std::runtime_error("Error on recv: fd closed, connection lost");
 	std::string input(buffer, bytes_read);
-	std::cout << "Message from client_socket " << new_socket << " : " << input << std::endl;  
+	std::cout << "Message from fd " << new_socket << ": " << input << std::endl;  
 	return (input);
 }
 
@@ -233,16 +238,21 @@ Si hay un error, devuelve -1 y establece errno. */
 
 void Server::send_data(std::string message, const int new_socket) const
 {
-	::send(new_socket, message.c_str(), message.size(), 0);
+	int bytes_sent;
+	bytes_sent = ::send(new_socket, message.c_str(), message.size(), 0);
+	if (bytes_sent < 0)
+		throw std::runtime_error("Error on send");
+	if (bytes_sent == 0)
+		throw std::runtime_error("Error on send: fd closed, connection lost");
 }
 
 
 // Cerramos el socket y lo eliminamos de la lista de sockets abiertos
 void Server::close_client_socket(const int fd)
 {
-	std::cout << "Something went wrong in client_socket: " << fd << std::endl;
+	std::cout << "Something went wrong in client_socket: " << fd << ", closing" << std::endl;
 	close(fd);
-	std::vector<int>::iterator it = client_sockets.find(client_sockets.begin(), client_sockets.end(), fd);
+	std::vector<int>::iterator it = std::find(client_sockets.begin(), client_sockets.end(), fd);
 	if (it != client_sockets.end())
-		client_sockets.erase(it)
+		client_sockets.erase(it);
 }

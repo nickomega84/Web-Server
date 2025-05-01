@@ -75,10 +75,10 @@ int main(int argc, char *argv[])
 
 Vincular el socket a una dirección local (bind()).
 
-Escuchar conexiones entrantes (listen()).
+Escuchar connectiones entrantes (listen()).
 
-Aceptar conexiones (accept()):
+Aceptar connectiones (accept()):
 
 Cada vez que accept() se llama, se obtiene un nuevo socket para manejar la comunicación con el cliente.
 
-El servidor puede seguir aceptando más conexiones con más llamadas a accept(). */
+El servidor puede seguir aceptando más connectiones con más llamadas a accept(). */

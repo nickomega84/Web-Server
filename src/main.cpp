@@ -3,8 +3,6 @@
 int	main()
 {
 	Server server(8080); //En sistemas Unix/Linux, los puertos "privilegiados" (0–1023) requieren permisos de administrador
-	int socket;
-	std::string input;
 	try
 	{
 		server.setUpServer();
