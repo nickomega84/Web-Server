@@ -14,8 +14,7 @@
 #define PORT		8080 //80 (HTTP), 443 (HTTPS), 22 (SSH), 8080 (aplicaciones web) 
 #define MAX_CONN	16 //listen()
 #define MAX_EVENTS	32 //epoll
-#define BUF_SIZE	1024
-#define MAX_LINE	256
+#define BUFFER_SIZE	1024 //recv
 
 class Server
 {

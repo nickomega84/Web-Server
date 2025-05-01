@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-//SOCKADDR_IN
+//SOCKADDR_IN // es una variante de sockaddr, hay que rellenarla para usarla en funciones como bind()
 /* 	struct sockaddr_in {
 		sa_family_t    sin_family;   // communication domain in which the socket should be created. AF_INET for IPv4.
 		in_port_t      sin_port;     // Port (en orden de red) (most usual is 8080) //La frase "en orden de red" se refiere al formato específico en el que las direcciones IP y otros datos se organizan al ser transmitidos a través de una red. //El orden de red sigue el formato big-endian, lo que significa que el byte de mayor peso (el más significativo) se coloca primero, seguido del byte de menor peso. Este formato es independiente de la arquitectura del sistema y asegura que las direcciones IP y puertos sean interpretados correctamente por diferentes dispositivos de red, independientemente de su arquitectura interna.
@@ -11,7 +11,6 @@
 	struct in_addr {
 		in_addr_t s_addr;  // Dirección en formato binario (en orden de red)
 	}; */
-
 //htons() toma un valor de tipo short (es decir, 16 bits) en el orden de bytes de la máquina local y lo convierte al orden de bytes de la red (big-endian).
 	
 Server::Server(): server_socket(-1)
@@ -138,8 +137,11 @@ void Server::epoll()
 				}	
 				if (events[i].events & EPOLLIN) // .events es un uint32_t, & es el operador: bitwise AND, la condición sera verdad si los bits que corresponden al valor de EPOLLIN están activos
 					recv_data(events[i].data.fd);
-				if (events[i].events & EPOLLOUT) 
+				if (events[i].events & EPOLLOUT)
+				{
+					std::cout << "ENVIANDO COSITAS" << std::endl;
 					send_data("Hello from the server. I could be in the beach right now ;_;", events[i].data.fd);
+				}
 			}
 		}
     }
@@ -215,7 +217,7 @@ int Server::accept_connection(int server_socket)
 
 std::string Server::recv_data(const int new_socket) const
 {
-	char buffer[BUF_SIZE];
+	char buffer[BUFFER_SIZE];
 
 	int bytes_read = ::recv(new_socket, buffer, sizeof(buffer), 0);
 	if (bytes_read < 0)
