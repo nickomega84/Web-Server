@@ -10,9 +10,9 @@
 int main(int argc, char *argv[])
 {
 //SOCKET
-	int server_fd;
+	int server_socket;
 
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
 		perror("In socket");
 		exit(EXIT_FAILURE);
@@ -27,14 +27,14 @@ int main(int argc, char *argv[])
 	//address.sin_addr.s_addr = inet_addr("127.0.0.1"); //para usar local host
 	bzero(&address.sin_zero, sizeof(address.sin_zero));
 
-	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+	if (bind(server_socket, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
 		perror("In bind");
 		exit(EXIT_FAILURE);
 	}
 
 //LISTEN
-	if (listen(server_fd, 10) < 0)
+	if (listen(server_socket, 10) < 0)
 	{
 		perror("In listen");
 		exit(EXIT_FAILURE);
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 		int addrlen = sizeof(address);
 
 		printf("\n--------------WAITING FOR CONNECTION--------------\n\n");
-		if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
+		if ((new_socket = accept(server_socket, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
 		{
             perror("In accept");
             exit(EXIT_FAILURE);
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
         close(new_socket);
 	}
-	close (server_fd);
+	close (server_socket);
 	return 0;
 }
 

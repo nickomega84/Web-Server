@@ -9,18 +9,25 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
-#define PORT 8080 //80 (HTTP), 443 (HTTPS), 22 (SSH), 8080 (aplicaciones web) 
+#define PORT		8080 //80 (HTTP), 443 (HTTPS), 22 (SSH), 8080 (aplicaciones web) 
+#define MAX_CONN	16
+#define MAX_EVENTS	32 //epoll
+#define BUF_SIZE	16
+#define MAX_LINE	256
 
 class Server
 {
 	private:
 	struct sockaddr_in address; //For IP networking, we use struct sockaddr_in, which is defined in the header netinet/in.h. Before calling bind, we need to fill out this structure.
-	int	server_fd;
-	std::vector<int> new_sockets;
+	int	server_socket;
+	std::vector<int> client_sockets;
 
 	Server(const Server& other);
 	Server& operator=(const Server& other);
+
+	void close_client_socket(int fd);
 
 	public:
 	Server();
@@ -28,11 +35,9 @@ class Server
 	~Server();
 
 	void setUpServer();
-
-	int accept();
-
-	std::string recv(int new_socket);
-	void send(std::string message, int new_socket);
-
 	void epoll();
+
+	int accept_conexion();
+	std::string recv_data(const int new_socket) const;
+	void send_data(std::string message, const int new_socket) const;
 };
