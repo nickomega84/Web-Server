@@ -1,0 +1,40 @@
+body {
+    background-color: rgb(72, 71, 71);
+    color: rgb(60, 204, 252);
+}
+
+h1 {
+    background-color: black;
+    color: aqua;
+    font-family: 'Courier New', Courier, monospace;
+    margin: 100px;
+    padding: 50px;
+    margin-right: 80%;
+}
+
+.update::before {
+    content: "";
+    position: absolute;
+    width: 90%;
+    height: 10px;
+}
+
+.update::after {
+   mix-blend-mode: color-dodge;
+   content: "";
+   position: absolute;
+   top: 9px;
+   left: 12px;
+   border-radius: 60px 60px 30px 30px;
+   width: 122px;
+   height: 10px;
+   overflow: hidden;
+   background-image: linear-gradient(
+      rgba(255, 255, 255, 0.9),
+      rgba(255, 255, 255, 0.3)
+   );
+   opacity: 0.7;
+   overflow: hidden;
+   z-index: 3;
+}
+

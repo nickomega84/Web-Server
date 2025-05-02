@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 //READ
 		char buffer[30000] = {0};
 		long valread;
-		char* salute = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nNANANANAwahu!";
+		char* salute = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nNANANANAw!!";
 		valread = read(new_socket, buffer, sizeof(buffer));
         printf("%s\n",buffer );
 
