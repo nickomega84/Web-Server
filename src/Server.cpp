@@ -107,6 +107,9 @@ Devuelve -1 si ocurre un error y establece errno.
 
 void Server::epoll()
 {	
+	/* const char *outputMsg = "OLA DESDE EL SERVER"; */
+	bool sendMsg = false;
+	
 	int epollfd = epoll_create(1);
     if (epollfd < 0)
 		throw std::runtime_error("Error on epoll_create");
@@ -130,17 +133,26 @@ void Server::epoll()
             }
 			else // el evento no es una nueva conexión
 			{
-				if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
+				if (events[i].events & EPOLLERR || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
 				{
-					close_client_socket(events[i].data.fd);
+					close_client_socket(events[i].data.fd, "Something went wrong in client_socket: ");
 					continue;
-				}	
-				if (events[i].events & EPOLLIN) // .events es un uint32_t, & es el operador: bitwise AND, la condición sera verdad si los bits que corresponden al valor de EPOLLIN están activos
-					recv_data(events[i].data.fd);
-				if (events[i].events & EPOLLOUT)
+				}
+				if (events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
 				{
-					std::cout << "ENVIANDO COSITAS" << std::endl;
-					send_data("Hello from the server. I could be in the beach right now ;_;", events[i].data.fd);
+					close_client_socket(events[i].data.fd, "Client hang up: ");
+					continue;
+				}
+				if (events[i].events & EPOLLIN) // .events es un uint32_t, & es el operador: bitwise AND, la condición sera verdad si los bits que corresponden al valor de EPOLLIN están activos
+				{
+					recv_data(events[i].data.fd);
+					sendMsg = true;
+				}
+				if (events[i].events & EPOLLOUT && sendMsg)
+				{
+					/* std::cout << "ENVIANDO COSITAS" << std::endl; */
+					send_data("OLA DESDE EL SERVER", events[i].data.fd);
+					sendMsg = false;
 				}
 			}
 		}
@@ -250,9 +262,9 @@ void Server::send_data(std::string message, const int new_socket) const
 
 
 // Cerramos el socket y lo eliminamos de la lista de sockets abiertos
-void Server::close_client_socket(const int fd)
+void Server::close_client_socket(const int fd, std::string message)
 {
-	std::cout << "Something went wrong in client_socket: " << fd << ", closing" << std::endl;
+	std::cout << message << fd << ". Closing" << std::endl;
 	close(fd);
 	std::vector<int>::iterator it = std::find(client_sockets.begin(), client_sockets.end(), fd);
 	if (it != client_sockets.end())

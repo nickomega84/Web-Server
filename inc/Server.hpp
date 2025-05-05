@@ -26,7 +26,7 @@ class Server
 	Server(const Server& other);
 	Server& operator=(const Server& other);
 
-	void		close_client_socket(int fd);
+	void		close_client_socket(const int fd, std::string message);
 	void		epoll_ctl_call(int epollfd, int socket, uint32_t event);
 	int			accept_connection(int server_socket);
 	std::string recv_data(const int new_socket) const;

@@ -20,10 +20,10 @@ void main()
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-	bzero((char *)addr, sizeof(struct sockaddr_in));
-	addr->sin_family = AF_INET;
-	addr->sin_addr.s_addr = INADDR_ANY;
-	addr->sin_port = htons(DEFAULT_PORT);
+	bzero(&srv_addr, sizeof(struct sockaddr_in));
+	srv_addr.sin_family = AF_INET;
+	srv_addr.sin_addr.s_addr = INADDR_ANY;
+	srv_addr.sin_port = htons(DEFAULT_PORT);
 
 	if (connect(sockfd, (struct sockaddr *)&srv_addr, sizeof(srv_addr)) < 0) 
 	{

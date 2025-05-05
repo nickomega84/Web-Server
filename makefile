@@ -22,7 +22,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 client:
 	@rm -fr client
-	gcc client_dir/*.c -o "client"
+	gcc client_dir/*.c -o "client" -g3
 	@echo "$(COLOR_GREEN)------------ MESSAGE: CLIENT READY ------------$(COLOR_RESET)"
 
 clean:
