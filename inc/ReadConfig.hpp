@@ -26,7 +26,7 @@ struct ServerConfig
 class ReadConfig
 {
 	private:
-	ServerConfig config;
+	ServerConfig conf;
 
 	public:
 	ConfReader();

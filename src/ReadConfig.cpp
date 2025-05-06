@@ -10,29 +10,25 @@ struct ServerConfig
 {
 	int listen_port;
 	std::string host;
-	std::vector<std::string> server_name;
-	std::string error_page_404;
 	int client_max_body_size;
-	std::vector<std::string> index_files;
 	std::string root;
+	std::vector<std::string> server_name; //opcional //puede haber más de uno
+	std::map<int, std::string> error_pages;
+	std::vector<std::string> index_files; //puede haber más de uno
 
 	std::vector<LocationConfig> locations;
 };
 
 ReadConfig::ConfReader()
 {
-	config.listen_port = 8080;
-	config.host = "127.0.0.1";
-	config.server_name.push_back("example.com");
-	config.server_name.push_back("www.example.com");
-	config.error_page_404 = "/home/nkrasimi/Desktop/webServer/error/404.html";
-	config.client_max_body_size = 1024;
-	config.root = "/home/nkrasimi/Desktop/webServer/";
-	config.index_files.push_back("index.html");
-	config.index_files.push_back("index.htm");
+	conf.listen_port = 8080;
+	conf.host = "127.0.0.1";
+	conf.client_max_body_size = 30000;
+	conf.root = "/site_root";
+	conf.error_pages.insert(std::pair<int, std::string>(404, "/error/404.html"));
 
-	LocationConfig loc1;
-	loc1.path = 
+
+
 };
 
 
@@ -43,13 +39,13 @@ ReadConfig::ConfReader(std:string fileName)
 
 ReadConfig::ConfReader(ConfReader &other)
 {
-	config.listen_port = other.listen_port;
-	config.host = other.host;
-	config.server_name = other.server_name;
-	config.error_page_404 = other.error_page_404;
-	config.client_max_body_size = other.client_max_body_size;
-	config.root = other.root;
-	config.index_files = other.config.index_files;
+	conf.listen_port = other.listen_port;
+	conf.host = other.host;
+	conf.server_name = other.server_name;
+	conf.error_page_404 = other.error_page_404;
+	conf.client_max_body_size = other.client_max_body_size;
+	conf.root = other.root;
+	conf.index_files = other.conf.index_files;
 
 	//...
 }
@@ -58,13 +54,13 @@ ReadConfig::ConfReader& operator=(ConfReader& other)
 {
 	if (this != &other)
 	{
-		config.listen_port = other.listen_port;
-		config.host = other.host;
-		config.server_name = other.server_name;
-		config.error_page_404 = other.error_page_404;
-		config.client_max_body_size = other.client_max_body_size;
-		config.root = other.root;
-		config.index_files = other.config.index_files;
+		conf.listen_port = other.listen_port;
+		conf.host = other.host;
+		conf.server_name = other.server_name;
+		conf.error_page_404 = other.error_page_404;
+		conf.client_max_body_size = other.client_max_body_size;
+		conf.root = other.root;
+		conf.index_files = other.conf.index_files;
 	
 		//...
 	
