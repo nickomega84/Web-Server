@@ -9,12 +9,16 @@
         <link rel="stylesheet" href="styles/style.css">
     </head>
     <body>
-        <form action="/cgi-bin/GET.py" method="get">
-            Username: <input type="text" name="username" />
+        <div id="login">
+            <form action="/cgi-bin/GET.py" method="get">
+            Username: <input type="text" name="username" /> <br />
             Email: <input type="email" name="email" /><br />
-            <input type="submit" value="Submit" class="submit" />
-        </form>
+            <input type="submit" value="Submit" id="enter" />
+            </form>
+        </div>
         <h1>Welcome</h1>
-        <script src="tcp_server.c" async defer></script>
+        <div id="front">
+            <img width="300px" height="300px" src="uploads/Checkboard.png" alt="a checkboard table"/>
+        </div>
     </body>
 </html>

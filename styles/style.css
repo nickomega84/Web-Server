@@ -1,13 +1,23 @@
 body {
-    background-color: rgb(72, 71, 71);
-    color: rgb(60, 204, 252);
+    background-color: rgb(33, 33, 33);
+    color: white;
+    font-family: 'Franklin Gothic Medium';
+}
+
+input {
+    margin: 15px;
+}
+
+#login {
+    display: block;
+    margin: 15px;
 }
 
 h1 {
     background-color: black;
     color: aqua;
     font-family: 'Courier New', Courier, monospace;
-    margin: 100px;
+    margin: 50px;
     padding: 50px;
     margin-right: 80%;
 }
@@ -38,3 +48,25 @@ h1 {
    z-index: 3;
 }
 
+#enter {
+    padding: 15px 32px;
+    text-align: center;
+    display: inline-block;
+    font-size: 20px;
+    background-color: black;
+    color: white;
+    border: 1px aqua;
+    font-family: 'Franklin Gothic Medium';
+}
+
+#enter:hover {
+    background-color: white;
+    color: black;
+    border: 1px black;
+    cursor: pointer;
+}
+
+#err-msg {
+    text-align: center;
+    padding-right: 200px;
+}
