@@ -6,21 +6,21 @@
 #include <algorithm>
 #include "struct.hpp"
 
-class Conf
+class Config
 {
 	private:
 
 	public:
 	ServerConfig c;
 	
-	Conf(); //no deberíamos inicializar la clase sin un archivo de configuración. Pero este va a ser el de pruebas.
+	Config(); //no deberíamos inicializar la clase sin un archivo de Configiguración. Pero este va a ser el de pruebas.
 	
-	Conf(const std::string fileName);
-	Conf(const Conf &other);
-	Conf& operator=(const Conf& other);
-	~Conf();
+	Config(const std::string fileName);
+	Config(const Config &other);
+	Config& operator=(const Config& other);
+	~Config();
 
 	void Read(std::string fileName);
 
-	const Conf* getServerConf() const;
+	const Config* getServerConf() const;
 };

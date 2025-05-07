@@ -31,7 +31,8 @@ struct LocationConfig
     std::string location_name;                 // Ruta del bloque location (ej. "/images/")
     std::string location_root;                 // Ruta raíz del sistema de archivos para esta location
     std::string index;                         // Archivo por defecto a servir (ej. "index.html")
-    bool        autoindex;                     // Si está activo, el path solicitado corresponde a un directorio y no se encuentra el archivo indicado por 'index', se muestra un listado del contenido del directorio solicitado
+    bool        autoindex;		               // Si está activo, el path solicitado corresponde a un directorio y no se encuentra el archivo indicado por 'index', se muestra un listado del contenido del directorio solicitado
+	bool		getOn;						   // Habilita método GET
     bool        postOn;                        // Habilita método POST
     bool        deleteOn;                      // Habilita método DELETE
     std::map<std::string, std::string> extPath;// Mapeo extensión o path → ejecutable (usado en CGI, etc.)
