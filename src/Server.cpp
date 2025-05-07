@@ -150,7 +150,6 @@ void Server::epoll()
 				}
 				if (events[i].events & EPOLLOUT && sendMsg)
 				{
-					/* std::cout << "ENVIANDO COSITAS" << std::endl; */
 					send_data("OLA DESDE EL SERVER", events[i].data.fd);
 					sendMsg = false;
 				}
