@@ -9,7 +9,8 @@
 class Config
 {
 	private:
-
+	void	initConfigStruct(configStruct &other);
+	void	initLocationConfig(locationConfig &other);
 	public:
 	configStruct c;
 	
@@ -20,7 +21,5 @@ class Config
 	Config& operator=(const Config& other);
 	~Config();
 
-	void Read(std::string fileName);
-
-	const Config* getServerConf() const;
+	const	Config* getServerConf() const;
 };

@@ -2,7 +2,7 @@
 
 Config::Config() //solo para pruebas //basado en default.conf
 {
-    ::bzero(&c, sizeof(c));
+    initConfigStruct(c);
 	c.numServs = 1;
     c.iter = 1;
     c.server_name = "Default";
@@ -13,8 +13,8 @@ Config::Config() //solo para pruebas //basado en default.conf
     c.body_size = 30000;
     c.errors[404] = "/error/404.html";
 
-	LocationConfig def;
-	::bzero(&def, sizeof(LocationConfig));
+	locationConfig def;
+	initLocationConfig(def);
 	def.location_name = "/";
 	def.location_root = "./";
 	def.getOn = true;
@@ -22,11 +22,11 @@ Config::Config() //solo para pruebas //basado en default.conf
 	def.deleteOn = true;
 	c.locations.push_back(def);
 
-	LocationConfig cgi_bin;
-	::bzero(&cgi_bin, sizeof(LocationConfig));
+	locationConfig cgi_bin;
+	initLocationConfig(cgi_bin);
 	def.location_name = "/cgi_bin";
 	def.location_root = "./";
-	// def.index = calculator.py;
+	/* def.index = calculator.py; */
 	def.getOn = true;
 	def.postOn = true;
 	def.deleteOn = true;
@@ -35,22 +35,22 @@ Config::Config() //solo para pruebas //basado en default.conf
 
 Config::Config(std::string fileName)
 {
-	::bzero(&c, sizeof(c));
+	initConfigStruct(c);
 	Read(fileName);
 }
 
 Config::Config(const Config &other)
 {
-    ::bzero(&c, sizeof(c));
+	initConfigStruct(c);
 	c.numServs = other.c.numServs;
     c.iter = other.c.iter;
     c.server_name = other.c.server_name;
     c.host = other.c.host;
     c.port = other.c.port;
-    c.root = other.c.root;
-    c.init_root = other.c.init_root;
+    c.root = other.c.root;	
+    c.init_root = other.c.init_root;	
     c.activeDirectory = other.c.activeDirectory;
-    c.user = other.c.user;
+    c.user = other.c.user;	
     c.index = other.c.index;
     c.body_size = other.c.body_size;
     c.get_allowed = other.c.get_allowed;
@@ -65,7 +65,7 @@ Config& Config::operator=(const Config& other)
 {
 	if (this != &other)
 	{
-		::bzero(&c, sizeof(c));
+		initConfigStruct(c);
 		c.numServs = other.c.numServs;
 		c.iter = other.c.iter;
 		c.server_name = other.c.server_name;
@@ -103,9 +103,49 @@ void Config::Read(std::string fileName)
 
 }
 
+Config::Read(fileName)
+{
+	
+
+}
+
 const Config* Config::getServerConf() const
 {
+	std::cout << "OLA" << std::endl;
 	Config* other = new Config(*this);
+	std::cout << "OLA" << std::endl;
 	return (other);
 }
 
+void Config::initConfigStruct(configStruct &st)
+{
+	st.numServs = 0;
+    st.iter = 0;
+    st.server_name;
+    st.host;
+    st.port;
+    st.root	
+    st.init_root	
+    st.activeDirectory;
+    st.user	
+    st.index;
+    st.body_size = 0;
+    st.get_allowed = false;
+    st.post_allowed = false;
+    st.delete_allowed = false;
+    st.autoindex = false;
+	st.locations;
+    st.errors;
+}
+
+void Config::initLocationConfig(locationConfig &st)
+{
+	st.location_name;
+	st.location_root;
+	st.index;	
+	st.autoindex = false;
+	st.getOn = false;	
+	st.postOn = false;	
+	st.deleteOn = false;
+	st.extPath;	
+}
