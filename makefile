@@ -1,6 +1,6 @@
 NAME = webserv
 CC = c++
-CCFLAGS = -Wall -Wextra -Werror -Wpedantic -std=c++98 -g3 -I$(INCLUDES)
+CCFLAGS = -Wall -Wextra -Werror -Wpedantic -std=c++98 -I$(INCLUDES)
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -22,7 +22,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 client:
 	@rm -fr client
-	gcc client_dir/*.c -o "client" -g3
+	gcc others/client_ALT.c -o "client"
 	@echo "$(COLOR_GREEN)------------ MESSAGE: CLIENT READY ------------$(COLOR_RESET)"
 
 clean:
