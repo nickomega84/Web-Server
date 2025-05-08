@@ -4,14 +4,14 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
-#include "struct.hpp"
+#include "configStruct.hpp"
 
 class Config
 {
 	private:
 
 	public:
-	ServerConfig c;
+	configStruct c;
 	
 	Config(); //no deberíamos inicializar la clase sin un archivo de Configiguración. Pero este va a ser el de pruebas.
 	

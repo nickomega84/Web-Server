@@ -1,6 +1,6 @@
 #include "Config.hpp"
 
-/* Config::Config() //solo para pruebas //basado en default.conf
+Config::Config() //solo para pruebas //basado en default.conf
 {
     ::bzero(&c, sizeof(c));
 	c.numServs = 1;
@@ -16,40 +16,22 @@
 	LocationConfig def;
 	::bzero(&def, sizeof(LocationConfig));
 	def.location_name = "/";
-	def.location_root = "./"
-	def.getOn = TRUE;
-	def.postOn = TRUE;
-	def.deleteOn = TRUE;
-	c.locations.insert(def);
+	def.location_root = "./";
+	def.getOn = true;
+	def.postOn = true;
+	def.deleteOn = true;
+	c.locations.push_back(def);
 
-	LocationConfig cgi-bin;
-	::bzero(&cgi-bin, sizeof(LocationConfig));
-	def.location_name = "/cgi-bin";
-	def.location_root = "./"
-	def.index = calculator.py;
-	def.getOn = TRUE;
-	def.postOn = TRUE;
-	def.deleteOn = TRUE;
-	c.locations.insert(def);
-	c.locations.insert(cgi-bin);
-} */
-
-Config::Config() //multiple.conf
-{
-    ::bzero(&c, sizeof(c));
-	c.numServs =;
-    c.iter =;
-    c.server_name =;
-    c.host =;
-    c.port =;
-    c.root =;
-    c.index =;
-    c.body_size =;
-    c.errors[404] =;
-
-
+	LocationConfig cgi_bin;
+	::bzero(&cgi_bin, sizeof(LocationConfig));
+	def.location_name = "/cgi_bin";
+	def.location_root = "./";
+	// def.index = calculator.py;
+	def.getOn = true;
+	def.postOn = true;
+	def.deleteOn = true;
+	c.locations.push_back(cgi_bin);
 }
-
 
 Config::Config(std::string fileName)
 {

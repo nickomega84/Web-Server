@@ -2,9 +2,13 @@
 
 int	main()
 {
-	Server server(8080); //En sistemas Unix/Linux, los puertos "privilegiados" (0–1023) requieren permisos de administrador
 	try
 	{
+		Config config;
+
+		std::cout << "OLA" << std::endl;
+		
+		Server server(config.getServerConf()); //En sistemas Unix/Linux, los puertos "privilegiados" (0–1023) requieren permisos de administrador
 		server.setUpServer();
 	}
 	catch (const std::runtime_error &e)

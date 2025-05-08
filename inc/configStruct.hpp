@@ -38,13 +38,13 @@ struct LocationConfig
     std::map<std::string, std::string> extPath;// Mapeo extensión o path → ejecutable (usado en CGI, etc.)
 };
 
-typedef struct ServerConfig 
+typedef struct configStruct 
 {
     int         numServs;                      // Cantidad total de servidores (uso interno)
     int         iter;                          // Índice o iterador dentro de la lista de servidores (uso interno)
     std::string server_name;                   // Nombre del servidor (directiva server_name)
-    std::string host;                          // IP o hostname donde escucha
-    std::string port;                          // Puerto donde escucha
+    std::string host;                          // IP o hostname donde escucha, puede estar vacío para que escuche a cualquier dirección IP
+    std::string	port;                          // Puerto donde escucha
     std::string root;                          // Ruta raíz general del servidor
     std::string init_root;                     // Copia de la raíz original (antes de ser modificada)
     std::string activeDirectory;               // Directorio activo en uso (puede cambiar en ejecución)
@@ -55,8 +55,7 @@ typedef struct ServerConfig
     bool        post_allowed;                  // POST permitido a nivel global
     bool        delete_allowed;                // DELETE permitido a nivel global
     bool        autoindex;                     // Autoindex permitido a nivel global
+	std::map<int, std::string> errors;         // Mapeo de código de error HTTP a página personalizada
     std::vector<LocationConfig> locations;     // Lista de bloques location definidos
-    std::map<int, std::string> errors;         // Mapeo de código de error HTTP a página personalizada
 
-} ServerConfig;
-
+} configStruct;

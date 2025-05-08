@@ -1,38 +1,66 @@
 #include "Server.hpp"
 
-//SOCKADDR_IN // es una variante de sockaddr, hay que rellenarla para usarla en funciones como bind()
+//SOCKADDR_IN (sustituida por getaddrinfo)
+// es una variante de sockaddr, hay que rellenarla para usarla en funciones como bind()
 /* 	struct sockaddr_in {
 		sa_family_t    sin_family;   // communication domain in which the socket should be created. AF_INET for IPv4.
 		in_port_t      sin_port;     // Port (en orden de red) (most usual is 8080) //La frase "en orden de red" se refiere al formato específico en el que las direcciones IP y otros datos se organizan al ser transmitidos a través de una red. //El orden de red sigue el formato big-endian, lo que significa que el byte de mayor peso (el más significativo) se coloca primero, seguido del byte de menor peso. Este formato es independiente de la arquitectura del sistema y asegura que las direcciones IP y puertos sean interpretados correctamente por diferentes dispositivos de red, independientemente de su arquitectura interna.
 		struct in_addr sin_addr;     // Dirección IP (en orden de red) //If you’re a client and won’t be receiving incoming connections, you’ll usually just let the operating system pick any available port number by specifying port 0. If you’re a server, you’ll generally pick a specific number since clients will need to know a port number to connect to. //INADDR_ANY se usa cuando quieres que el socket se asocie con todas las direcciones IP disponibles en el host (tiene el valor 0x00000000) (poner 0 o INADDR_ANY es lo mismo) //ALTERNATIVA: servaddr.sin_addr.s_addr = htonl(2130706433); //2130706433 es la representación uint32t de 127.0.0.1 //127.0.0.1 es localhost, lo que significa que a este servidor solo se puede acceder desde el mismo ordenador
 		unsigned char  sin_zero[8];  // sin_zero: Un arreglo de 8 bytes usado para relleno, de modo que la estructura tenga el mismo tamaño que struct sockaddr (que es la estrcutura que bind() espera recibir). No se usa y debe llenarse con ceros.
 	};
-
 	struct in_addr {
 		in_addr_t s_addr;  // Dirección en formato binario (en orden de red)
 	}; */
+/* 	address.sin_family = AF_INET; //Un miembro dentro de una estructura no se puede inicializar en la lista de inicialización. Hay que inicializarlos en la función
+	address.sin_port = htons(c->c.port);
+	address.sin_addr.s_addr = INADDR_ANY;
+	bzero(&address.sin_zero, sizeof(address.sin_zero)); */
 //htons() toma un valor de tipo short (es decir, 16 bits) en el orden de bytes de la máquina local y lo convierte al orden de bytes de la red (big-endian).
-	
-Server::Server(): server_socket(-1)
-{
-	address.sin_family = AF_INET; //Un miembro dentro de una estructura no se puede inicializar en la lista de inicialización. Hay que inicializarlos en la función
-	address.sin_port = htons(PORT);
-	address.sin_addr.s_addr = INADDR_ANY;
-	bzero(&address.sin_zero, sizeof(address.sin_zero));
-}
 
-Server::Server(int port): server_socket(-1)
+//GETADDRINFO
+/* int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);
+node:
+    Nombre de dominio o dirección IP como string ("example.com" o "127.0.0.1").
+    Puede ser NULL si solo necesitas especificar un puerto para binding local.
+service:
+    Puerto como string ("80", "443", etc.).
+    Puede ser NULL si no se necesita especificar puerto.
+hints:
+    Puntero a una estructura addrinfo que especifica criterios de busqueda (puede ser NULL para usar valores por defecto).
+res:
+	Salida. getaddrinfo llena aquí una lista enlazada de estructuras addrinfo válidas.
+	Debes liberar res con freeaddrinfo(). void freeaddrinfo(struct addrinfo *res). Solo debes liberar res si getaddrinfo() ha tenido éxito.
+Devuelve un int que sera 0 si todo ha salido bien.
+
+struct addrinfo 
 {
-	address.sin_family = AF_INET;
-	address.sin_port = htons(port);
-	address.sin_addr.s_addr = INADDR_ANY;
-	bzero(&address.sin_zero, sizeof(address.sin_zero));
+	int              ai_flags; // AI_PASSIVE: si el nodo es NULL, el resultado apuntará a una dirección wildcard (como 0.0.0.0 para IPv4). se usa para crear servidores que acepten conexiones en todas sus IPs disponibles (AI_PASSIVE con NULL es lo más común para servidores) (Sin embargo, si quieres que el servidor solo acepte conexiones desde localhost: No uses AI_PASSIVE. Pasa "127.0.0.1" como nodo (host)). Otra opción de ai_flags (puede tener varias flags a la vez) es AI_CANONNAME: solicita que se llene ai_canonname con el nombre canónico.
+	int              ai_family; // AF_INET for IPv4. Communication domain in which the socket should be created.
+	int              ai_socktype; // Tipo de socket: SOCK_STREAM -> TCP
+	int              ai_protocol; // Protocolo específico: 0 -> cualquiera compatible
+	size_t           ai_addrlen; // Tamaño en bytes de la estructura apuntada por ai_addr.
+	struct sockaddr *ai_addr; // Puntero genérico a una estructura sockaddr que contiene: la dirección IP y el puerto // Es necesaria para usar las funciones bind() y connect() // Se puede castear a sockaddr_in. Ejem: struct sockaddr_in *ipv4 = (struct sockaddr_in *)ai_addr;
+	char            *ai_canonname; // Si se pidió AI_CANONNAME, este campo apunta al nombre canónico del host. Si no, puede ser NULL. // El noombre canónico permite identificar de forma única el servidor en la red a través de DNS // DNS (Domain Name System) es el sistema que traduce los nombres de dominio (como www.ejemplo.com) a direcciones IP numéricas (como 192.168.1.1)
+	struct addrinfo *ai_next; // Apunta al siguiente nodo de una lista enlazada de resultados. La función getadrrinfo puede devolver una o más estructuras tipo addrinfo. Cada estructura addrinfo representa una combinación válida de familia, tipo de socket y dirección. Hay varios motivos por los que getaddrinfo podría devolver más de una estrcutura. Por ejemplo: cuando node (el nobre del host o la dirección IP) es NULL y usamos AI_PASSIVE en ai_flags para poder conectarnos con cualquier IP, nos puede dar varias estrcuturas addrinfo, una por cada IP
+}; */
+	
+Server::Server(const Config* conf): c(conf), output(NULL), listen_socket(-1)
+{
+	struct addrinfo input;
+	::bzero(&input, sizeof(input));
+	input.ai_flags = AI_PASSIVE;
+	input.ai_family = AF_INET;
+	input.ai_socktype = SOCK_STREAM;
+	if (getaddrinfo(c->c.host.c_str(), c->c.port.c_str(), &input, &output))
+		throw std::runtime_error("Error at getaddrinfo");
 }
 
 Server::~Server()
 {
-	if (server_socket > 0)
-		close(server_socket);
+	if (output)
+		freeaddrinfo(output);
+	if (listen_socket >= 0)
+		close(listen_socket);
 	for (std::vector<int>::iterator it = client_sockets.begin(); it != client_sockets.end(); it++)
 		close(*it);
 	client_sockets.clear();
@@ -64,11 +92,11 @@ backlog: el número máximo de connectiones pendientes que el sistema puede mant
 
 void Server::setUpServer()
 {
-	if ((server_socket = ::socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, 0)) < 0) //output.ai_family = AF_INET (IPv4); output.ai_flags = SOCK_STREAM (TCP) 
 		throw std::runtime_error("Error creating server socket");
-	if (::bind(server_socket, (struct sockaddr *)&address, sizeof(address)) < 0)
-		throw std::runtime_error("Error binding server_socket");
-	if (::listen(server_socket, MAX_CONN) < 0)
+	if (::bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0) //ai_addrlen guarda el tamaño de ai_addr sin importar si es sockaddr o una de sus variantes sockaddr_in (para IPv4), etc...
+		throw std::runtime_error("Error binding listen_socket");
+	if (::listen(listen_socket, MAX_CONN) < 0)
 		throw std::runtime_error("Error in listen()");
 	Server::epoll();
 }
@@ -107,14 +135,13 @@ Devuelve -1 si ocurre un error y establece errno.
 
 void Server::epoll()
 {	
-	/* const char *outputMsg = "OLA DESDE EL SERVER"; */
 	bool sendMsg = false;
 	
 	int epollfd = epoll_create(1);
     if (epollfd < 0)
 		throw std::runtime_error("Error on epoll_create");
 
-	epoll_ctl_call(epollfd, server_socket, EPOLLIN); // agregamos el socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en server_socket
+	epoll_ctl_call(epollfd, listen_socket, EPOLLIN); // agregamos el socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en listen_socket
 
 	std::cout << "WAITING FOR CONNECTIONS:" << std::endl << std::endl;
 	struct epoll_event events[MAX_EVENTS]; // epoll wait escribe aqui cuando recibe eventos de los sockets que está rastreando. Si el número de eventos recibido sobrepasa MAX_EVENTS, recibira los sobrantes en la siguiente llamada a epoll_wait()
@@ -126,9 +153,9 @@ void Server::epoll()
 
         for (int i = 0; i < event_nmb; i++)
 		{
-			if (events[i].data.fd == server_socket) // si registramos una lectura en server_socket, tenemos una nueva conexión
+			if (events[i].data.fd == listen_socket) // si registramos una lectura en listen_socket, tenemos una nueva conexión
 			{
-				int client_socket = accept_connection(server_socket);
+				int client_socket = accept_connection(listen_socket);
 				epoll_ctl_call(epollfd, client_socket, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP); // los sockets de los clientes deberan estar atentos a leer y escribir (de acuerdo al subject) // si un mismo socket de cliente recibe varios eventos a la vez, se acumulan todos en epoll_event.events
             }
 			else // el evento no es una nueva conexión
@@ -150,7 +177,7 @@ void Server::epoll()
 				}
 				if (events[i].events & EPOLLOUT && sendMsg)
 				{
-					send_data("OLA DESDE EL SERVER", events[i].data.fd);
+					send_data("HOLA DESDE EL SERVER", events[i].data.fd);
 					sendMsg = false;
 				}
 			}
@@ -195,7 +222,7 @@ void	Server::epoll_ctl_call(int epollfd, int socket, uint32_t events)
 {
 	struct epoll_event event_struct;
 
-	event_struct.events = events; // agregamos el socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en server_socket
+	event_struct.events = events; // agregamos el socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en listen_socket
 	event_struct.data.fd = socket;
 	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, socket, &event_struct) < 0)
 		throw std::runtime_error("Error on epoll_ctl");
@@ -208,11 +235,11 @@ sockfd: El descriptor de archivo del socket de escucha.
 addr: Un puntero a una estructura sockaddr. Utilizado para almacenar la información sobre la dirección del cliente que se conecta. En este caso no nos interesa guardar esa información, así que ponemos NULL.
 addrlen: El tamaño de la estructura sockaddr que está siendo pasada. Inicialmente, este valor debe ser el tamaño de la estructura que se espera, y después de la llamada a accept, contendrá el tamaño real de la dirección del cliente. */
 
-int Server::accept_connection(int server_socket)
+int Server::accept_connection(int listen_socket)
 {
 	int client_socket = -1;
 
-	if ((client_socket = ::accept(server_socket, NULL, NULL)) < 0)
+	if ((client_socket = ::accept(listen_socket, NULL, NULL)) < 0)
 		throw std::runtime_error("Error accepting incoming connection");
 	client_sockets.push_back(client_socket);
 	std::cout << "New connection accepted() fd = " << client_socket << std::endl;
