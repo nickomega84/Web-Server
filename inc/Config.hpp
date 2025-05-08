@@ -21,5 +21,6 @@ class Config
 	Config& operator=(const Config& other);
 	~Config();
 
+	void	Read(std::string fileName);
 	const	Config* getServerConf() const;
 };

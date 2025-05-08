@@ -57,6 +57,7 @@ Server::Server(const Config* conf): c(conf), output(NULL), listen_socket(-1)
 
 Server::~Server()
 {
+	delete c;
 	if (output)
 		freeaddrinfo(output);
 	if (listen_socket >= 0)

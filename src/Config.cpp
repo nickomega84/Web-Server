@@ -105,9 +105,7 @@ void Config::Read(std::string fileName)
 
 const Config* Config::getServerConf() const
 {
-	std::cout << "OLA" << std::endl;
 	Config* other = new Config(*this);
-	std::cout << "OLA" << std::endl;
 	return (other);
 }
 
@@ -115,31 +113,17 @@ void Config::initConfigStruct(configStruct &st)
 {
 	st.numServs = 0;
     st.iter = 0;
-    st.server_name;
-    st.host;
-    st.port;
-    st.root	
-    st.init_root	
-    st.activeDirectory;
-    st.user	
-    st.index;
     st.body_size = 0;
     st.get_allowed = false;
     st.post_allowed = false;
     st.delete_allowed = false;
     st.autoindex = false;
-	st.locations;
-    st.errors;
 }
 
 void Config::initLocationConfig(locationConfig &st)
 {
-	st.location_name;
-	st.location_root;
-	st.index;	
 	st.autoindex = false;
 	st.getOn = false;	
 	st.postOn = false;	
 	st.deleteOn = false;
-	st.extPath;	
 }

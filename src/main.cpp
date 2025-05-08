@@ -7,8 +7,7 @@ int	main()
 	try
 	{
 		Config config;
-		const Config* configPtr = config.getServerConf();
-		Server server(configPtr);
+		Server server(config.getServerConf());
 		server.setUpServer();
 	}
 	catch (const std::runtime_error &e)
