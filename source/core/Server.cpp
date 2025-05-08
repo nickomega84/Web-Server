@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "../../include/core/Server.hpp"
 
 //SOCKADDR_IN // es una variante de sockaddr, hay que rellenarla para usarla en funciones como bind()
 /* 	struct sockaddr_in {
