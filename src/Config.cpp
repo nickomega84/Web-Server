@@ -103,12 +103,6 @@ void Config::Read(std::string fileName)
 
 }
 
-Config::Read(fileName)
-{
-	
-
-}
-
 const Config* Config::getServerConf() const
 {
 	std::cout << "OLA" << std::endl;
