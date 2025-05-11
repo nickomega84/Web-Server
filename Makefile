@@ -6,7 +6,7 @@ NAME        := webserv
 CXX         := c++
 CXXFLAGS    := -Wall -Wextra -Werror -std=c++98 -MMD -MP -Iinclude
 
-SRC_DIR     := sources
+SRC_DIR     := source
 OBJ_DIR     := obj
 INC_DIR     := include
 
@@ -36,13 +36,13 @@ DEPS        := $(OBJS:.o=.d)
 # 			exit 1; \
 # 		fi \
 # 	done
-# @echo "✅ Estructura verificada."
+# 	@echo "✅ Estructura verificada."
 
 # **************************************************************************** #
 #                                   RULES                                     #
 # **************************************************************************** #
 
-all: $(NAME)
+all: check_structure $(NAME)
 
 $(NAME): $(OBJS)
 	@echo "🔧 Linking $(NAME)..."

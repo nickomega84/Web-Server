@@ -53,18 +53,18 @@ Config::Config() //multiple.conf
 	def.getOn = 0;
 	def.postOn = 0;
 	def.deleteOn = 0;
-	c.locations.insert(def);
+	// c.locations.insert(def);
 
-	LocationConfig cgi-bin;
-	::bzero(&cgi-bin, sizeof(LocationConfig));
-	def.location_name = "/cgi-bin";
-	def.location_root = "./";
-	def.index = calculator.py;
-	def.getOn = 0;
-	def.postOn = 0;
-	def.deleteOn = 0;
-	c.locations.insert(def);
-	c.locations.insert(cgi-bin);
+	// LocationConfig cgi-bin;
+	// ::bzero(&cgi-bin, sizeof(LocationConfig));
+	// def.location_name = "/cgi-bin";
+	// def.location_root = "./";
+	// def.index = calculator.py;
+	// def.getOn = 0;
+	// def.postOn = 0;
+	// def.deleteOn = 0;
+	// c.locations.insert(def);
+	// c.locations.insert(cgi-bin);
 
 
 }

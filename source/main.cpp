@@ -1,4 +1,3 @@
-
 #include "../include/core/Server.hpp"
 
 int	main()
