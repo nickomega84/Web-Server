@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "../include/core/Server.hpp"
 
 //SOCKADDR_IN // es una variante de sockaddr, hay que rellenarla para usarla en funciones como bind()
 /* 	struct sockaddr_in {
@@ -150,7 +150,6 @@ void Server::epoll()
 				}
 				if (events[i].events & EPOLLOUT && sendMsg)
 				{
-					/* std::cout << "ENVIANDO COSITAS" << std::endl; */
 					send_data("OLA DESDE EL SERVER", events[i].data.fd);
 					sendMsg = false;
 				}

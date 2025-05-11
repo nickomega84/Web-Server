@@ -1,3 +1,4 @@
 /obj
 webserv
 client
+*.conf
