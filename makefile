@@ -1,10 +1,10 @@
 NAME = webserv
 CC = c++
-CCFLAGS = -Wall -Wextra -Werror -Wpedantic -std=c++98 -I$(INCLUDES)
+CCFLAGS = -Wall -Wextra -Werror -Wpedantic -std=c++98 -I$(INC_DIR)
 
-SRC_DIR = src
+SRC_DIR = sources
 OBJ_DIR = obj
-INCLUDES = inc
+INC_DIR = include
 
 SRC = $(wildcard $(SRC_DIR)/*.cpp)
 OBJ = $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
