@@ -23,6 +23,7 @@ class Server
 	const Config* c;
 	struct addrinfo *output;
 	int	listen_socket;
+	int epollfd;
 	std::vector<int> client_sockets;
 
 	Server(const Server& other);

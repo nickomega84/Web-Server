@@ -5,7 +5,7 @@
 /* 	struct sockaddr_in {
 		sa_family_t    sin_family;   // communication domain in which the socket should be created. AF_INET for IPv4.
 		in_port_t      sin_port;     // Port (en orden de red) (most usual is 8080) //La frase "en orden de red" se refiere al formato específico en el que las direcciones IP y otros datos se organizan al ser transmitidos a través de una red. //El orden de red sigue el formato big-endian, lo que significa que el byte de mayor peso (el más significativo) se coloca primero, seguido del byte de menor peso. Este formato es independiente de la arquitectura del sistema y asegura que las direcciones IP y puertos sean interpretados correctamente por diferentes dispositivos de red, independientemente de su arquitectura interna.
-		struct in_addr sin_addr;     // Dirección IP (en orden de red) //If you’re a client and won’t be receiving incoming connections, you’ll usually just let the operating system pick any available port number by specifying port 0. If you’re a server, you’ll generally pick a specific number since clients will need to know a port number to connect to. //INADDR_ANY se usa cuando quieres que el socket se asocie con todas las direcciones IP disponibles en el host (tiene el valor 0x00000000) (poner 0 o INADDR_ANY es lo mismo) //ALTERNATIVA: servaddr.sin_addr.s_addr = htonl(2130706433); //2130706433 es la representación uint32t de 127.0.0.1 //127.0.0.1 es localhost, lo que significa que a este servidor solo se puede acceder desde el mismo ordenador
+		struct in_addr sin_addr;     // Dirección IP (en orden de red) //If you’re a client and won’t be receiving incoming connections, you’ll usually just let the operating system pick any available port number by specifying port 0. If you’re a server, you’ll generally pick a specific number since clients will need to know a port number to connect to. //INADDR_ANY se usa cuando quieres que el socket se asocie con todas las direcciones IP disponibles en el host (tiene el valor 0x00000000) (poner 0 o INADDR_ANY es lo mismo. el comportamiento de la opción varia en función de si la usamos en un cliente o servidor) //ALTERNATIVA: servaddr.sin_addr.s_addr = htonl(2130706433); //2130706433 es la representación uint32t de 127.0.0.1 //127.0.0.1 es localhost, lo que significa que a este servidor solo se puede acceder desde el mismo ordenador
 		unsigned char  sin_zero[8];  // sin_zero: Un arreglo de 8 bytes usado para relleno, de modo que la estructura tenga el mismo tamaño que struct sockaddr (que es la estrcutura que bind() espera recibir). No se usa y debe llenarse con ceros.
 	};
 	struct in_addr {
@@ -44,14 +44,14 @@ struct addrinfo
 	struct addrinfo *ai_next; // Apunta al siguiente nodo de una lista enlazada de resultados. La función getadrrinfo puede devolver una o más estructuras tipo addrinfo. Cada estructura addrinfo representa una combinación válida de familia, tipo de socket y dirección. Hay varios motivos por los que getaddrinfo podría devolver más de una estrcutura. Por ejemplo: cuando node (el nobre del host o la dirección IP) es NULL y usamos AI_PASSIVE en ai_flags para poder conectarnos con cualquier IP, nos puede dar varias estrcuturas addrinfo, una por cada IP
 }; */
 	
-Server::Server(const Config* conf): c(conf), output(NULL), listen_socket(-1)
+Server::Server(const Config* conf): c(conf), output(NULL), listen_socket(-1), epollfd(-1)
 {
 	struct addrinfo input;
 	::bzero(&input, sizeof(input));
 	input.ai_flags = AI_PASSIVE;
 	input.ai_family = AF_INET;
 	input.ai_socktype = SOCK_STREAM;
-	if (getaddrinfo(c->c.host.c_str(), c->c.port.c_str(), &input, &output))
+	if (getaddrinfo(c->c.host.c_str(), c->c.port.c_str(), &input, &output)) //no nos dejan usar inet_pton(), para convertir una IP en forma x.x.x.x a un unsigned short, que es lo que espera recibir htons(). getaddrinfo() hace el trabajo automáticamente aunque sea un poco engorrosa de usar.
 		throw std::runtime_error("Error at getaddrinfo");
 }
 
@@ -62,6 +62,8 @@ Server::~Server()
 		freeaddrinfo(output);
 	if (listen_socket >= 0)
 		close(listen_socket);
+	if (epollfd >= 0)
+		close(epollfd);
 	for (std::vector<int>::iterator it = client_sockets.begin(); it != client_sockets.end(); it++)
 		close(*it);
 	client_sockets.clear();
@@ -77,6 +79,14 @@ Server::~Server()
 - protocol (0): Este argumento especifica el protocolo a usar. Habitualmente, se pone 0 para que el sistema elija el protocolo adecuado en función del tipo de socket.
     Si se utilizan AF_INET y SOCK_STREAM, el protocolo seleccionado automáticamente será TCP.
 El valor de retorno de la función socket es el descriptor de archivo del socket, o -1 si ocurre un error */
+
+//SETSOCKOPT
+/* int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
+sockfd: descriptor del socket.
+level: nivel del protocolo. setsockopt() puede modificar opciones que pertenecen a distintos niveles de la pila de red. SOL_SOCKET: opciones generales del socket. IPPROTO_TCP: opciones específicas de TCP. IPPROTO_IP: opciones del protocolo IP. La pila de red es una serie de capas de software que gestionan las comunicaciones de red en un sistema. Las capas están organizadas de acuerdo al modelo TCP/IP. 1. Capa de aplicación, navegadores, mails... Protocolo HTTP. 2. Capa de transporte. Comunica aplicaciones entre distintos dispositivos. Usa puertos para distingir entre los sevicios de un mismo host. Protocolo TCP. 3. Capa de internet. Se encarga de gestionar paquetes de datos entre redes interconectadas. Protocolo IP. 4. Capa de enlace de datos. Gestiona los paquetes de datos en una red local. Procolos: WIFI, Ethernet
+optname: opción a configurar. SO_REUSEADDR Permite volver a bindear un puerto que está en TIME_WAIT. TIME_WAIT es un estado del protocolo TCP que ocurre cuando un socket activo cierra la conexión. Asegura que los paquetes tardíos no sean confundidos con una nueva conexión. TCP mantiene el socket en TIME_WAIT por un tiempo. típicamente 2 minutos 
+optval: puntero al valor de la opción. Varia dependiendo de la opción. En el caso de SO_REUSEADDR es 1 para activar la opción o 0 para desactivarla.
+optlen: tamaño del valor optval. */
 
 //BIND
 /* int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
@@ -95,6 +105,9 @@ void Server::setUpServer()
 {
 	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, 0)) < 0) //output.ai_family = AF_INET (IPv4); output.ai_flags = SOCK_STREAM (TCP) 
 		throw std::runtime_error("Error creating server socket");
+	int opt = 1;
+	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) 
+		throw std::runtime_error("Error calling setsockopt()")
 	if (::bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0) //ai_addrlen guarda el tamaño de ai_addr sin importar si es sockaddr o una de sus variantes sockaddr_in (para IPv4), etc...
 		throw std::runtime_error("Error binding listen_socket");
 	if (::listen(listen_socket, MAX_CONN) < 0)
@@ -138,7 +151,7 @@ void Server::epoll()
 {	
 	bool sendMsg = false;
 	
-	int epollfd = epoll_create(1);
+	epollfd = epoll_create(1);
     if (epollfd < 0)
 		throw std::runtime_error("Error on epoll_create");
 
@@ -184,7 +197,6 @@ void Server::epoll()
 			}
 		}
     }
-	close(epollfd);
 }
 
 
