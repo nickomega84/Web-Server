@@ -2,24 +2,15 @@
 #define EPOLLSERVER_HPP
 
 #include "IServer.hpp"
-#include <vector>
-#include <map>
-#include <string>
+
 #include "../router/Router.hpp"
 #include "../../include/core/Response.hpp"
 #include "../../include/middleware/MiddlewareStack.hpp"
 #include "../middleware/AllowMethodMiddleware.hpp"
 #include "../middleware/IMiddleware.hpp"
+#include "../include/libraries.hpp"
 
 
-#include <sys/epoll.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <cerrno>
-#include <cstring>
-#include <iostream>
 
 class EpollServer : public IServer {
 public:
