@@ -43,7 +43,7 @@ Server::~Server()
 	delete c;
 	if (output)
 		freeaddrinfo(output);
-	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); it++)
+	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); ++it)
 	{
 		epoll_ctl(epollfd, EPOLL_CTL_DEL, *it, NULL); // No basta con cerrar el fd. Debes llamar a epoll_ctl con EPOLL_CTL_DEL antes de cerrar el descriptor. Si cierras el fd sin eliminarlo del epoll, el núcleo lo eliminará implícitamente, pero esto no es inmediato ni garantizado para todos los casos. Puede dejar entradas zombis en el epoll y provocar eventos inesperados o fugas de recursos si el fd se reutiliza rápidamente.
 		close(*it);
@@ -51,14 +51,13 @@ Server::~Server()
 	listen_sockets.clear();
 	if (epollfd >= 0)
 		close(epollfd);
-	for (std::vector<int>::iterator it = client_sockets.begin(); it != client_sockets.end(); it++)
+	for (std::vector<int>::iterator it = client_sockets.begin(); it != client_sockets.end(); ++it)
 	{
 		epoll_ctl(epollfd, EPOLL_CTL_DEL, *it, NULL);
 		close(*it);
 	}
 	client_sockets.clear();
 }
-
 
 //SOCKET
 /* int socket(int domain, int type, int protocol);
@@ -108,8 +107,8 @@ void Server::setUpListenSocket()
 	std::cout << "New listenSocket fd = " << listen_socket << std::endl;
 }
 
-/* 
-Epoll is an API (Application Programming Interface, es un puente entre aplicaciones). Monitors multiple file descriptors to see if I/O is possible on any of them.
+//EPOLL
+/* Epoll is an API (Application Programming Interface, es un puente entre aplicaciones). Monitors multiple file descriptors to see if I/O is possible on any of them.
 
     The central concept of the epoll API is the epoll instance, an  in-ker‐
     nel data structure which, can be considered as a container for two lists:
@@ -150,8 +149,9 @@ void Server::setUpEpoll()
 
 	if (listen_sockets.empty()) // si no tenemos listen sockets no podemos usar epoll()
 		throw std::runtime_error("No listen_sockets for epoll");
-	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); it++)	
-		epoll_ctl_call(epollfd, *it, EPOLLIN); // agregamos los socketes del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en los listen_socket
+	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); ++it)
+		if (epoll_ctl_call(epollfd, *it, EPOLLIN)) // agregamos los socketes del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en los listen_socket
+			close_socket(*it, listen_sockets);
 
 	std::cout << "WAITING FOR CONNECTIONS:" << std::endl << std::endl;
 	struct epoll_event events[MAX_EVENTS]; // epoll wait escribe aqui cuando recibe eventos de los sockets que está rastreando. Si el número de eventos recibido sobrepasa MAX_EVENTS, recibira los sobrantes en la siguiente llamada a epoll_wait()
@@ -160,41 +160,47 @@ void Server::setUpEpoll()
         int event_nmb = epoll_wait(epollfd, events, MAX_EVENTS, -1);
 		if (event_nmb == -1)
 			throw std::runtime_error("Error on epoll_wait()");
-
         for (int i = 0; i < event_nmb; i++)
 		{
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), events[i].data.fd) != listen_sockets.end()) // si registramos una lectura en uno de los listen_socket, tenemos una nueva conexión
 			{
 				int client_socket = accept_connection(events[i].data.fd);
-				epoll_ctl_call(epollfd, client_socket, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP); // los sockets de los clientes deberan estar atentos a leer y escribir (de acuerdo al subject) // si un mismo socket de cliente recibe varios eventos a la vez, se acumulan todos en epoll_event.events
+				if (client_socket < 0)
+					close_socket(events[i].data.fd, listen_sockets);
+				if (epoll_ctl_call(epollfd, client_socket, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP)) // los sockets de los clientes deberan estar atentos a leer y escribir (de acuerdo al subject) // si un mismo socket de cliente recibe varios eventos a la vez, se acumulan todos en epoll_event.events
+					close_socket(events[i].data.fd, client_sockets);
 			}
-			else // el evento no es una nueva conexión
+			else if (events[i].events & EPOLLERR || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
 			{
-				if (events[i].events & EPOLLERR || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
+				close_socket(events[i].data.fd, client_sockets);
+				continue;
+			}
+			else if (events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
+			{
+				close_socket(events[i].data.fd, client_sockets);
+				continue;
+			}
+			else if (events[i].events & EPOLLIN) // .events es un uint32_t, & es el operador: bitwise AND, la condición sera verdad si los bits que corresponden al valor de EPOLLIN están activos
+			{
+				if (recv_data(events[i].data.fd) <= 0)
 				{
-					close_client_socket(events[i].data.fd, "Something went wrong in client_socket: ");
+					close_socket(events[i].data.fd, client_sockets);
 					continue;
 				}
-				if (events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
+				sendMsg = true;
+			}
+			else if (events[i].events & EPOLLOUT && sendMsg)
+			{
+				if (send_data("HOLA DESDE EL SERVER", events[i].data.fd) <= 0)
 				{
-					close_client_socket(events[i].data.fd, "Client hang up: ");
+					close_socket(events[i].data.fd, client_sockets);
 					continue;
 				}
-				if (events[i].events & EPOLLIN) // .events es un uint32_t, & es el operador: bitwise AND, la condición sera verdad si los bits que corresponden al valor de EPOLLIN están activos
-				{
-					recv_data(events[i].data.fd);
-					sendMsg = true;
-				}
-				if (events[i].events & EPOLLOUT && sendMsg)
-				{
-					send_data("HOLA DESDE EL SERVER", events[i].data.fd);
-					sendMsg = false;
-				}
+				sendMsg = false;
 			}
 		}
     }
 }
-
 
 /* int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);  // Añadir o modificar sockets
 - epfd: Descriptor de epoll creado con epoll_create1().
@@ -227,16 +233,16 @@ typedef union epoll_data {
 - u32 y u64: Puedes usarlos para almacenar datos enteros adicionales (por ejemplo, identificadores, flags, etc).
 */
 
-void	Server::epoll_ctl_call(int epollfd, int socket, uint32_t events)
+int	Server::epoll_ctl_call(int epollfd, int socket, uint32_t events)
 {
 	struct epoll_event event_struct;
 
 	event_struct.events = events; 
 	event_struct.data.fd = socket; // agregamos el socket (ya sea un listen_socket o un client_socket) a epoll, cada vez que haya una nueva conexión lo escucharemos en el socket
 	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, socket, &event_struct) < 0)
-		throw std::runtime_error("Error on epoll_ctl");
+		return (std::cerr << "Error on epoll_ctl, fd = " << socket << std::endl, 1);
+	return (0);
 }
-
 
 /* int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 Se usa en servidores para aceptar connectiones entrantes desde un cliente. Una vez que un cliente intenta conectarse al servidor, accept crea un nuevo socket para manejar la comunicación con ese cliente, dejando el socket original (el de escucha) disponible para aceptar otras conexiones.
@@ -249,12 +255,11 @@ int Server::accept_connection(int listen_socket)
 	int client_socket = -1;
 
 	if ((client_socket = ::accept(listen_socket, NULL, NULL)) < 0)
-		throw std::runtime_error("Error accepting incoming connection");
+		return (std::cerr << "Error on accepting incoming connection, fd = " << listen_socket << std::endl, client_socket);
 	client_sockets.push_back(client_socket);
 	std::cout << "New connection accepted() fd = " << client_socket << std::endl;
 	return (client_socket);
 }
-
 
 /* ssize_t recv(int socket, void *buffer, size_t length, int flags);
 - socket: Descriptor del socket desde el que se recibirán los datos.
@@ -262,20 +267,19 @@ int Server::accept_connection(int listen_socket)
 - length: Número máximo de bytes a recibir.
 - flags: Opciones para modificar el comportamiento de recv() (por ejemplo, MSG_WAITALL, MSG_PEEK*/
 
-std::string Server::recv_data(const int new_socket) const
+int Server::recv_data(const int socket) const
 {
 	char buffer[BUFFER_SIZE];
 
-	int bytes_read = ::recv(new_socket, buffer, sizeof(buffer), 0);
+	int bytes_read = ::recv(socket, buffer, sizeof(buffer), 0);
 	if (bytes_read < 0)
-		throw std::runtime_error("Error on recv");
+		return (std::cerr << "Error on recv, fd = " << socket << std::endl, bytes_read);
 	if (bytes_read == 0)
-		throw std::runtime_error("Error on recv: fd closed, connection lost");
+		return (std::cerr << "Error on recv: fd closed, connection lost, fd = " << socket << std::endl, bytes_read);
 	std::string input(buffer, bytes_read);
-	std::cout << "Message from fd " << new_socket << ": " << input << std::endl;  
-	return (input);
+	std::cout << "Message from fd " << socket << ": " << std::endl << std::endl << input << std::endl;  
+	return (bytes_read);
 }
-
 
 /* ssize_t send(int socket, const void *buffer, size_t length, int flags);
 - socket: Descriptor del socket a través del cual se enviarán los datos.
@@ -285,23 +289,24 @@ std::string Server::recv_data(const int new_socket) const
 Devuelve el número de bytes enviados si tiene éxito.
 Si hay un error, devuelve -1 y establece errno. */
 
-void Server::send_data(std::string message, const int new_socket) const
+int Server::send_data(std::string message, const int socket) const
 {
 	int bytes_sent;
-	bytes_sent = ::send(new_socket, message.c_str(), message.size(), 0);
+	bytes_sent = ::send(socket, message.c_str(), message.size(), 0);
 	if (bytes_sent < 0)
-		throw std::runtime_error("Error on send");
+		return (std::cerr << "Error on send, fd: " << socket << std::endl, bytes_sent);
 	if (bytes_sent == 0)
-		throw std::runtime_error("Error on send: fd closed, connection lost");
+		return (std::cerr << "Error on send, fd: " << socket << " closed, connection lost" << std::endl, bytes_sent);
+	return (bytes_sent);
 }
 
-
-// Cerramos el socket y lo eliminamos de la lista de sockets abiertos
-void Server::close_client_socket(const int fd, std::string message)
+// Cerramos el socket y lo eliminamos de la lista de sockets abiertos, especificamos si la lista es listen_sockets o client_sockets
+void Server::close_socket(const int socket, std::vector<int> container)
 {
-	std::cout << message << fd << ". Closing" << std::endl;
-	close(fd);
-	std::vector<int>::iterator it = std::find(client_sockets.begin(), client_sockets.end(), fd);
-	if (it != client_sockets.end())
-		client_sockets.erase(it);
+	epoll_ctl(epollfd, EPOLL_CTL_DEL, socket, NULL);
+	std::vector<int>::iterator it = std::find(container.begin(), container.end(), socket);
+	if (it != container.end())
+		container.erase(it);
+	close(socket);
+	std::cerr << socket << " closed" << std::endl << std::endl;
 }

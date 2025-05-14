@@ -2,6 +2,7 @@
 
 ### SERVIDOR
 Para usar el servidor usa make y ejecuta ./webserv.
+
 #### Inicializar el servidor:
 
 - La clase Server necesita ser instanciada con un puntero a una clase Config.

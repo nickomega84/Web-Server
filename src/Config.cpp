@@ -100,7 +100,6 @@ void Config::Read(std::string fileName)
 	std::string line;
 	while (std::getline(fileStream, line))
 		fileContent.push_back(line);
-
 }
 
 const Config* Config::getServerConf() const
