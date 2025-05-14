@@ -26,4 +26,5 @@ Para desplegar el cliente abre otro terminal y usa 'make client && ./client'. Se
 Para conectarte al servidor desde el navegador usa: http//localhost:8080
 
 ### TEORIA
-- La teoria del funcionamiento del server esta en src/Server.cpp
+
+La teoria del funcionamiento del server esta en src/Server.cpp
