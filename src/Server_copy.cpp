@@ -1,4 +1,4 @@
-#include "./include/Server.hpp"
+#include "Server_copy.hpp"
 
 //GETADDRINFO
 /* int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);
@@ -27,7 +27,7 @@ struct addrinfo
 	struct addrinfo *ai_next; // Apunta al siguiente nodo de una lista enlazada de resultados. La función getadrrinfo puede devolver una o más estructuras tipo addrinfo. Cada estructura addrinfo representa una combinación válida de familia, tipo de socket y dirección. Hay varios motivos por los que getaddrinfo podría devolver más de una estrcutura. Por ejemplo: cuando node (el nobre del host o la dirección IP) es NULL y usamos AI_PASSIVE en ai_flags para poder conectarnos con cualquier IP, nos puede dar varias estrcuturas addrinfo, una por cada IP
 }; */
 	
-Server::Server(const Config* conf): c(conf), output(NULL), listen_socket(-1), epollfd(-1)
+Server::Server(const Config* conf): c(conf), output(NULL), epollfd(-1)
 {
 	struct addrinfo input;
 	::bzero(&input, sizeof(input));
@@ -43,8 +43,9 @@ Server::~Server()
 	delete c;
 	if (output)
 		freeaddrinfo(output);
-	if (listen_socket >= 0)
-		close(listen_socket);
+	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); it++)
+		close(*it);
+	listen_sockets.clear();
 	if (epollfd >= 0)
 		close(epollfd);
 	for (std::vector<int>::iterator it = client_sockets.begin(); it != client_sockets.end(); it++)
@@ -84,18 +85,21 @@ listen() convierte un socket de servidor en un socket de escucha. Hace que el se
 sockfd: el descriptor de archivo del socket.
 backlog: el número máximo de connectiones pendientes que el sistema puede mantener en la cola para ser aceptadas por accept(). */
 
-void Server::setUpServer()
+void Server::setUpListenSocket()
 {
+	int listen_socket;
+
 	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, 0)) < 0) //output.ai_family = AF_INET (IPv4); output.ai_flags = SOCK_STREAM (TCP) 
 		throw std::runtime_error("Error creating server socket");
 	int opt = 1;
-	if (::setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) 
-		throw std::runtime_error("Error calling setsockopt()")
+	if (::setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) 
+		throw std::runtime_error("Error calling setsockopt()");
 	if (::bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0) //ai_addrlen guarda el tamaño de ai_addr sin importar si es sockaddr o una de sus variantes sockaddr_in (para IPv4), etc...
 		throw std::runtime_error("Error binding listen_socket");
 	if (::listen(listen_socket, MAX_CONN) < 0)
 		throw std::runtime_error("Error in listen()");
-	Server::epoll();
+	listen_sockets.push_back(listen_socket);
+	std::cout << "New listenSocket fd = " << listen_socket << std::endl;
 }
 
 /* 
@@ -130,7 +134,7 @@ Devuelve el número de descriptores de archivo listos (i.e. número de elementos
 Devuelve -1 si ocurre un error y establece errno.
 */
 
-void Server::epoll()
+void Server::setUpEpoll()
 {	
 	bool sendMsg = false;
 	
@@ -138,7 +142,10 @@ void Server::epoll()
     if (epollfd < 0)
 		throw std::runtime_error("Error on epoll_create");
 
-	epoll_ctl_call(epollfd, listen_socket, EPOLLIN); // agregamos el socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en listen_socket
+	if (listen_sockets.empty()) // si no tenemos listen sockets no podemos usar epoll()
+		throw std::runtime_error("No listen_sockets for epoll");
+	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); it++)	
+		epoll_ctl_call(epollfd, *it, EPOLLIN); // agregamos los socketes del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en los listen_socket
 
 	std::cout << "WAITING FOR CONNECTIONS:" << std::endl << std::endl;
 	struct epoll_event events[MAX_EVENTS]; // epoll wait escribe aqui cuando recibe eventos de los sockets que está rastreando. Si el número de eventos recibido sobrepasa MAX_EVENTS, recibira los sobrantes en la siguiente llamada a epoll_wait()
@@ -150,9 +157,9 @@ void Server::epoll()
 
         for (int i = 0; i < event_nmb; i++)
 		{
-			if (events[i].data.fd == listen_socket) // si registramos una lectura en listen_socket, tenemos una nueva conexión
+			if (std::find(listen_sockets.begin(), listen_sockets.end(), events[i].data.fd) != listen_sockets.end()) // si registramos una lectura en uno de los listen_socket, tenemos una nueva conexión
 			{
-				int client_socket = accept_connection(listen_socket);
+				int client_socket = accept_connection(events[i].data.fd);
 				epoll_ctl_call(epollfd, client_socket, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP); // los sockets de los clientes deberan estar atentos a leer y escribir (de acuerdo al subject) // si un mismo socket de cliente recibe varios eventos a la vez, se acumulan todos en epoll_event.events
             }
 			else // el evento no es una nueva conexión
@@ -214,19 +221,19 @@ typedef union epoll_data {
 - u32 y u64: Puedes usarlos para almacenar datos enteros adicionales (por ejemplo, identificadores, flags, etc).
 */
 
-void	Server::epoll_ctl_call(int epollfd, int socket, uint32_t events)
+void	Server::epoll_ctl_call(int epollfd, int listen_socket, uint32_t events)
 {
 	struct epoll_event event_struct;
 
 	event_struct.events = events; 
-	event_struct.data.fd = socket; // agregamos el socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en listen_socket
-	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, socket, &event_struct) < 0)
+	event_struct.data.fd = listen_socket; // agregamos el listen_socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en listen_socket
+	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_socket, &event_struct) < 0)
 		throw std::runtime_error("Error on epoll_ctl");
 }
 
 
 /* int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
-Se usa en servidores para aceptar connectiones entrantes desde un cliente. Una vez que un cliente intenta conectarse al servidor, accept crea un nuevo socket para manejar la comunicación con ese cliente, dejando el socket original (el de escucha) disponible para aceptar otras connectiones.
+Se usa en servidores para aceptar connectiones entrantes desde un cliente. Una vez que un cliente intenta conectarse al servidor, accept crea un nuevo socket para manejar la comunicación con ese cliente, dejando el socket original (el de escucha) disponible para aceptar otras conexiones.
 sockfd: El descriptor de archivo del socket de escucha.
 addr: Un puntero a una estructura sockaddr. Utilizado para almacenar la información sobre la dirección del cliente que se conecta. En este caso no nos interesa guardar esa información, así que ponemos NULL.
 addrlen: El tamaño de la estructura sockaddr que está siendo pasada. Inicialmente, este valor debe ser el tamaño de la estructura que se espera, y después de la llamada a accept, contendrá el tamaño real de la dirección del cliente. */

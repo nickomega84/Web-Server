@@ -81,7 +81,7 @@ void EpollServer::start() {
 
 			if (std::find(_listenSockets.begin(), _listenSockets.end(), fd) != _listenSockets.end()) {
 				acceptConnection(fd);
-			} else if (events[i].events & EPOLLIN) {
+			} else if (events[i].events & EPOLLIN) { //DANI: según el subject el tenemos que gestionar eventos de lectura y escritura a la vez 
 				handleClientRead(fd);
 			} else if (events[i].events & EPOLLOUT) {
 				handleClientWrite(fd);
@@ -121,7 +121,7 @@ void EpollServer::setupEpoll() {
 	}
 }
 
-void EpollServer::makeSocketNonBlocking(int fd) {
+void EpollServer::makeSocketNonBlocking(int fd) { // DANI: no podemos usarlo salvo que estemos en MAC
 	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags == -1) flags = 0;
 	fcntl(fd, F_SETFL, flags | O_NONBLOCK);

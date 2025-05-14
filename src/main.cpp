@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "Server_copy.hpp"
 
 //En sistemas Unix/Linux, los puertos "privilegiados" (0–1023) requieren permisos de administrador
 
@@ -8,7 +8,8 @@ int	main()
 	{
 		Config config;
 		Server server(config.getServerConf());
-		server.setUpServer();
+		server.setUpListenSocket();
+		server.setUpEpoll();
 	}
 	catch (const std::runtime_error &e)
 	{
