@@ -39,6 +39,6 @@ class Server
 	Server(const Config* conf);
 	~Server();
 
-	void		setUpListenSocket();
-	void		setUpEpoll();
+	void		setUpListenSocket(); //llamalo una vez por cada servidor que queramos desplegar
+	void		setUpEpoll(); //de acuerdo al subject solo deberiamos crear una instancia de epoll, llamalo cuando hayas inicializado todos los servidores
 };

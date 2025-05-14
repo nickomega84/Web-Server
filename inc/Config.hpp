@@ -11,11 +11,11 @@ class Config
 	private:
 	void	initConfigStruct(configStruct &other);
 	void	initLocationConfig(locationConfig &other);
+
 	public:
 	configStruct c;
 	
 	Config(); //no deberíamos inicializar la clase sin un archivo de Configiguración. Pero este va a ser el de pruebas.
-	
 	Config(const std::string fileName);
 	Config(const Config &other);
 	Config& operator=(const Config& other);
