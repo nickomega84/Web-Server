@@ -44,12 +44,18 @@ Server::~Server()
 	if (output)
 		freeaddrinfo(output);
 	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); it++)
+	{
+		epoll_ctl(epollfd, EPOLL_CTL_DEL, *it, NULL); // No basta con cerrar el fd. Debes llamar a epoll_ctl con EPOLL_CTL_DEL antes de cerrar el descriptor. Si cierras el fd sin eliminarlo del epoll, el núcleo lo eliminará implícitamente, pero esto no es inmediato ni garantizado para todos los casos. Puede dejar entradas zombis en el epoll y provocar eventos inesperados o fugas de recursos si el fd se reutiliza rápidamente.
 		close(*it);
+	}
 	listen_sockets.clear();
 	if (epollfd >= 0)
 		close(epollfd);
 	for (std::vector<int>::iterator it = client_sockets.begin(); it != client_sockets.end(); it++)
+	{
+		epoll_ctl(epollfd, EPOLL_CTL_DEL, *it, NULL);
 		close(*it);
+	}
 	client_sockets.clear();
 }
 
@@ -161,7 +167,7 @@ void Server::setUpEpoll()
 			{
 				int client_socket = accept_connection(events[i].data.fd);
 				epoll_ctl_call(epollfd, client_socket, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP); // los sockets de los clientes deberan estar atentos a leer y escribir (de acuerdo al subject) // si un mismo socket de cliente recibe varios eventos a la vez, se acumulan todos en epoll_event.events
-            }
+			}
 			else // el evento no es una nueva conexión
 			{
 				if (events[i].events & EPOLLERR || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
@@ -221,13 +227,13 @@ typedef union epoll_data {
 - u32 y u64: Puedes usarlos para almacenar datos enteros adicionales (por ejemplo, identificadores, flags, etc).
 */
 
-void	Server::epoll_ctl_call(int epollfd, int listen_socket, uint32_t events)
+void	Server::epoll_ctl_call(int epollfd, int socket, uint32_t events)
 {
 	struct epoll_event event_struct;
 
 	event_struct.events = events; 
-	event_struct.data.fd = listen_socket; // agregamos el listen_socket del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en listen_socket
-	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_socket, &event_struct) < 0)
+	event_struct.data.fd = socket; // agregamos el socket (ya sea un listen_socket o un client_socket) a epoll, cada vez que haya una nueva conexión lo escucharemos en el socket
+	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, socket, &event_struct) < 0)
 		throw std::runtime_error("Error on epoll_ctl");
 }
 

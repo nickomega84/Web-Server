@@ -130,7 +130,7 @@ void EpollServer::makeSocketNonBlocking(int fd) { // DANI: no podemos usarlo sal
 void EpollServer::acceptConnection(int listen_fd) {
 	struct sockaddr_in client_addr;
 	socklen_t client_len = sizeof(client_addr);
-	int client_fd = accept(listen_fd, (struct sockaddr*)&client_addr, &client_len);
+	int client_fd = accept(listen_fd, (struct sockaddr*)&client_addr, &client_len); //DANI: no se necesita usar el 2. y 3. argumentos si no guardamos la info del cliente
 	if (client_fd == -1) {
 		std::cerr << "accept() failed: " << strerror(errno) << std::endl;
 		return;
