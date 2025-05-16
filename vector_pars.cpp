@@ -22,7 +22,7 @@ std::vector<configStruct> parseConfig(const std::string& filename)
         if(line.find("server {") != std::string::npos) {
             servers.push_back(configStruct());
             current_server = &servers.back();
-            current_server = client_max_body_size = 1048576;
+            current_server = body_size = 1048576;
             current_location = nullptr;
         }
     }
