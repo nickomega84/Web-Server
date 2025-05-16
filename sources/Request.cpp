@@ -53,7 +53,6 @@ int Request::parse(const std::string& raw) {
 		ss << stream.rdbuf(); //.rdbuf() devuelve un puntero al buffer interno del flujo. Esto permite copiar todo el contenido restante de un flujo sin necesidad de leerlo línea por línea.
 		_body = ss.str(); //.str() devuelve el contenido almacenado dentro de un std::stringstream como una std::string
 	}
-
 	return 200;
 }
 
@@ -70,3 +69,4 @@ const std::string& Request::getHeader(const std::string& key) const {
 	return empty;
 }
 const std::string& Request::getBody() const { return _body; }
+

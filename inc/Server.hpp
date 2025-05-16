@@ -30,7 +30,7 @@ class Server
 	Server& operator=(const Server& other);
 
 	void	close_socket(const int fd, std::vector<int> container);
-	int		epoll_ctl_call(int epollfd, int socket, uint32_t event);
+	int		epoll_ctl_add(int epollfd, int socket, uint32_t event);
 	int		accept_connection(int listen_socket);
 	int		recv_data(const int new_socket) const;
 	int		send_data(std::string message, const int new_socket) const;
@@ -39,6 +39,6 @@ class Server
 	Server(const Config* conf);
 	~Server();
 
-	void	setUpListenSocket(); //llamalo una vez por cada servidor que queramos desplegar
+	int		setUpListenSocket(); //llamalo una vez por cada servidor que queramos desplegar
 	void	setUpEpoll(); //de acuerdo al subject solo deberiamos crear una instancia de epoll, llamalo cuando hayas inicializado todos los servidores
 };

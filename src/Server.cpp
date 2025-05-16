@@ -35,7 +35,7 @@ Server::Server(const Config* conf): c(conf), output(NULL), epollfd(-1)
 	input.ai_family = AF_INET;
 	input.ai_socktype = SOCK_STREAM;
 	if (getaddrinfo(c->c.host.c_str(), c->c.port.c_str(), &input, &output)) //no nos dejan usar inet_pton(), para convertir una IP en forma x.x.x.x a un unsigned short, que es lo que espera recibir htons(). getaddrinfo() hace el trabajo automáticamente aunque sea un poco engorrosa de usar.
-		throw std::runtime_error("Error at getaddrinfo");
+		throw std::runtime_error("Error at getaddrinfo"); // solo llamamos a throw() con los errores críticos. Osease: al desplegar la clase server y al desplegar epoll. El resto de las tareas, tanto la inicialización de los listenSocket como el establecimiento de conexiones con clientes, se realizan constantemente y están sujetas a factores externos sobre los que no tenemos control, su fallo no debería cerrar el servidor. Mejor que simplemente arrojen un mensaje de error.
 }
 
 Server::~Server()
@@ -90,21 +90,22 @@ listen() convierte un socket de servidor en un socket de escucha. Hace que el se
 sockfd: el descriptor de archivo del socket.
 backlog: el número máximo de connectiones pendientes que el sistema puede mantener en la cola para ser aceptadas por accept(). */
 
-void Server::setUpListenSocket()
+int Server::setUpListenSocket()
 {
 	int listen_socket;
 
 	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, 0)) < 0) //output.ai_family = AF_INET (IPv4); output.ai_flags = SOCK_STREAM (TCP) 
-		throw std::runtime_error("Error creating server socket");
+		return (std::cerr << "Error creating server socket" << std::endl, 500); //500 internal server error
 	int opt = 1;
 	if (::setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) 
-		throw std::runtime_error("Error calling setsockopt()");
+		return (std::cerr << "Error calling setsockopt()" << std::endl, 500);
 	if (::bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0) //ai_addrlen guarda el tamaño de ai_addr sin importar si es sockaddr o una de sus variantes sockaddr_in (para IPv4), etc...
-		throw std::runtime_error("Error binding listen_socket");
+		return (std::cerr << "Error binding listen_socket" << std::endl, 500);
 	if (::listen(listen_socket, MAX_CONN) < 0)
-		throw std::runtime_error("Error in listen()");
+		return (std::cerr << "Error in listen()" << std::endl, 500);
 	listen_sockets.push_back(listen_socket);
 	std::cout << "New listenSocket fd = " << listen_socket << std::endl;
+	return (0);
 }
 
 //EPOLL
@@ -148,10 +149,10 @@ void Server::setUpEpoll()
 		throw std::runtime_error("Error on epoll_create");
 
 	if (listen_sockets.empty()) // si no tenemos listen sockets no podemos usar epoll()
-		throw std::runtime_error("No listen_sockets for epoll");
+		throw std::runtime_error("No listen_sockets to add to to epoll");
 	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); ++it)
-		if (epoll_ctl_call(epollfd, *it, EPOLLIN)) // agregamos los socketes del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en los listen_socket
-			close_socket(*it, listen_sockets);
+		if (epoll_ctl_add(epollfd, *it, EPOLLIN)) // agregamos los socketes del servidor a epoll, cada vez que haya una nueva conexión lo escucharemos en los listen_socket
+			throw std::runtime_error("Couldn't add initial listen socket to epoll");
 
 	std::cout << "WAITING FOR CONNECTIONS:" << std::endl << std::endl;
 	struct epoll_event events[MAX_EVENTS]; // epoll wait escribe aqui cuando recibe eventos de los sockets que está rastreando. Si el número de eventos recibido sobrepasa MAX_EVENTS, recibira los sobrantes en la siguiente llamada a epoll_wait()
@@ -167,35 +168,23 @@ void Server::setUpEpoll()
 				int client_socket = accept_connection(events[i].data.fd);
 				if (client_socket < 0)
 					close_socket(events[i].data.fd, listen_sockets);
-				if (epoll_ctl_call(epollfd, client_socket, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP)) // los sockets de los clientes deberan estar atentos a leer y escribir (de acuerdo al subject) // si un mismo socket de cliente recibe varios eventos a la vez, se acumulan todos en epoll_event.events
+				if (epoll_ctl_add(epollfd, client_socket, EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP)) // los sockets de los clientes deberan estar atentos a leer y escribir (de acuerdo al subject) // si un mismo socket de cliente recibe varios eventos a la vez, se acumulan todos en epoll_event.events
 					close_socket(events[i].data.fd, client_sockets);
 			}
 			else if (events[i].events & EPOLLERR || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
-			{
 				close_socket(events[i].data.fd, client_sockets);
-				continue;
-			}
 			else if (events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT))) // !(events[i].events & (EPOLLIN | EPOLLOUT): si el fd ha generado eventos, pero ninguno de ellos es de lectura o escritura tenemos que cerrarlo
-			{
 				close_socket(events[i].data.fd, client_sockets);
-				continue;
-			}
 			else if (events[i].events & EPOLLIN) // .events es un uint32_t, & es el operador: bitwise AND, la condición sera verdad si los bits que corresponden al valor de EPOLLIN están activos
 			{
 				if (recv_data(events[i].data.fd) <= 0)
-				{
-					close_socket(events[i].data.fd, client_sockets);
-					continue;
-				}
+						close_socket(events[i].data.fd, client_sockets);
 				sendMsg = true;
 			}
 			else if (events[i].events & EPOLLOUT && sendMsg)
 			{
 				if (send_data("HOLA DESDE EL SERVER", events[i].data.fd) <= 0)
-				{
 					close_socket(events[i].data.fd, client_sockets);
-					continue;
-				}
 				sendMsg = false;
 			}
 		}
@@ -233,7 +222,7 @@ typedef union epoll_data {
 - u32 y u64: Puedes usarlos para almacenar datos enteros adicionales (por ejemplo, identificadores, flags, etc).
 */
 
-int	Server::epoll_ctl_call(int epollfd, int socket, uint32_t events)
+int	Server::epoll_ctl_add(int epollfd, int socket, uint32_t events)
 {
 	struct epoll_event event_struct;
 
@@ -303,10 +292,35 @@ int Server::send_data(std::string message, const int socket) const
 // Cerramos el socket y lo eliminamos de la lista de sockets abiertos, especificamos si la lista es listen_sockets o client_sockets
 void Server::close_socket(const int socket, std::vector<int> container)
 {
-	epoll_ctl(epollfd, EPOLL_CTL_DEL, socket, NULL);
+	epoll_ctl(epollfd, EPOLL_CTL_DEL, socket, NULL); //Si tu servidor es de larga ejecución y maneja muchas conexiones, es recomendable usar EPOLL_CTL_DEL antes de close(fd). Si es un programa corto, close(fd) es suficiente. close() elimina el fd inmediatamente del entorno del usuario, pero puede tardar más en eliminar los recursos asociados del fd en el kernel, llamar a EPOLL_CRL_DEL puede ahorrarnos problemas
 	std::vector<int>::iterator it = std::find(container.begin(), container.end(), socket);
 	if (it != container.end())
 		container.erase(it);
 	close(socket);
 	std::cerr << socket << " closed" << std::endl << std::endl;
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/epoll.h>
+#include <netinet/in.h>
+#include <openssl/sha.h>
+#include <ctype.h>
+
+#define PORT 8080
+#define MAX_EVENTS 10
+#define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+
+void compute_websocket_accept_key(const char *client_key, char *accept_key) {
+    char buffer[128];
+    unsigned char hash[SHA_DIGEST_LENGTH];
+
+    snprintf(buffer, sizeof(buffer), "%s%s", client_key, WS_GUID);
+    SHA1((unsigned char *)buffer, strlen(buffer), hash);
+
+    // Codificar en base64 (simplificado)
+    snprintf(accept_key, 128, "%02x%02x%02x%02x%02x", hash[0], hash[1], hash[2], hash[3], hash[4]);
 }
