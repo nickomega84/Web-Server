@@ -11,6 +11,7 @@
 #include <vector>
 #include <algorithm>
 #include "Config.hpp"
+#include "Request.hpp"
 
 #define PORT		8080 //80 (HTTP), 443 (HTTPS), 22 (SSH), 8080 (aplicaciones web) 
 #define MAX_CONN	16 //listen()

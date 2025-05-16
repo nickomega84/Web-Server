@@ -14,8 +14,10 @@ private:
 	std::map<std::string, std::string> _headers;
 	std::string _body;
 
+	Request(); // no queremos que Request sea instanciable sin argumentos de entrada
+
 public:
-	Request();
+	Request(const std::string raw);
 	Request(const Request& other);
 	Request& operator=(const Request& other);
 	~Request();

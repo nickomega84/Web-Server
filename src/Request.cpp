@@ -1,7 +1,14 @@
 #include "Request.hpp"
 
-Request::Request() {}
+Request::Request(const std::string raw) 
+{
+	parse(raw);
+	//aquí se deberían leer los códigos de error del parseo. No se parsea el _uri (Uniform Resource Identifier), el parseo del _uri se debería dar en la implantación de cada metodo.
+	std::cout << "REQUEST ha leído:" << std::endl << "_method = " << _method << std::endl << "_uri = " << _uri << std::endl << "; _version = " << _version << std::endl;
+}
+
 Request::Request(const Request& other) { *this = other; }
+
 Request& Request::operator=(const Request& other) {
 	if (this != &other) {
 		this->_method = other._method;
@@ -12,6 +19,7 @@ Request& Request::operator=(const Request& other) {
 	}
 	return *this;
 }
+
 Request::~Request() {}
 
 int Request::parse(const std::string& raw) {
@@ -26,9 +34,9 @@ int Request::parse(const std::string& raw) {
 		return (std::cerr << "Incorrect header on HTTP request" << std::endl, 500);
 
 	if (_method != "GET" && _method != "POST" && _method != "DELETE")
-		return (std::cerr << "Method Not Allowed: " << _method << std::endl, 405)
+		return (std::cerr << "Method Not Allowed: " << _method << std::endl, 405);
 	if (_version != "HTTP/1.1")
-		return (std::cerr << "HTTP Version Not Supported: " << _version << std::endl, 505)
+		return (std::cerr << "HTTP Version Not Supported: " << _version << std::endl, 505);
 
 	// Cabeceras
 	while (std::getline(stream, line) && line != "\r") { //sobre el uso de /r, cuando las solicitudes HTTP tiene cuerpo (POST), la cabecera de separa del cuerpo con una línea en blanco que solo contiene \r\n. getline() elimina el \n así que solo comprobamos el carriage return. \r\n es equivalente en Windows a \n en Unix. Por convención HTTP tambíen usa \r\n
@@ -42,9 +50,8 @@ int Request::parse(const std::string& raw) {
 				value.erase(value.length() - 1);
 			_headers[key] = value;
 		}
-
-		while (!value.empty() && value[0] == 32)
-			value.erase(0, 1); 
+			while (!value.empty() && value[0] == 32)
+				value.erase(0, 1); 
 	}
 
 	// Cuerpo (si existe)

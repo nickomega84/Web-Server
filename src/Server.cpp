@@ -266,7 +266,8 @@ int Server::recv_data(const int socket) const
 	if (bytes_read == 0)
 		return (std::cerr << "Error on recv: fd closed, connection lost, fd = " << socket << std::endl, bytes_read);
 	std::string input(buffer, bytes_read);
-	std::cout << "Message from fd " << socket << ": " << std::endl << std::endl << input << std::endl;  
+	std::cout << "Message from fd " << socket << ": " << std::endl << std::endl << input << std::endl;
+	Request httpRequest(input); //llamamos a la clase encargada de leer el HTTP
 	return (bytes_read);
 }
 
@@ -298,29 +299,4 @@ void Server::close_socket(const int socket, std::vector<int> container)
 		container.erase(it);
 	close(socket);
 	std::cerr << socket << " closed" << std::endl << std::endl;
-}
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <sys/epoll.h>
-#include <netinet/in.h>
-#include <openssl/sha.h>
-#include <ctype.h>
-
-#define PORT 8080
-#define MAX_EVENTS 10
-#define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-
-void compute_websocket_accept_key(const char *client_key, char *accept_key) {
-    char buffer[128];
-    unsigned char hash[SHA_DIGEST_LENGTH];
-
-    snprintf(buffer, sizeof(buffer), "%s%s", client_key, WS_GUID);
-    SHA1((unsigned char *)buffer, strlen(buffer), hash);
-
-    // Codificar en base64 (simplificado)
-    snprintf(accept_key, 128, "%02x%02x%02x%02x%02x", hash[0], hash[1], hash[2], hash[3], hash[4]);
 }
