@@ -5,16 +5,18 @@ MiddlewareStack::MiddlewareStack()
     std::cout << "MiddlewareStack constructor called" << std::endl;
 }
 
-MiddlewareStack::MiddlewareStack(const MiddlewareStack& other) : 
-    _middlewares(other._middlewares)
+MiddlewareStack::MiddlewareStack(const MiddlewareStack& other) 
 {
+    for (size_t i = 0; i < other._middlewares.size(); ++i) {
+		_middlewares.push_back(other._middlewares[i]->clone());
+	}
 	*this = other;
 }
 
 MiddlewareStack& MiddlewareStack::operator=(const MiddlewareStack &other) {
 	if (this != &other) 
     {
-		this->_middlewares = other._middlewares;
+		_middlewares = other._middlewares;
 	}
 	return (*this);
 }

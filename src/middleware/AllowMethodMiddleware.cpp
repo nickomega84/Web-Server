@@ -31,3 +31,8 @@ bool AllowMethodMiddleware::handle(const Request& req, Response& res)
 
 	return (true); // si no hay restricción, permitir
 }
+
+IMiddleware* AllowMethodMiddleware::clone() const 
+{
+	return new AllowMethodMiddleware(*this);
+}

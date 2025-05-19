@@ -78,7 +78,8 @@ Response StaticFileHandler::handleRequest(const Request& request) {
     // Comprobar si el archivo existe
     
 	std::string fullPath = _rootPath + uri;
-    
+    std::cout << "[DEBUG] Sirviendo archivo: " << fullPath << std::endl;
+
 	if (!fileExists(fullPath)) 
     {
         res.setStatus(404, "Not Found");

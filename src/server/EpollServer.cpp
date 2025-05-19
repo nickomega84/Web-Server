@@ -2,10 +2,20 @@
 #include "../../include/core/Request.hpp"
 #include "../../include/core/Response.hpp"
 #include "../../include/middleware/AllowMethodMiddleware.hpp"
+#include "../../include/middleware/CookieMiddleware.hpp"
+#include "../../include/middleware/MiddlewareStack.hpp"
 
-#include <algorithm>
 // --- Canonical Form ---
-EpollServer::EpollServer() : _epoll_fd(-1) {}
+EpollServer::EpollServer() : _epoll_fd(-1)
+{
+
+	initMiddleware();
+
+}
+//     MiddlewareStack stack;  // Create an instance
+// stack.add(new CookieMiddleware());
+// MiddlewareStack::add(new CookieMiddleware());
+
 
 EpollServer::EpollServer(const EpollServer& other) {
 	*this = other;
@@ -163,13 +173,15 @@ void EpollServer::handleClientRead(int client_fd) {
 		closeClient(client_fd);
 		return;
 	}
-
 	buffer[bytes] = '\0';
 	std::cout << "[READ " << client_fd << "] " << buffer << std::endl;
-
+    
 	Request req;
+    Response res;
 	if (!req.parse(buffer)) {
-		std::cerr << "[❌] Error al parsear la petición HTTP.\n";
+		res.setStatus(404, "Not Found");
+		res.setBody("<h1>400 Bad Request</h1>");
+		// sendResponse(client_fd, res); POR IMPLEMENTAR RESPONSE
 		closeClient(client_fd);
 		return;
 	}
@@ -178,7 +190,6 @@ void EpollServer::handleClientRead(int client_fd) {
 	std::cout << "Método: " << req.getMethod() << std::endl;
 	std::cout << "Ruta: " << req.getURI() << std::endl;
 
-	Response res;
 
 	// ✅ MIDDLEWARE CHECK
 	if (!_middleware.handle(req, res)) {
@@ -228,4 +239,9 @@ void EpollServer::closeClient(int client_fd) {
 
 void EpollServer::setMiddlewareStack(const MiddlewareStack& stack) {
 	this->_middleware = stack;
+}
+void EpollServer::initMiddleware() 
+{
+	_middleware.add(new CookieMiddleware());
+	_middleware.add(new AllowMethodMiddleware());
 }

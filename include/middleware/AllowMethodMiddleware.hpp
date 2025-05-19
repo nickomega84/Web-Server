@@ -12,7 +12,7 @@ class AllowMethodMiddleware : public IMiddleware
     public:
         void allow(const std::string& pathPrefix, const std::vector<std::string>& methods);
         bool handle(const Request& req, Response& res);
-        
+        virtual IMiddleware* clone() const;
 };
 
 #endif

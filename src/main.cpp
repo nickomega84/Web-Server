@@ -15,15 +15,15 @@ int main() {
 	server.setRouter(router);
 
 	// 🛡️ Middleware
-	MiddlewareStack middleware;
-	AllowMethodMiddleware* allow = new AllowMethodMiddleware();
+	// MiddlewareStack middleware;
+	// AllowMethodMiddleware* allow = new AllowMethodMiddleware();
 
-	allow->allow("/", std::vector<std::string>(1, "GET"));
-	allow->allow("/upload", std::vector<std::string>(1, "POST"));
-	allow->allow("/index.html", std::vector<std::string>(1, "DELETE"));
+	// allow->allow("/", std::vector<std::string>(1, "GET"));
+	// allow->allow("/upload", std::vector<std::string>(1, "POST"));
+	// allow->allow("/index.html", std::vector<std::string>(1, "DELETE"));
 
-	middleware.add(allow);
-	server.setMiddlewareStack(middleware);
+	// middleware.add(allow);
+	// server.setMiddlewareStack(middleware);
 
 	server.addListeningSocket(8080);
 	std::cout << "[🔁] Iniciando el servidor Epoll...\n";

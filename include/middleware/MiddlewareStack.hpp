@@ -7,7 +7,7 @@
 class MiddlewareStack 
 {
     private:
-	    std::vector<IMiddleware*> _middlewares;
+     std::vector<IMiddleware*> _middlewares; // Static declaration
 
     public:
         MiddlewareStack();

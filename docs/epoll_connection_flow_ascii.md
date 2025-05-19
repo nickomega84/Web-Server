@@ -13,5 +13,6 @@
                 |         |
     [ aceptar() + registrar en epoll ] 
                           |
-                          v
+                        ls
+                  v
                  [ Procesar conexión ]
