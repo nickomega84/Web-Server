@@ -210,6 +210,9 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> pendin
 		res.setHeader("Content-Length", oss.str());
 	}
 
+	std::string response = res.toString();
+	send(client_fd, response.c_str(), response.length(), 0);
+	/* closeClient(client_fd); */
 	pending_writes[client_fd] = res;
 	return (0);
 }
@@ -227,11 +230,11 @@ int Server::handleClientResponse(const int client_fd, std::map<int, Response> pe
 	response = provisional;
 	///
 
-	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+/* 	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
 	if (bytes_sent == 0)
 		return (std::cout << "[-] No data sent: " << client_fd << std::endl, 1);
 	if (bytes_sent < 0)
-		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
+		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1); */
 	pending_writes.erase(client_fd);
 	return (0);
 }
