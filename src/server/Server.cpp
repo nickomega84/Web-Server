@@ -180,20 +180,17 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		res.setStatus(404, "Not Found");
 		res.setBody("<h1>400 Bad Request</h1>");
 		pending_writes[client_fd] = res;
-		// sendResponse(client_fd, res); POR IMPLEMENTAR RESPONSE
-		return (1);
+		return (0);
 	}
 
 	std::cout << "AQUI ENTRA!!!" << std::endl;
 	std::cout << "Método: " << req.getMethod() << std::endl;
 	std::cout << "Ruta: " << req.getURI() << std::endl;
 
-
 	// ✅ MIDDLEWARE CHECK
 	if (!_middleware.handle(req, res)) {
-		std::string raw = res.toString();
-		send(client_fd, raw.c_str(), raw.length(), 0);
-		return(1);
+		pending_writes[client_fd] = res;
+		return(0);
 	}
 
 	// 🔁 ROUTER + HANDLER
