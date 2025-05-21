@@ -68,9 +68,7 @@ void Server::startEpoll()
 			break;
 		}
 		for (int i = 0; i < event_nmb; i++)
-		{
-			std::cout << "------ DEBUG events[i].data.fd = " << events[i].data.fd << std::endl;
-			
+		{			
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), events[i].data.fd) != listen_sockets.end())
 				accept_connection(events[i].data.fd, epollfd, client_fds);
 			else if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT)))
@@ -160,8 +158,6 @@ void Server::freeEpoll(int epollfd, std::vector<int> client_fds)
 int Server::handleClientRead(const int client_fd, std::map<int, Response> pending_writes) {
 	char buffer[BUFFER_SIZE];
 
-	std::cout << "READ handleClientRead, fd = " << client_fd << std::endl;
-
 	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes == 0)
 		return (std::cout << "[-] No data received: " << client_fd << std::endl, 1);
@@ -212,9 +208,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> pendin
 }
 
 int Server::handleClientResponse(const int client_fd, std::map<int, Response> pending_writes)
-{
-	std::cout << "RESPONSE handleClientResponse, fd = " << client_fd << std::endl;
-	
+{	
 	std::string response = pending_writes[client_fd].toString();
 
 	/// provisional
