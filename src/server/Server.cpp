@@ -36,13 +36,13 @@ int Server::addListeningSocket()
 	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, 0)) < 0)
 		return (std::cerr << "Error creating server socket" << std::endl, freeaddrinfo(output), 500);
 	int opt = 1;
-	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
 	if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
 		return (std::cerr << "Error calling setsockopt()" << std::endl, freeaddrinfo(output), 500);
 	if (bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0)
 		return (std::cerr << "Error binding listen_socket" << std::endl, freeaddrinfo(output), 500);
 	if (listen(listen_socket, MAX_CONN) < 0)
 		return (std::cerr << "Error in listen()" << std::endl, freeaddrinfo(output), 500);
+	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
 	listen_sockets.push_back(listen_socket);
 	std::cout << "New listenSocket fd = " << listen_socket << std::endl;
 	freeaddrinfo(output);
@@ -69,13 +69,15 @@ void Server::startEpoll()
 		}
 		for (int i = 0; i < event_nmb; i++)
 		{
+			std::cout << "------ DEBUG events[i].data.fd = " << events[i].data.fd << std::endl;
+			
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), events[i].data.fd) != listen_sockets.end())
 				accept_connection(events[i].data.fd, epollfd, client_fds);
 			else if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT)))
 				close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 			else if (events[i].events & EPOLLIN)
-			{
-				if (handleClientRead(events[i].events, pending_writes))
+			{				
+				if (handleClientRead(events[i].data.fd, pending_writes))
 					close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 				else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
 					close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
@@ -97,21 +99,17 @@ int Server::init_epoll()
 	int epollfd = epoll_create(1);
 	if (epollfd < 0)
 		return (std::cerr << "Error on epoll_create" << std::endl, -1);
-
 	if (listen_sockets.empty())
 		return (std::cerr << "No listen_sockets to add to epoll" << std::endl, -1);
 	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); ++it)
 		if (ft_epoll_ctl(*it, epollfd, EPOLL_CTL_ADD, EPOLLIN))
 			return (close(*it), std::cerr << "Couldn't add initial listen socket to epoll" << std::endl, -1);
-
-	std::cout << "WAITING FOR CONNECTIONS:" << std::endl << std::endl;
 	return (epollfd);
 }
 
 int	Server::ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events)
 {
 	struct epoll_event event_struct;
-
 	event_struct.events = events; 
 	event_struct.data.fd = fd;
 	if (epoll_ctl(epollfd, mod, fd, &event_struct) < 0)
@@ -141,7 +139,7 @@ void Server::close_fd(const int fd, int epollfd, std::vector<int> container, std
 		container.erase(it);
 	pending_writes.erase(fd);
 	close(fd);
-	std::cout << fd << " closed" << std::endl << std::endl;
+	std::cout << "client_fd: " << fd << " closed" << std::endl << std::endl;
 }
 
 void Server::freeEpoll(int epollfd, std::vector<int> client_fds)
@@ -161,8 +159,10 @@ void Server::freeEpoll(int epollfd, std::vector<int> client_fds)
 
 int Server::handleClientRead(const int client_fd, std::map<int, Response> pending_writes) {
 	char buffer[BUFFER_SIZE];
-	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 
+	std::cout << "READ handleClientRead, fd = " << client_fd << std::endl;
+
+	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes == 0)
 		return (std::cout << "[-] No data received: " << client_fd << std::endl, 1);
 	if (bytes < 0)
@@ -213,13 +213,25 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> pendin
 
 int Server::handleClientResponse(const int client_fd, std::map<int, Response> pending_writes)
 {
+	std::cout << "RESPONSE handleClientResponse, fd = " << client_fd << std::endl;
+	
 	std::string response = pending_writes[client_fd].toString();
+
+	/// provisional
+	std::string provisional("HTTP/1.1 200 OK\r\n"
+		/* "Content-Length: " + std::to_string(body.size()) + "\r\n" */
+		"Connection: keep-alive\r\n"
+		"Content-Type: text/plain\r\n\r\n" 
+		/* + body */);
+	response = provisional;
+	///
+
 	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
 	if (bytes_sent == 0)
 		return (std::cout << "[-] No data sent: " << client_fd << std::endl, 1);
 	if (bytes_sent < 0)
 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
-	pending_writes.erase(fd);
+	pending_writes.erase(client_fd);
 	return (0);
 }
 

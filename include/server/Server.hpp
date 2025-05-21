@@ -56,3 +56,5 @@ class Server
     void	setMiddlewareStack(const MiddlewareStack &stack);
     void    initMiddleware();
 };
+
+//python3 test_webserv_full.py
