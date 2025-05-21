@@ -179,6 +179,7 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 	if (!req.parse(buffer)) {
 		res.setStatus(404, "Not Found");
 		res.setBody("<h1>400 Bad Request</h1>");
+		pending_writes[client_fd] = res;
 		// sendResponse(client_fd, res); POR IMPLEMENTAR RESPONSE
 		return (1);
 	}
@@ -210,9 +211,7 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		res.setHeader("Content-Length", oss.str());
 	}
 
-	std::cout << "OLAOLA" << std::endl << std::endl;
 	pending_writes[client_fd] = res;
-	std::cout << "OLAOLA" << std::endl << std::endl;
 	return (0);
 }
 
