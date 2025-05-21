@@ -50,7 +50,7 @@ int Server::addListeningSocket()
 }
 
 void Server::startEpoll()
-{	
+{
 	int		epollfd;
 	std::vector<int>		client_fds;
 	std::map<int, Response> pending_writes;
@@ -68,7 +68,7 @@ void Server::startEpoll()
 			break;
 		}
 		for (int i = 0; i < event_nmb; i++)
-		{			
+		{
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), events[i].data.fd) != listen_sockets.end())
 				accept_connection(events[i].data.fd, epollfd, client_fds);
 			else if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT)))
@@ -76,7 +76,7 @@ void Server::startEpoll()
 			else
 			{
 				if (events[i].events & EPOLLIN)
-				{				
+				{
 					if (handleClientRead(events[i].data.fd, pending_writes))
 						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 					else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
@@ -112,7 +112,7 @@ int Server::init_epoll()
 int	Server::ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events)
 {
 	struct epoll_event event_struct;
-	event_struct.events = events; 
+	event_struct.events = events;
 	event_struct.data.fd = fd;
 	if (epoll_ctl(epollfd, mod, fd, &event_struct) < 0)
 		return (1);
@@ -122,13 +122,13 @@ int	Server::ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events)
 int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> client_fds)
 {
 	int client_fd;
-	
+
 	if ((client_fd = ::accept(listen_socket, NULL, NULL)) < 0)
 		return (std::cerr << "Error accepting incoming connection, fd = " << client_fd << std::endl, 1);
 
 	if (ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_ADD, EPOLLIN))
 		return (close(client_fd), std::cerr << "Error accepting incoming connection, fd = " << client_fd << std::endl, 1);
-	
+
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
 	client_fds.push_back(client_fd);
 	std::cout << "New connection accepted() fd = " << client_fd << std::endl;
@@ -170,10 +170,10 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> pendin
 		return (std::cout << "[-] No data received: " << client_fd << std::endl, 1);
 	if (bytes < 0)
 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
-	
+
 	buffer[bytes] = '\0';
 	std::cout << "[READ " << client_fd << "] " << buffer << std::endl;
-    
+
 	Request req;
     Response res;
 	if (!req.parse(buffer)) {
@@ -212,29 +212,30 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> pendin
 
 	std::string response = res.toString();
 	send(client_fd, response.c_str(), response.length(), 0);
-	/* closeClient(client_fd); */
 	pending_writes[client_fd] = res;
 	return (0);
 }
 
 int Server::handleClientResponse(const int client_fd, std::map<int, Response> pending_writes)
-{	
+{
 	std::string response = pending_writes[client_fd].toString();
 
-	/// provisional
-	std::string provisional("HTTP/1.1 200 OK\r\n"
-		/* "Content-Length: " + std::to_string(body.size()) + "\r\n" */
-		"Connection: keep-alive\r\n"
-		"Content-Type: text/plain\r\n\r\n" 
-		/* + body */);
-	response = provisional;
-	///
+	std::cout << "RESPONSE = " << response << std::endl;
 
-/* 	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+	// /// provisional
+	// std::string provisional("HTTP/1.1 200 OK\r\n"
+	// 	/* "Content-Length: " + std::to_string(body.size()) + "\r\n" */
+	// 	"Connection: keep-alive\r\n"
+	// 	"Content-Type: text/plain\r\n\r\n"
+	// 	/* + body */);
+	// response = provisional;
+	// ///
+
+	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
 	if (bytes_sent == 0)
 		return (std::cout << "[-] No data sent: " << client_fd << std::endl, 1);
 	if (bytes_sent < 0)
-		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1); */
+		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
 	pending_writes.erase(client_fd);
 	return (0);
 }
@@ -247,7 +248,7 @@ void Server::setMiddlewareStack(const MiddlewareStack& stack) {
 	this->_middleware = stack;
 }
 
-void Server::initMiddleware() 
+void Server::initMiddleware()
 {
 	_middleware.add(new CookieMiddleware());
 	_middleware.add(new AllowMethodMiddleware());
