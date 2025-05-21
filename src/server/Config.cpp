@@ -1,4 +1,4 @@
-#include "Config.hpp"
+#include "../../include/server/Config.hpp"
 
 Config::Config() //solo para pruebas //basado en default.conf
 {

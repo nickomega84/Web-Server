@@ -1,6 +1,4 @@
-#include "Server.hpp"
-
-#include "../../include/server/EpollServer.hpp"
+#include "../../include/server/Server.hpp"
 #include "../../include/core/Request.hpp"
 #include "../../include/core/Response.hpp"
 #include "../../include/middleware/AllowMethodMiddleware.hpp"
@@ -54,8 +52,8 @@ int Server::addListeningSocket()
 void Server::startEpoll()
 {	
 	int		epollfd;
-	std::vector<int> client_fds;
-	std::map<int, std::string> pending_writes;
+	std::vector<int>		client_fds;
+	std::map<int, Response> pending_writes;
 
 	if ((epollfd = init_epoll()) < 0)
 		return;
@@ -74,20 +72,20 @@ void Server::startEpoll()
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), events[i].data.fd) != listen_sockets.end())
 				accept_connection(events[i].data.fd, epollfd, client_fds);
 			else if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT)))
-				close_fd(events[i].data.fd, epollfd, client_fds);
+				close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 			else if (events[i].events & EPOLLIN)
 			{
 				if (handleClientRead(events[i].events, pending_writes))
-					close_fd(events[i].data.fd, epollfd, client_fds);
-				else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT));
-					close_fd(events[i].data.fd, epollfd, client_fds);
+					close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
+				else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
+					close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 			}
 			else if (events[i].events & EPOLLOUT)
 			{
-				if (handleClientResponse(events[i].data.fd))
-					close_fd(events[i].data.fd, epollfd, client_fds);
-				else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLIN));
-					close_fd(events[i].data.fd, epollfd, client_fds);
+				if (handleClientResponse(events[i].data.fd, pending_writes))
+					close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
+				else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
+					close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 			}
 		}
     }
@@ -135,7 +133,7 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> c
 	return (0);
 }
 
-void Server::close_fd(const int fd, int epollfd, std::vector<int> container)
+void Server::close_fd(const int fd, int epollfd, std::vector<int> container, std::map<int, Response> pending_writes)
 {
 	epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, NULL);
 	std::vector<int>::iterator it = std::find(container.begin(), container.end(), fd);
@@ -161,7 +159,7 @@ void Server::freeEpoll(int epollfd, std::vector<int> client_fds)
 	client_fds.clear();
 }
 
-int EpollServer::handleClientRead(const int client_fd, std::map<int, Response> pending_writes) {
+int Server::handleClientRead(const int client_fd, std::map<int, Response> pending_writes) {
 	char buffer[BUFFER_SIZE];
 	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 
@@ -215,12 +213,26 @@ int EpollServer::handleClientRead(const int client_fd, std::map<int, Response> p
 
 int Server::handleClientResponse(const int client_fd, std::map<int, Response> pending_writes)
 {
-	std::string &response = pending_writes[client_fd].toString();
-	ssize_t bytes_sent = send(client_fd, response.c_str(), rsponse.size(), 0);
-	if (bytes == 0)
+	std::string response = pending_writes[client_fd].toString();
+	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+	if (bytes_sent == 0)
 		return (std::cout << "[-] No data sent: " << client_fd << std::endl, 1);
-	if (bytes < 0)
+	if (bytes_sent < 0)
 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
 	pending_writes.erase(fd);
 	return (0);
+}
+
+void Server::setRouter(const Router& router) {
+	this->_router = router;
+}
+
+void Server::setMiddlewareStack(const MiddlewareStack& stack) {
+	this->_middleware = stack;
+}
+
+void Server::initMiddleware() 
+{
+	_middleware.add(new CookieMiddleware());
+	_middleware.add(new AllowMethodMiddleware());
 }

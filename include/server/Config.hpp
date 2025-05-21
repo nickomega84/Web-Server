@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
-#include "configStruct.hpp"
+#include "../../include/config/configStruct.hpp"
 
 class Config
 {

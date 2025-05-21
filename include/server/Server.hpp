@@ -29,19 +29,20 @@ class Server
 	private:
 	const Config* c;
 	std::vector<int> listen_sockets;
+	
+	Router _router;
+	MiddlewareStack _middleware;
 
 	Server(const Server& other);
 	Server& operator=(const Server& other);
 
 	int		init_epoll();
-	int		epoll_ctl_add(int fd, int epollfd, uint32_t events);
-	int		epoll_ctl_modify(int fd, int epollfd, uint32_t events);
+	int		ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events);
 	int		accept_connection(int listen_socket, int epollfd, std::vector<int> client_fds);
-	int		handleClientRead(const int client_fd, const int epollfd, std::map<int, std::string> pending_writes);
-	int		send_data(std::string message, const int new_socket) const;
-	void	close_fd(const int socket, int epollfd, std::vector<int> container);
+	int		handleClientRead(const int client_fd, std::map<int, Response> pending_writes);
+	int		handleClientResponse(const int client_fd, std::map<int, Response> pending_writes);
+	void	close_fd(const int socket, int epollfd, std::vector<int> container, std::map<int, Response> pending_writes);
 	void	freeEpoll(int epollfd, std::vector<int> client_fds);
-	std::string	httpResponse(const std::string &body);
 
 	public:
 	Server(const Config* conf);
@@ -50,4 +51,8 @@ class Server
 	int		addListeningSocket();
 	void	startEpoll();
 	void	freeListenSockets();
+
+	void	setRouter(const Router &router);                 
+    void	setMiddlewareStack(const MiddlewareStack &stack);
+    void    initMiddleware();
 };

@@ -240,6 +240,7 @@ void EpollServer::closeClient(int client_fd) {
 void EpollServer::setMiddlewareStack(const MiddlewareStack& stack) {
 	this->_middleware = stack;
 }
+
 void EpollServer::initMiddleware() 
 {
 	_middleware.add(new CookieMiddleware());

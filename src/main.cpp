@@ -8,7 +8,7 @@
 
 int main() {
 	Config config;
-	Server server(config);
+	Server server(config.getServerConf());
 
 	// 🧠 Router
 	Router router;
