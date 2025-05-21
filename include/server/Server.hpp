@@ -4,39 +4,50 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <sys/epoll.h> //epoll
-#include <fcntl.h> //epoll flags
+#include <sys/epoll.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include "../include/server/Config.hpp"
 
-#define PORT		8080 //80 (HTTP), 443 (HTTPS), 22 (SSH), 8080 (aplicaciones web) 
-#define MAX_CONN	16 //listen()
-#define MAX_EVENTS	32 //epoll
-#define BUFFER_SIZE	1024 //recv
+# include "../../include/core/Response.hpp"
+# include "../../include/middleware/MiddlewareStack.hpp"
+# include "../include/libraries.hpp"
+# include "../middleware/AllowMethodMiddleware.hpp"
+# include "../middleware/IMiddleware.hpp"
+# include "../router/Router.hpp"
+
+#define PORT		8080
+#define MAX_CONN	1000
+#define MAX_EVENTS	32
+#define BUFFER_SIZE	1024
 
 class Server
 {
 	private:
-	struct sockaddr_in address; //For IP networking, we use struct sockaddr_in, which is defined in the header netinet/in.h. Before calling bind, we need to fill out this structure.
-	int	server_socket;
-	std::vector<int> client_sockets;
+	const Config* c;
+	std::vector<int> listen_sockets;
 
 	Server(const Server& other);
 	Server& operator=(const Server& other);
 
-	void		close_client_socket(const int fd, std::string message);
-	void		epoll_ctl_call(int epollfd, int socket, uint32_t event);
-	int			accept_connection(int server_socket);
-	std::string recv_data(const int new_socket) const;
-	void		send_data(std::string message, const int new_socket) const;
-	void		epoll();
+	int		init_epoll();
+	int		epoll_ctl_add(int fd, int epollfd, uint32_t events);
+	int		epoll_ctl_modify(int fd, int epollfd, uint32_t events);
+	int		accept_connection(int listen_socket, int epollfd, std::vector<int> client_fds);
+	int		handleClientRead(const int client_fd, const int epollfd, std::map<int, std::string> pending_writes);
+	int		send_data(std::string message, const int new_socket) const;
+	void	close_fd(const int socket, int epollfd, std::vector<int> container);
+	void	freeEpoll(int epollfd, std::vector<int> client_fds);
+	std::string	httpResponse(const std::string &body);
 
 	public:
-	Server();
-	Server(int port);
+	Server(const Config* conf);
 	~Server();
 
-	void		setUpServer();
+	int		addListeningSocket();
+	void	startEpoll();
+	void	freeListenSockets();
 };

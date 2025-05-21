@@ -8,7 +8,6 @@ webserv/
 │   └── server.conf
 ├── include/
 │   ├── server/
-│   │   ├── IServer.hpp
 │   │   └── EpollServer.hpp
 │   ├── handler/
 │   │   ├── IRequestHandler.hpp

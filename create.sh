@@ -30,7 +30,6 @@ files=(
   "webserv/Makefile"
   "webserv/README.md"
   "webserv/config/server.conf"
-  "webserv/include/server/IServer.hpp"
   "webserv/include/server/EpollServer.hpp"
   "webserv/include/handler/IRequestHandler.hpp"
   "webserv/include/handler/CGIHandler.hpp"

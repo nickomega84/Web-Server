@@ -3,10 +3,12 @@
 #include "../include/factory/UploadHandlerFactory.hpp"
 #include "../include/middleware/AllowMethodMiddleware.hpp"
 #include "../include/middleware/MiddlewareStack.hpp"
-#include "../include/server/EpollServer.hpp"
+#include "../include/server/Server.hpp"
+#include "../include/server/Config.hpp"
 
 int main() {
-	EpollServer server;
+	Config config;
+	Server server(config);
 
 	// 🧠 Router
 	Router router;
@@ -25,9 +27,9 @@ int main() {
 	// middleware.add(allow);
 	// server.setMiddlewareStack(middleware);
 
-	server.addListeningSocket(8080);
+	server.addListeningSocket();
 	std::cout << "[🔁] Iniciando el servidor Epoll...\n";
-	server.start();
+	server.startEpoll();
 
 	return 0;
 }

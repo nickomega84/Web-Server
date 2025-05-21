@@ -7,7 +7,6 @@
 # include "../middleware/AllowMethodMiddleware.hpp"
 # include "../middleware/IMiddleware.hpp"
 # include "../router/Router.hpp"
-# include "IServer.hpp"
 
 class EpollServer : public IServer
 {
