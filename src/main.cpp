@@ -1,16 +1,33 @@
-#include "Server.hpp"
+#include "../include/router/Router.hpp"
+#include "../include/factory/StaticHandlerFactory.hpp"
+#include "../include/factory/UploadHandlerFactory.hpp"
+#include "../include/middleware/AllowMethodMiddleware.hpp"
+#include "../include/middleware/MiddlewareStack.hpp"
+#include "../include/server/EpollServer.hpp"
 
-int	main()
-{
-	Server server(8080); //En sistemas Unix/Linux, los puertos "privilegiados" (0–1023) requieren permisos de administrador
-	try
-	{
-		server.setUpServer();
-	}
-	catch (const std::runtime_error &e)
-	{
-		std::cerr << e.what() << std::endl;
-		return (-1);
-	}
-	return (0);
+int main() {
+	EpollServer server;
+
+	// 🧠 Router
+	Router router;
+	router.registerFactory("/", new StaticHandlerFactory());
+	router.registerFactory("/upload", new UploadHandlerFactory());
+	server.setRouter(router);
+
+	// 🛡️ Middleware
+	// MiddlewareStack middleware;
+	// AllowMethodMiddleware* allow = new AllowMethodMiddleware();
+
+	// allow->allow("/", std::vector<std::string>(1, "GET"));
+	// allow->allow("/upload", std::vector<std::string>(1, "POST"));
+	// allow->allow("/index.html", std::vector<std::string>(1, "DELETE"));
+
+	// middleware.add(allow);
+	// server.setMiddlewareStack(middleware);
+
+	server.addListeningSocket(8080);
+	std::cout << "[🔁] Iniciando el servidor Epoll...\n";
+	server.start();
+
+	return 0;
 }
