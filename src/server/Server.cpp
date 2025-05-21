@@ -119,7 +119,7 @@ int	Server::ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events)
 	return (0);
 }
 
-int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> client_fds)
+int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &client_fds)
 {
 	int client_fd;
 
@@ -135,7 +135,7 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> c
 	return (0);
 }
 
-void Server::close_fd(const int fd, int epollfd, std::vector<int> client_fds, std::map<int, Response> pending_writes)
+void Server::close_fd(const int fd, int epollfd, std::vector<int> &client_fds,  std::map<int, Response> &pending_writes)
 {
 	epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, NULL);
 
@@ -147,7 +147,7 @@ void Server::close_fd(const int fd, int epollfd, std::vector<int> client_fds, st
 	std::cout << "client_fd: " << fd << " closed" << std::endl << std::endl;
 }
 
-void Server::freeEpoll(int epollfd, std::vector<int> client_fds)
+void Server::freeEpoll(int epollfd, std::vector<int> &client_fds)
 {
 	if (epollfd < 0)
 		return;
@@ -162,7 +162,7 @@ void Server::freeEpoll(int epollfd, std::vector<int> client_fds)
 	client_fds.clear();
 }
 
-int Server::handleClientRead(const int client_fd, std::map<int, Response> pending_writes) {
+int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pending_writes) {
 	char buffer[BUFFER_SIZE];
 
 	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
@@ -210,28 +210,17 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> pendin
 		res.setHeader("Content-Length", oss.str());
 	}
 
-	std::string response = res.toString();
-	send(client_fd, response.c_str(), response.length(), 0);
+	std::cout << "OLAOLA" << std::endl << std::endl;
 	pending_writes[client_fd] = res;
+	std::cout << "OLAOLA" << std::endl << std::endl;
 	return (0);
 }
 
-int Server::handleClientResponse(const int client_fd, std::map<int, Response> pending_writes)
+int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes)
 {
 	std::string response = pending_writes[client_fd].toString();
-
-	std::cout << "RESPONSE = " << response << std::endl;
-
-	// /// provisional
-	// std::string provisional("HTTP/1.1 200 OK\r\n"
-	// 	/* "Content-Length: " + std::to_string(body.size()) + "\r\n" */
-	// 	"Connection: keep-alive\r\n"
-	// 	"Content-Type: text/plain\r\n\r\n"
-	// 	/* + body */);
-	// response = provisional;
-	// ///
-
-	ssize_t bytes_sent = send(client_fd, response.c_str(), response.size(), 0);
+	
+	ssize_t bytes_sent = send(client_fd, response.c_str(), response.length(), 0);
 	if (bytes_sent == 0)
 		return (std::cout << "[-] No data sent: " << client_fd << std::endl, 1);
 	if (bytes_sent < 0)
