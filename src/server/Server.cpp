@@ -73,19 +73,22 @@ void Server::startEpoll()
 				accept_connection(events[i].data.fd, epollfd, client_fds);
 			else if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT)))
 				close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
-			else if (events[i].events & EPOLLIN)
-			{				
-				if (handleClientRead(events[i].data.fd, pending_writes))
-					close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
-				else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
-					close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
-			}
-			else if (events[i].events & EPOLLOUT)
+			else
 			{
-				if (handleClientResponse(events[i].data.fd, pending_writes))
-					close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
-				else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
-					close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
+				if (events[i].events & EPOLLIN)
+				{				
+					if (handleClientRead(events[i].data.fd, pending_writes))
+						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
+					else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
+						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
+				}
+				if (events[i].events & EPOLLOUT)
+				{
+					if (handleClientResponse(events[i].data.fd, pending_writes))
+						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
+					else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
+						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
+				}
 			}
 		}
     }
@@ -97,6 +100,7 @@ int Server::init_epoll()
 	int epollfd = epoll_create(1);
 	if (epollfd < 0)
 		return (std::cerr << "Error on epoll_create" << std::endl, -1);
+
 	if (listen_sockets.empty())
 		return (std::cerr << "No listen_sockets to add to epoll" << std::endl, -1);
 	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); ++it)
@@ -121,20 +125,23 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> c
 	
 	if ((client_fd = ::accept(listen_socket, NULL, NULL)) < 0)
 		return (std::cerr << "Error accepting incoming connection, fd = " << client_fd << std::endl, 1);
+
 	if (ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_ADD, EPOLLIN))
 		return (close(client_fd), std::cerr << "Error accepting incoming connection, fd = " << client_fd << std::endl, 1);
+	
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
 	client_fds.push_back(client_fd);
 	std::cout << "New connection accepted() fd = " << client_fd << std::endl;
 	return (0);
 }
 
-void Server::close_fd(const int fd, int epollfd, std::vector<int> container, std::map<int, Response> pending_writes)
+void Server::close_fd(const int fd, int epollfd, std::vector<int> client_fds, std::map<int, Response> pending_writes)
 {
 	epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, NULL);
-	std::vector<int>::iterator it = std::find(container.begin(), container.end(), fd);
-	if (it != container.end())
-		container.erase(it);
+
+	std::vector<int>::iterator it = std::find(client_fds.begin(), client_fds.end(), fd);
+	if (it != client_fds.end())
+		client_fds.erase(it);
 	pending_writes.erase(fd);
 	close(fd);
 	std::cout << "client_fd: " << fd << " closed" << std::endl << std::endl;
