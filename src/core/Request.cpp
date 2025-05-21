@@ -19,6 +19,7 @@ Request& Request::operator=(const Request& other)
 		_version = other._version;
 		_headers = other._headers;
 		_body = other._body;
+        // _qp
 	}
 	return *this;
 }
@@ -26,44 +27,63 @@ Request::~Request()
 {
     std::cout << "Request destructor called" << std::endl;
 }
-
-bool Request::parse(const std::string& raw) 
+bool Request::parse(const std::string& raw)
 {
-	std::istringstream stream(raw);
-	std::string line;
+    std::istringstream stream(raw);
+    std::string line;
 
-	// Primera línea: GET /index.html HTTP/1.1
-	if (!std::getline(stream, line))
-		return (false);
-	std::istringstream firstLine(line);
-	if (!(firstLine >> _method >> _uri >> _version))
-		return (false);
+    /* ── 1. START-LINE ───────────────────────────── */
+    if (!std::getline(stream, line))
+        return false;
 
-	// Cabeceras
-	while (std::getline(stream, line) && line != "\r") 
-    {
-		size_t pos = line.find(":");
-		if (pos != std::string::npos) 
+    std::istringstream firstLine(line);
+    if (!(firstLine >> _method >> _uri >> _version))
+        return false;
+
+    // ▶ Separar path y query-string
+    size_t q = _uri.find('?');
+    if (q != std::string::npos) {
+        _path        = _uri.substr(0, q);
+        _queryString = _uri.substr(q + 1);
+    } else {
+        _path        = _uri;
+        _queryString.clear();
+    }
+
+    /* ── 2. HEADERS ─────────────────────────────── */
+    while (std::getline(stream, line) && line != "\r") {
+        size_t pos = line.find(':');
+        if (pos == std::string::npos) continue;
+
+        std::string key   = line.substr(0, pos);
+        std::string value = line.substr(pos + 1);
+
+        // Trim whitespace inicial
+        value.erase(0, value.find_first_not_of(" \t"));
+        // Trim CR/LF final
+        while (!value.empty() && (value[value.size() - 1] == '\r' || value[value.size() - 1] == '\n'))
         {
-			std::string key = line.substr(0, pos);
-			std::string value = line.substr(pos + 1);
-			while (!value.empty() && (value[0] == ' ' || value[0] == '\t'))
-				value.erase(0, 1);
-			if (!value.empty() && value[value.length() - 1] == '\r')
-				value.erase(value.length() - 1);
-			_headers[key] = value;
-		}
-	}
+            value.erase(value.size() - 1);
+        }
+        _headers[key] = value;
+    }
 
-	// Cuerpo (si existe)
-	if (_headers.count("Content-Length") > 0) 
-    {
-		std::stringstream ss;
-		ss << stream.rdbuf();
-		_body = ss.str();
-	}
+    /* ── 3. BODY ─────────────────────────────────── */
+    if (_headers.count("Content-Length") > 0) {
+        std::stringstream ss;
+        ss << stream.rdbuf();
+        _body = ss.str();
+    }
 
-	return (true);
+    /* ── 4. Mantener viva la conexión ───────────── */
+    // HTTP/1.1 es keep-alive por defecto; HTTP/1.0 no.
+    if (_version == "HTTP/1.1") {
+        _keepAlive = (getHeader("Connection") != "close");
+    } else { // HTTP/1.0
+        _keepAlive = (getHeader("Connection") == "keep-alive");
+    }
+
+    return true;
 }
 
 // Getters
