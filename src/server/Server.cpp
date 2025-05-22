@@ -41,7 +41,7 @@ int Server::addListeningSocket()
 	if (bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0)
 		return (std::cerr << "Error binding listen_socket" << std::endl, freeaddrinfo(output), 500);
 	if (listen(listen_socket, MAX_CONN) < 0)
-		return (std::cerr << "Error in listen()" << std::endl, freeaddrinfo(output), 500);
+		return (std::cerr << "Error on listen()" << std::endl, freeaddrinfo(output), 500);
 	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
 	listen_sockets.push_back(listen_socket);
 	std::cout << "New listenSocket fd = " << listen_socket << std::endl;
@@ -162,16 +162,18 @@ void Server::freeEpoll(int epollfd, std::vector<int> &client_fds)
 	client_fds.clear();
 }
 
-int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pending_writes) {
+int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pending_writes) 
+{
 	char buffer[BUFFER_SIZE];
+	ssize_t bytes_read;
 
-	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-	if (bytes == 0)
+	bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);		
+	if (bytes_read == 0)
 		return (std::cout << "[-] No data received: " << client_fd << std::endl, 1);
-	if (bytes < 0)
+	if (bytes_read < 0)
 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
 
-	buffer[bytes] = '\0';
+	buffer[bytes_read] = '\0';
 	std::cout << "[READ " << client_fd << "] " << buffer << std::endl;
 
 	Request req;
@@ -193,7 +195,8 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		return(0);
 	}
 
-	if (handleCGI(req, res))
+	CGIHandler cgi;
+	if (cgi.handleCGI(req, res))
 		return (pending_writes[client_fd] = res, 0);
 
 	// 🔁 ROUTER + HANDLER
@@ -226,17 +229,6 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
 	pending_writes.erase(client_fd);
 	return (0);
-}
-
-bool Server::handleCGI(Request &req, Response &res)
-{
-	CGIHandler cgi;
-
-	if (!cgi.isItCGI(req))
-		return (false);
-	res = cgi.handleCGI(req);
-
-	return (true);
 }
 
 void Server::setRouter(const Router& router) {
