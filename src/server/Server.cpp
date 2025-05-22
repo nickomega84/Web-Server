@@ -51,7 +51,7 @@ int Server::addListeningSocket()
 
 void Server::startEpoll()
 {
-	int		epollfd;
+	int						epollfd;
 	std::vector<int>		client_fds;
 	std::map<int, Response> pending_writes;
 
@@ -79,14 +79,14 @@ void Server::startEpoll()
 				{
 					if (handleClientRead(events[i].data.fd, pending_writes))
 						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
-					else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
+					if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
 						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 				}
 				if (events[i].events & EPOLLOUT)
 				{
 					if (handleClientResponse(events[i].data.fd, pending_writes))
 						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
-					else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
+					if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
 						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 				}
 			}
@@ -109,16 +109,6 @@ int Server::init_epoll()
 	return (epollfd);
 }
 
-int	Server::ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events)
-{
-	struct epoll_event event_struct;
-	event_struct.events = events;
-	event_struct.data.fd = fd;
-	if (epoll_ctl(epollfd, mod, fd, &event_struct) < 0)
-		return (1);
-	return (0);
-}
-
 int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &client_fds)
 {
 	int client_fd;
@@ -132,6 +122,16 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
 	client_fds.push_back(client_fd);
 	std::cout << "New connection accepted() fd = " << client_fd << std::endl;
+	return (0);
+}
+
+int	Server::ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events)
+{
+	struct epoll_event event_struct;
+	event_struct.events = events;
+	event_struct.data.fd = fd;
+	if (epoll_ctl(epollfd, mod, fd, &event_struct) < 0)
+		return (1);
 	return (0);
 }
 
@@ -193,6 +193,9 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		return(0);
 	}
 
+	if (handleCGI(req, res))
+		return (pending_writes[client_fd] = res, 0);
+
 	// 🔁 ROUTER + HANDLER
 	IRequestHandler* handler = _router.resolve(req);
 	if (handler) {
@@ -223,6 +226,17 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
 	pending_writes.erase(client_fd);
 	return (0);
+}
+
+bool Server::handleCGI(Request &req, Response &res)
+{
+	CGIHandler cgi;
+
+	if (!cgi.isItCGI(req))
+		return (false);
+	res = cgi.handleCGI(req);
+
+	return (true);
 }
 
 void Server::setRouter(const Router& router) {
