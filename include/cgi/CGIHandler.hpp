@@ -1,6 +1,9 @@
 #pragma once
 #include "../../include/core/Request.hpp"
 #include "../../include/core/Response.hpp"
+#include <string>
+
+#define PYTHON_INTERPRETER "/usr/bin/python3" 
 
 class CGIHandler
 {

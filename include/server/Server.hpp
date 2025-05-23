@@ -58,3 +58,4 @@ class Server
 };
 
 //python3 test_webserv_full.py
+//CONFIG! para buscar cosas que hemos dejado para cuando el archivo de configuracion este hecho
