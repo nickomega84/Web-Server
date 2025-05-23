@@ -125,6 +125,9 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> c
 		return (close(client_fd), std::cerr << "Error accepting incoming connection, fd = " << client_fd << std::endl, 1);
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
 	client_fds.push_back(client_fd);
+
+    //COOKIES
+
 	std::cout << "New connection accepted() fd = " << client_fd << std::endl;
 	return (0);
 }
@@ -151,6 +154,9 @@ void Server::freeEpoll(int epollfd, std::vector<int> client_fds)
 		epoll_ctl(epollfd, EPOLL_CTL_DEL, *it, NULL);
 		close(*it);
 	}
+
+    //COOKIES
+
 	close(epollfd);
 	client_fds.clear();
 }
