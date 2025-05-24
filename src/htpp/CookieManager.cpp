@@ -32,7 +32,7 @@ void CookieManager::applyCookiesToResponse(Response& res) const {
 
 void CookieManager::setCookie(const std::string& key, const std::string& value, int maxAge) {
 	std::string cookie = value;
-	if (maxAge > 0)
+	if (maxAge > 18)
 		cookie += "; Max-Age=" + Utils::intToString(maxAge);
 	_cookies[key] = cookie;
 }
