@@ -44,10 +44,10 @@ bool CGIHandler::identifyCGI(Request &req, Response &res)
 		handleGET(req, res, PYTHON_INTERPRETER);
 	else if (indx == 4)
 		handleGET(req, res, SH_INTERPRETER);
-/* 	else if (indx == 5)
+	else if (indx == 5)
 		handlePOST(req, res, PYTHON_INTERPRETER);
 	else if (indx == 6)
-		handlePOST(req, res, SH_INTERPRETER); */
+		handlePOST(req, res, SH_INTERPRETER);
 	return (true);
 }
 
@@ -99,7 +99,7 @@ bool CGIHandler::checkExePermission(std::string path)
 	return (false);
 }
 
-char ** CGIHandler::getEnviroment(std::string path, std::string queryString)
+char ** CGIHandler::enviromentGET(std::string path, std::string queryString)
 {
 	std::string request_method = "REQUEST_METHOD=GET";
 	std::string path_info = "PATH_INFO=" + path;
@@ -128,7 +128,6 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 	std::string queryString = getQueryString(req.getURI(), &success);
 	if (!success)
 		return (handleError(res, 404, "Not Found", "<h1>404 invalid header CGI</h1>"), 1);
-
 	if (!checkLocation(dir, name))
 		return (handleError(res, 404, "Not Found", "<h1>404 checkDirectory CGI</h1>"), 1);
 	if (!checkExePermission(path))
@@ -136,7 +135,7 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);
 	
 	char *argv[] = {(char *)interpreter.c_str(), (char *)path.c_str(), NULL};
-	char **envp = getEnviroment(path, queryString);
+	char **envp = enviromentGET(path, queryString);
 	
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
@@ -154,7 +153,6 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 
 		if (chdir(dir.c_str()) < 0)
 			return (kill(getpid(), SIGTERM), 1);
-		
 		execve((char *)interpreter.c_str(), argv, envp);
 		return (kill(getpid(), SIGTERM), 1);
 	}
@@ -178,9 +176,94 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 	return (0);
 }
 
-
-/* int CGIHandler::handlePythonPOST(Request &req, Response &res)
+char ** CGIHandler::enviromentPOST(std::string path, std::string queryString, Request &req)
 {
-	
+	std::string request_method = "REQUEST_METHOD=POST";
+	std::string path_info = "PATH_INFO=" + path;
+	std::string query_string = "QUERY_STRING=" + queryString;
+	std::string script_name = "SCRIPT_NAME=" + path;
+	std::string server_protocol = "SERVER_PROTOCOL=HTTP/1.1";
+	std::string content_type = "CONTENT_TYPE=" + req.getHeaders("Content-Type");
+	std::string content_lenght = "CONTENT_LENGTH=" + std::to_string(req.getBody().length()); //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del request
+
+	static char* envp[8]; //STATIC: Duración de vida estática: no se destruye al salir de la función; persiste durante toda la ejecución del programa. Memoria compartida: la misma variable es reutilizada cada vez que se llama la función. No se crea una copia nueva en cada llamada.
+	envp[0] = const_cast<char *>(request_method.c_str());
+	envp[1] = const_cast<char *>(path_info.c_str());
+	envp[2] = const_cast<char *>(query_string.c_str());
+	envp[3] = const_cast<char *>(script_name.c_str());
+	envp[4] = const_cast<char *>(server_protocol.c_str());
+	envp[5] = const_cast<char *>(content_type.c_str());
+	envp[6] = const_cast<char *>(content_lenght.c_str());
+	envp[7] = NULL;
+	return(envp);
 }
- */
+
+int CGIHandler::handlePythonPOST(Request &req, Response &res, std::string interpreter)
+{
+	bool success = true;
+	std::string dir = getDir(req.getURI(), &success);
+	std::string name = getName(req.getURI(), &success);
+	std::string path = dir + name;
+	std::string queryString = getQueryString(req.getURI(), &success);
+	if (!success)
+		return (handleError(res, 404, "Not Found", "<h1>404 invalid header CGI</h1>"), 1);
+	if (!checkLocation(dir, name))
+		return (handleError(res, 404, "Not Found", "<h1>404 checkDirectory CGI</h1>"), 1);
+	if (!checkExePermission(path))
+		return (handleError(res, 502, "Bad Gateway", "<h1>502 checkExePermission CGI</h1>"), 1);	
+	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);
+	
+	char *argv[] = {(char *)interpreter.c_str(), (char *)path.c_str(), NULL};
+	char **envp = enviromentPOST(path, queryString, req);
+	
+	int pipeInput[2];
+	if (pipe(pipeInput) < 0)
+		return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+	int pipeOutput[2];
+	if (pipe(pipeOutput) < 0)
+		return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+
+	pid_t pid = fork();
+	if (pid < 0)
+		return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+	if (!pid)
+	{
+		close (pipeInput[1]);
+		if (dup2(pipeInput[0], STDIN_FILENO) < 0)
+			return (kill(getpid(), SIGTERM), 1);
+		close (pipeInput[0]);
+		close (pipeOutput[0]);
+		if (dup2(pipeOutput[1], STDOUT_FILENO) < 0)
+			return (kill(getpid(), SIGTERM), 1);
+		close (pipeOutput[1]);
+
+		if (chdir(dir.c_str()) < 0)
+			return (kill(getpid(), SIGTERM), 1);
+		execve((char *)interpreter.c_str(), argv, envp);
+		return (kill(getpid(), SIGTERM), 1);
+	}
+	else
+	{
+		char buffer[BUFFER_SIZE];
+		std::string output;
+		ssize_t count;
+		std::string body = req.getBody();
+
+		close(pipeInput[0]);
+		if (count = write(pipeInput[1], body, body.size()))
+			return (handleError(res, 500, "CGI Write Error", "<h1>500 CGI Write Error</h1>"), 1);
+		close(pipeInput[1]);
+		close(pipeOutput[1]);
+		while ((count = read(pipeOutput[0], buffer, sizeof(buffer))) > 0)
+			output.append(buffer, count);
+		close(pipeOutput[0]);
+
+		waitpid(pid, NULL, 0);
+
+		res.setStatus(200, "OK");
+		res.setHeader("Content-Type", "text/html");
+		res.setBody(output);
+	}
+	return (0);
+}
+
