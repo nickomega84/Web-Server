@@ -31,17 +31,20 @@ IRequestHandler* Router::resolve(const Request& request) const
 {
 	const std::string& uri = request.getURI();
 
-	// Buscar el pathPrefix más largo que haga match
+	// Buscar el pathPrefix más largo que haga match estricto
 	std::map<std::string, IHandlerFactory*>::const_reverse_iterator it;
 	for (it = _routes.rbegin(); it != _routes.rend(); ++it) 
     {
-		if (uri.find(it->first) == 0) 
-        { // coincide al inicio
+		const std::string& route = it->first;
+		if (uri == route ||
+			(uri.find(route) == 0))
+		{
 			return it->second->createHandler();
 		}
 	}
 
-	return (NULL); // no se encontró factory válida
+	return NULL; // no se encontró factory válida
 }
+
 
 

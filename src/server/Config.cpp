@@ -11,7 +11,7 @@ Config::Config() //solo para pruebas //basado en default.conf
     c.root = "web_root";
     c.index = "index.html";
     c.body_size = 30000;
-    c.errors[404] = "/error/404.html";
+    c.errors[404] = "/error/404.tml";
 
 	locationConfig def;
 	initLocationConfig(def);

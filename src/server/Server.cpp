@@ -171,7 +171,8 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> pendin
 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
 	
 	buffer[bytes] = '\0';
-	std::cout << "[READ " << client_fd << "] " << buffer << std::endl;
+    std::cout << "[BUFFER]" << buffer << "]" << std::endl ;
+	std::cout << "[READ " << client_fd << "] AUII TERMINA EL BUFFER " << buffer << std::endl;
     
 	Request req;
     Response res;

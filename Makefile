@@ -42,13 +42,13 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@echo "$(CYAN)[🔧 Linking]$(CLEAR) $(NAME)"
-	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 	@echo "$(GREEN)[✅ Build complete]$(CLEAR)"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	@echo "$(BLUE)[Compiling]$(CLEAR) $<"
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	@rm -rf $(OBJ_DIR)

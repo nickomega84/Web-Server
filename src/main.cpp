@@ -15,18 +15,7 @@ int main() {
 	router.registerFactory("/", new StaticHandlerFactory());
 	router.registerFactory("/upload", new UploadHandlerFactory());
 	server.setRouter(router);
-
-	// 🛡️ Middleware
-	// MiddlewareStack middleware;
-	// AllowMethodMiddleware* allow = new AllowMethodMiddleware();
-
-	// allow->allow("/", std::vector<std::string>(1, "GET"));
-	// allow->allow("/upload", std::vector<std::string>(1, "POST"));
-	// allow->allow("/index.html", std::vector<std::string>(1, "DELETE"));
-
-	// middleware.add(allow);
-	// server.setMiddlewareStack(middleware);
-
+    
 	server.addListeningSocket();
 	std::cout << "[🔁] Iniciando el servidor Epoll...\n";
 	server.startEpoll();

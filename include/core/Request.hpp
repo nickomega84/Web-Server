@@ -21,9 +21,9 @@ class Request
         Request& operator=(const Request& other);
         ~Request();
         
-        const std::string& getPath() const        { return _path; }
-        const std::string& getQueryString() const { return _queryString; }
-        bool               isKeepAlive() const    { return _keepAlive; }
+        const std::string& getPath() const;
+        const std::string& getQueryString() const;
+        bool               isKeepAlive() const;
 
         bool parse(const std::string& raw);
         const std::map<std::string, std::string>& getHeaders() const;

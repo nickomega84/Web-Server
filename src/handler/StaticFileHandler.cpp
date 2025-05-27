@@ -1,6 +1,6 @@
 #include "../../include/handler/StaticFileHandler.hpp"
 #include "../../include/utils/Utils.hpp"
-#include "../../include/utils/ErrorPages.hpp"
+#include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/MimeType.hpp"
 
 
@@ -30,22 +30,24 @@ static std::string readFile(const std::string& path)
 }
 
 
-static std::string renderErrorPage(const std::string& root, int code, const std::string& fallbackText) {
-	const char* path = getErrorPagePath(code);
-	std::string filePath = root;
+// static std::string renderErrorPage(const std::string& root, int code, const std::string& fallbackText) {
+// 	const char* path = getErrorPagePath(code);
+// 	std::string filePath = root;
 
-	if (path != NULL)
-		filePath += path;
+// 	if (path != NULL)
+// 		filePath += path;
 
-	if (path != NULL && fileExists(filePath))
-		return (readFile(filePath));
+// 	if (path != NULL && fileExists(filePath))
+// 		return (readFile(filePath));
 
-	// fallback simple en HTML
-	std::ostringstream oss;
-	oss << "<html><head><title>" << code << "</title></head>"
-	    << "<body><h1>" << code << "</h1><p>" << fallbackText << "</p></body></html>";
-	return (oss.str());
-}
+// 	// fallback simple en HTML
+// 	std::ostringstream oss;
+// 	oss << "<html><head><title>" << code << "</title></head>"
+// 	    << "<body><h1>" << code << "</h1><p>" << fallbackText << "</p></body></html>";
+// 	return (oss.str());
+// }
+
+
 Response StaticFileHandler::handleRequest(const Request& request)
 {
     std::string uri   = request.getPath();          // ya sin query
@@ -84,26 +86,31 @@ Response StaticFileHandler::handleRequest(const Request& request)
     }
 
     std::string fullPath = _rootPath + uri;
-    std::cout << "[DEBUG] Sirviendo archivo: " << fullPath << std::endl;
+    ErrorPageHandler errorHandler(_rootPath);
 
     if (!fileExists(fullPath)) {
+        // Archivo no existe, devolver página 404 personalizada
+        std::string body = errorHandler.render(404, "Archivo no encontrado");
         res.setStatus(404, "Not Found");
-        std::string body = renderErrorPage(_rootPath, 404, "Archivo no encontrado");
         res.setBody(body);
         res.setHeader("Content-Type", "text/html");
         res.setHeader("Content-Length", Utils::intToString(body.length()));
         return res;
     }
     
-    // if (request.isKeepAlive())
-    //     res.setHeader("Connection", "keep-alive");
-    // else
-    //     res.setHeader("Connection", "close");
+    // Archivo existe, leer y devolver
     std::string body = readFile(fullPath);
     res.setStatus(200, "OK");
     res.setBody(body);
     res.setHeader("Content-Type", guessMimeType(fullPath));
     res.setHeader("Content-Length", Utils::intToString(body.length()));
-    res.setHeader("Connection", "close");
+
+    // Manejo Connection header (opcional)
+    if (request.isKeepAlive())
+        res.setHeader("Connection", "keep-alive");
+    else
+        res.setHeader("Connection", "close");
+
     return res;
 }
+

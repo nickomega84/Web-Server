@@ -35,11 +35,12 @@ bool Request::parse(const std::string& raw)
     /* ── 1. START-LINE ───────────────────────────── */
     if (!std::getline(stream, line))
         return false;
-
+        
     std::istringstream firstLine(line);
     if (!(firstLine >> _method >> _uri >> _version))
         return false;
-
+        
+    std::cout << _uri<< "URIIIIIII \n" << std::endl;
     // ▶ Separar path y query-string
     size_t q = _uri.find('?');
     if (q != std::string::npos) {
@@ -49,6 +50,8 @@ bool Request::parse(const std::string& raw)
         _path        = _uri;
         _queryString.clear();
     }
+
+    // std::cout << _uri<< "URIIIIIII \n" << std::endl;
 
     /* ── 2. HEADERS ─────────────────────────────── */
     while (std::getline(stream, line) && line != "\r") {
@@ -87,7 +90,21 @@ bool Request::parse(const std::string& raw)
 }
 
 // Getters
-const std::string& Request::getMethod() const 
+
+
+const std::string& Request::getPath() const        
+{ 
+    return _path;
+}
+const std::string& Request::getQueryString() const
+{ 
+    return _queryString; 
+}
+bool    Request::isKeepAlive() const
+{ 
+        return _keepAlive; 
+}
+const std::string& Request::Request::getMethod() const 
 {
     return _method; 
 }
