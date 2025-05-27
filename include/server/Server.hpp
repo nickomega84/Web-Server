@@ -12,12 +12,13 @@
 #include <algorithm>
 #include "../include/server/Config.hpp"
 
-# include "../../include/core/Response.hpp"
-# include "../../include/middleware/MiddlewareStack.hpp"
-# include "../include/libraries.hpp"
-# include "../middleware/AllowMethodMiddleware.hpp"
-# include "../middleware/IMiddleware.hpp"
-# include "../router/Router.hpp"
+#include "../core/Response.hpp"
+#include "../middleware/MiddlewareStack.hpp"
+#include "../include/libraries.hpp"
+#include "../middleware/AllowMethodMiddleware.hpp"
+#include "../middleware/IMiddleware.hpp"
+#include "../router/Router.hpp"
+#include "../cgi/CGIHandler.hpp"
 
 #define PORT		8080
 #define MAX_CONN	1000

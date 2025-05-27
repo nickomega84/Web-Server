@@ -196,7 +196,7 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 	}
 
 	CGIHandler cgi;
-	if (cgi.handleCGI(req, res))
+	if (cgi.identifyCGI(req, res))
 		return (pending_writes[client_fd] = res, 0);
 
 	// 🔁 ROUTER + HANDLER

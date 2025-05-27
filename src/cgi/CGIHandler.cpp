@@ -1,20 +1,14 @@
-#include "../../include/cgi/CHIHandler.hpp"
+#include "../../include/cgi/CGIHandler.hpp"
 
-CGIHandler::CGIhandler()
+CGIHandler::CGIHandler()
 {}
 
-CGIHandler::CGIhandler(const CGIHandler &other)
-{}
-
-CGIHandler& CGIHandler::operator=(CGIhandler& other)
-{}
-
-~CGIHandler::CGIhandler()
+CGIHandler::~CGIHandler()
 {}
 
 int CGIHandler::identifyType(Request &req)
 {
-	std::string uri = req.getUri();
+	std::string uri = req.getURI();
 	if (uri.find(".py") != std::string::npos) 
 		return (1);
 	else if (uri.find(".sh") != std::string::npos) 
@@ -34,7 +28,7 @@ int CGIHandler::identifyMethod(Request &req)
 
 void CGIHandler::handleError(Response &res, int error, std::string status, std::string body)
 {
-	res.setStatus(404, status);
+	res.setStatus(error, status);
 	res.setBody(body);
 }
 
@@ -43,42 +37,42 @@ bool CGIHandler::identifyCGI(Request &req, Response &res)
 	int indx = identifyType(req);
 	if (indx == 0)
 		return (false);
-	indx += identifyMethod();
+	indx += identifyMethod(req);
 	if (indx == 1 || indx == 2)
 		return (handleError(res, 501, "Not Implemented", "<h1>501 Not Implemented</h1>"), true);
 	else if (indx == 3)
 		handleGET(req, res, PYTHON_INTERPRETER);
 	else if (indx == 4)
-		handleGET(req, res);
-	else if (indx == 5)
-		handlePOST(req, res);
+		handleGET(req, res, SH_INTERPRETER);
+/* 	else if (indx == 5)
+		handlePOST(req, res, PYTHON_INTERPRETER);
 	else if (indx == 6)
-		handlePOST(req, res);
+		handlePOST(req, res, SH_INTERPRETER); */
 	return (true);
 }
 
-std::string CGIHandler::getDir(std::string &uri, bool success)
+std::string CGIHandler::getDir(const std::string &uri, bool *success)
 {
 	std::string::size_type pos = uri.rfind("/");
 	if (pos == std::string::npos)
-		return (success = false, "");
+		return (*success = false, "");
 	return (uri.substr(0, pos));
 }
 
-std::string CGIHandler::getName(std::string &uri, bool success)
+std::string CGIHandler::getName(const std::string &uri, bool *success)
 {
 	std::string::size_type pos_name = uri.rfind("/");
 	std::string::size_type pos_query = uri.find("?");
 	if (pos_name == std::string::npos || pos_query == std::string::npos || pos_name >= pos_query)
-		return (success = false, "");
+		return (*success = false, "");
 	return (uri.substr(pos_name, pos_query)); //si omotimos el segundo argumento de substr se usa std::string::npos por defecto (el final dels string)
 }
 
-std::string CGIHandler::getQueryString(std::string &uri, bool success)
+std::string CGIHandler::getQueryString(const std::string &uri, bool *success)
 {
 	std::string::size_type pos_query = uri.find("?");
-	if (pos == std::string::npos)
-		return (success = false, "");
+	if (pos_query == std::string::npos)
+		return (*success = false, "");
 	return (uri.substr(pos_query)); //si omotimos el segundo argumento de substr se usa std::string::npos por defecto (el final dels string)
 }
 
@@ -88,12 +82,12 @@ bool CGIHandler::checkLocation(std::string &directory, std::string &name) //comp
 	struct dirent *entry;
 	std::vector<char*> file_names;
 	
-	if ((dir = opendir(directory.c_str())) == NULL);	//DIR es una estructura opaca definida en <dirent.h>, utilizada por las funciones del sistema para representar un flujo de directorio abierto. Su contenido interno está oculto al usuario y gestionado por el sistema operativo.
+	if ((dir = opendir(directory.c_str())) == NULL)	//DIR es una estructura opaca definida en <dirent.h>, utilizada por las funciones del sistema para representar un flujo de directorio abierto. Su contenido interno está oculto al usuario y gestionado por el sistema operativo.
 		return (false);
 	while ((entry = readdir(dir)) != NULL)
 		file_names.push_back(entry->d_name);
 	closedir(dir);
-	if (file_names.find(name) == std::string::npos)
+	if (find(file_names.begin(), file_names.end(), name) == file_names.end())
 		return (false);
 	return (true);
 }
@@ -105,25 +99,24 @@ bool CGIHandler::checkExePermission(std::string path)
 	return (false);
 }
 
-char ** CGIHandler::getEnviroment(Rstd::string path, std::string queryString)
+char ** CGIHandler::getEnviroment(std::string path, std::string queryString)
 {
 	std::string request_method = "REQUEST_METHOD=GET";
-	std::string path_info = "PATH_INFO=" + path + name;
+	std::string path_info = "PATH_INFO=" + path;
 	std::string query_string = "QUERY_STRING=" + queryString;
-	std::string script_name = "SCRIPT_NAME=" + path + name;
+	std::string script_name = "SCRIPT_NAME=" + path;
 	std::string server_protocol = "SERVER_PROTOCOL=HTTP/1.1";
-	std::string content_lenght = "CONTENT_LENGHT=0"; //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del request
+	std::string content_lenght = "CONTENT_LENGTH=0"; //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del request
 
-	return 
-	{
-		(char *)request_method.c_str(),
-		(char *)path_info.c_str(),
-		(char *)query_string.c_str(),
-		(char *)script_name.c_str(),
-		(char *)server_protocol.c_str(),
-		(char *)content_lenght.c_str(),
-		NULL
-	};
+	static char* envp[7]; //STATIC: Duración de vida estática: no se destruye al salir de la función; persiste durante toda la ejecución del programa. Memoria compartida: la misma variable es reutilizada cada vez que se llama la función. No se crea una copia nueva en cada llamada.
+	envp[0] = const_cast<char *>(request_method.c_str());
+	envp[1] = const_cast<char *>(path_info.c_str());
+	envp[2] = const_cast<char *>(query_string.c_str());
+	envp[3] = const_cast<char *>(script_name.c_str());
+	envp[4] = const_cast<char *>(server_protocol.c_str());
+	envp[5] = const_cast<char *>(content_lenght.c_str());
+	envp[6] = NULL;
+	return(envp);
 }
 
 int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) //ejemplo del header del request: GET /cgi-bin/hello.cgi?name=Juan HTTP/1.1
@@ -143,7 +136,7 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);
 	
 	char *argv[] = {(char *)interpreter.c_str(), (char *)path.c_str(), NULL};
-	char *envp[] = getEnviroment(path, queryString);
+	char **envp = getEnviroment(path, queryString);
 	
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
@@ -159,7 +152,7 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 			return (kill(getpid(), SIGTERM), 1);
 		close (pipefd[1]);
 
-		if (chdir(dir) < 0)
+		if (chdir(dir.c_str()) < 0)
 			return (kill(getpid(), SIGTERM), 1);
 		
 		execve((char *)interpreter.c_str(), argv, envp);
@@ -186,8 +179,8 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 }
 
 
-int CGIHandler::handlePythonPOST(Request &req, Response &res)
+/* int CGIHandler::handlePythonPOST(Request &req, Response &res)
 {
 	
 }
-
+ */
