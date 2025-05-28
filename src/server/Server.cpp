@@ -174,7 +174,7 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
 
 	buffer[bytes_read] = '\0';
-	std::cout << "[READ " << client_fd << "] " << buffer << std::endl;
+	std::cout << std::endl << "[READ " << client_fd << "] " << buffer << std::endl;
 
 	Request req;
     Response res;
@@ -202,7 +202,7 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		if (*error_code >= 400)
 			return (/* HANDLE ERROR, */ std::cout << "¡¡ERROR EN CGI!! *error_code = " << *error_code << std::endl, delete error_code, 1);
 		else
-			return (pending_writes[client_fd] = res, delete error_code, std::cout << "CGI okkie dokki, status = " << pending_writes[client_fd].getStatus() << " , headers = " << pending_writes[client_fd].getHeaders() << " , body = " << pending_writes[client_fd].getBody() << std::endl, 0);
+			return (pending_writes[client_fd] = res, delete error_code, std::cout << "¡¡CGI okkie dokki!!" << std::endl << "status = " << pending_writes[client_fd].getStatus() << std::endl << "headers = " << pending_writes[client_fd].getHeaders() << "body = " << pending_writes[client_fd].getBody() << std::endl, 0);
 	}
 	delete error_code;
 	

@@ -68,9 +68,9 @@ std::string CGIHandler::getName(const std::string &uri, bool *success)
 	std::string::size_type pos_query = uri.find("?");
 	if (pos_query == std::string::npos)
 		return (uri.substr(pos_name));
-	else if(pos_name >= pos_query)
+	else if (pos_name >= pos_query)
 		return (*success = false, "");
-	return (uri.substr(pos_name, pos_query)); //si omotimos el segundo argumento de substr se usa std::string::npos por defecto (el final dels string)
+	return (uri.substr(pos_name, pos_query - pos_name)); //si omotimos el segundo argumento de substr se usa std::string::npos por defecto (el final dels string)
 }
 
 std::string CGIHandler::getQueryString(const std::string &uri)
@@ -78,7 +78,7 @@ std::string CGIHandler::getQueryString(const std::string &uri)
 	std::string::size_type pos_query = uri.find("?");
 	if (pos_query == std::string::npos)
 		return ("");
-	return (uri.substr(pos_query)); //si omotimos el segundo argumento de substr se usa std::string::npos por defecto (el final dels string)
+	return (uri.substr(pos_query + 1)); //si omotimos el segundo argumento de substr se usa std::string::npos por defecto (el final dels string)
 }
 
 bool CGIHandler::checkLocation(std::string &directory, std::string &name) //comprueba si el archivo existe dentro del directorio
@@ -86,7 +86,7 @@ bool CGIHandler::checkLocation(std::string &directory, std::string &name) //comp
 	DIR *dir;
 	struct dirent *entry;
 	std::vector<std::string> file_names;
-	
+
 	if ((dir = opendir(directory.c_str())) == NULL)	//DIR es una estructura opaca definida en <dirent.h>, utilizada por las funciones del sistema para representar un flujo de directorio abierto. Su contenido interno está oculto al usuario y gestionado por el sistema operativo.
 		return (false);
 	while ((entry = readdir(dir)) != NULL)
@@ -104,23 +104,15 @@ bool CGIHandler::checkExePermission(std::string path)
 	return (false);
 }
 
-char ** CGIHandler::enviromentGET(std::string path, std::string queryString)
+std::vector<std::string> CGIHandler::enviromentGET(std::string path, std::string queryString)
 {
-	std::string request_method = "REQUEST_METHOD=GET";
-	std::string path_info = "PATH_INFO=" + path;
-	std::string query_string = "QUERY_STRING=" + queryString;
-	std::string script_name = "SCRIPT_NAME=" + path;
-	std::string server_protocol = "SERVER_PROTOCOL=HTTP/1.1";
-	std::string content_lenght = "CONTENT_LENGTH=0"; //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del request
-
-	static char* envp[7]; //STATIC: Duración de vida estática: no se destruye al salir de la función; persiste durante toda la ejecución del programa. Memoria compartida: la misma variable es reutilizada cada vez que se llama la función. No se crea una copia nueva en cada llamada.
-	envp[0] = const_cast<char *>(request_method.c_str());
-	envp[1] = const_cast<char *>(path_info.c_str());
-	envp[2] = const_cast<char *>(query_string.c_str());
-	envp[3] = const_cast<char *>(script_name.c_str());
-	envp[4] = const_cast<char *>(server_protocol.c_str());
-	envp[5] = const_cast<char *>(content_lenght.c_str());
-	envp[6] = NULL;
+	std::vector<std::string> envp;
+	envp.push_back("REQUEST_METHOD=GET");
+	envp.push_back("PATH_INFO=" + path);
+	envp.push_back("QUERY_STRING=" + queryString);
+	envp.push_back("SCRIPT_NAME=" + path);
+	envp.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	envp.push_back("CONTENT_LENGTH=0"); //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del reques)t
 	return(envp);
 }
 
@@ -132,6 +124,12 @@ int CGIHandler::checkHandler(Request &req, std::map<std::string, std::string> &m
 	m["name_without_slash"] = m["name"].substr(1);
 	m["path"] = m["dir"] + m["name"];
 	m["queryString"] = getQueryString(req.getURI());
+
+	std::cout << std::endl;
+	for (std::map<std::string, std::string>::iterator it = m.begin(); it != m.end(); ++it)
+		std::cout << it->first << " = " << it->second << std::endl;
+	std::cout << std::endl;
+
 	if (!success)
 		return (handleError(404), 1);
 	if (!checkLocation(m["dir"], m["name_without_slash"]))
@@ -149,7 +147,17 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 		return (1);
 
 	char *argv[] = {(char *)m["interpreter"].c_str(), (char *)m["name_without_slash"].c_str(), NULL};
-	char **envp = enviromentGET(m["path"], m["queryString"]);
+	std::vector<std::string> en = enviromentGET(m["path"], m["queryString"]);
+	char** envp = new char*[en.size() + 1];
+	for (size_t i = 0; i < en.size(); ++i)
+		envp[i] = const_cast<char*>(en[i].c_str());
+	envp[en.size()] = NULL;
+
+/* 	for (int i = 0; envp[i]; ++i)
+	{
+		std::string patata(envp[i]);
+		std::cout << "envp[" << i << "] = " << patata << std::endl;
+	} */
 
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
@@ -194,28 +202,19 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 	return (0);
 }
 
-char ** CGIHandler::enviromentPOST(std::string path, std::string queryString, Request &req)
+std::vector<std::string> CGIHandler::enviromentPOST(std::string path, std::string queryString, Request &req)
 {
+	std::vector<std::string> envp;
 	std::stringstream body_lenght;
 	body_lenght << req.getBody().length();
 
-	std::string request_method = "REQUEST_METHOD=POST";
-	std::string path_info = "PATH_INFO=" + path;
-	std::string query_string = "QUERY_STRING=" + queryString;
-	std::string script_name = "SCRIPT_NAME=" + path;
-	std::string server_protocol = "SERVER_PROTOCOL=HTTP/1.1";
-	std::string content_type = "CONTENT_TYPE=" + req.getHeader("Content-Type");
-	std::string content_lenght = "CONTENT_LENGTH=" + body_lenght.str(); //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del request
-
-	static char* envp[8]; //STATIC: Duración de vida estática: no se destruye al salir de la función; persiste durante toda la ejecución del programa. Memoria compartida: la misma variable es reutilizada cada vez que se llama la función. No se crea una copia nueva en cada llamada.
-	envp[0] = const_cast<char *>(request_method.c_str());
-	envp[1] = const_cast<char *>(path_info.c_str());
-	envp[2] = const_cast<char *>(query_string.c_str());
-	envp[3] = const_cast<char *>(script_name.c_str());
-	envp[4] = const_cast<char *>(server_protocol.c_str());
-	envp[5] = const_cast<char *>(content_type.c_str());
-	envp[6] = const_cast<char *>(content_lenght.c_str());
-	envp[7] = NULL;
+	envp.push_back("REQUEST_METHOD=POST");
+	envp.push_back("PATH_INFO=" + path);
+	envp.push_back("QUERY_STRING=" + queryString);
+	envp.push_back("SCRIPT_NAME=" + path);
+	envp.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	envp.push_back("CONTENT_TYPE=" + req.getHeader("Content-Type"));
+	envp.push_back("CONTENT_LENGTH=" + body_lenght.str());
 	return(envp);
 }
 
@@ -226,7 +225,11 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 		return (1);
 
 	char *argv[] = {(char *)interpreter.c_str(), (char *)m["path"].c_str(), NULL};
-	char **envp = enviromentPOST(m["path"], m["queryString"], req);
+	std::vector<std::string> en = enviromentGET(m["path"], m["queryString"]);
+	char** envp = new char*[en.size() + 1];
+	for (size_t i = 0; i < en.size(); ++i)
+		envp[i] = const_cast<char*>(en[i].c_str());
+	envp[en.size()] = NULL;
 	
 	int pipeInput[2];
 	if (pipe(pipeInput) < 0)

@@ -3,7 +3,7 @@
 
 Response::Response() : _statusCode(200), _statusText("OK") 
 {
-    std::cout << "Response constructor called" << std::endl;
+    /* std::cout << "Response constructor called" << std::endl; */
 }
 
 Response::Response(const Response& other) : _statusCode(other._statusCode), 
@@ -24,7 +24,7 @@ Response& Response::operator=(const Response& other) {
 
 Response::~Response() 
 {
-	std::cout << "Response destructor called" << std::endl;
+	/* Request */
 }
 
 void Response::setStatus(int code, const std::string& text) {
