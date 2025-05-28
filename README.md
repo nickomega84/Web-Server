@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 # WEBSERV
 
 ### SERVER
@@ -12,6 +13,8 @@
 - La teoria del funcionamiento del server esta en src/Server.cpp
 
 
+=======
+>>>>>>> main
 # Webserv - Proyecto 42
 
 Este proyecto consiste en implementar un servidor HTTP desde cero en C++, sin el uso de bibliotecas externas como Boost. El objetivo es comprender y construir la arquitectura fundamental de un servidor web como Nginx o Apache, respetando los estándares HTTP/1.1 y los requerimientos del subject.
