@@ -13,12 +13,14 @@
 class CGIHandler
 {
 	private:
+	int *_error;
+
 	int identifyType(Request &req);
 	int identifyMethod(Request &req);
-	void handleError(Response &res, int error, std::string status, std::string body);
+	void handleError(int error);
 	std::string getDir(const std::string &uri, bool *success);
 	std::string getName(const std::string &uri, bool *success);
-	std::string getQueryString(const std::string &uri, bool *success);
+	std::string getQueryString(const std::string &uri);
 	bool checkLocation(std::string &directory, std::string &name);
 	bool checkExePermission(std::string path);
 	char ** enviromentGET(std::string path, std::string queryString);
@@ -30,7 +32,7 @@ class CGIHandler
 	CGIHandler& operator=(CGIHandler& other);
 
 	public:
-	CGIHandler();
+	CGIHandler(int *error_code);
 	~CGIHandler();
 
 	bool identifyCGI(Request &req, Response &res);

@@ -1,7 +1,9 @@
 #include "../../include/cgi/CGIHandler.hpp"
 
-CGIHandler::CGIHandler()
-{}
+CGIHandler::CGIHandler(int *error): _error(error)
+{
+	*_error = 200;
+}
 
 CGIHandler::~CGIHandler()
 {}
@@ -26,10 +28,9 @@ int CGIHandler::identifyMethod(Request &req)
 	return (0);
 }
 
-void CGIHandler::handleError(Response &res, int error, std::string status, std::string body)
+void CGIHandler::handleError(int error)
 {
-	res.setStatus(error, status);
-	res.setBody(body);
+	*_error = error;
 }
 
 bool CGIHandler::identifyCGI(Request &req, Response &res)
@@ -38,8 +39,11 @@ bool CGIHandler::identifyCGI(Request &req, Response &res)
 	if (indx == 0)
 		return (false);
 	indx += identifyMethod(req);
+
+	std::cout << "OLA MIS NIÑOS, indx = " << indx << std::endl;
+
 	if (indx == 1 || indx == 2)
-		return (handleError(res, 501, "Not Implemented", "<h1>501 Not Implemented</h1>"), true);
+		return (handleError(501), true);
 	else if (indx == 3)
 		handleGET(req, res, PYTHON_INTERPRETER);
 	else if (indx == 4)
@@ -62,39 +66,48 @@ std::string CGIHandler::getDir(const std::string &uri, bool *success)
 std::string CGIHandler::getName(const std::string &uri, bool *success)
 {
 	std::string::size_type pos_name = uri.rfind("/");
+	if (pos_name == std::string::npos)
+		return (*success = false, "");
 	std::string::size_type pos_query = uri.find("?");
-	if (pos_name == std::string::npos || pos_query == std::string::npos || pos_name >= pos_query)
+	if (pos_query == std::string::npos)
+		return (uri.substr(pos_name));
+	else if(pos_name >= pos_query)
 		return (*success = false, "");
 	return (uri.substr(pos_name, pos_query)); //si omotimos el segundo argumento de substr se usa std::string::npos por defecto (el final dels string)
 }
 
-std::string CGIHandler::getQueryString(const std::string &uri, bool *success)
+std::string CGIHandler::getQueryString(const std::string &uri)
 {
 	std::string::size_type pos_query = uri.find("?");
 	if (pos_query == std::string::npos)
-		return (*success = false, "");
+		return ("");
 	return (uri.substr(pos_query)); //si omotimos el segundo argumento de substr se usa std::string::npos por defecto (el final dels string)
 }
 
 bool CGIHandler::checkLocation(std::string &directory, std::string &name) //comprueba si el archivo existe dentro del directorio
 {
 	DIR *dir;
+	std::string route = "./www" + directory;
 	struct dirent *entry;
-	std::vector<char*> file_names;
+	std::vector<std::string> file_names;
+	std::string name_without_slash = name.substr(1);
 	
-	if ((dir = opendir(directory.c_str())) == NULL)	//DIR es una estructura opaca definida en <dirent.h>, utilizada por las funciones del sistema para representar un flujo de directorio abierto. Su contenido interno está oculto al usuario y gestionado por el sistema operativo.
+	if ((dir = opendir(route.c_str())) == NULL)	//DIR es una estructura opaca definida en <dirent.h>, utilizada por las funciones del sistema para representar un flujo de directorio abierto. Su contenido interno está oculto al usuario y gestionado por el sistema operativo.
 		return (false);
 	while ((entry = readdir(dir)) != NULL)
 		file_names.push_back(entry->d_name);
 	closedir(dir);
-	if (find(file_names.begin(), file_names.end(), name) == file_names.end())
+	if (find(file_names.begin(), file_names.end(), name_without_slash) == file_names.end())
 		return (false);
 	return (true);
 }
 
 bool CGIHandler::checkExePermission(std::string path)
 {
-	if (!access(path.c_str(), X_OK))
+	std::string route = "./www" + path;
+
+	std::cout << "HOLA MIS NIÑOS route = " << route << std::endl;
+	if (!access(route.c_str(), X_OK))
 		return (true);
 	return (false);
 }
@@ -121,29 +134,35 @@ char ** CGIHandler::enviromentGET(std::string path, std::string queryString)
 
 int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) //ejemplo del header del request: GET /cgi-bin/hello.cgi?name=Juan HTTP/1.1
 {
+	
 	bool success = true;
 	std::string dir = getDir(req.getURI(), &success);
 	std::string name = getName(req.getURI(), &success);
 	std::string path = dir + name;
-	std::string queryString = getQueryString(req.getURI(), &success);
+	std::string queryString = getQueryString(req.getURI());
 	if (!success)
-		return (handleError(res, 404, "Not Found", "<h1>404 invalid header CGI</h1>"), 1);
+		return (handleError(404), 1);
+	std::cout << "OLA MIS NIÑOS, 1" << std::endl;
 	if (!checkLocation(dir, name))
-		return (handleError(res, 404, "Not Found", "<h1>404 checkDirectory CGI</h1>"), 1);
+		return (handleError(404), 1);
+	std::cout << "OLA MIS NIÑOS, 2" << std::endl;
 	if (!checkExePermission(path))
-		return (handleError(res, 502, "Bad Gateway", "<h1>502 checkExePermission CGI</h1>"), 1);	
+		return (handleError(502), 1);
+	std::cout << "OLA MIS NIÑOS, 3" << std::endl;
 	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);
-	
+
+	std::cout << "OLA MIS NIÑOS, dir = " << dir << ", name = " << name << ", path = " << path << ", queryString = " << queryString << std::endl;
+
 	char *argv[] = {(char *)interpreter.c_str(), (char *)path.c_str(), NULL};
 	char **envp = enviromentGET(path, queryString);
 	
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
-		return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+		return (handleError(500), 1);
 
 	pid_t pid = fork(); //fork() devuelve el PID del proceso hijo al proceso padre, y 0 al proceso hijo. No devuelve el PID del proceso actual.
 	if (pid < 0)
-		return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+		return (handleError(500), 1);
 	if (!pid)
 	{
 		close (pipefd[0]);
@@ -169,9 +188,9 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
-			return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+			return (handleError(500), 1);
 		if (WIFSIGNALED(status))
-			return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+			return (handleError(500), 1);
 
 		res.setStatus(200, "OK");
 		res.setHeader("Content-Type", "text/html");
@@ -211,14 +230,14 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 	std::string dir = getDir(req.getURI(), &success);
 	std::string name = getName(req.getURI(), &success);
 	std::string path = dir + name;
-	std::string queryString = getQueryString(req.getURI(), &success);
-	
+	std::string queryString = getQueryString(req.getURI());
+
 	if (!success)
-		return (handleError(res, 404, "Not Found", "<h1>404 invalid header CGI</h1>"), 1);
+		return (handleError(404), 1);
 	if (!checkLocation(dir, name))
-		return (handleError(res, 404, "Not Found", "<h1>404 checkDirectory CGI</h1>"), 1);
+		return (handleError(404), 1);
 	if (!checkExePermission(path))
-		return (handleError(res, 502, "Bad Gateway", "<h1>502 checkExePermission CGI</h1>"), 1);	
+		return (handleError(502), 1);	
 	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);
 	
 	char *argv[] = {(char *)interpreter.c_str(), (char *)path.c_str(), NULL};
@@ -226,14 +245,14 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 	
 	int pipeInput[2];
 	if (pipe(pipeInput) < 0)
-		return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+		return (handleError(500), 1);
 	int pipeOutput[2];
 	if (pipe(pipeOutput) < 0)
-		return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+		return (handleError(500), 1);
 
 	pid_t pid = fork();
 	if (pid < 0)
-		return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+		return (handleError(500), 1);
 	if (!pid)
 	{
 		close (pipeInput[1]);
@@ -259,7 +278,7 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 
 		close(pipeInput[0]);
 		if (0 == write(pipeInput[1], body.c_str(), body.size()))
-			return (handleError(res, 500, "CGI Write Error", "<h1>500 CGI Write Error</h1>"), 1);
+			return (handleError(500), 1);
 		close(pipeInput[1]);
 		close(pipeOutput[1]);
 		while ((count = read(pipeOutput[0], buffer, sizeof(buffer))) > 0)
@@ -268,9 +287,9 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
-			return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+			return (handleError(500), 1);
 		if (WIFSIGNALED(status))
-			return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+			return (handleError(500), 1);
 
 		res.setStatus(200, "OK");
 		res.setHeader("Content-Type", "text/html");
@@ -278,4 +297,3 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 	}
 	return (0);
 }
-

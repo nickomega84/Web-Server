@@ -195,10 +195,17 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		return(0);
 	}
 
-	CGIHandler cgi;
-	if (cgi.identifyCGI(req, res))
-		return (pending_writes[client_fd] = res, 0);
-
+	int* error_code = new int;
+	CGIHandler cgi(error_code);
+	if (cgi.identifyCGI(req, res)) //is CGI
+	{
+		if (*error_code >= 400)
+			return (/* HANDLE ERROR, */ delete error_code, 1);
+		else
+			return (pending_writes[client_fd] = res, delete error_code, 0);
+	}
+	delete error_code;
+	
 	// 🔁 ROUTER + HANDLER
 	IRequestHandler* handler = _router.resolve(req);
 	if (handler) {
