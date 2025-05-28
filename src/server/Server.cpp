@@ -200,9 +200,9 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 	if (cgi.identifyCGI(req, res)) //is CGI
 	{
 		if (*error_code >= 400)
-			return (/* HANDLE ERROR, */ delete error_code, 1);
+			return (/* HANDLE ERROR, */ std::cout << "¡¡ERROR EN CGI!! *error_code = " << *error_code << std::endl, delete error_code, 1);
 		else
-			return (pending_writes[client_fd] = res, delete error_code, 0);
+			return (pending_writes[client_fd] = res, delete error_code, std::cout << "CGI okkie dokki, status = " << pending_writes[client_fd].getStatus() << " , headers = " << pending_writes[client_fd].getHeaders() << " , body = " << pending_writes[client_fd].getBody() << std::endl, 0);
 	}
 	delete error_code;
 	

@@ -23,6 +23,10 @@ public:
 	void setHeader(const std::string& key, const std::string& value);
 	void setBody(const std::string& body);
 
+	int getStatus();
+	std::string getHeaders();
+	std::string getBody();
+
 	std::string toString() const;
 };
 
