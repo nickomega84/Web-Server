@@ -39,9 +39,6 @@ bool CGIHandler::identifyCGI(Request &req, Response &res)
 	if (indx == 0)
 		return (false);
 	indx += identifyMethod(req);
-
-	std::cout << "OLA MIS NIÑOS, indx = " << indx << std::endl;
-
 	if (indx == 1 || indx == 2)
 		return (handleError(501), true);
 	else if (indx == 3)
@@ -127,33 +124,36 @@ char ** CGIHandler::enviromentGET(std::string path, std::string queryString)
 	return(envp);
 }
 
-int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) //ejemplo del header del request: GET /cgi-bin/hello.cgi?name=Juan HTTP/1.1
+int CGIHandler::checkHandler(Request &req, std::map<std::string, std::string> &m)
 {
-	
 	bool success = true;
-	std::string dir = "./www" + getDir(req.getURI(), &success);
-	std::string name = getName(req.getURI(), &success);
-	std::string name_without_slash = name.substr(1);
-	std::string path = dir + name;
-	std::string queryString = getQueryString(req.getURI());
+	m["dir"] = "./www" + getDir(req.getURI(), &success);
+	m["name"] = getName(req.getURI(), &success);
+	m["name_without_slash"] = m["name"].substr(1);
+	m["path"] = m["dir"] + m["name"];
+	m["queryString"] = getQueryString(req.getURI());
 	if (!success)
 		return (handleError(404), 1);
-	if (!checkLocation(dir, name_without_slash))
+	if (!checkLocation(m["dir"], m["name_without_slash"]))
 		return (handleError(404), 1);
-	if (!checkExePermission(path))
+	if (!checkExePermission(m["path"]))
 		return (handleError(502), 1);
-	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);
+		//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
+	return (0);
+}
 
-	std::cout << "OLA MIS NIÑOS, dir = " << dir << ", name = " << name << ", path = " << path << ", queryString = " << queryString << std::endl;
+int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) //ejemplo del header del request: GET /cgi-bin/hello.cgi?name=Juan HTTP/1.1
+{
+	std::map<std::string, std::string> m;
+	if (checkHandler(req, m))
+		return (1);
 
-	char *argv[] = {(char *)interpreter.c_str(), (char *)name_without_slash.c_str(), NULL};
-	char **envp = enviromentGET(path, queryString);
+	char *argv[] = {(char *)m["interpreter"].c_str(), (char *)m["name_without_slash"].c_str(), NULL};
+	char **envp = enviromentGET(m["path"], m["queryString"]);
 
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
 		return (handleError(500), 1);
-
-	std::cout << "OLA MIS NIÑOS, 5 _error = " << *_error << std::endl;
 
 	pid_t pid = fork(); //fork() devuelve el PID del proceso hijo al proceso padre, y 0 al proceso hijo. No devuelve el PID del proceso actual.
 	if (pid < 0)
@@ -165,7 +165,7 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 			return (kill(getpid(), SIGTERM), 1);
 		close (pipefd[1]);
 
-		if (chdir(dir.c_str()) < 0)
+		if (chdir(m["dir"].c_str()) < 0)
 			return (kill(getpid(), SIGTERM), 1);
 		execve((char *)interpreter.c_str(), argv, envp);
 		return (kill(getpid(), SIGTERM), 1);
@@ -183,9 +183,9 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
-			return (handleError(500), std::cout << "OLA MIS NIÑOS, 6 _error = " << *_error << std::endl, 1);
+			return (handleError(500), 1);
 		if (WIFSIGNALED(status))
-			return (handleError(500), std::cout << "OLA MIS NIÑOS, 7 _error = " << *_error << std::endl, 1);
+			return (handleError(500), 1);
 
 		res.setStatus(200, "OK");
 		res.setHeader("Content-Type", "text/html");
@@ -221,22 +221,12 @@ char ** CGIHandler::enviromentPOST(std::string path, std::string queryString, Re
 
 int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 {
-	bool success = true;
-	std::string dir = getDir(req.getURI(), &success);
-	std::string name = getName(req.getURI(), &success);
-	std::string path = dir + name;
-	std::string queryString = getQueryString(req.getURI());
+	std::map<std::string, std::string> m;
+	if (checkHandler(req, m))
+		return (1);
 
-	if (!success)
-		return (handleError(404), 1);
-	if (!checkLocation(dir, name))
-		return (handleError(404), 1);
-	if (!checkExePermission(path))
-		return (handleError(502), 1);	
-	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);
-	
-	char *argv[] = {(char *)interpreter.c_str(), (char *)path.c_str(), NULL};
-	char **envp = enviromentPOST(path, queryString, req);
+	char *argv[] = {(char *)interpreter.c_str(), (char *)m["path"].c_str(), NULL};
+	char **envp = enviromentPOST(m["path"], m["queryString"], req);
 	
 	int pipeInput[2];
 	if (pipe(pipeInput) < 0)
@@ -259,7 +249,7 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 			return (kill(getpid(), SIGTERM), 1);
 		close (pipeOutput[1]);
 
-		if (chdir(dir.c_str()) < 0)
+		if (chdir(m["dir"].c_str()) < 0)
 			return (kill(getpid(), SIGTERM), 1);
 		execve((char *)interpreter.c_str(), argv, envp);
 		return (kill(getpid(), SIGTERM), 1);

@@ -25,6 +25,7 @@ class CGIHandler
 	bool checkExePermission(std::string path);
 	char ** enviromentGET(std::string path, std::string queryString);
 	char ** enviromentPOST(std::string path, std::string queryString, Request &req);
+	int checkHandler(Request &req, std::map<std::string, std::string> &m);
 	int handleGET(Request &req, Response &res, std::string interpreter);
 	int handlePOST(Request &req, Response &res, std::string interpreter);
 
