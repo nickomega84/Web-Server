@@ -141,7 +141,7 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 	if (pipe(pipefd) < 0)
 		return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
 
-	pid_t pid = fork();
+	pid_t pid = fork(); //fork() devuelve el PID del proceso hijo al proceso padre, y 0 al proceso hijo. No devuelve el PID del proceso actual.
 	if (pid < 0)
 		return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
 	if (!pid)
@@ -167,7 +167,11 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 			output.append(buffer, count);
 		close(pipefd[0]);
 
-		waitpid(pid, NULL, 0);
+		int status;
+		if (waitpid(pid, &status, 0) == -1)
+			return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+		if (WIFSIGNALED(status))
+			return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
 
 		res.setStatus(200, "OK");
 		res.setHeader("Content-Type", "text/html");
@@ -178,13 +182,16 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 
 char ** CGIHandler::enviromentPOST(std::string path, std::string queryString, Request &req)
 {
+	std::stringstream body_lenght;
+	body_lenght << req.getBody().length();
+
 	std::string request_method = "REQUEST_METHOD=POST";
 	std::string path_info = "PATH_INFO=" + path;
 	std::string query_string = "QUERY_STRING=" + queryString;
 	std::string script_name = "SCRIPT_NAME=" + path;
 	std::string server_protocol = "SERVER_PROTOCOL=HTTP/1.1";
-	std::string content_type = "CONTENT_TYPE=" + req.getHeaders("Content-Type");
-	std::string content_lenght = "CONTENT_LENGTH=" + std::to_string(req.getBody().length()); //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del request
+	std::string content_type = "CONTENT_TYPE=" + req.getHeader("Content-Type");
+	std::string content_lenght = "CONTENT_LENGTH=" + body_lenght.str(); //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del request
 
 	static char* envp[8]; //STATIC: Duración de vida estática: no se destruye al salir de la función; persiste durante toda la ejecución del programa. Memoria compartida: la misma variable es reutilizada cada vez que se llama la función. No se crea una copia nueva en cada llamada.
 	envp[0] = const_cast<char *>(request_method.c_str());
@@ -198,13 +205,14 @@ char ** CGIHandler::enviromentPOST(std::string path, std::string queryString, Re
 	return(envp);
 }
 
-int CGIHandler::handlePythonPOST(Request &req, Response &res, std::string interpreter)
+int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 {
 	bool success = true;
 	std::string dir = getDir(req.getURI(), &success);
 	std::string name = getName(req.getURI(), &success);
 	std::string path = dir + name;
 	std::string queryString = getQueryString(req.getURI(), &success);
+	
 	if (!success)
 		return (handleError(res, 404, "Not Found", "<h1>404 invalid header CGI</h1>"), 1);
 	if (!checkLocation(dir, name))
@@ -250,7 +258,7 @@ int CGIHandler::handlePythonPOST(Request &req, Response &res, std::string interp
 		std::string body = req.getBody();
 
 		close(pipeInput[0]);
-		if (count = write(pipeInput[1], body, body.size()))
+		if (0 == write(pipeInput[1], body.c_str(), body.size()))
 			return (handleError(res, 500, "CGI Write Error", "<h1>500 CGI Write Error</h1>"), 1);
 		close(pipeInput[1]);
 		close(pipeOutput[1]);
@@ -258,7 +266,11 @@ int CGIHandler::handlePythonPOST(Request &req, Response &res, std::string interp
 			output.append(buffer, count);
 		close(pipeOutput[0]);
 
-		waitpid(pid, NULL, 0);
+		int status;
+		if (waitpid(pid, &status, 0) == -1)
+			return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
+		if (WIFSIGNALED(status))
+			return (handleError(res, 500, "CGI Script Error", "<h1>500 CGI Script Error</h1>"), 1);
 
 		res.setStatus(200, "OK");
 		res.setHeader("Content-Type", "text/html");

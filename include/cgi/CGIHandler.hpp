@@ -21,9 +21,10 @@ class CGIHandler
 	std::string getQueryString(const std::string &uri, bool *success);
 	bool checkLocation(std::string &directory, std::string &name);
 	bool checkExePermission(std::string path);
-	char ** getEnviroment(std::string path, std::string queryString);
+	char ** enviromentGET(std::string path, std::string queryString);
+	char ** enviromentPOST(std::string path, std::string queryString, Request &req);
 	int handleGET(Request &req, Response &res, std::string interpreter);
-	int handlePythonPOST(Request &req, Response &res);
+	int handlePOST(Request &req, Response &res, std::string interpreter);
 
 	CGIHandler(const CGIHandler &other);
 	CGIHandler& operator=(CGIHandler& other);
