@@ -5,6 +5,7 @@
 #include "../include/middleware/MiddlewareStack.hpp"
 #include "../include/server/Server.hpp"
 #include "../include/server/Config.hpp"
+#include "../include/config/ConfigParser.hpp"
 
 int main() {
 	Config config;
@@ -31,5 +32,20 @@ int main() {
 	std::cout << "[🔁] Iniciando el servidor Epoll...\n";
 	server.startEpoll();
 
+	ConfigParser &config = ConfigParser::getInst();
+	if (!config.load("../include/config/ConfigParser.hpp")) {	
+		std::cout << "Error: Hubo un error al cargar el archivo de configuración" << std::endl
+		return 1;
+	}
+
+	std::cout << "Puerto: " << config.getGlobalAsInt("port") << std::endl;
+	std::cout << "Ruta: " << config.getGlobal("root") << std::endl;
+	std::cout << "Autoindex en /www: " << config.getLocation("/www", "autoindex") << std::endl;
+
+	config.setGlobal("port", "8080");
+
+
+	config.print();
+	
 	return 0;
 }
