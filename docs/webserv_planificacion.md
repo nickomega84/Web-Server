@@ -12,7 +12,7 @@
 ### 🗂 Componentes Principales:
 
 ```
-[ poll() ]
+[ epoll() ]
     |
     v
 [ fd activo ] --> [ Connection Handler ]

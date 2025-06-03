@@ -9,7 +9,7 @@ tests = [
     {
         "name": "GET /",
         "method": "GET",
-        "path": "/",
+        "path": "www/pepe/image.png",
         "expected_status": 200,
         "expected_content_type": "text/html"
     },
