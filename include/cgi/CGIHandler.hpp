@@ -4,6 +4,7 @@
 #include <string>
 #include <dirent.h> //DIR
 #include <signal.h> //SIGTERM
+#include <csignal>
 #include <sys/wait.h>
 
 #define PYTHON_INTERPRETER "/usr/bin/python3"

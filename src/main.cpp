@@ -6,7 +6,21 @@
 #include "../include/server/Server.hpp"
 #include "../include/server/Config.hpp"
 
+volatile sig_atomic_t g_signal_received = 0;
+
+void signal_handler(int signum) 
+{
+	if (signum == SIGINT || signum == SIGTERM)
+		g_signal_received = 1;
+	std::cout << "SEÑAL RECIBIDA" << std::endl;
+}
+
 int main() {
+
+	std::signal(SIGINT, signal_handler);
+	std::signal(SIGTERM, signal_handler);
+	std::signal(SIGPIPE, SIG_IGN);
+
 	Config config;
 	Server server(config.getServerConf());
 

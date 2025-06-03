@@ -59,7 +59,7 @@ void Server::startEpoll()
 		return;
 
 	struct epoll_event events[MAX_EVENTS];
-	while (1)
+	while (g_signal_received == 0) //gestor de señales
 	{
 		int event_nmb = epoll_wait(epollfd, events, MAX_EVENTS, -1);
 		if (event_nmb == -1)

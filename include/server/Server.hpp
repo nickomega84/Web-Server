@@ -10,6 +10,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <csignal>
 #include "../include/server/Config.hpp"
 
 #include "../core/Response.hpp"
@@ -19,6 +20,8 @@
 #include "../middleware/IMiddleware.hpp"
 #include "../router/Router.hpp"
 #include "../cgi/CGIHandler.hpp"
+
+extern volatile sig_atomic_t g_signal_received;
 
 #define PORT		8080
 #define MAX_CONN	1000
