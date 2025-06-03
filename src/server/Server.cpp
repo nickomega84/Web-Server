@@ -236,7 +236,7 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	if (bytes_sent == 0)
 		return (std::cout << "[-] No data sent: " << client_fd << std::endl, 1);
 	if (bytes_sent < 0)
-		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1); */
+		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
 	pending_writes.erase(client_fd);
 	return (0);
 }
