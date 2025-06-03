@@ -7,8 +7,19 @@
 #include <sys/wait.h>
 
 #define PYTHON_INTERPRETER "/usr/bin/python3"
-#define SH_INTERPRETER "/bin/sh"
+#define SH_INTERPRETER "/usr/bin/sh"
 #define BUFFER_SIZE	1024
+
+enum Type
+{
+	NO_CGI = 0,
+	INVALID1 = 1,
+	INVALID2 = 2,
+	GET_PY = 3,
+	GET_SH = 4,
+	POST_PY = 5,
+	POST_SH = 6,
+};
 
 class CGIHandler
 {

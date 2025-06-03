@@ -11,9 +11,13 @@ CGIHandler::~CGIHandler()
 int CGIHandler::identifyType(Request &req)
 {
 	std::string uri = req.getURI();
-	if (uri.find(".py") != std::string::npos) 
+	std::string::size_type query_pos = uri.find('?');
+	std::string path_part = uri;
+	if (query_pos != std::string::npos)
+		path_part = uri.substr(0, query_pos);	
+	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".py")
 		return (1);
-	else if (uri.find(".sh") != std::string::npos) 
+	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".sh")
 		return (2);
 	return (0);
 }
@@ -21,9 +25,9 @@ int CGIHandler::identifyType(Request &req)
 int CGIHandler::identifyMethod(Request &req)
 {
 	std::string method = req.getMethod();
-	if (method.find("GET") != std::string::npos)
+	if (method == "GET")
 		return (2);
-	if (method.find("POST") != std::string::npos)
+	if (method == "POST")
 		return (4);
 	return (0);
 }
@@ -39,15 +43,15 @@ bool CGIHandler::identifyCGI(Request &req, Response &res)
 	if (indx == 0)
 		return (false);
 	indx += identifyMethod(req);
-	if (indx == 1 || indx == 2)
+	if (indx == INVALID1 || indx == INVALID2)
 		return (handleError(501), true);
-	else if (indx == 3)
+	else if (indx == GET_PY)
 		handleGET(req, res, PYTHON_INTERPRETER);
-	else if (indx == 4)
+	else if (indx == GET_SH)
 		handleGET(req, res, SH_INTERPRETER);
-	else if (indx == 5)
+	else if (indx == POST_PY)
 		handlePOST(req, res, PYTHON_INTERPRETER);
-	else if (indx == 6)
+	else if (indx == POST_SH)
 		handlePOST(req, res, SH_INTERPRETER);
 	return (true);
 }
@@ -135,7 +139,7 @@ int CGIHandler::checkHandler(Request &req, std::map<std::string, std::string> &m
 	if (!checkLocation(m["dir"], m["name_without_slash"]))
 		return (handleError(404), 1);
 	if (!checkExePermission(m["path"]))
-		return (handleError(502), 1);
+		return (handleError(500), 1);
 		//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
 	return (0);
 }
@@ -157,26 +161,26 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 	{
 		std::string patata(envp[i]);
 		std::cout << "envp[" << i << "] = " << patata << std::endl;
-	} */
-
+	}
+ */
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
-		return (handleError(500), 1);
+		return (handleError(500), delete[] envp, 1);
 
 	pid_t pid = fork(); //fork() devuelve el PID del proceso hijo al proceso padre, y 0 al proceso hijo. No devuelve el PID del proceso actual.
 	if (pid < 0)
-		return (handleError(500), 1);
+		return (handleError(500), delete[] envp, 1);
 	if (!pid)
 	{
 		close (pipefd[0]);
 		if (dup2(pipefd[1], STDOUT_FILENO) < 0)
-			return (kill(getpid(), SIGTERM), 1);
+			return (kill(getpid(), SIGTERM), delete[] envp, 1);
 		close (pipefd[1]);
 
 		if (chdir(m["dir"].c_str()) < 0)
-			return (kill(getpid(), SIGTERM), 1);
+			return (kill(getpid(), SIGTERM), delete[] envp, 1);
 		execve((char *)interpreter.c_str(), argv, envp);
-		return (kill(getpid(), SIGTERM), 1);
+		return (kill(getpid(), SIGTERM), delete[] envp, 1);
 	}
 	else
 	{
@@ -191,15 +195,24 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
-			return (handleError(500), 1);
+			return (handleError(500), delete[] envp, 1);
 		if (WIFSIGNALED(status))
-			return (handleError(500), 1);
+			return (handleError(500), delete[] envp, 1);
 
 		res.setStatus(200, "OK");
-		res.setHeader("Content-Type", "text/html");
+		
+		std::cout << "OLA PIRATA 0.5 output" << std::endl;
+		std::cout << output << std::endl;
+
 		res.setBody(output);
+		
+		std::cout << "OLA PIRATA 0.5 BODY" << std::endl;
+		std::cout << res.getBody() << std::endl;
+
+		std::cout << "OLA PIRATA 0.5 GET" << std::endl;
+		std::cout << res.toString() << std::endl;
 	}
-	return (0);
+	return (delete[] envp, 0);
 }
 
 std::vector<std::string> CGIHandler::enviromentPOST(std::string path, std::string queryString, Request &req)
@@ -224,8 +237,8 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 	if (checkHandler(req, m))
 		return (1);
 
-	char *argv[] = {(char *)interpreter.c_str(), (char *)m["path"].c_str(), NULL};
-	std::vector<std::string> en = enviromentGET(m["path"], m["queryString"]);
+	char *argv[] = {(char *)m["interpreter"].c_str(), (char *)m["name_without_slash"].c_str(), NULL};
+	std::vector<std::string> en = enviromentPOST(m["path"], m["queryString"], req);
 	char** envp = new char*[en.size() + 1];
 	for (size_t i = 0; i < en.size(); ++i)
 		envp[i] = const_cast<char*>(en[i].c_str());
@@ -233,29 +246,29 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 	
 	int pipeInput[2];
 	if (pipe(pipeInput) < 0)
-		return (handleError(500), 1);
+		return (handleError(500), delete[] envp, 1);
 	int pipeOutput[2];
 	if (pipe(pipeOutput) < 0)
-		return (handleError(500), 1);
+		return (handleError(500), delete[] envp, 1);
 
 	pid_t pid = fork();
 	if (pid < 0)
-		return (handleError(500), 1);
+		return (handleError(500), delete[] envp, 1);
 	if (!pid)
 	{
 		close (pipeInput[1]);
 		if (dup2(pipeInput[0], STDIN_FILENO) < 0)
-			return (kill(getpid(), SIGTERM), 1);
+			return (kill(getpid(), SIGTERM), delete[] envp, 1);
 		close (pipeInput[0]);
 		close (pipeOutput[0]);
 		if (dup2(pipeOutput[1], STDOUT_FILENO) < 0)
-			return (kill(getpid(), SIGTERM), 1);
+			return (kill(getpid(), SIGTERM), delete[] envp, 1);
 		close (pipeOutput[1]);
 
 		if (chdir(m["dir"].c_str()) < 0)
-			return (kill(getpid(), SIGTERM), 1);
+			return (kill(getpid(), SIGTERM), delete[] envp, 1);
 		execve((char *)interpreter.c_str(), argv, envp);
-		return (kill(getpid(), SIGTERM), 1);
+		return (kill(getpid(), SIGTERM), delete[] envp, 1);
 	}
 	else
 	{
@@ -265,8 +278,9 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 		std::string body = req.getBody();
 
 		close(pipeInput[0]);
-		if (0 == write(pipeInput[1], body.c_str(), body.size()))
-			return (handleError(500), 1);
+		ssize_t bytes_written = write(pipeInput[1], body.c_str(), body.size());
+		if (bytes_written == -1 || static_cast<size_t>(bytes_written) != body.size())
+			return (handleError(500), delete[] envp, close(pipeInput[1]), close(pipeOutput[1]), close(pipeOutput[0]), 1);
 		close(pipeInput[1]);
 		close(pipeOutput[1]);
 		while ((count = read(pipeOutput[0], buffer, sizeof(buffer))) > 0)
@@ -275,13 +289,23 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
-			return (handleError(500), 1);
+			return (handleError(500), delete[] envp, 1);
 		if (WIFSIGNALED(status))
-			return (handleError(500), 1);
+			return (handleError(500), delete[] envp, 1);
 
 		res.setStatus(200, "OK");
-		res.setHeader("Content-Type", "text/html");
+
+		std::cout << "OLA PIRATA 0.5 output" << std::endl;
+		std::cout << output << std::endl;
+
 		res.setBody(output);
+		
+		std::cout << "OLA PIRATA 0.5 BODY" << std::endl;
+		std::cout << res.getBody() << std::endl;
+
+		std::cout << "OLA PIRATA 0.5 POST" << std::endl;
+		std::cout << res.toString() << std::endl;
 	}
-	return (0);
+
+	return (delete[] envp, 0);
 }

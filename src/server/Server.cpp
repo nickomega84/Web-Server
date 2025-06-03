@@ -79,14 +79,14 @@ void Server::startEpoll()
 				{
 					if (handleClientRead(events[i].data.fd, pending_writes))
 						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
-					if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
+					else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
 						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 				}
 				if (events[i].events & EPOLLOUT)
 				{
 					if (handleClientResponse(events[i].data.fd, pending_writes))
 						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
-					if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
+					else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
 						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 				}
 			}
