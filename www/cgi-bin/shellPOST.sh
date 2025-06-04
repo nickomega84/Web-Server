@@ -14,7 +14,7 @@ if [ "$CONTENT_LENGTH" -gt 0 ]; then
 
     # 1. Generar un nombre único para el archivo
     TIMESTAMP=$(date +%Y%m%d%H%M%S)
-    FILE_NAME="recurso_${TIMESTAMP}.txt"
+    FILE_NAME="resource_${TIMESTAMP}.txt"
 
     # 2. Definir el directorio de destino
     # Asegúrate de que esta ruta sea relativa al directorio de ejecución del CGI.

@@ -108,18 +108,6 @@ bool CGIHandler::checkExePermission(std::string path)
 	return (false);
 }
 
-std::vector<std::string> CGIHandler::enviromentGET(std::string path, std::string queryString)
-{
-	std::vector<std::string> envp;
-	envp.push_back("REQUEST_METHOD=GET");
-	envp.push_back("PATH_INFO=" + path);
-	envp.push_back("QUERY_STRING=" + queryString);
-	envp.push_back("SCRIPT_NAME=" + path);
-	envp.push_back("SERVER_PROTOCOL=HTTP/1.1");
-	envp.push_back("CONTENT_LENGTH=0"); //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del reques)t
-	return(envp);
-}
-
 int CGIHandler::checkHandler(Request &req, std::map<std::string, std::string> &m)
 {
 	bool success = true;
@@ -142,6 +130,18 @@ int CGIHandler::checkHandler(Request &req, std::map<std::string, std::string> &m
 		return (handleError(500), 1);
 		//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
 	return (0);
+}
+
+std::vector<std::string> CGIHandler::enviromentGET(std::string path, std::string queryString)
+{
+	std::vector<std::string> envp;
+	envp.push_back("REQUEST_METHOD=GET");
+	envp.push_back("PATH_INFO=" + path);
+	envp.push_back("QUERY_STRING=" + queryString);
+	envp.push_back("SCRIPT_NAME=" + path);
+	envp.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	envp.push_back("CONTENT_LENGTH=0"); //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del reques)t
+	return(envp);
 }
 
 int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) //ejemplo del header del request: GET /cgi-bin/hello.cgi?name=Juan HTTP/1.1

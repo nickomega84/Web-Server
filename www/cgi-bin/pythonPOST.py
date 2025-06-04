@@ -26,7 +26,7 @@ if content_length > 0:
     # Ejemplo 2: Generar un nombre basado en el tiempo para evitar sobrescribir
     import datetime
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    file_name = f"recurso_{timestamp}.txt"
+    file_name = f"resource_{timestamp}.txt"
     
     # 2. Definir la ruta donde se guardará el recurso
     # Asegúrate de que este directorio exista y el CGI tenga permisos de escritura.
