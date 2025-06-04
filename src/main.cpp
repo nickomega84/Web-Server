@@ -12,7 +12,7 @@ void signal_handler(int signum)
 {
 	if (signum == SIGINT || signum == SIGTERM)
 		g_signal_received = 1;
-	std::cout << "SEÑAL RECIBIDA" << std::endl;
+	std::cout << "Signal received. Closing" << std::endl;
 }
 
 int main() {
