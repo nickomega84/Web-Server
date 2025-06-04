@@ -4,7 +4,7 @@
 
 Request::Request()
 {
-    std::cout << "Request constructor called" << std::endl;
+    /* std::cout << "Request constructor called" << std::endl; */
 }
 Request::Request(const Request& other)
 {
@@ -25,7 +25,7 @@ Request& Request::operator=(const Request& other)
 }
 Request::~Request() 
 {
-    std::cout << "Request destructor called" << std::endl;
+    /* std::cout << "Request destructor called" << std::endl; */
 }
 bool Request::parse(const std::string& raw)
 {

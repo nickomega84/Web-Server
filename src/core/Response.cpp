@@ -3,7 +3,7 @@
 
 Response::Response() : _statusCode(200), _statusText("OK") 
 {
-    std::cout << "Response constructor called" << std::endl;
+    /* std::cout << "Response constructor called" << std::endl; */
 }
 
 Response::Response(const Response& other) : _statusCode(other._statusCode), 
@@ -22,7 +22,10 @@ Response& Response::operator=(const Response& other) {
 	return *this;
 }
 
-Response::~Response() {}
+Response::~Response() 
+{
+	/* Request */
+}
 
 void Response::setStatus(int code, const std::string& text) {
 	_statusCode = code;
@@ -55,4 +58,23 @@ std::string Response::toString() const {
 }
 const std::string& Response::getBody() const {
 	return _body;
+}
+
+int Response::getStatus()
+{
+	return (_statusCode);
+}
+
+std::string Response::getHeaders()
+{
+	std::string headers;
+	std::map<std::string, std::string>::const_iterator it;
+	for (it = _headers.begin(); it != _headers.end(); ++it)
+		headers += it->first + ": " + it->second + "\r\n";
+	return(headers);
+}
+
+std::string Response::getBody()
+{
+	return(_body);
 }
