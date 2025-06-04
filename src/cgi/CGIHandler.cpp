@@ -157,12 +157,6 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 		envp[i] = const_cast<char*>(en[i].c_str());
 	envp[en.size()] = NULL;
 
-/* 	for (int i = 0; envp[i]; ++i)
-	{
-		std::string patata(envp[i]);
-		std::cout << "envp[" << i << "] = " << patata << std::endl;
-	}
- */
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
 		return (handleError(500), delete[] envp, 1);
@@ -199,18 +193,8 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 		if (WIFSIGNALED(status))
 			return (handleError(500), delete[] envp, 1);
 
-		res.setStatus(200, "OK");
-		
-		std::cout << "OLA PIRATA 0.5 output" << std::endl;
-		std::cout << output << std::endl;
-
-		res.setBody(output);
-		
-		std::cout << "OLA PIRATA 0.5 BODY" << std::endl;
-		std::cout << res.getBody() << std::endl;
-
-		std::cout << "OLA PIRATA 0.5 GET" << std::endl;
-		std::cout << res.toString() << std::endl;
+		if (createResponse(output, res))
+			return (handleError(500), delete[] envp, 1);
 	}
 	return (delete[] envp, 0);
 }
@@ -293,19 +277,45 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 		if (WIFSIGNALED(status))
 			return (handleError(500), delete[] envp, 1);
 
-		res.setStatus(200, "OK");
-
-		std::cout << "OLA PIRATA 0.5 output" << std::endl;
-		std::cout << output << std::endl;
-
-		res.setBody(output);
-		
-		std::cout << "OLA PIRATA 0.5 BODY" << std::endl;
-		std::cout << res.getBody() << std::endl;
-
-		std::cout << "OLA PIRATA 0.5 POST" << std::endl;
-		std::cout << res.toString() << std::endl;
+		if (createResponse(output, res))
+			return (handleError(500), delete[] envp, 1);
 	}
-
 	return (delete[] envp, 0);
+}
+
+
+int CGIHandler::createResponse(std::string output, Response &res)
+{
+	res.setStatus(200, "OK");
+ 
+	std::string cgi_headers_str;
+	std::string cgi_body_str;
+	std::string::size_type header_end_pos = output.find("\r\n\r\n");
+	if (header_end_pos == std::string::npos)
+		header_end_pos = output.find("\n\n"); //algunos scripts no devuelven \r\n\r\n como dicta la convencción de HTTP, en su lugar devuelven \n\n 
+	if (header_end_pos == std::string::npos)
+		return (1);
+	cgi_headers_str = output.substr(0, header_end_pos);
+	cgi_body_str = output.substr(header_end_pos + 4); // +4 para saltar \r\n\r\n
+
+	res.setBody(cgi_body_str);
+
+	std::stringstream ss(cgi_headers_str);
+	std::string line;
+	while (std::getline(ss, line) && !line.empty()) 
+	{
+		std::string::size_type colon_pos = line.find(':');
+		if (colon_pos != std::string::npos) 
+		{
+			std::string header_name = line.substr(0, colon_pos);
+			std::string header_value = line.substr(colon_pos + 1);
+			size_t first_char_pos = header_value.find_first_not_of(" \t"); // Quitar espacios en blanco al inicio del valor
+			if (first_char_pos != std::string::npos)
+				header_value = header_value.substr(first_char_pos);
+			else
+				header_value = ""; // Valor vacío si solo hay espacios
+			res.setHeader(header_name, header_value);
+		}
+	}
+	return (0);
 }

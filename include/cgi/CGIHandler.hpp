@@ -40,6 +40,7 @@ class CGIHandler
 	int checkHandler(Request &req, std::map<std::string, std::string> &m);
 	int handleGET(Request &req, Response &res, std::string interpreter);
 	int handlePOST(Request &req, Response &res, std::string interpreter);
+	int createResponse(std::string output, Response &res);
 
 	CGIHandler(const CGIHandler &other);
 	CGIHandler& operator=(CGIHandler& other);

@@ -227,8 +227,8 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		res.setHeader("Content-Length", oss.str());
 	}
 
-	std::string response = res.toString();
-	send(client_fd, response.c_str(), response.length(), 0);
+/* 	std::string response = res.toString();
+	send(client_fd, response.c_str(), response.length(), 0); */
 	/* closeClient(client_fd); */
 	pending_writes[client_fd] = res;
 	return (0);
