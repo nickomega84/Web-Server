@@ -87,9 +87,9 @@ Response StaticFileHandler::handleRequest(const Request& request)
 	if (method == "GET" || method == "HEAD")
 		res = doGET(res, uri);
 	if (method == "POST")
-		res = doPOST(res);
+		res = doPOST(request, res);
 	if (method == "DELETE")
-		res = doDELETE(res);
+		res = doDELETE(res, uri);
 	return res;
 }
 
@@ -97,6 +97,8 @@ Response StaticFileHandler::doGET(Response& res, std::string uri)
 {
 	std::string fullPath = _rootPath + uri;
     std::cout << "[DEBUG] Sirviendo archivo: " << fullPath << std::endl;
+
+	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
 
     if (!fileExists(fullPath)) {
         res.setStatus(404, "Not Found");
@@ -110,19 +112,20 @@ Response StaticFileHandler::doGET(Response& res, std::string uri)
 	// if (request.isKeepAlive())
     //     res.setHeader("Connection", "keep-alive");
     // else
-    //     res.setHeader("Connection", "close");
     std::string body = readFile(fullPath);
     res.setStatus(200, "OK");
     res.setBody(body);
     res.setHeader("Content-Type", guessMimeType(fullPath));
     res.setHeader("Content-Length", Utils::intToString(body.length()));
-    res.setHeader("Connection", "close");
     return res;
 }
 
 Response StaticFileHandler::doPOST(const Request& req, Response& res)
 {
 	std::string full_path; //nombre + ruta al recurso (URI)
+
+	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
+
 	if (createPOSTfile(req, full_path))
 	{
 		res.setStatus(500, "Internal Server Error");
@@ -130,17 +133,13 @@ Response StaticFileHandler::doPOST(const Request& req, Response& res)
         res.setBody(body);
         res.setHeader("Content-Type", "text/html");
         res.setHeader("Content-Length", Utils::intToString(body.length()));
-		res.setHeader("Connection", "close");
 	}
-	
 	res.setStatus(200, "Created");
+	res.setBody(createPOSTbody(full_path));
 	res.setHeader("Date", get_date());
 	res.setHeader("Location", full_path);
 	res.setHeader("Content-Type", "text/html");
 	res.setHeader("Content-Length", Utils::intToString(res.getBody().length()));
-	res.setBody(createPOSTbody(full_path));
-
-
 	return (res);
 }
 
@@ -148,9 +147,10 @@ int StaticFileHandler::createPOSTfile(const Request& req, std::string& relative_
 {
     std::string upload_dir_path = _rootPath + "/uploads";
 
-	if (opendir(upload_dir_path.c_str()) == NULL)
+	DIR *dir;
+	if ((dir = opendir(upload_dir_path.c_str())) == NULL)
 		return (std::cerr << "Cannot open upload directory " << upload_dir_path << std::endl, 1);
-	closedir(upload_dir_path.c_str());
+	closedir(dir);
 
 	std::time_t raw_time;
 	std::time(&raw_time); //segundos desde el 1 de enero de 1970
@@ -163,12 +163,12 @@ int StaticFileHandler::createPOSTfile(const Request& req, std::string& relative_
 		<< local_time->tm_year + 1900 << std::endl;
 	std::string file_name = "resource_" + ss.str();
 
-    std::string file_system_path = upload_dir_path + "/" + final_filename;
-    relative_path = "/uploads" + final_filename;
+    std::string file_system_path = upload_dir_path + "/" + file_name;
+    relative_path = "/uploads" + file_name;
 
     std::ofstream outfile(file_system_path.c_str(), std::ios::out | std::ios::binary); //std::ios::out crea (si hace falta) y trunca el archivo
-    if (!outfile.is_open())
-        return (std::cerr << "[ERROR] Failed to open file for writing: " << file_system_path << std::endl, 1);
+	if (!outfile.is_open())
+		return (std::cerr << "[ERROR] Failed to open file for writing: " << file_system_path << std::endl, 1);
 
 	const std::string& request_body = req.getBody();
     outfile.write(request_body.c_str(), request_body.length());
@@ -195,9 +195,34 @@ std::string StaticFileHandler::createPOSTbody(std::string full_path)
 	return (ss.str());
 }
 
-Response StaticFileHandler::doDELETE(const Request& req, Response& res)
+Response StaticFileHandler::doDELETE(Response res, std::string uri)
 {
+	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
 
+	std::string fullPath = _rootPath + uri;
+    std::cout << "[DEBUG] Borrando archivo: " << fullPath << std::endl;
+
+    if (!fileExists(fullPath)) 
+	{
+        res.setStatus(404, "Not Found");
+        std::string body = renderErrorPage(_rootPath, 404, "Archivo no encontrado");
+        res.setBody(body);
+        res.setHeader("Content-Type", "text/html");
+        res.setHeader("Content-Length", Utils::intToString(body.length()));
+        return (res);
+    }
+	if (std::remove(fullPath.c_str()))
+	{
+		res.setStatus(500, "Internal server error");
+        std::string body = renderErrorPage(_rootPath, 500, "Cannot DELETE file");
+        res.setBody(body);
+        res.setHeader("Content-Type", "text/html");
+        res.setHeader("Content-Length", Utils::intToString(body.length()));
+        return (res);
+	}
+	res.setStatus(204, "No content");
+	res.setHeader("Date", get_date());
+	return (res);
 }
 
 std::string StaticFileHandler::get_date()
@@ -206,8 +231,12 @@ std::string StaticFileHandler::get_date()
 	std::time(&raw_time); //segundos desde el 1 de enero de 1970
 	std::tm* local_time = std::localtime(&raw_time); //carga raw_time en una estrcutura que diferencia entre días, meses etc...
 	std::stringstream ss;
-	ss	<< local_time->tm_mday << "/"
-		<< local_time->tm_mon + 1 << "/"
-		<< local_time->tm_year + 1900 << std::endl;
+	ss	<< local_time->tm_wday << ", "
+		<< local_time->tm_mday << " "
+		<< local_time->tm_mon + 1 << " "
+		<< local_time->tm_year + 1900
+		<< local_time->tm_hour << ":"
+		<< local_time->tm_min << ":"
+		<< local_time->tm_sec << std::endl;
 	return (ss.str());
 }
