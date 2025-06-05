@@ -44,7 +44,7 @@ bool CGIHandler::identifyCGI(Request &req, Response &res)
 		return (false);
 	indx += identifyMethod(req);
 	if (indx == INVALID1 || indx == INVALID2)
-		return (handleError(501), true);
+		return (std::cerr << "[ERROR] CGI invalid method" << std::endl, handleError(501), true);
 	else if (indx == GET_PY)
 		handleGET(req, res, PYTHON_INTERPRETER);
 	else if (indx == GET_SH)
@@ -123,11 +123,11 @@ int CGIHandler::checkHandler(Request &req, std::map<std::string, std::string> &m
 	std::cout << std::endl;
 
 	if (!success)
-		return (handleError(404), 1);
+		return (std::cerr << "[ERROR] CGI couldn't getDir() or getName()" << std::endl, handleError(404), 1);
 	if (!checkLocation(m["dir"], m["name_without_slash"]))
-		return (handleError(404), 1);
+		return (std::cerr << "[ERROR] CGI couldn't checkLocation()" << std::endl, handleError(404), 1);
 	if (!checkExePermission(m["path"]))
-		return (handleError(500), 1);
+		return (std::cerr << "[ERROR] CGI couldn't checkExePermission()" << std::endl, handleError(500), 1);
 
 	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
 	
@@ -161,11 +161,11 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
-		return (handleError(500), delete[] envp, 1);
+		return (std::cerr << "[ERROR] CGI pipe() on handleGET" << std::endl, handleError(500), delete[] envp, 1);
 
 	pid_t pid = fork(); //fork() devuelve el PID del proceso hijo al proceso padre, y 0 al proceso hijo. No devuelve el PID del proceso actual.
 	if (pid < 0)
-		return (handleError(500), delete[] envp, 1);
+		return (std::cerr << "[ERROR] CGI pid on handleGET" << std::endl, handleError(500), delete[] envp, 1);
 	if (!pid)
 	{
 		close (pipefd[0]);
@@ -191,12 +191,12 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
-			return (handleError(500), delete[] envp, 1);
+			return (std::cerr << "[ERROR] CGI on waitpid()" << std::endl, handleError(500), delete[] envp, 1);
 		if (WIFSIGNALED(status))
-			return (handleError(500), delete[] envp, 1);
+			return (std::cerr << "[ERROR] CGI child killed SIGTERM" << std::endl, handleError(500), delete[] envp, 1);
 
 		if (createResponse(output, res))
-			return (handleError(500), delete[] envp, 1);
+			return (std::cerr << "[ERROR] CGI couldn't create reponse" << std::endl, handleError(500), delete[] envp, 1);
 	}
 	return (delete[] envp, 0);
 }
@@ -232,14 +232,14 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 	
 	int pipeInput[2];
 	if (pipe(pipeInput) < 0)
-		return (handleError(500), delete[] envp, 1);
+		return (std::cerr << "[ERROR] CGI on pipeInput" << std::endl, handleError(500), delete[] envp, 1);
 	int pipeOutput[2];
 	if (pipe(pipeOutput) < 0)
-		return (handleError(500), delete[] envp, 1);
+		return (std::cerr << "[ERROR] CGI on pipeOutput" << std::endl, handleError(500), delete[] envp, 1);
 
 	pid_t pid = fork();
 	if (pid < 0)
-		return (handleError(500), delete[] envp, 1);
+		return (std::cerr << "[ERROR] CGI pid() on handlePOST" << std::endl, handleError(500), delete[] envp, 1);
 	if (!pid)
 	{
 		close (pipeInput[1]);
@@ -266,7 +266,7 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 		close(pipeInput[0]);
 		ssize_t bytes_written = write(pipeInput[1], body.c_str(), body.size());
 		if (bytes_written == -1 || static_cast<size_t>(bytes_written) != body.size())
-			return (handleError(500), delete[] envp, close(pipeInput[1]), close(pipeOutput[1]), close(pipeOutput[0]), 1);
+			return (std::cerr << "[ERROR] CGI write on handlePOST" << std::endl, handleError(500), delete[] envp, close(pipeInput[1]), close(pipeOutput[1]), close(pipeOutput[0]), 1);
 		close(pipeInput[1]);
 		close(pipeOutput[1]);
 		while ((count = read(pipeOutput[0], buffer, sizeof(buffer))) > 0)
@@ -275,12 +275,12 @@ int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
-			return (handleError(500), delete[] envp, 1);
+			return (std::cerr << "[ERROR] CGI waitpid()" << std::endl, handleError(500), delete[] envp, 1);
 		if (WIFSIGNALED(status))
-			return (handleError(500), delete[] envp, 1);
+			return (std::cerr << "[ERROR] CGI child was killed SIGTERM" << std::endl, handleError(500), delete[] envp, 1);
 
 		if (createResponse(output, res))
-			return (handleError(500), delete[] envp, 1);
+			return (std::cerr << "[ERROR] CGI couldn't createResponse()" << std::endl, handleError(500), delete[] envp, 1);
 	}
 	return (delete[] envp, 0);
 }

@@ -32,16 +32,16 @@ int Server::addListeningSocket()
 	input.ai_socktype = SOCK_STREAM;
 
 	if (getaddrinfo(c->c.host.c_str(), c->c.port.c_str(), &input, &output))
-		return (std::cerr << "Error calling getaddrinfo()" << std::endl, freeaddrinfo(output), 500);
+		return (std::cerr << "[ERROR] calling getaddrinfo()" << std::endl, freeaddrinfo(output), 500);
 	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, 0)) < 0)
-		return (std::cerr << "Error creating server socket" << std::endl, freeaddrinfo(output), 500);
+		return (std::cerr << "[ERROR] creating server socket" << std::endl, freeaddrinfo(output), 500);
 	int opt = 1;
 	if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
-		return (std::cerr << "Error calling setsockopt()" << std::endl, freeaddrinfo(output), 500);
+		return (std::cerr << "[ERROR] calling setsockopt()" << std::endl, freeaddrinfo(output), 500);
 	if (bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0)
-		return (std::cerr << "Error binding listen_socket" << std::endl, freeaddrinfo(output), 500);
+		return (std::cerr << "[ERROR] binding listen_socket" << std::endl, freeaddrinfo(output), 500);
 	if (listen(listen_socket, MAX_CONN) < 0)
-		return (std::cerr << "Error on listen()" << std::endl, freeaddrinfo(output), 500);
+		return (std::cerr << "[ERROR] on listen()" << std::endl, freeaddrinfo(output), 500);
 	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
 	listen_sockets.push_back(listen_socket);
 	std::cout << "New listenSocket fd = " << listen_socket << std::endl;
@@ -64,7 +64,7 @@ void Server::startEpoll()
 		int event_nmb = epoll_wait(epollfd, events, MAX_EVENTS, -1);
 		if (event_nmb == -1)
 		{
-			std::cerr << "Error on epoll_wait(), epollfd = " << epollfd << std::endl;
+			std::cerr << "[ERROR] on epoll_wait(), epollfd = " << epollfd << std::endl;
 			break;
 		}
 		for (int i = 0; i < event_nmb; i++)
@@ -99,13 +99,13 @@ int Server::init_epoll()
 {
 	int epollfd = epoll_create(1);
 	if (epollfd < 0)
-		return (std::cerr << "Error on epoll_create" << std::endl, -1);
+		return (std::cerr << "[ERROR] on epoll_create" << std::endl, -1);
 
 	if (listen_sockets.empty())
-		return (std::cerr << "No listen_sockets to add to epoll" << std::endl, -1);
+		return (std::cerr << "[ERROR] No listen_sockets to add to epoll" << std::endl, -1);
 	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); ++it)
 		if (ft_epoll_ctl(*it, epollfd, EPOLL_CTL_ADD, EPOLLIN))
-			return (close(*it), std::cerr << "Couldn't add initial listen socket to epoll" << std::endl, -1);
+			return (close(*it), std::cerr << "[ERROR] Couldn't add initial listen socket to epoll" << std::endl, -1);
 	return (epollfd);
 }
 
@@ -114,10 +114,10 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &
 	int client_fd;
 
 	if ((client_fd = ::accept(listen_socket, NULL, NULL)) < 0)
-		return (std::cerr << "Error accepting incoming connection, fd = " << client_fd << std::endl, 1);
+		return (std::cerr << "[ERROR] accepting incoming connection, fd = " << client_fd << std::endl, 1);
 
 	if (ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_ADD, EPOLLIN))
-		return (close(client_fd), std::cerr << "Error accepting incoming connection, fd = " << client_fd << std::endl, 1);
+		return (close(client_fd), std::cerr << "[ERROR] accepting incoming connection, fd = " << client_fd << std::endl, 1);
 
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
 	client_fds.push_back(client_fd);
@@ -214,11 +214,12 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 	
 
 	// 🔁 ROUTER + HANDLER
-	IRequestHandler* handler = _router.resolve(req);
-	if (handler) {
-		res = handler->handleRequest(req);
-		delete handler;
-	} else {
+/* 	IRequestHandler* handler = _router.resolve(req);
+	if (handler) { */
+	StaticFileHandler handler("/www");
+	res = handler.handleRequest(req);
+	/* delete handler; */
+/* 	} else {
 		res.setStatus(404, "Not Found");
 		res.setHeader("Content-Type", "text/plain");
 		res.setBody("404 - Ruta no encontrada");
@@ -226,7 +227,7 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		std::ostringstream oss;
 		oss << res.getBody().length();
 		res.setHeader("Content-Length", oss.str());
-	}
+	} */
 
 
 	pending_writes[client_fd] = res;

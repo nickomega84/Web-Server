@@ -53,8 +53,6 @@ Response StaticFileHandler::handleRequest(const Request& request)
     std::string qs    = request.getQueryString();
     std::string method = request.getMethod();
 
-	std::cout << "OLAOLA1 metodo: " << method << std::endl; 
-
     if (uri == "/") uri = "/index.html";
 
     Response res;
@@ -137,7 +135,9 @@ Response StaticFileHandler::doPOST(const Request& req, Response& res)
         res.setBody(body);
         res.setHeader("Content-Type", "text/html");
         res.setHeader("Content-Length", Utils::intToString(body.length()));
+		return (res);
 	}
+
 	res.setStatus(200, "Created");
 	res.setBody(createPOSTbody(full_path));
 	res.setHeader("Date", get_date());
@@ -149,7 +149,7 @@ Response StaticFileHandler::doPOST(const Request& req, Response& res)
 
 int StaticFileHandler::createPOSTfile(const Request& req, std::string& relative_path)
 {
-    std::string upload_dir_path = _rootPath + "/uploads";
+    std::string upload_dir_path = UPLOAD_DIR;
 
 	DIR *dir;
 	if ((dir = opendir(upload_dir_path.c_str())) == NULL)
@@ -160,17 +160,17 @@ int StaticFileHandler::createPOSTfile(const Request& req, std::string& relative_
 	std::time(&raw_time); //segundos desde el 1 de enero de 1970
 	std::tm* local_time = std::localtime(&raw_time); //carga raw_time en una estrcutura que diferencia entre días, meses etc...
 	std::stringstream ss;
-	ss	<< local_time->tm_hour << ":"
+	ss	<< local_time->tm_hour << "-"
 		<< local_time->tm_min << "_" 
-		<< local_time->tm_mday << "/"
-		<< local_time->tm_mon + 1 << "/"
+		<< local_time->tm_mday << "_"
+		<< local_time->tm_mon + 1 << "_"
 		<< local_time->tm_year + 1900 << std::endl;
 	std::string file_name = "resource_" + ss.str();
 
     std::string file_system_path = upload_dir_path + "/" + file_name;
     relative_path = "/uploads" + file_name;
 
-    std::ofstream outfile(file_system_path.c_str(), std::ios::out | std::ios::binary); //std::ios::out crea (si hace falta) y trunca el archivo
+	std::ofstream outfile(file_system_path.c_str(), std::ios::out | std::ios::binary); //std::ios::out crea (si hace falta) y trunca el archivo
 	if (!outfile.is_open())
 		return (std::cerr << "[ERROR] Failed to open file for writing: " << file_system_path << std::endl, 1);
 

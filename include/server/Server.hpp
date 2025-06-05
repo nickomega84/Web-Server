@@ -11,8 +11,10 @@
 #include <vector>
 #include <algorithm>
 #include <csignal>
-#include "../include/server/Config.hpp"
 
+#include "../include/libraries.hpp"
+
+#include "../include/server/Config.hpp"
 #include "../core/Response.hpp"
 #include "../middleware/MiddlewareStack.hpp"
 #include "../include/libraries.hpp"
@@ -20,13 +22,9 @@
 #include "../middleware/IMiddleware.hpp"
 #include "../router/Router.hpp"
 #include "../cgi/CGIHandler.hpp"
+#include "../include/handler/StaticFileHandler.hpp"
 
 extern volatile sig_atomic_t g_signal_received;
-
-#define PORT		8080
-#define MAX_CONN	1000
-#define MAX_EVENTS	64
-#define BUFFER_SIZE	1024
 
 class Server
 {

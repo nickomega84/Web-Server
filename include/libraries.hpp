@@ -17,3 +17,9 @@
 #include <csignal>
 #include <ctime>
 #include <dirent.h>
+
+#define UPLOAD_DIR "./uploads"
+#define PORT		8080
+#define MAX_CONN	1000
+#define MAX_EVENTS	64
+#define BUFFER_SIZE	1024
