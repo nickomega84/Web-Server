@@ -202,6 +202,7 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		return(0);
 	}
 
+	//ESTO ES LO DEL CGI
 	int* error_code = new int;
 	CGIHandler cgi(error_code);
 	if (cgi.identifyCGI(req, res)) //is CGI
@@ -212,15 +213,14 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 			return (pending_writes[client_fd] = res, delete error_code, std::cout << "¡¡CGI okkie dokki!!" << std::endl << "status = " << pending_writes[client_fd].getStatus() << std::endl << "headers = " << pending_writes[client_fd].getHeaders() << "body = " << pending_writes[client_fd].getBody() << std::endl, 0);
 	}
 	delete error_code;
+	//AQUI ACABA CGI
 	
-
 	// 🔁 ROUTER + HANDLER
-/* 	IRequestHandler* handler = _router.resolve(req);
-	if (handler) { */
-	StaticFileHandler handler("/www");
-	res = handler.handleRequest(req);
-	/* delete handler; */
-/* 	} else {
+	IRequestHandler* handler = _router.resolve(req);
+	if (handler) {
+		res = handler->handleRequest(req);
+		delete handler;
+	} else {
 		res.setStatus(404, "Not Found");
 		res.setHeader("Content-Type", "text/plain");
 		res.setBody("404 - Ruta no encontrada");
@@ -228,8 +228,7 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		std::ostringstream oss;
 		oss << res.getBody().length();
 		res.setHeader("Content-Length", oss.str());
-	} */
-
+	}
 
 	pending_writes[client_fd] = res;
 
