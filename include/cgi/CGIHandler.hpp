@@ -35,11 +35,12 @@ class CGIHandler
 	std::string getQueryString(const std::string &uri);
 	bool checkLocation(std::string &directory, std::string &name);
 	bool checkExePermission(std::string path);
-	std::vector<std::string> enviromentGET(std::string path, std::string queryString);
-	std::vector<std::string> enviromentPOST(std::string path, std::string queryString, Request &req);
 	int checkHandler(Request &req, std::map<std::string, std::string> &m);
+	std::vector<std::string> enviromentGET(std::string path, std::string queryString);
 	int handleGET(Request &req, Response &res, std::string interpreter);
+	std::vector<std::string> enviromentPOST(std::string path, std::string queryString, Request &req);
 	int handlePOST(Request &req, Response &res, std::string interpreter);
+	int createResponse(std::string output, Response &res);
 
 	CGIHandler(const CGIHandler &other);
 	CGIHandler& operator=(CGIHandler& other);

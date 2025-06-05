@@ -1,6 +1,6 @@
-#include "../../include/server/Config.hpp"
+#include "../../include/server/ConfigTEMPORAL.hpp"
 
-Config::Config() //solo para pruebas //basado en default.conf
+ConfigTEMPORAL::ConfigTEMPORAL() //solo para pruebas //basado en default.conf
 {
     initConfigStruct(c);
 	c.numServs = 1;
@@ -33,13 +33,13 @@ Config::Config() //solo para pruebas //basado en default.conf
 	c.locations.push_back(cgi_bin);
 }
 
-Config::Config(std::string fileName)
+ConfigTEMPORAL::ConfigTEMPORAL(std::string fileName)
 {
 	initConfigStruct(c);
 	Read(fileName);
 }
 
-Config::Config(const Config &other)
+ConfigTEMPORAL::ConfigTEMPORAL(const ConfigTEMPORAL &other)
 {
 	initConfigStruct(c);
 	c.numServs = other.c.numServs;
@@ -61,7 +61,7 @@ Config::Config(const Config &other)
     c.errors = other.c.errors;
 }
 
-Config& Config::operator=(const Config& other)
+ConfigTEMPORAL& ConfigTEMPORAL::operator=(const ConfigTEMPORAL& other)
 {
 	if (this != &other)
 	{
@@ -87,9 +87,9 @@ Config& Config::operator=(const Config& other)
 	return (*this);
 }
 
-Config::~Config(){}
+ConfigTEMPORAL::~ConfigTEMPORAL(){}
 
-void Config::Read(std::string fileName)
+void ConfigTEMPORAL::Read(std::string fileName)
 {
 	std::vector<std::string> fileContent;
 	
@@ -102,13 +102,13 @@ void Config::Read(std::string fileName)
 		fileContent.push_back(line);
 }
 
-const Config* Config::getServerConf() const
+const ConfigTEMPORAL* ConfigTEMPORAL::getServerConf() const
 {
-	Config* other = new Config(*this);
+	ConfigTEMPORAL* other = new ConfigTEMPORAL(*this);
 	return (other);
 }
 
-void Config::initConfigStruct(configStruct &st)
+void ConfigTEMPORAL::initConfigStruct(configStruct &st)
 {
 	st.numServs = 0;
     st.iter = 0;
@@ -119,7 +119,7 @@ void Config::initConfigStruct(configStruct &st)
     st.autoindex = false;
 }
 
-void Config::initLocationConfig(locationConfig &st)
+void ConfigTEMPORAL::initLocationConfig(locationConfig &st)
 {
 	st.autoindex = false;
 	st.getOn = false;	

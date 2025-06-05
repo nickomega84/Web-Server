@@ -40,14 +40,12 @@ static std::string readFile(const std::string& path)
 // 	if (path != NULL && fileExists(filePath))
 // 		return (readFile(filePath));
 
-// 	// fallback simple en HTML
-// 	std::ostringstream oss;
-// 	oss << "<html><head><title>" << code << "</title></head>"
-// 	    << "<body><h1>" << code << "</h1><p>" << fallbackText << "</p></body></html>";
-// 	return (oss.str());
-// }
-
-
+	// fallback simple en HTML
+	std::ostringstream oss;
+	oss << "<html><head><title>" << code << "</title></head>"
+	    << "<body><h1>" << code << "</h1><p>" << fallbackText << "</p></body></html>";
+	return (oss.str());
+}
 Response StaticFileHandler::handleRequest(const Request& request)
 {
     std::string uri   = request.getPath();          // ya sin query
@@ -59,7 +57,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
     Response res;
 
     // Bloquear métodos distintos de GET/HEAD
-    if (method != "GET" && method != "HEAD") {
+    if (method != "GET" && method != "HEAD" && method != "POST" && method != "DELETE") {
         res.setStatus(405, "Method Not Allowed");
         res.setBody("405 - Method Not Allowed");
         res.setHeader("Content-Type", "text/plain");
@@ -86,7 +84,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
     }
 
     std::string fullPath = _rootPath + uri;
-    ErrorPageHandler errorHandler(_rootPath);
+    std::cout << "[DEBUG] Sirviendo archivo: " << fullPath << std::endl;
 
     if (!fileExists(fullPath)) {
         // Archivo no existe, devolver página 404 personalizada
@@ -98,19 +96,15 @@ Response StaticFileHandler::handleRequest(const Request& request)
         return res;
     }
     
-    // Archivo existe, leer y devolver
+    // if (request.isKeepAlive())
+    //     res.setHeader("Connection", "keep-alive");
+    // else
+    //     res.setHeader("Connection", "close");
     std::string body = readFile(fullPath);
     res.setStatus(200, "OK");
     res.setBody(body);
     res.setHeader("Content-Type", guessMimeType(fullPath));
     res.setHeader("Content-Length", Utils::intToString(body.length()));
-
-    // Manejo Connection header (opcional)
-    if (request.isKeepAlive())
-        res.setHeader("Connection", "keep-alive");
-    else
-        res.setHeader("Connection", "close");
-
+    res.setHeader("Connection", "close");
     return res;
 }
-
