@@ -2,7 +2,7 @@
 #include "../../include/utils/Utils.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/MimeType.hpp"
-
+#include <iostream>
 
 StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root) 
 {
@@ -41,11 +41,11 @@ static std::string readFile(const std::string& path)
 // 		return (readFile(filePath));
 
 	// fallback simple en HTML
-	std::ostringstream oss;
-	oss << "<html><head><title>" << code << "</title></head>"
-	    << "<body><h1>" << code << "</h1><p>" << fallbackText << "</p></body></html>";
-	return (oss.str());
-}
+// 	std::ostringstream oss;
+// 	oss << "<html><head><title>" << code << "</title></head>"
+// 	    << "<body><h1>" << code << "</h1><p>" << fallbackText << "</p></body></html>";
+// 	return (oss.str());
+// }
 Response StaticFileHandler::handleRequest(const Request& request)
 {
     std::string uri   = request.getPath();          // ya sin query
@@ -88,7 +88,10 @@ Response StaticFileHandler::handleRequest(const Request& request)
 
     if (!fileExists(fullPath)) {
         // Archivo no existe, devolver página 404 personalizada
+        ErrorPageHandler errorHandler("");
         std::string body = errorHandler.render(404, "Archivo no encontrado");
+
+        // std::string body = ErrorPageHandler.render(404, "Archivo no encontrado");
         res.setStatus(404, "Not Found");
         res.setBody(body);
         res.setHeader("Content-Type", "text/html");

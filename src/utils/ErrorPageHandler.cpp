@@ -4,12 +4,12 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
-
+#include "iostream"
 // Inicialización del array estático
 const ErrorPageHandler::ErrorPageEntry ErrorPageHandler::errorPages[] = {
-    {404, "/error_pages/404.html"},
-    {403, "/error_pages/403.html"},
-    {500, "/error_pages/500.html"},
+    {404, "./www/error_pages/404.html"},
+    {403, "./www/error_pages/403.html"},
+    {500, "./www/error_pages/500.html"},
     {-1, NULL}
 };
 
@@ -54,8 +54,9 @@ std::string ErrorPageHandler::readFile(const std::string& path) const {
 
 std::string ErrorPageHandler::render(int code, const std::string& fallbackText) const {
     const char* relPath = getErrorPagePath(code);
+    std::string fullPath = _rootPath + relPath;
+    std::cout << fullPath << "\nPATH ERROPage_Handler" << std::endl;
     if (relPath != NULL) {
-        std::string fullPath = _rootPath + relPath;
         if (fileExists(fullPath)) {
             std::string content = readFile(fullPath);
             if (!content.empty())
