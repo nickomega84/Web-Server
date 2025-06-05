@@ -5,7 +5,7 @@
 #include "../../include/middleware/CookieMiddleware.hpp"
 #include "../../include/middleware/MiddlewareStack.hpp"
 
-Server::Server(const Config* conf): c(conf)	{}
+Server::Server(const ConfigTEMPORAL* conf): c(conf)	{}
 
 Server::~Server()
 {

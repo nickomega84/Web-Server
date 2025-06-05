@@ -14,7 +14,7 @@
 
 #include "../include/libraries.hpp"
 
-#include "../include/server/Config.hpp"
+#include "../include/server/ConfigTEMPORAL.hpp"
 #include "../core/Response.hpp"
 #include "../middleware/MiddlewareStack.hpp"
 #include "../include/libraries.hpp"
@@ -29,7 +29,7 @@ extern volatile sig_atomic_t g_signal_received;
 class Server
 {
 	private:
-	const Config* c;
+	const ConfigTEMPORAL* c;
 	std::vector<int> listen_sockets;
 	
 	Router _router;
@@ -47,7 +47,7 @@ class Server
 	void	freeEpoll(int epollfd, std::vector<int> &client_fds);
 
 	public:
-	Server(const Config* conf);
+	Server(const ConfigTEMPORAL* conf);
 	~Server();
 
 	int		addListeningSocket();

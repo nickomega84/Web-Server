@@ -4,7 +4,7 @@
 #include "../include/middleware/AllowMethodMiddleware.hpp"
 #include "../include/middleware/MiddlewareStack.hpp"
 #include "../include/server/Server.hpp"
-#include "../include/server/Config.hpp"
+#include "../include/server/ConfigTEMPORAL.hpp"
 
 volatile sig_atomic_t g_signal_received = 0;
 
@@ -21,7 +21,7 @@ int main() {
 	std::signal(SIGTERM, signal_handler);
 	std::signal(SIGPIPE, SIG_IGN);
 
-	Config config;
+	ConfigTEMPORAL config;
 	Server server(config.getServerConf());
 
 	// 🧠 Router
