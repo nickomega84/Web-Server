@@ -212,6 +212,7 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 	}
 	delete error_code;
 	
+
 	// 🔁 ROUTER + HANDLER
 	IRequestHandler* handler = _router.resolve(req);
 	if (handler) {
@@ -226,6 +227,7 @@ int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pend
 		oss << res.getBody().length();
 		res.setHeader("Content-Length", oss.str());
 	}
+
 
 	pending_writes[client_fd] = res;
 

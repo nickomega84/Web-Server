@@ -128,7 +128,9 @@ int CGIHandler::checkHandler(Request &req, std::map<std::string, std::string> &m
 		return (handleError(404), 1);
 	if (!checkExePermission(m["path"]))
 		return (handleError(500), 1);
-		//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
+
+	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
+	
 	return (0);
 }
 

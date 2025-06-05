@@ -53,6 +53,8 @@ Response StaticFileHandler::handleRequest(const Request& request)
     std::string qs    = request.getQueryString();
     std::string method = request.getMethod();
 
+	std::cout << "OLAOLA1 metodo: " << method << std::endl; 
+
     if (uri == "/") uri = "/index.html";
 
     Response res;
@@ -122,9 +124,11 @@ Response StaticFileHandler::doGET(Response& res, std::string uri)
 
 Response StaticFileHandler::doPOST(const Request& req, Response& res)
 {
-	std::string full_path; //nombre + ruta al recurso (URI)
+	std::string full_path = req.getPath(); //nombre + ruta al recurso (URI)
 
 	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
+
+	std::cout << "[DEBUG] doPOST: " << full_path << std::endl;
 
 	if (createPOSTfile(req, full_path))
 	{
@@ -199,20 +203,21 @@ Response StaticFileHandler::doDELETE(Response res, std::string uri)
 {
 	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
 
-	std::string fullPath = _rootPath + uri;
-    std::cout << "[DEBUG] Borrando archivo: " << fullPath << std::endl;
+    std::cout << "[DEBUG] Borrando archivo: " << uri << std::endl;
 
-    if (!fileExists(fullPath)) 
+    if (!fileExists(uri)) 
 	{
-        res.setStatus(404, "Not Found");
+		
+		res.setStatus(404, "Not Found");
         std::string body = renderErrorPage(_rootPath, 404, "Archivo no encontrado");
         res.setBody(body);
         res.setHeader("Content-Type", "text/html");
         res.setHeader("Content-Length", Utils::intToString(body.length()));
         return (res);
     }
-	if (std::remove(fullPath.c_str()))
+	if (std::remove(uri.c_str()))
 	{
+		
 		res.setStatus(500, "Internal server error");
         std::string body = renderErrorPage(_rootPath, 500, "Cannot DELETE file");
         res.setBody(body);
