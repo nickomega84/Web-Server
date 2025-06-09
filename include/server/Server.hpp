@@ -29,8 +29,10 @@ extern volatile sig_atomic_t g_signal_received;
 class Server
 {
 	private:
-	const ConfigTEMPORAL* c;
+	const ConfigTEMPORAL _c;
 	std::vector<int> listen_sockets;
+    std::string _rootPath;
+
 	
 	Router _router;
 	MiddlewareStack _middleware;
@@ -47,7 +49,7 @@ class Server
 	void	freeEpoll(int epollfd, std::vector<int> &client_fds);
 
 	public:
-	Server(const ConfigTEMPORAL* conf);
+	explicit Server(const ConfigTEMPORAL &conf, const std::string &root);
 	~Server();
 
 	int		addListeningSocket();

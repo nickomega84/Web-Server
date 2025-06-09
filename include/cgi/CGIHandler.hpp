@@ -1,6 +1,7 @@
 #pragma once
 #include "../../include/core/Request.hpp"
 #include "../../include/core/Response.hpp"
+#include "../../include/handler/IRequestHandler.hpp"
 #include <string>
 #include <dirent.h> //DIR
 #include <signal.h> //SIGTERM
@@ -22,32 +23,35 @@ enum Type
 	POST_SH = 6,
 };
 
-class CGIHandler
+class CGIHandler : public IRequestHandler 
 {
 	private:
-	int *_error;
+	    int _error;
+        int identifyType(const Request &req);
+        int identifyMethod(const Request &req);
+        void handleError(int error);
+        std::string getDir(const std::string &uri, bool *success);
+        std::string getName(const std::string &uri, bool *success);
+        std::string getQueryString(const std::string &uri);
+        bool checkLocation(std::string &directory, std::string &name);
+        bool checkExePermission(std::string path);
+        int checkHandler(const Request &req, std::map<std::string, std::string> &m);
+        std::vector<std::string> enviromentGET(std::string path, std::string queryString);
+        int handleGET(const Request &req, Response &res, std::string interpreter);
+        std::vector<std::string> enviromentPOST(std::string path, std::string queryString, const Request &req);
+        int handlePOST(const Request &req, Response &res, std::string interpreter);
+        int createResponse(std::string output, Response &res);
+        bool identifyCGI( const Request &req, Response &res);
 
-	int identifyType(Request &req);
-	int identifyMethod(Request &req);
-	void handleError(int error);
-	std::string getDir(const std::string &uri, bool *success);
-	std::string getName(const std::string &uri, bool *success);
-	std::string getQueryString(const std::string &uri);
-	bool checkLocation(std::string &directory, std::string &name);
-	bool checkExePermission(std::string path);
-	int checkHandler(Request &req, std::map<std::string, std::string> &m);
-	std::vector<std::string> enviromentGET(std::string path, std::string queryString);
-	int handleGET(Request &req, Response &res, std::string interpreter);
-	std::vector<std::string> enviromentPOST(std::string path, std::string queryString, Request &req);
-	int handlePOST(Request &req, Response &res, std::string interpreter);
-	int createResponse(std::string output, Response &res);
-
-	CGIHandler(const CGIHandler &other);
-	CGIHandler& operator=(CGIHandler& other);
-
+    
 	public:
-	CGIHandler(int *error_code);
-	~CGIHandler();
+        CGIHandler();
+        CGIHandler(const CGIHandler& other);
+        CGIHandler& operator=(const CGIHandler& other);
+        virtual ~CGIHandler();
+        virtual Response handleRequest(const Request& req);
 
-	bool identifyCGI(Request &req, Response &res);
+
+        // virtual Response handleRequest(const Request& req);
+	// CGIHandler(int *error_code);
 };

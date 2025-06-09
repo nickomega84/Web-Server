@@ -36,6 +36,7 @@ ConfigTEMPORAL::ConfigTEMPORAL() //solo para pruebas //basado en default.conf
 ConfigTEMPORAL::ConfigTEMPORAL(std::string fileName)
 {
 	initConfigStruct(c);
+    std::cout << fileName << std::endl;
 	Read(fileName);
 }
 

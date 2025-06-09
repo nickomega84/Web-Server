@@ -1,14 +1,44 @@
 #include "../../include/cgi/CGIHandler.hpp"
+#include "../../include/libraries.hpp"
+#include "../../include/utils/ErrorPageHandler.hpp"
+#include "../../include/utils/Utils.hpp"           // para intToString
 
-CGIHandler::CGIHandler(int *error): _error(error)
-{
-	*_error = 200;
+
+CGIHandler::CGIHandler() : _error(200) {}
+
+CGIHandler::CGIHandler(const CGIHandler& other) {
+    *this = other;
 }
 
-CGIHandler::~CGIHandler()
-{}
+CGIHandler& CGIHandler::operator=(const CGIHandler &other) {
+    if (this != &other) {
+        _error = other._error;
+    }
+    return *this;
+}
 
-int CGIHandler::identifyType(Request &req)
+CGIHandler::~CGIHandler() 
+{
+    std::cout << "CGI Handler Destructed" << std::endl;
+}
+
+Response CGIHandler::handleRequest(const Request& req) {
+    Response res;
+
+    bool ok = identifyCGI(req, res);
+
+    if (!ok || _error >= 400) {
+        ErrorPageHandler err("./www");                    // ruta pública
+        std::string body = err.render(_error, "Error en CGI");
+
+        res.setStatus(_error, "Error");
+        res.setBody(body);
+        res.setHeader("Content-Type",  "text/html");
+        res.setHeader("Content-Length", Utils::intToString(body.length()));
+    }
+    return res;
+}
+int CGIHandler::identifyType(const Request &req)
 {
 	std::string uri = req.getURI();
 	std::string::size_type query_pos = uri.find('?');
@@ -22,7 +52,7 @@ int CGIHandler::identifyType(Request &req)
 	return (0);
 }
 
-int CGIHandler::identifyMethod(Request &req)
+int CGIHandler::identifyMethod(const Request &req)
 {
 	std::string method = req.getMethod();
 	if (method == "GET")
@@ -34,27 +64,55 @@ int CGIHandler::identifyMethod(Request &req)
 
 void CGIHandler::handleError(int error)
 {
-	*_error = error;
+	_error = error;
 }
 
-bool CGIHandler::identifyCGI(Request &req, Response &res)
-{
-	int indx = identifyType(req);
-	if (indx == 0)
-		return (false);
-	indx += identifyMethod(req);
-	if (indx == INVALID1 || indx == INVALID2)
-		return (std::cerr << "[ERROR] CGI invalid method" << std::endl, handleError(501), true);
-	else if (indx == GET_PY)
-		handleGET(req, res, PYTHON_INTERPRETER);
-	else if (indx == GET_SH)
-		handleGET(req, res, SH_INTERPRETER);
-	else if (indx == POST_PY)
-		handlePOST(req, res, PYTHON_INTERPRETER);
-	else if (indx == POST_SH)
-		handlePOST(req, res, SH_INTERPRETER);
-	return (true);
+bool CGIHandler::identifyCGI(const Request& req, Response& res) {
+    int type = identifyType(req);
+    if (type == 0) {
+        _error = 404;
+        return false;
+    }
+    int method = identifyMethod(req);
+    if (method == -1) {
+        _error = 501;
+        return false;
+    }
+
+    int code = type + method;
+
+    if (code == 11) // GET PY
+        return handleGET(req, res, PYTHON_INTERPRETER) == 0;
+    else if (code == 12) // GET SH
+        return handleGET(req, res, SH_INTERPRETER) == 0;
+    else if (code == 21) // POST PY
+        return handlePOST(req, res, PYTHON_INTERPRETER) == 0;
+    else if (code == 22) // POST SH
+        return handlePOST(req, res, SH_INTERPRETER) == 0;
+
+    _error = 500;
+    return false;
 }
+// bool CGIHandler::identifyCGI(const const Request &req, Response &res)
+// {
+// 	int indx = identifyType(req);
+// 	if (indx == 0)
+// 		return ((_error = 
+//             404),0);
+        
+// 	indx += identifyMethod(req);
+// 	if (indx == INVALID1 || indx == INVALID2)
+// 		return (std::cerr << "[ERROR] CGI invalid method" << std::endl, handleError(501), true);
+// 	else if (indx == GET_PY)
+// 		handleGET(req, res, PYTHON_INTERPRETER);
+// 	else if (indx == GET_SH)
+// 		handleGET(req, res, SH_INTERPRETER);
+// 	else if (indx == POST_PY)
+// 		handlePOST(req, res, PYTHON_INTERPRETER);
+// 	else if (indx == POST_SH)
+// 		handlePOST(req, res, SH_INTERPRETER);
+// 	return (true);
+// }
 
 std::string CGIHandler::getDir(const std::string &uri, bool *success)
 {
@@ -108,7 +166,7 @@ bool CGIHandler::checkExePermission(std::string path)
 	return (false);
 }
 
-int CGIHandler::checkHandler(Request &req, std::map<std::string, std::string> &m)
+int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::string> &m)
 {
 	bool success = true;
 	m["dir"] = "./www" + getDir(req.getURI(), &success);
@@ -146,7 +204,7 @@ std::vector<std::string> CGIHandler::enviromentGET(std::string path, std::string
 	return(envp);
 }
 
-int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) //ejemplo del header del request: GET /cgi-bin/hello.cgi?name=Juan HTTP/1.1
+int CGIHandler::handleGET(const Request &req, Response &res, std::string interpreter) //ejemplo del header del request: GET /cgi-bin/hello.cgi?name=Juan HTTP/1.1
 {
 	std::map<std::string, std::string> m;
 	if (checkHandler(req, m))
@@ -201,7 +259,7 @@ int CGIHandler::handleGET(Request &req, Response &res, std::string interpreter) 
 	return (delete[] envp, 0);
 }
 
-std::vector<std::string> CGIHandler::enviromentPOST(std::string path, std::string queryString, Request &req)
+std::vector<std::string> CGIHandler::enviromentPOST(std::string path, std::string queryString, const Request &req)
 {
 	std::vector<std::string> envp;
 	std::stringstream body_lenght;
@@ -217,7 +275,7 @@ std::vector<std::string> CGIHandler::enviromentPOST(std::string path, std::strin
 	return(envp);
 }
 
-int CGIHandler::handlePOST(Request &req, Response &res, std::string interpreter)
+int CGIHandler::handlePOST(const Request &req, Response &res, std::string interpreter)
 {
 	std::map<std::string, std::string> m;
 	if (checkHandler(req, m))

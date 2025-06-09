@@ -4,13 +4,21 @@
 #include "../../include/middleware/AllowMethodMiddleware.hpp"
 #include "../../include/middleware/CookieMiddleware.hpp"
 #include "../../include/middleware/MiddlewareStack.hpp"
+#include "../../include/utils/ErrorPageHandler.hpp"
 
-Server::Server(const ConfigTEMPORAL* conf): c(conf)	{}
+// Server::Server()
+// {
+// }
 
-Server::~Server()
+Server::Server(const ConfigTEMPORAL &conf, const std::string &root): _c(conf), _rootPath(root)
 {
-	delete c;
-	freeListenSockets();
+
+}
+Server::~Server() {
+    delete c;
+    freeListenSockets();
+    std::vector<int> dummyClients;
+    freeEpoll(epollfd_, dummyClients);   // si guardas epollfd_ como miembro
 }
 
 void Server::freeListenSockets()
@@ -168,72 +176,114 @@ void Server::freeEpoll(int epollfd, std::vector<int> &client_fds)
 	client_fds.clear();
 }
 
-int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pending_writes) 
+int Server::handleClientRead(const int client_fd,
+                             std::map<int, Response>& pending_writes)
 {
-	char buffer[BUFFER_SIZE];
-	ssize_t bytes_read;
+    char     buffer[BUFFER_SIZE];
+    ssize_t  n = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 
-	bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);		
-	if (bytes_read == 0)
-		return (std::cout << "[-] No data received: " << client_fd << std::endl, 1);
-	if (bytes_read < 0)
-		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
+    if (n <= 0) {                       // 0 = FIN,  <0 = error
+        std::cout << "[-] Client fd " << client_fd << " cerró conexión\n";
+        return 1;
+    }
+    buffer[n] = '\0';
 
-	buffer[bytes_read] = '\0';
-    std::cout << "[BUFFER]" << buffer << "]" << std::endl ;
-	std::cout << std::endl << "[READ " << client_fd << "] AUII TERMINA EL BUFFER " << buffer << std::endl;
-
-	Request req;
+    Request  req;
     Response res;
-	if (!req.parse(buffer)) {
-		res.setStatus(404, "Not Found");
-		res.setBody("<h1>400 Bad Request</h1>");
-		pending_writes[client_fd] = res;
-		return (0);
-	}
 
-	std::cout << "AQUI ENTRA!!!" << std::endl;
-	std::cout << "Método: " << req.getMethod() << std::endl;
-	std::cout << "Ruta: " << req.getURI() << std::endl;
+    if (!req.parse(buffer)) {           // petición mal formada → 400
+        ErrorPageHandler err("");
+        res = err.createResponse(400, "Bad Request");
+        pending_writes[client_fd] = res;
+        return 0;
+    }
 
-	// ✅ MIDDLEWARE CHECK
-	if (!_middleware.handle(req, res)) {
-		pending_writes[client_fd] = res;
-		return(0);
-	}
+    if (!_middleware.handle(req, res)) {           // algún middleware corta
+        pending_writes[client_fd] = res;
+        return 0;
+    }
 
-	//ESTO ES LO DEL CGI
-	int* error_code = new int;
-	CGIHandler cgi(error_code);
-	if (cgi.identifyCGI(req, res)) //is CGI
-	{
-		if (*error_code >= 400)
-			return (/* HANDLE ERROR, */ std::cout << "¡¡ERROR EN CGI!! *error_code = " << *error_code << std::endl, delete error_code, 1);
-		else
-			return (pending_writes[client_fd] = res, delete error_code, std::cout << "¡¡CGI okkie dokki!!" << std::endl << "status = " << pending_writes[client_fd].getStatus() << std::endl << "headers = " << pending_writes[client_fd].getHeaders() << "body = " << pending_writes[client_fd].getBody() << std::endl, 0);
-	}
-	delete error_code;
-	//AQUI ACABA CGI
-	
-	// 🔁 ROUTER + HANDLER
-	IRequestHandler* handler = _router.resolve(req);
-	if (handler) {
-		res = handler->handleRequest(req);
-		delete handler;
-	} else {
-		res.setStatus(404, "Not Found");
-		res.setHeader("Content-Type", "text/plain");
-		res.setBody("404 - Ruta no encontrada");
+    IRequestHandler* h = _router.resolve(req);
 
-		std::ostringstream oss;
-		oss << res.getBody().length();
-		res.setHeader("Content-Length", oss.str());
-	}
+    if (h) {
+        res = h->handleRequest(req);    // el handler construye la respuesta
+        delete h;
+    } else {                            // no hay ruta → 404
+        ErrorPageHandler err(_rootPath);
+        res = err.createResponse(404, "Ruta no encontrada");
+    }
 
-	pending_writes[client_fd] = res;
-
-	return (0);
+    pending_writes[client_fd] = res;
+    return 0;
 }
+
+// int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pending_writes) 
+// {
+// 	char buffer[BUFFER_SIZE];
+// 	ssize_t bytes_read;
+
+// 	bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);		
+// 	if (bytes_read == 0)
+// 		return (std::cout << "[-] No data received: " << client_fd << std::endl, 1);
+// 	if (bytes_read < 0)
+// 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
+
+// 	buffer[bytes_read] = '\0';
+//     std::cout << "[BUFFER]" << buffer << "]" << std::endl ;
+// 	std::cout << std::endl << "[READ " << client_fd << "] AUII TERMINA EL BUFFER " << buffer << std::endl;
+
+// 	Request req;
+//     Response res;
+// 	if (!req.parse(buffer)) {
+// 		res.setStatus(404, "Not Found");
+// 		res.setBody("<h1>400 Bad Request</h1>");
+// 		pending_writes[client_fd] = res;
+// 		return (0);
+// 	}
+
+// 	std::cout << "AQUI ENTRA!!!" << std::endl;
+// 	std::cout << "Método: " << req.getMethod() << std::endl;
+// 	std::cout << "Ruta: " << req.getURI() << std::endl;
+
+// 	// ✅ MIDDLEWARE CHECK
+// 	if (!_middleware.handle(req, res)) {
+// 		pending_writes[client_fd] = res;
+// 		return(0);
+// 	}
+
+// 	//ESTO ES LO DEL CGI
+// 	// int* error_code = new int;
+// 	// CGIHandler cgi(error_code);
+// 	// if (cgi.identifyCGI(req, res)) //is CGI
+// 	// {
+// 	// 	if (*error_code >= 400)
+// 	// 		return (/* HANDLE ERROR, */ std::cout << "¡¡ERROR EN CGI!! *error_code = " << *error_code << std::endl, delete error_code, 1);
+// 	// 	else
+// 	// 		return (pending_writes[client_fd] = res, delete error_code, std::cout << "¡¡CGI okkie dokki!!" << std::endl << "status = " << pending_writes[client_fd].getStatus() << std::endl << "headers = " << pending_writes[client_fd].getHeaders() << "body = " << pending_writes[client_fd].getBody() << std::endl, 0);
+// 	// }
+// 	// delete error_code;
+// 	//AQUI ACABA CGI
+	
+// 	// 🔁 ROUTER + HANDLER
+// 	IRequestHandler* handler = _router.resolve(req);
+// 	if (handler) {
+// 		res = handler->handleRequest(req);
+// 		delete handler;
+// 	} else {
+// 		res.setStatus(404, "Not Found");
+// 		res.setHeader("Content-Type", "text/plain");
+// 		res.setBody("404 - Ruta no encontrada");
+
+// 		std::ostringstream oss;
+// 		oss << res.getBody().length();
+// 		res.setHeader("Content-Length", oss.str());
+// 	}
+
+// 	pending_writes[client_fd] = res;
+
+// 	return (0);
+// } 
+
 
 int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes)
 {
