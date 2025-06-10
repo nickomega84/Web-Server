@@ -17,15 +17,15 @@ public:
 	Response(const Response& other);
 	Response& operator=(const Response& other);
 	~Response();
-    const std::string& getBody() const;
-
+    
 	void setStatus(int code, const std::string& text);
 	void setHeader(const std::string& key, const std::string& value);
 	void setBody(const std::string& body);
-
-	int getStatus();
-	std::string getHeaders();
-	std::string getBody();
+    
+    const std::string&  getBody() const;
+	int                 getStatus();
+	std::string         getHeaders();
+	std::string         getBody();
 
 	std::string toString() const;
 };

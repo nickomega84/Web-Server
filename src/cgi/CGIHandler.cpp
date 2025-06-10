@@ -2,7 +2,7 @@
 #include "../../include/libraries.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/Utils.hpp"           // para intToString
-
+#include "../../include/core/Request.hpp"
 
 CGIHandler::CGIHandler() : _error(200) {}
 
@@ -67,52 +67,52 @@ void CGIHandler::handleError(int error)
 	_error = error;
 }
 
-bool CGIHandler::identifyCGI(const Request& req, Response& res) {
-    int type = identifyType(req);
-    if (type == 0) {
-        _error = 404;
-        return false;
-    }
-    int method = identifyMethod(req);
-    if (method == -1) {
-        _error = 501;
-        return false;
-    }
+// bool CGIHandler::identifyCGI(const Request& req, Response& res) {
+//     int type = identifyType(req);
+//     if (type == 0) {
+//         _error = 404;
+//         return false;
+//     }
+//     int method = identifyMethod(req);
+//     if (method == -1) {
+//         _error = 501;
+//         return false;
+//     }
 
-    int code = type + method;
+//     int code = type + method;
 
-    if (code == 11) // GET PY
-        return handleGET(req, res, PYTHON_INTERPRETER) == 0;
-    else if (code == 12) // GET SH
-        return handleGET(req, res, SH_INTERPRETER) == 0;
-    else if (code == 21) // POST PY
-        return handlePOST(req, res, PYTHON_INTERPRETER) == 0;
-    else if (code == 22) // POST SH
-        return handlePOST(req, res, SH_INTERPRETER) == 0;
+//     if (code == 11) // GET PY
+//         return handleGET(req, res, PYTHON_INTERPRETER) == 0;
+//     else if (code == 12) // GET SH
+//         return handleGET(req, res, SH_INTERPRETER) == 0;
+//     else if (code == 21) // POST PY
+//         return handlePOST(req, res, PYTHON_INTERPRETER) == 0;
+//     else if (code == 22) // POST SH
+//         return handlePOST(req, res, SH_INTERPRETER) == 0;
 
-    _error = 500;
-    return false;
-}
-// bool CGIHandler::identifyCGI(const const Request &req, Response &res)
-// {
-// 	int indx = identifyType(req);
-// 	if (indx == 0)
-// 		return ((_error = 
-//             404),0);
-        
-// 	indx += identifyMethod(req);
-// 	if (indx == INVALID1 || indx == INVALID2)
-// 		return (std::cerr << "[ERROR] CGI invalid method" << std::endl, handleError(501), true);
-// 	else if (indx == GET_PY)
-// 		handleGET(req, res, PYTHON_INTERPRETER);
-// 	else if (indx == GET_SH)
-// 		handleGET(req, res, SH_INTERPRETER);
-// 	else if (indx == POST_PY)
-// 		handlePOST(req, res, PYTHON_INTERPRETER);
-// 	else if (indx == POST_SH)
-// 		handlePOST(req, res, SH_INTERPRETER);
-// 	return (true);
+//     _error = 500;
+//     return false;
 // }
+bool CGIHandler::identifyCGI(const Request &req, Response &res)
+{
+	int indx = identifyType(req);
+	if (indx == 0)
+		return ((_error = 
+            404),0);
+        
+	indx += identifyMethod(req);
+	if (indx == INVALID1 || indx == INVALID2)
+		return (std::cerr << "[ERROR] CGI invalid method" << std::endl, handleError(501), true);
+	else if (indx == GET_PY)
+		handleGET(req, res, PYTHON_INTERPRETER);
+	else if (indx == GET_SH)
+		handleGET(req, res, SH_INTERPRETER);
+	else if (indx == POST_PY)
+		handlePOST(req, res, PYTHON_INTERPRETER);
+	else if (indx == POST_SH)
+		handlePOST(req, res, SH_INTERPRETER);
+	return (true);
+}
 
 std::string CGIHandler::getDir(const std::string &uri, bool *success)
 {
@@ -169,7 +169,7 @@ bool CGIHandler::checkExePermission(std::string path)
 int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::string> &m)
 {
 	bool success = true;
-	m["dir"] = "./www" + getDir(req.getURI(), &success);
+	m["dir"] = req.getPath() + getDir(req.getURI(), &success);
 	m["name"] = getName(req.getURI(), &success);
 	m["name_without_slash"] = m["name"].substr(1);
 	m["path"] = m["dir"] + m["name"];

@@ -5,22 +5,46 @@
 #include "../../include/middleware/CookieMiddleware.hpp"
 #include "../../include/middleware/MiddlewareStack.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
+#include <netdb.h>       // getaddrinfo, addrinfo, AI_PASSIVE
 
-// Server::Server()
+// // Server::Server()
+// // {
+// // }
+
+// Server::Server(ConfigParser& cfg, const std::string& root) : _c(conf), _rootPath(root)
 // {
+
+// }
+// Server::~Server() {
+//     delete c;
+//     freeListenSockets();
+//     std::vector<int> dummyClients;
+//     freeEpoll(epollfd_, dummyClients);   // si guardas epollfd_ como miembro
 // }
 
-Server::Server(const ConfigTEMPORAL &conf, const std::string &root): _c(conf), _rootPath(root)
+
+// Server::Server(ConfigParser& cfg, const std::string& root)
+//     : _cfg(cfg), _rootPath(root), _epollfd(-1)
+// {
+//     // …cuerpo instrumentado…
+// }
+// Server::Server(ConfigParser& cfg, const std::string& root)
+//     : _cfg(cfg), _rootPath(root), _epollfd(-1)
+// {
+//     _epollfd = epoll_create(1024);            // epoll_create1 no existe en 98
+//     if (_epollfd == -1)
+//         throw std::runtime_error("epoll_create failed");
+
+//     int code = addListeningSocket();
+//     std::cout << "addListeningSocket() returned: " << code << "\n";
+//                     // si procede
+// }
+
+Server::~Server()
 {
-
+    if (_epollfd != -1)
+        close(_epollfd);                      // _cfg es referencia → NO delete
 }
-Server::~Server() {
-    delete c;
-    freeListenSockets();
-    std::vector<int> dummyClients;
-    freeEpoll(epollfd_, dummyClients);   // si guardas epollfd_ como miembro
-}
-
 void Server::freeListenSockets()
 {
 	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); ++it)
@@ -28,34 +52,137 @@ void Server::freeListenSockets()
 	listen_sockets.clear();
 }
 
+// En Server.cpp:
+
 int Server::addListeningSocket()
 {
-	int listen_socket;
+    std::string listenDirective = _cfg.getGlobal("listen");
+    std::string host, port;
+    if (!listenDirective.empty()) {
+        size_t p = listenDirective.find(':');
+        if (p != std::string::npos) {
+            host = listenDirective.substr(0, p);
+            port = listenDirective.substr(p + 1);
+        } else {
+            port = listenDirective;
+        }
+    } else {
+        host = _cfg.getGlobal("host");
+        port = _cfg.getGlobal("port");
+    }
 
-	struct addrinfo input;
-	struct addrinfo *output;
-	::bzero(&input, sizeof(input));
-	input.ai_flags = AI_PASSIVE;
-	input.ai_family = AF_INET;
-	input.ai_socktype = SOCK_STREAM;
+    std::cout << "[DEBUG] Parsed listen config -> host: '" 
+              << host << "', port: '" << port << "'\n";
 
-	if (getaddrinfo(c->c.host.c_str(), c->c.port.c_str(), &input, &output))
-		return (std::cerr << "[ERROR] calling getaddrinfo()" << std::endl, freeaddrinfo(output), 500);
-	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, 0)) < 0)
-		return (std::cerr << "[ERROR] creating server socket" << std::endl, freeaddrinfo(output), 500);
-	int opt = 1;
-	if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
-		return (std::cerr << "[ERROR] calling setsockopt()" << std::endl, freeaddrinfo(output), 500);
-	if (bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0)
-		return (std::cerr << "[ERROR] binding listen_socket" << std::endl, freeaddrinfo(output), 500);
-	if (listen(listen_socket, MAX_CONN) < 0)
-		return (std::cerr << "[ERROR] on listen()" << std::endl, freeaddrinfo(output), 500);
-	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
-	listen_sockets.push_back(listen_socket);
-	std::cout << "New listenSocket fd = " << listen_socket << std::endl;
-	freeaddrinfo(output);
-	return (0);
+    struct addrinfo hints;
+    std::memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags    = AI_PASSIVE;
+
+    struct addrinfo* res = NULL;
+    int err = getaddrinfo(
+        host.empty() ? NULL : host.c_str(),
+        port.c_str(), &hints, &res
+    );
+    if (err) {
+        std::cerr << "[ERROR] getaddrinfo: " << gai_strerror(err) << "\n";
+        return 500;
+    }
+
+    int listenSock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (listenSock < 0) {
+        freeaddrinfo(res);
+        perror("[ERROR] socket()");
+        return 500;
+    }
+    std::cout << "[DEBUG] Created socket fd=" << listenSock << "\n";
+
+    int yes = 1;
+    if (setsockopt(listenSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+        freeaddrinfo(res);
+        perror("[ERROR] setsockopt()");
+        close(listenSock);
+        return 500;
+    }
+
+       int rc = bind(listenSock, res->ai_addr, res->ai_addrlen);
+    if (rc < 0) {
+        int e = errno;
+        freeaddrinfo(res);
+        if (e == EADDRINUSE) {
+            std::cerr << "[WARN] puerto ya en uso, omitiendo socket fd=" 
+                      << listenSock << "\n";
+            close(listenSock);
+            return 0;   // no es un error crítico
+        }
+        errno = e;
+        perror("[ERROR] bind failed");
+        close(listenSock);
+        return 500;
+    }
+    std::cout << "[DEBUG] bind() succeeded on fd=" << listenSock << "\n";
+
+    if (::listen(listenSock, SOMAXCONN) < 0) {
+        int e = errno;
+        freeaddrinfo(res);
+        errno = e;
+        perror("[ERROR] listen failed");
+        close(listenSock);
+        return 500;
+    }
+    std::cout << "[DEBUG] listen() succeeded on fd=" << listenSock << "\n";
+
+    freeaddrinfo(res);
+
+    // En lugar de epoll_ctl aquí, devolvemos el fd para gestionarlo externamente:
+    listen_sockets.push_back(listenSock);
+    std::cout << "[DEBUG] Added listen socket to list: fd="
+              << listenSock << "\n";
+
+    return 0;
 }
+
+// En tu constructor de Server, tras llamar addListeningSocket():
+Server::Server(ConfigParser& cfg, const std::string& root)
+  : _cfg(cfg), _rootPath(root), _epollfd(-1)
+{
+    // Crear epoll
+    _epollfd = epoll_create(1024);
+    if (_epollfd < 0) throw std::runtime_error("epoll_create failed");
+
+    int rc = addListeningSocket();
+    std::cout << "[DEBUG] addListeningSocket() returned " << rc << "\n";
+    if (rc != 0) {
+        std::cerr << "Error al crear socket de escucha\n";
+        return;
+    }
+
+    // Registrar todos los listen_sockets en epoll
+    if (!listen_sockets.empty()) {
+    for (size_t i = 0; i < listen_sockets.size(); ++i) {
+        int fd = listen_sockets[i];
+        struct epoll_event ev;
+        ev.events  = EPOLLIN;
+        ev.data.fd = fd;
+        if (epoll_ctl(_epollfd, EPOLL_CTL_ADD, fd, &ev) < 0) {
+            perror("[ERROR] epoll_ctl ADD listenSock");
+            close(fd);
+        } else {
+            std::cout << "[DEBUG] epoll_ctl added fd=" << fd << "\n";
+        }
+    }
+    std::cout << "[🔁] Webserv arrancado en puerto '"
+              << (_cfg.getGlobal("listen").empty() ? _cfg.getGlobal("port")
+                                                   : _cfg.getGlobal("listen"))
+              << "' — Ctrl-C para parar\n";
+    }
+
+}
+
+
+
+
 
 void Server::startEpoll()
 {
@@ -193,8 +320,10 @@ int Server::handleClientRead(const int client_fd,
 
     if (!req.parse(buffer)) {           // petición mal formada → 400
         ErrorPageHandler err("");
-        res = err.createResponse(400, "Bad Request");
-        pending_writes[client_fd] = res;
+        Response res400;
+        res400.setStatus(400, "Bad Request");
+        res400.setBody(err.render(400, "Bad Request"));
+        pending_writes[client_fd] = res400;
         return 0;
     }
 
@@ -208,86 +337,22 @@ int Server::handleClientRead(const int client_fd,
     if (h) {
         res = h->handleRequest(req);    // el handler construye la respuesta
         delete h;
-    } else {                            // no hay ruta → 404
-        ErrorPageHandler err(_rootPath);
-        res = err.createResponse(404, "Ruta no encontrada");
+    } else { 
+        ErrorPageHandler err("");   // no hay ruta → 404        
+        Response res404;
+        res404.setStatus(404, "Ruta no encontrada");
+        res404.setBody(err.render(404, "Ruta no encontrada"));
+        pending_writes[client_fd] = res404;
     }
 
     pending_writes[client_fd] = res;
     return 0;
 }
 
-// int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pending_writes) 
-// {
-// 	char buffer[BUFFER_SIZE];
-// 	ssize_t bytes_read;
-
-// 	bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);		
-// 	if (bytes_read == 0)
-// 		return (std::cout << "[-] No data received: " << client_fd << std::endl, 1);
-// 	if (bytes_read < 0)
-// 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
-
-// 	buffer[bytes_read] = '\0';
-//     std::cout << "[BUFFER]" << buffer << "]" << std::endl ;
-// 	std::cout << std::endl << "[READ " << client_fd << "] AUII TERMINA EL BUFFER " << buffer << std::endl;
-
-// 	Request req;
-//     Response res;
-// 	if (!req.parse(buffer)) {
-// 		res.setStatus(404, "Not Found");
-// 		res.setBody("<h1>400 Bad Request</h1>");
-// 		pending_writes[client_fd] = res;
-// 		return (0);
-// 	}
-
-// 	std::cout << "AQUI ENTRA!!!" << std::endl;
-// 	std::cout << "Método: " << req.getMethod() << std::endl;
-// 	std::cout << "Ruta: " << req.getURI() << std::endl;
-
-// 	// ✅ MIDDLEWARE CHECK
-// 	if (!_middleware.handle(req, res)) {
-// 		pending_writes[client_fd] = res;
-// 		return(0);
-// 	}
-
-// 	//ESTO ES LO DEL CGI
-// 	// int* error_code = new int;
-// 	// CGIHandler cgi(error_code);
-// 	// if (cgi.identifyCGI(req, res)) //is CGI
-// 	// {
-// 	// 	if (*error_code >= 400)
-// 	// 		return (/* HANDLE ERROR, */ std::cout << "¡¡ERROR EN CGI!! *error_code = " << *error_code << std::endl, delete error_code, 1);
-// 	// 	else
-// 	// 		return (pending_writes[client_fd] = res, delete error_code, std::cout << "¡¡CGI okkie dokki!!" << std::endl << "status = " << pending_writes[client_fd].getStatus() << std::endl << "headers = " << pending_writes[client_fd].getHeaders() << "body = " << pending_writes[client_fd].getBody() << std::endl, 0);
-// 	// }
-// 	// delete error_code;
-// 	//AQUI ACABA CGI
-	
-// 	// 🔁 ROUTER + HANDLER
-// 	IRequestHandler* handler = _router.resolve(req);
-// 	if (handler) {
-// 		res = handler->handleRequest(req);
-// 		delete handler;
-// 	} else {
-// 		res.setStatus(404, "Not Found");
-// 		res.setHeader("Content-Type", "text/plain");
-// 		res.setBody("404 - Ruta no encontrada");
-
-// 		std::ostringstream oss;
-// 		oss << res.getBody().length();
-// 		res.setHeader("Content-Length", oss.str());
-// 	}
-
-// 	pending_writes[client_fd] = res;
-
-// 	return (0);
-// } 
-
 
 int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes)
 {
-	std::string response = pending_writes[client_fd].toString();
+    std::string response = pending_writes[client_fd].toString();
 	
 	ssize_t bytes_sent = send(client_fd, response.c_str(), response.length(), 0);
 	if (bytes_sent == 0)
@@ -311,3 +376,70 @@ void Server::initMiddleware()
 	_middleware.add(new CookieMiddleware());
 	_middleware.add(new AllowMethodMiddleware());
 }
+    
+    // int Server::handleClientRead(const int client_fd,  std::map<int, Response> &pending_writes) 
+    // {
+    // 	char buffer[BUFFER_SIZE];
+    // 	ssize_t bytes_read;
+    
+    // 	bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);		
+    // 	if (bytes_read == 0)
+    // 		return (std::cout << "[-] No data received: " << client_fd << std::endl, 1);
+    // 	if (bytes_read < 0)
+    // 		return (std::cout << "[-] Client disconnected: " << client_fd << std::endl, 1);
+    
+    // 	buffer[bytes_read] = '\0';
+    //     std::cout << "[BUFFER]" << buffer << "]" << std::endl ;
+    // 	std::cout << std::endl << "[READ " << client_fd << "] AUII TERMINA EL BUFFER " << buffer << std::endl;
+    
+    // 	Request req;
+    //     Response res;
+    // 	if (!req.parse(buffer)) {
+    // 		res.setStatus(404, "Not Found");
+    // 		res.setBody("<h1>400 Bad Request</h1>");
+    // 		pending_writes[client_fd] = res;
+    // 		return (0);
+    // 	}
+    
+    // 	std::cout << "AQUI ENTRA!!!" << std::endl;
+    // 	std::cout << "Método: " << req.getMethod() << std::endl;
+    // 	std::cout << "Ruta: " << req.getURI() << std::endl;
+    
+    // 	// ✅ MIDDLEWARE CHECK
+    // 	if (!_middleware.handle(req, res)) {
+    // 		pending_writes[client_fd] = res;
+    // 		return(0);
+    // 	}
+    
+    // 	//ESTO ES LO DEL CGI
+    // 	// int* error_code = new int;
+    // 	// CGIHandler cgi(error_code);
+    // 	// if (cgi.identifyCGI(req, res)) //is CGI
+    // 	// {
+    // 	// 	if (*error_code >= 400)
+    // 	// 		return (/* HANDLE ERROR, */ std::cout << "¡¡ERROR EN CGI!! *error_code = " << *error_code << std::endl, delete error_code, 1);
+    // 	// 	else
+    // 	// 		return (pending_writes[client_fd] = res, delete error_code, std::cout << "¡¡CGI okkie dokki!!" << std::endl << "status = " << pending_writes[client_fd].getStatus() << std::endl << "headers = " << pending_writes[client_fd].getHeaders() << "body = " << pending_writes[client_fd].getBody() << std::endl, 0);
+    // 	// }
+    // 	// delete error_code;
+    // 	//AQUI ACABA CGI
+        
+    // 	// 🔁 ROUTER + HANDLER
+    // 	IRequestHandler* handler = _router.resolve(req);
+    // 	if (handler) {
+    // 		res = handler->handleRequest(req);
+    // 		delete handler;
+    // 	} else {
+    // 		res.setStatus(404, "Not Found");
+    // 		res.setHeader("Content-Type", "text/plain");
+    // 		res.setBody("404 - Ruta no encontrada");
+    
+    // 		std::ostringstream oss;
+    // 		oss << res.getBody().length();
+    // 		res.setHeader("Content-Length", oss.str());
+    // 	}
+    
+    // 	pending_writes[client_fd] = res;
+    
+    // 	return (0);
+    // } 
