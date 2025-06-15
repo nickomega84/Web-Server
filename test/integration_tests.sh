@@ -3,9 +3,10 @@
 # Este script automatiza las pruebas de integración para los endpoints del servidor.
 
 # Configuración
-BASE_URL="http://localhost:8080"
+BASE_URL="http://localhost:8081"
 UPLOAD_PATH="/uploads"
 CGI_PATH="/cgi-bin"
+# Asegúrate de que el servidor esté corriendo antes de ejecutar este script.
 
 # Función de impresión de resultados
 print_result() {

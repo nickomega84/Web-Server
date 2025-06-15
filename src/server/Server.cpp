@@ -317,8 +317,16 @@ int Server::handleClientRead(const int client_fd,
 
     Request  req;
     Response res;
+    std::cout << "[BUFFER] [" << buffer << "]\n";
+    std::cout << "[READ " << client_fd << "] Recibido: " << buffer << "\n";
+    std::cout << "[READ " << client_fd << "] Tamaño del buffer: " << n << "\n"; 
+    std::cout << "[READ " << client_fd << "] AUII TERMINA EL BUFFER\n";
+    
+
 
     if (!req.parse(buffer)) {           // petición mal formada → 400
+        std::cout << "[-] Petición mal formada: " << buffer << "\n";
+        
         ErrorPageHandler err("");
         Response res400;
         res400.setStatus(400, "Bad Request");

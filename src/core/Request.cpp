@@ -40,7 +40,7 @@ bool Request::parse(const std::string& raw)
     if (!(firstLine >> _method >> _uri >> _version))
         return false;
         
-    std::cout << _uri<< "URIIIIIII \n" << std::endl;
+    
     // ▶ Separar path y query-string
     size_t q = _uri.find('?');
     if (q != std::string::npos) {
@@ -51,15 +51,22 @@ bool Request::parse(const std::string& raw)
         _queryString.clear();
     }
 
-    // std::cout << _uri<< "URIIIIIII \n" << std::endl;
-
+    
     /* ── 2. HEADERS ─────────────────────────────── */
-    while (std::getline(stream, line) && line != "\r") {
+    while (std::getline(stream, line) && line != "\r" && line != "\n") {
         size_t pos = line.find(':');
         if (pos == std::string::npos) continue;
 
         std::string key   = line.substr(0, pos);
         std::string value = line.substr(pos + 1);
+
+        std::cout << "[DEBUG] Header found: " << key << " = " << value << "\n";
+        // Convertir a minúsculas
+        for (size_t i = 0; i < key.size(); ++i) {
+            key[i] = std::tolower(key[i]);
+        }
+
+
 
         // Trim whitespace inicial
         value.erase(0, value.find_first_not_of(" \t"));
@@ -85,8 +92,19 @@ bool Request::parse(const std::string& raw)
     } else { // HTTP/1.0
         _keepAlive = (getHeader("Connection") == "keep-alive");
     }
-
-    return true;
+    std::cout << "[DEBUG] Request parsed successfully:\n"
+              << "Method: " << _method << "\n"
+              << "URI: " << _uri << "\n"
+              << "Version: " << _version << "\n" << std::endl;
+    // std::cout << "Headers:\n";
+    std::cout << "Body: " << _body << "\n"
+              << "Keep-Alive: " << (_keepAlive ? "true" : "false") << "\n" << std::endl;
+    std::cout << "Path: " << _path << "\n"
+              << "Query String: " << _queryString << "\n" << std::endl;
+    std::cout << "Request parsing completed successfully.\n" << std::endl;
+    // Si llegamos hasta aquí, todo ha ido bien
+    
+    return (true);
 }
 
 // Getters

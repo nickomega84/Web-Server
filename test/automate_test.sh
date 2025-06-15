@@ -13,7 +13,7 @@ WEBROOT="$TEST_DIR/webserv_test/static"                   # directorio static va
 UPLOADS_DIR="$TEST_DIR/webserv_test/uploads"
 YOUPI_DIR="$TEST_DIR/webserv_test/YoupiBanane"
 CGI_TEST="$TEST_DIR/webserv_test/cgi_test"
-SERVER_URL="http://localhost:8080"
+SERVER_URL="http://localhost:8081"
 
 # ————————————————————————————————
 # LIMPIAR Y PREPARAR ESTRUCTURA
@@ -43,7 +43,7 @@ SERVER_PID=$!
 # ESPERAR A QUE ESTÉ UP
 # ————————————————————————————————
 echo -n "⏳ Esperando a que $SERVER_URL responda… "
-until nc -z localhost 8080; do sleep 0.1; done
+until nc -z localhost 8081; do sleep 0.1; done
 echo "OK"
 
 # ————————————————————————————————

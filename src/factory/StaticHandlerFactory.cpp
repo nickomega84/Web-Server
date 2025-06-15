@@ -13,5 +13,5 @@ StaticHandlerFactory::~StaticHandlerFactory()
 IRequestHandler* StaticHandlerFactory::createHandler() const 
 {
 	// Retorna una instancia de StaticFileHandler (puede usar ruta por defecto "/www/")
-	return new StaticFileHandler("./www");
+	return new StaticFileHandler("/www/");
 }

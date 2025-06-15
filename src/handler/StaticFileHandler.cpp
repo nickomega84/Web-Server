@@ -17,6 +17,22 @@ StaticFileHandler::~StaticFileHandler() {}
 
 static bool fileExists(const std::string& path) 
 {
+    std::cout << "[DEBUG] Verificando existencia del archivo: " << path << std::endl;
+    std::ifstream file(path.c_str());
+    if (!file) {
+        std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
+        return false;
+    }
+    std::cout << "[DEBUG] Archivo encontrado: " << path << std::endl;
+    file.close();
+    // Verificar si el archivo es accesible
+    // struct stat buffer;
+    // return (stat(path.c_str(), &buffer) == 0 && S_ISREG(buffer.st_mode));
+    // Verificar si el archivo existe y es un archivo regular
+    // Nota: S_ISREG(buffer.st_mode) comprueba si es un archivo regular
+    // Nota: stat() devuelve 0 si el archivo existe y se puede acceder
+    // Nota: Si quieres comprobar si es un directorio, puedes usar S_ISDIR(buffer.st_mode)
+    // Nota: Si quieres comprobar si es un enlace simbólico, puedes usar S_ISLNK(buffer.st_mode)        
 	struct stat buffer;
 	return (stat(path.c_str(), &buffer) == 0);
 }
@@ -51,8 +67,10 @@ Response StaticFileHandler::handleRequest(const Request& request)
     std::string uri   = request.getPath();          // ya sin query
     std::string qs    = request.getQueryString();
     std::string method = request.getMethod();
+    std::string fullPath = _rootPath + uri;
 
     if (uri == "/") uri = "/index.html";
+
 
     Response res;
 
@@ -83,10 +101,10 @@ Response StaticFileHandler::handleRequest(const Request& request)
         return res;
     }
 
-    std::string fullPath = _rootPath + uri;
-    std::cout << "[DEBUG] Sirviendo archivo: " << fullPath << std::endl;
-
-    if (!fileExists(fullPath)) {
+    std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
+    
+    if (!fileExists(fullPath) ) {
+        std::cout << "[DEBUG] Archivo no encontrado: " << fullPath << std::endl;
         // Archivo no existe, devolver página 404 personalizada
         ErrorPageHandler errorHandler("");
         std::string body = errorHandler.render(404, "Archivo no encontrado");

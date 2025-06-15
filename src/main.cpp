@@ -66,6 +66,7 @@ int main(int argc, char** argv)
     router.registerFactory("/upload",  new UploadHandlerFactory());
     router.registerFactory("/cgi-bin", new CGIHandlerFactory());
     router.registerFactory("/",        new StaticHandlerFactory());  // catch-all
+    
     server.setRouter(router);
 
     /* 6. socket de escucha + bucle epoll ------------------------------- */
