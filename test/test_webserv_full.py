@@ -12,49 +12,49 @@ tests = [
         "path": "/",
         "expected_status": 200,
         "expected_content_type": "text/html"
-    }
-    # {
-    #     "name": "GET /no-existe",
-    #     "method": "GET",
-    #     "path": "/no-existe",
-    #     "expected_status": 404,
-    #     "expected_content_type": "text/html"
-    # },
-    # {
-    #     "name": "POST /upload",
-    #     "method": "POST",
-    #     "path": "/upload",
-    #     "data": {"field": "value"},
-    #     "expected_status": 200
-    # },
-    # {
-    #     "name": "DELETE /index.html",
-    #     "method": "DELETE",
-    #     "path": "/index.html",
-    #     "expected_status": 200
-    # },
-    # {
-    #     "name": "PUT /index.html",
-    #     "method": "PUT",
-    #     "path": "/index.html",
-    #     "expected_status": 405
-    # },
-    # {
-    #     "name": "GET /style.css (MIME test)",
-    #     "method": "GET",
-    #     "path": "/style.css",
-    #     "expected_status": 200,
-    #     "expected_content_type": "text/css"
-    # },
-    # {
-    #     "name": "GET /logo.png (MIME test)",
-    #     "method": "GET",
-    #     "path": "/logo.png",
-    #     "expected_status": 200,
-    #     "expected_content_type": "image/png"
-    # },
+    },
+    {
+        "name": "GET /no-existe",
+        "method": "GET",
+        "path": "/no-existe",
+        "expected_status": 404,
+        "expected_content_type": "text/html"
+    },
+    {
+        "name": "POST /upload",
+        "method": "POST",
+        "path": "/upload",
+        "data": {"field": "value"},
+        "expected_status": 200
+    },
+    {
+        "name": "DELETE /index.html",
+        "method": "DELETE",
+        "path": "/index.html",
+        "expected_status": 200
+    },
+    {
+        "name": "PUT /index.html",
+        "method": "PUT",
+        "path": "/index.html",
+        "expected_status": 405
+    },
+    {
+        "name": "GET /style.css (MIME test)",
+        "method": "GET",
+        "path": "/style.css",
+        "expected_status": 200,
+        "expected_content_type": "text/css"
+    },
+    {
+        "name": "GET /logo.png (MIME test)",
+        "method": "GET",
+        "path": "/logo.png",
+        "expected_status": 200,
+        "expected_content_type": "image/png"
+    },
 
-    # # 🔐 Security Tests
+    # 🔐 Security Tests
     # {
     #     "name": "Path traversal attempt",
     #     "method": "GET",
@@ -76,13 +76,13 @@ tests = [
     # },
 
     # 🍪 Session & Cookie Tests
-    # {
-    #     "name": "GET / with session cookie",
-    #     "method": "GET",
-    #     "path": "/",
-    #     "cookies": {"SESSIONID": "PKdhtXMmr18n2L9K"},
-    #     "expected_status": 200
-    # },
+    {
+        "name": "GET / with session cookie",
+        "method": "GET",
+        "path": "/",
+        "cookies": {"SESSIONID": "PKdhtXMmr18n2L9K"},
+        "expected_status": 200
+    },
     # {
     #     "name": "POST /secure with invalid session",
     #     "method": "POST",
@@ -91,14 +91,14 @@ tests = [
     #     "expected_status": 401
     # },
 
-    # # 🧪 Custom Header Test
-    # {
-    #     "name": "GET / with custom header",
-    #     "method": "GET",
-    #     "path": "/",
-    #     "headers": {"X-Custom-Test": "42webserv"},
-    #     "expected_status": 200
-    # }
+    # 🧪 Custom Header Test
+    {
+        "name": "GET / with custom header",
+        "method": "GET",
+        "path": "/",
+        "headers": {"X-Custom-Test": "42webserv"},
+        "expected_status": 200
+    }
 ]
 
 def run_tests():

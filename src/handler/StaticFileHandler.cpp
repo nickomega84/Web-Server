@@ -19,10 +19,10 @@ static bool fileExists(const std::string& path)
 {
     std::cout << "[DEBUG] Verificando existencia del archivo: " << path << std::endl;
     std::ifstream file(path.c_str());
-    if (!file) {
-        std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
-        return false;
-    }
+    // if (!file) {
+    //     std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
+    //     return false;
+    // }
     std::cout << "[DEBUG] Archivo encontrado: " << path << std::endl;
     file.close();
     // Verificar si el archivo es accesible
@@ -67,13 +67,12 @@ Response StaticFileHandler::handleRequest(const Request& request)
     std::string uri   = request.getPath();          // ya sin query
     std::string qs    = request.getQueryString();
     std::string method = request.getMethod();
-    std::string fullPath = _rootPath + uri;
-
-    if (uri == "/") uri = "/index.html";
-
-
+    
+    if (uri == "/") 
+    uri = "/index.html";
+    
     Response res;
-
+    
     // Bloquear métodos distintos de GET/HEAD
     if (method != "GET" && method != "HEAD" && method != "POST" && method != "DELETE") {
         res.setStatus(405, "Method Not Allowed");
@@ -82,7 +81,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
         res.setHeader("Content-Length", Utils::intToString(res.getBody().length()));
         return res;
     }
-
+    
     // XSS muy básica
     if (qs.find("<script") != std::string::npos) {
         res.setStatus(400, "Bad Request");
@@ -91,7 +90,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
         res.setHeader("Content-Length", Utils::intToString(res.getBody().length()));
         return res;
     }
-
+    
     // Path traversal
     if (uri.find("..") != std::string::npos) {
         res.setStatus(403, "Forbidden");
@@ -100,7 +99,8 @@ Response StaticFileHandler::handleRequest(const Request& request)
         res.setHeader("Content-Length", Utils::intToString(res.getBody().length()));
         return res;
     }
-
+    
+    std::string fullPath = _rootPath + uri;
     std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
     
     if (!fileExists(fullPath) ) {

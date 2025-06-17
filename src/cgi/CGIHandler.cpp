@@ -182,7 +182,7 @@ int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::stri
 		scriptName = scriptName.substr(1); // Quitar el slash inicial
 
 	// 2. Construir el mapa m
-	std::string cgiRoot = "/www/cgi-bin"; // <-- AJUSTA según tu config
+	std::string cgiRoot = "www/cgi-bin"; // <-- AJUSTA según tu config
 	m["dir"] = cgiRoot + "/";
 	m["name"] = scriptName; // sin slash
 	m["name_without_slash"] = scriptName;

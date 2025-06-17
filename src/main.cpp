@@ -63,9 +63,9 @@ int main(int argc, char** argv)
 
     /* 5. router & fábricas -------------------------------------------- */
     Router router;
+    router.registerFactory("/",        new StaticHandlerFactory());  // catch-all
     router.registerFactory("/upload",  new UploadHandlerFactory());
     router.registerFactory("/cgi-bin", new CGIHandlerFactory());
-    router.registerFactory("/",        new StaticHandlerFactory());  // catch-all
     
     server.setRouter(router);
 
