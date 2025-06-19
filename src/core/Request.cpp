@@ -51,7 +51,10 @@ bool Request::parse(const std::string& raw)
         _queryString.clear();
     }
 
-    
+    std::cout << "[DEBUG] Start line parsed: " << _method << " " << _uri << " " << _version << "\n";
+
+    std::cout << "[DEBUG] Path: " << _path << "\n" << std::endl;
+    std::cout << "[DEBUG] Query String: " << _queryString << "\n" << std::endl;
     /* ── 2. HEADERS ─────────────────────────────── */
     while (std::getline(stream, line) && line != "\r" && line != "\n") {
         size_t pos = line.find(':');

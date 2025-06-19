@@ -325,7 +325,8 @@ int Server::handleClientRead(const int client_fd,
 
 
     if (!req.parse(buffer)) {           // petición mal formada → 400
-        std::cout << "[-] Petición mal formada: " << buffer << "\n";
+        std::cout << "Error root: " << _rootPath << "\n" << std::endl;
+        std::cout << "[-] Petición mal formada: " << buffer << "\n" << std::endl;
         
         ErrorPageHandler err("");
         Response res400;

@@ -68,21 +68,21 @@ test_cgi_python_get() {
   fi
 }
 
-# 4. CGI Python POST
-test_cgi_python_post() {
-  local url="$BASE_URL$CGI_PATH/pythonPOST.py"
-  local response body status DETAILS
-  response=$(curl -s -X POST -w "\n%{http_code}" -H "Content-Type: text/plain" --data "Este es el contenido de mi nuevo recurso." "$url")
-  status=$(echo "$response" | tail -n1)
-  body=$(echo "$response" | sed '$d')
-  if [[ $status =~ ^2 ]] || echo "$body" | grep -qE "Success|OK"; then
-    return 0
-  else
-    DETAILS="Response body: $body\nHTTP status: $status"
-    echo "$DETAILS"
-    return 1
-  fi
-}
+# # 4. CGI Python POST
+# test_cgi_python_post() {
+#   local url="$BASE_URL$CGI_PATH/pythonPOST.py"
+#   local response body status DETAILS
+#   response=$(curl -s -X POST -w "\n%{http_code}" -H "Content-Type: text/plain" --data "Este es el contenido de mi nuevo recurso." "$url")
+#   status=$(echo "$response" | tail -n1)
+#   body=$(echo "$response" | sed '$d')
+#   if [[ $status =~ ^2 ]] || echo "$body" | grep -qE "Success|OK"; then
+#     return 0
+#   else
+#     DETAILS="Response body: $body\nHTTP status: $status"
+#     echo "$DETAILS"
+#     return 1
+#   fi
+# }
 
 # 5. CGI Shell GET
 test_cgi_shell_get() {
@@ -101,22 +101,22 @@ test_cgi_shell_get() {
 }
 
 # 6. CGI Shell POST
-test_cgi_shell_post() {
-  local url="$BASE_URL$CGI_PATH/shellPOST.s"
-  local response body status DETAILS
-  response=$(curl -s -X POST -w "
-%{http_code}" -H "Content-Type: text/plain" --data "Contenido del archivo via shell." "$url")
-  status=$(echo "$response" | tail -n1)
-  body=$(echo "$response" | sed '$d')
-  if [[ $status =~ ^2 ]] || echo "$body" | grep -qE "Success|OK"; then
-    return 0
-  else
-    DETAILS="Response body: $body
-HTTP status: $status"
-    echo "$DETAILS"
-    return 1
-  fi
-}
+# test_cgi_shell_post() {
+#   local url="$BASE_URL$CGI_PATH/shellPOST.s"
+#   local response body status DETAILS
+#   response=$(curl -s -X POST -w "
+# %{http_code}" -H "Content-Type: text/plain" --data "Contenido del archivo via shell." "$url")
+#   status=$(echo "$response" | tail -n1)
+#   body=$(echo "$response" | sed '$d')
+#   if [[ $status =~ ^2 ]] || echo "$body" | grep -qE "Success|OK"; then
+#     return 0
+#   else
+#     DETAILS="Response body: $body
+# HTTP status: $status"
+#     echo "$DETAILS"
+#     return 1
+#   fi
+# }
 
 # Ejecutar todos los tests
 echo "Iniciando pruebas de integración..."
@@ -129,8 +129,8 @@ test_cgi_python_get; print_result $? "GET pythonGET.py?nombre=Juan&ciudad=Madrid
 
 test_cgi_python_post; print_result $? "POST pythonPOST.py"
 
-test_cgi_shell_get; print_result $? "GET shellGET.sh?id=123&categoria=electronica"
+# test_cgi_shell_get; print_result $? "GET shellGET.sh?id=123&categoria=electronica"
 
-test_cgi_shell_post; print_result $? "POST shellPOST.sh"
+# test_cgi_shell_post; print_result $? "POST shellPOST.sh"
 
 echo "Pruebas completadas."

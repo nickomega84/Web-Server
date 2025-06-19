@@ -145,17 +145,32 @@ std::string CGIHandler::getQueryString(const std::string &uri)
 
 bool CGIHandler::checkLocation(std::string &directory, std::string &name) //comprueba si el archivo existe dentro del directorio
 {
+	std::cout << "[HOLA] CGIHandler::checkLocation() directory: " << directory << std::endl;
+	std::cout <<  "[DEBUG] CGIHandler::checkLocation() name: " << name << std::endl;
 	DIR *dir;
 	struct dirent *entry;
 	std::vector<std::string> file_names;
     std::cout << "[DEBUG] directory: " << directory << std::endl;
-	if ((dir = opendir(directory.c_str())) == NULL)	//DIR es una estructura opaca definida en <dirent.h>, utilizada por las funciones del sistema para representar un flujo de directorio abierto. Su contenido interno está oculto al usuario y gestionado por el sistema operativo.
-		return (std::cerr << "[ERROR] CGIHandler::checkLocation() opendir() failed for directory: " << directory << std::endl, false);
+	if (access(directory.c_str(), F_OK) == -1) {
+		std::cerr << "[ERROR] CGIHandler::checkLocation() access() failed for "
+		          << directory << " — " << strerror(errno)        // <- clave
+		          << " (errno " << errno << ")\n";
+		return false;
+	}
+	if ((dir = opendir(directory.c_str())) == NULL) {
+    std::cerr << "[ERROR] CGIHandler::checkLocation() opendir() failed for "
+              << directory << " — " << strerror(errno)        // <- clave
+              << " (errno " << errno << ")\n";
+    return false;
+}
+
+	// if ((dir = opendir(directory.c_str())) == NULL)	//DIR es una estructura opaca definida en <dirent.h>, utilizada por las funciones del sistema para representar un flujo de directorio abierto. Su contenido interno está oculto al usuario y gestionado por el sistema operativo.
+	// 	return (std::cerr << "[ERROR] CGIHandler::checkLocation() opendir() failed for directory: " << directory << std::endl, false);
     std::cout << "[DEBUG] CGIHandler::checkLocation() directory: " << directory << std::endl;
 	while ((entry = readdir(dir)) != NULL)
 		file_names.push_back(entry->d_name);
 	closedir(dir);
-	if (find(file_names.begin(), file_names.end(), name) == file_names.end())
+	if (find(file_names.begin(), file_names.end(), name) == file_names.end() )
 		return (false);
 	return (true);
 }
@@ -166,69 +181,98 @@ bool CGIHandler::checkExePermission(std::string path)
 		return (true);
 	return (false);
 }
-
-
-int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::string> &m)
-{
-	bool success = true;
-
-	// 1. Obtener ruta y nombre del script desde URI
-	std::string uri = req.getURI(); // Ej: /cgi-bin/shellGET.sh?id=123
-	std::string scriptName = getName(uri, &success); // Ej: /shellGET.sh
-	if (!success)
-		return (std::cerr << "[ERROR] CGI couldn't getName()" << std::endl, handleError(404), 1);
-
-	if (!scriptName.empty() && scriptName[0] == '/')
-		scriptName = scriptName.substr(1); // Quitar el slash inicial
-
-	// 2. Construir el mapa m
-	std::string cgiRoot = "www/cgi-bin"; // <-- AJUSTA según tu config
-	m["dir"] = cgiRoot + "/";
-	m["name"] = scriptName; // sin slash
-	m["name_without_slash"] = scriptName;
-	m["path"] = m["dir"] + m["name"];
-	m["queryString"] = getQueryString(uri);
-
-	std::cout << "\n[CGI CHECK] -----------------------------\n";
-	for (std::map<std::string, std::string>::iterator it = m.begin(); it != m.end(); ++it)
-		std::cout << it->first << " = " << it->second << std::endl;
-	std::cout << "------------------------------------------\n";
-
-	// 3. Validaciones
-	if (!checkLocation(m["dir"], m["name_without_slash"]))
-		return (std::cerr << "[ERROR] CGI couldn't checkLocation()" << std::endl, handleError(404), 1);
-	if (!checkExePermission(m["path"]))
-		return (std::cerr << "[ERROR] CGI couldn't checkExePermission()" << std::endl, handleError(500), 1);
-
-	return 0;
-}
+// bool CGIHandler::checkLocation(std::string &directory, std::string &name, std::string &interpreter)
+// {
+// 	std::cout << "[HOLA] CGIHandler::checkLocation() directory: " << directory << std::endl;
+// 	std::cout <<  "[DEBUG] CGIHandler::checkLocation() name: " << name << std::endl;
+// 	DIR *dir;
+// 	struct dirent *entry;
+// 	std::vector<std::string> file_names;
+// 	std::cout << "[DEBUG] directory: " << directory << std::endl;
+// 	if ((dir = opendir(directory.c_str())) == NULL)	//DIR es una estructura opaca definida en <dirent.h>, utilizada por las funciones del sistema para representar un flujo de directorio abierto. Su contenido interno está oculto al usuario y gestionado por el sistema operativo.
+// 		return (std::cerr << "[ERROR] CGIHandler::checkLocation() opendir() failed for directory: " << directory << std::endl, false);
+// 	std::cout << "[DEBUG] CGIHandler::checkLocation() directory: " << directory << std::endl;
+// 	while ((entry = readdir(dir)) != NULL)
+// 		file_names.push_back(entry->d_name);
+// 	closedir(dir);
+// 	if (find(file_names.begin(), file_names.end(), name) == file_names.end())
+// 		return (false);
+// 	if (interpreter == PYTHON_INTERPRETER && name.substr(name.length() - 3) != ".py")
+// 		return (false);
+// 	if (interpreter == SH_INTERPRETER && name.substr(name.length() - 3) != ".sh")
+// 		return (false);
+// 	return (true);
+// }
 
 
 // int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::string> &m)
 // {
 // 	bool success = true;
-// 	m["dir"] = req.getPath() + getDir(req.getURI(), &success);
-// 	m["name"] = getName(req.getURI(), &success);
-// 	m["name_without_slash"] = m["name"].substr(1);
-// 	m["path"] = m["dir"] + m["name"];
-// 	m["queryString"] = getQueryString(req.getURI());
 
-// 	std::cout << std::endl;
+// 	// 1. Obtener ruta y nombre del script desde URI
+// 	std::string uri = req.getURI(); // Ej: /cgi-bin/shellGET.sh?id=123
+// 	std::string scriptName = getName(uri, &success); // Ej: /shellGET.sh
+// 	if (!success)
+// 		return (std::cerr << "[ERROR] CGI couldn't getName()" << std::endl, handleError(404), 1);
+
+// 	if (!scriptName.empty() && scriptName[0] == '/')
+// 		scriptName = scriptName.substr(1); // Quitar el slash inicial
+
+// 	// 2. Construir el mapa m
+// 	std::string cgiRoot = "www/cgi-bin"; // <-- AJUSTA según tu config
+// 	m["dir"] = cgiRoot + "/";
+// 	m["name"] = scriptName; // sin slash
+// 	m["name_without_slash"] = scriptName;
+// 	m["path"] = m["dir"] + m["name"];
+// 	m["queryString"] = getQueryString(uri);
+
+// 	std::cout << "\n[CGI CHECK] -----------------------------\n";
 // 	for (std::map<std::string, std::string>::iterator it = m.begin(); it != m.end(); ++it)
 // 		std::cout << it->first << " = " << it->second << std::endl;
-// 	std::cout << std::endl;
+// 	std::cout << "------------------------------------------\n";
 
-// 	if (!success)
-// 		return (std::cerr << "[ERROR] CGI couldn't getDir() or getName()" << std::endl, handleError(404), 1);
+// 	// 3. Validaciones
 // 	if (!checkLocation(m["dir"], m["name_without_slash"]))
 // 		return (std::cerr << "[ERROR] CGI couldn't checkLocation()" << std::endl, handleError(404), 1);
 // 	if (!checkExePermission(m["path"]))
 // 		return (std::cerr << "[ERROR] CGI couldn't checkExePermission()" << std::endl, handleError(500), 1);
 
-// 	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
-	
-// 	return (0);
+// 	return 0;
 // }
+
+
+int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::string> &m)
+{
+	bool success = true;
+	m["dir"] = req.getPath() + getDir(req.getURI(), &success);
+	m["name"] = getName(req.getURI(), &success);
+	m["name_without_slash"] = m["name"].substr(1);
+	m["path"] = m["name"];
+	m["queryString"] = getQueryString(req.getURI());
+
+	std::cout << "\n[CGI CHECK] -----------------------------" << std::endl;
+	std::cout << "dir = " << m["dir"] << std::endl;
+	std::cout << "name = " << m["name"] << std::endl;
+	std::cout << "name_without_slash = " << m["name_without_slash"] << std::endl;
+	std::cout << "path = " << m["path"] << std::endl;
+	std::cout << "queryString = " << m["queryString"] << std::endl;
+	std::cout << "------------------------------------------" << std::endl;
+	std::cout << std::endl;
+	for (std::map<std::string, std::string>::iterator it = m.begin(); it != m.end(); ++it)
+		std::cout << it->first << " = " << it->second << std::endl;
+	std::cout << std::endl;
+
+	if (!success)
+		return (std::cerr << "[ERROR] CGI couldn't getDir() or getName()" << std::endl, handleError(404), 1);
+	if (!checkLocation(m["dir"], m["name_without_slash"]))
+		return (std::cerr << "[ERROR] CGI couldn't checkLocation()" << std::endl, handleError(404), 1);
+	if (!checkExePermission(m["path"]))
+		return (std::cerr << "[ERROR] CGI couldn't checkExePermission()" << std::endl, handleError(500), 1);
+
+	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
+	
+	return (0);
+}
 
 std::vector<std::string> CGIHandler::enviromentGET(std::string path, std::string queryString)
 {
@@ -417,3 +461,19 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	}
 	return (0);
 }
+static std::string basename(const std::string& p)
+{
+    std::string::size_type pos = p.find_last_of('/');
+    return (pos == std::string::npos) ? p : p.substr(pos + 1);
+}
+
+std::string CGIHandler::joinPath(const std::string& a,
+                                 const std::string& b)
+{
+    if (a.empty()) return b;
+    if (b.empty()) return a;
+    if (a[a.size()-1] == '/' && b[0] == '/') return a + b.substr(1);
+    if (a[a.size()-1] != '/' && b[0] != '/') return a + "/" + b;
+    return a + b;
+}
+

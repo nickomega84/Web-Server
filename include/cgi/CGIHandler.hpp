@@ -26,10 +26,11 @@ enum Type
 class CGIHandler : public IRequestHandler 
 {
 	private:
-	    int _error;
+	int _error;
         int identifyType(const Request &req);
         int identifyMethod(const Request &req);
         void handleError(int error);
+        
         std::string getDir(const std::string &uri, bool *success);
         std::string getName(const std::string &uri, bool *success);
         std::string getQueryString(const std::string &uri);
@@ -46,10 +47,13 @@ class CGIHandler : public IRequestHandler
     
 	public:
         CGIHandler();
+        CGIHandler(const std::string& cgiRoot);   // ctor ligero
         CGIHandler(const CGIHandler& other);
         CGIHandler& operator=(const CGIHandler& other);
         virtual ~CGIHandler();
         virtual Response handleRequest(const Request& req);
+        std::string joinPath(const std::string& a,
+                                 const std::string& b);
 
 
         // virtual Response handleRequest(const Request& req);

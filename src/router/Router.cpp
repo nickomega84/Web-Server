@@ -33,8 +33,12 @@ IRequestHandler* Router::resolve(const Request& request) const
 
 	// Buscar el pathPrefix más largo que haga match estricto
 	std::map<std::string, IHandlerFactory*>::const_reverse_iterator it;
+	std::cout << "Resolving request for URI: " << uri << std::endl;
+
 	for (it = _routes.rbegin(); it != _routes.rend(); ++it) 
     {
+		std::cout << "Checking route: " << it->first << std::endl;
+
 		const std::string& route = it->first;
 		if (uri == route ||
 			(uri.find(route) == 0))
