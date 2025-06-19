@@ -17,7 +17,7 @@ CGIHandler& CGIHandler::operator=(const CGIHandler &other) {
     return *this;
 }
 
-CGIHandler::~CGIHandler() 
+CGIHandler::~CGIHandler()
 {
     std::cout << "CGI Handler Destructed" << std::endl;
 }
@@ -44,7 +44,7 @@ int CGIHandler::identifyType(const Request &req)
 	std::string::size_type query_pos = uri.find('?');
 	std::string path_part = uri;
 	if (query_pos != std::string::npos)
-		path_part = uri.substr(0, query_pos);	
+		path_part = uri.substr(0, query_pos);
 	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".py")
 		return (1);
 	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".sh")
@@ -97,9 +97,9 @@ bool CGIHandler::identifyCGI(const Request &req, Response &res)
 {
 	int indx = identifyType(req);
 	if (indx == 0)
-		return ((_error = 
+		return ((_error =
             404),0);
-        
+
 	indx += identifyMethod(req);
 	if (indx == INVALID1 || indx == INVALID2)
 		return (std::cerr << "[ERROR] CGI invalid method" << std::endl, handleError(501), true);
@@ -244,7 +244,8 @@ bool CGIHandler::checkExePermission(std::string path)
 int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::string> &m)
 {
 	bool success = true;
-	m["dir"] = req.getPath() + getDir(req.getURI(), &success);
+	// m["dir"] = req.getPath() + getDir(req.getURI(), &success);
+    m["dir"] = _cgiRoot;                       // ya apunta a /abs/path/to/cgi-bin
 	m["name"] = getName(req.getURI(), &success);
 	m["name_without_slash"] = m["name"].substr(1);
 	m["path"] = m["name"];
@@ -270,7 +271,7 @@ int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::stri
 		return (std::cerr << "[ERROR] CGI couldn't checkExePermission()" << std::endl, handleError(500), 1);
 
 	//CONFIG! comprueba si el directorio tiene permisos de acuerdo al archivo de configuración (404 si no tiene);	return (0);
-	
+
 	return (0);
 }
 
@@ -369,7 +370,7 @@ int CGIHandler::handlePOST(const Request &req, Response &res, std::string interp
 	for (size_t i = 0; i < en.size(); ++i)
 		envp[i] = const_cast<char*>(en[i].c_str());
 	envp[en.size()] = NULL;
-	
+
 	int pipeInput[2];
 	if (pipe(pipeInput) < 0)
 		return (std::cerr << "[ERROR] CGI on pipeInput" << std::endl, handleError(500), delete[] envp, 1);
@@ -429,12 +430,12 @@ int CGIHandler::handlePOST(const Request &req, Response &res, std::string interp
 int CGIHandler::createResponse(std::string output, Response &res)
 {
 	res.setStatus(200, "OK");
- 
+
 	std::string cgi_headers_str;
 	std::string cgi_body_str;
 	std::string::size_type header_end_pos = output.find("\r\n\r\n");
 	if (header_end_pos == std::string::npos)
-		header_end_pos = output.find("\n\n"); //algunos scripts no devuelven \r\n\r\n como dicta la convencción de HTTP, en su lugar devuelven \n\n 
+		header_end_pos = output.find("\n\n"); //algunos scripts no devuelven \r\n\r\n como dicta la convencción de HTTP, en su lugar devuelven \n\n
 	if (header_end_pos == std::string::npos)
 		return (1);
 	cgi_headers_str = output.substr(0, header_end_pos);
@@ -444,10 +445,10 @@ int CGIHandler::createResponse(std::string output, Response &res)
 
 	std::stringstream ss(cgi_headers_str);
 	std::string line;
-	while (std::getline(ss, line) && !line.empty()) 
+	while (std::getline(ss, line) && !line.empty())
 	{
 		std::string::size_type colon_pos = line.find(':');
-		if (colon_pos != std::string::npos) 
+		if (colon_pos != std::string::npos)
 		{
 			std::string header_name = line.substr(0, colon_pos);
 			std::string header_value = line.substr(colon_pos + 1);
@@ -461,11 +462,11 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	}
 	return (0);
 }
-static std::string basename(const std::string& p)
-{
-    std::string::size_type pos = p.find_last_of('/');
-    return (pos == std::string::npos) ? p : p.substr(pos + 1);
-}
+// static std::string basename(const std::string& p)
+// {
+//     std::string::size_type pos = p.find_last_of('/');
+//     return (pos == std::string::npos) ? p : p.substr(pos + 1);
+// }
 
 std::string CGIHandler::joinPath(const std::string& a,
                                  const std::string& b)

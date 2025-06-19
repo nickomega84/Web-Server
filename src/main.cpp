@@ -9,10 +9,11 @@
 #include "../include/config/ConfigParser.hpp"
 #include "../include/server/Server.hpp"
 
-#include "../include/router/Router.hpp"
-#include "../include/factory/StaticHandlerFactory.hpp"
-#include "../include/factory/UploadHandlerFactory.hpp"
-#include "../include/factory/CGIHandlerFactory.hpp"
+// #include "../include/router/Router.hpp"
+// #include "../include/factory/StaticHandlerFactory.hpp"
+// #include "../include/factory/UploadHandlerFactory.hpp"
+// #include "../include/factory/CGIHandlerFactory.hpp"
+// #include "../include/response/DefaultResponseBuilder.hpp"
 
 volatile sig_atomic_t g_signal_received = 0;
 static void sigHandler(int sig)
@@ -57,25 +58,40 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    /* 4. crear servidor (usa ServerConf* del parser) ------------------- */
-    // Server server(cfg.getServerConf(), rootPath);
-    Server server(cfg, rootPath);
+    /* 4. obtener roots físicos ----------------------------------------- */
+    const std::string rootStatic  = cfg.getRoot();                    // p.ej. /var/www/html
+    const std::string rootUpload  = cfg.getLocationRoot("/upload");   // /var/www/uploads
+    const std::string rootCgi     = cfg.getLocationRoot("/cgi-bin");  // /var/www/cgi-bin
+    const int         listenPort  = cfg.getPort();                    // 8080, etc.
 
-    /* 5. router & fábricas -------------------------------------------- */
-    Router router;
-    router.registerFactory("/",        new StaticHandlerFactory());  // catch-all
-    router.registerFactory("/upload",  new UploadHandlerFactory());
-    router.registerFactory("/cgi-bin", new CGIHandlerFactory());
-    
-    server.setRouter(router);
+    if (rootStatic.empty() || rootUpload.empty() || rootCgi.empty()) {
+        std::cerr << "Error: faltan rutas 'root' en el .conf\n";
+        return 1;
+    }
 
-    /* 6. socket de escucha + bucle epoll ------------------------------- */
+    /* 5. crear servidor ------------------------------------------------- */
+    Server server(cfg, rootStatic);          // rootStatic como valor global
+
+    /* 6. router & fábricas --------------------------------------------- */
+    // Router router;
+    // router.registerFactory("/cgi-bin",
+    //         new CGIHandlerFactory(rootCgi, "/cgi-bin"));
+
+    // router.registerFactory("/upload",
+    //         new UploadHandlerFactory(rootUpload));
+
+    // router.registerFactory("/",
+    //         new StaticHandlerFactory(rootStatic));   // catch-all
+
+    // server.setRouter(router);
+
+    /* 7. socket de escucha + bucle epoll -------------------------------- */
     if (server.addListeningSocket() != 0) {
         std::cerr << "Error al crear socket de escucha\n";
         return 1;
     }
     std::cout << "[🔁] Webserv arrancado en puerto "
-              << cfg.getGlobal("port") << " — Ctrl-C para parar\n";
+              << listenPort << " — Ctrl-C para parar\n";
 
     server.startEpoll();
     return 0;

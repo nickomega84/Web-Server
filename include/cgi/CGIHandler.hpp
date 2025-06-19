@@ -12,6 +12,7 @@
 #define SH_INTERPRETER "/usr/bin/sh"
 #define BUFFER_SIZE	1024
 
+
 enum Type
 {
 	NO_CGI = 0,
@@ -26,36 +27,44 @@ enum Type
 class CGIHandler : public IRequestHandler 
 {
 	private:
-	int _error;
-        int identifyType(const Request &req);
-        int identifyMethod(const Request &req);
-        void handleError(int error);
-        
-        std::string getDir(const std::string &uri, bool *success);
-        std::string getName(const std::string &uri, bool *success);
-        std::string getQueryString(const std::string &uri);
-        bool checkLocation(std::string &directory, std::string &name);
-        bool checkExePermission(std::string path);
-        int checkHandler(const Request &req, std::map<std::string, std::string> &m);
+       /* Raíz física de /cgi-bin (inyectada por la factory) */
+        std::string _cgiRoot;
         std::vector<std::string> enviromentGET(std::string path, std::string queryString);
-        int handleGET(const Request &req, Response &res, std::string interpreter);
         std::vector<std::string> enviromentPOST(std::string path, std::string queryString, const Request &req);
-        int handlePOST(const Request &req, Response &res, std::string interpreter);
-        int createResponse(std::string output, Response &res);
-        bool identifyCGI( const Request &req, Response &res);
-
+        std::string     getDir(const std::string &uri, bool *success);
+        std::string     getName(const std::string &uri, bool *success);
+        std::string     getQueryString(const std::string &uri);
+        std::string     joinPath(const std::string &a, const std::string &b);
+        
+        int     _error;
+        int     identifyType(const Request &req);
+        int     identifyMethod(const Request &req);
+        int     checkHandler(const Request &req, std::map<std::string, std::string> &m);
+        int     handleGET(const Request &req, Response &res, std::string interpreter);
+        int     handlePOST(const Request &req, Response &res, std::string interpreter);
+        void    handleError(int error);
+        int     createResponse(std::string output, Response &res);
+        
+        bool    checkLocation(std::string &directory, std::string &name);
+        bool    checkExePermission(std::string path);
+        bool    identifyCGI( const Request &req, Response &res);
+    /* Utilidad para concatenar rutas en C++98 */
     
 	public:
+        
         CGIHandler();
         CGIHandler(const std::string& cgiRoot);   // ctor ligero
         CGIHandler(const CGIHandler& other);
         CGIHandler& operator=(const CGIHandler& other);
         virtual ~CGIHandler();
-        virtual Response handleRequest(const Request& req);
-        std::string joinPath(const std::string& a,
-                                 const std::string& b);
-
-
         // virtual Response handleRequest(const Request& req);
-	// CGIHandler(int *error_code);
+        // std::string joinPath(const std::string& a,
+        //                          const std::string& b);
+
+        /* IRequestHandler */
+        
+        virtual Response handleRequest(const Request& req);
+        
+          // virtual Response handleRequest(const Request& req);
+	    // CGIHandler(int *error_code);
 };
