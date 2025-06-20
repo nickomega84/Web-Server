@@ -2,7 +2,10 @@
 #include "../../include/utils/Utils.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/MimeType.hpp"
+#include "../../include/response/IResponseBuilder.hpp"
 #include <iostream>
+
+
 
 StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root) 
 {
@@ -10,6 +13,11 @@ StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root)
     // Aquí podrías inicializar otros recursos si es necesario
 }
 
+StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* b)
+  : _rootPath(root), _builder(b)
+{
+    std::cout << "[DEBUG] StaticFileHandler initialized with root and builder\n";
+}
 StaticFileHandler::~StaticFileHandler() {}
 
 // static bool isPathUnsafe(const std::string& path) {

@@ -3,20 +3,28 @@
 
 #include "../../include/factory/IHandlerFactory.hpp"
 #include "../../include/handler/IRequestHandler.hpp"
+#include "../response/IResponseBuilder.hpp"
+
+
+
+class IResponseBuilder;
 
 class StaticHandlerFactory : public IHandlerFactory 
 {
     private:
         std::string _rootDir;
+        IResponseBuilder* _builder;
+
 
         // // Disable copy constructor and assignment operator
         // StaticHandlerFactory(const StaticHandlerFactory&);
         // StaticHandlerFactory& operator=(const StaticHandlerFactory&);
     public:
-        explicit StaticHandlerFactory(const std::string& rootDir);
-	    // StaticHandlerFactory();
+        // StaticHandlerFactory();
+        // explicit StaticHandlerFactory(const std::string& rootDir);
+        explicit StaticHandlerFactory(const std::string& rootDir, IResponseBuilder*  builder);
         virtual ~StaticHandlerFactory();
-        IRequestHandler* createHandler() const;
+        virtual IRequestHandler* createHandler() const;
 };
 
 #endif

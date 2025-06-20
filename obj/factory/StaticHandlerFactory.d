@@ -6,8 +6,12 @@ obj/factory/StaticHandlerFactory.o: src/factory/StaticHandlerFactory.cpp \
   include/../include/libraries.hpp \
   src/factory/../../include/factory/../handler/../core/Response.hpp \
   src/factory/../../include/factory/../../include/handler/IRequestHandler.hpp \
+  src/factory/../../include/factory/../response/IResponseBuilder.hpp \
+  src/factory/../../include/factory/../response/../../include/core/Response.hpp \
   src/factory/../../include/handler/StaticFileHandler.hpp \
-  include/handler/IRequestHandler.hpp
+  include/handler/IRequestHandler.hpp \
+  src/factory/../../include/factory/../handler/../../include/response/IResponseBuilder.hpp \
+  src/factory/../../include/response/IResponseBuilder.hpp
 
 src/factory/../../include/factory/StaticHandlerFactory.hpp:
 
@@ -23,6 +27,14 @@ src/factory/../../include/factory/../handler/../core/Response.hpp:
 
 src/factory/../../include/factory/../../include/handler/IRequestHandler.hpp:
 
+src/factory/../../include/factory/../response/IResponseBuilder.hpp:
+
+src/factory/../../include/factory/../response/../../include/core/Response.hpp:
+
 src/factory/../../include/handler/StaticFileHandler.hpp:
 
 include/handler/IRequestHandler.hpp:
+
+src/factory/../../include/factory/../handler/../../include/response/IResponseBuilder.hpp:
+
+src/factory/../../include/response/IResponseBuilder.hpp:

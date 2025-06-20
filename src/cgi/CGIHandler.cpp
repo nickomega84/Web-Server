@@ -3,8 +3,15 @@
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/Utils.hpp"           // para intToString
 #include "../../include/core/Request.hpp"
+#include "../../include/cgi/CGIHandler.hpp"
 
-CGIHandler::CGIHandler() : _error(200) {}
+
+
+CGIHandler::CGIHandler(const std::string& cgiRoot)
+    : _cgiRoot(cgiRoot)
+    , _error(200)
+{
+}
 
 CGIHandler::CGIHandler(const CGIHandler& other) {
     *this = other;

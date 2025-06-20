@@ -21,6 +21,8 @@ obj/server/Server.o: src/server/Server.cpp \
   src/server/../../include/server/../cgi/../../include/handler/IRequestHandler.hpp \
   include/../include/handler/StaticFileHandler.hpp \
   include/handler/IRequestHandler.hpp \
+  src/server/../../include/server/../router/../handler/../../include/response/IResponseBuilder.hpp \
+  src/server/../../include/server/../router/../handler/../../include/response/../../include/core/Response.hpp \
   src/server/../../include/core/Request.hpp \
   src/server/../../include/core/Response.hpp \
   src/server/../../include/middleware/AllowMethodMiddleware.hpp \
@@ -75,6 +77,10 @@ src/server/../../include/server/../cgi/../../include/handler/IRequestHandler.hpp
 include/../include/handler/StaticFileHandler.hpp:
 
 include/handler/IRequestHandler.hpp:
+
+src/server/../../include/server/../router/../handler/../../include/response/IResponseBuilder.hpp:
+
+src/server/../../include/server/../router/../handler/../../include/response/../../include/core/Response.hpp:
 
 src/server/../../include/core/Request.hpp:
 

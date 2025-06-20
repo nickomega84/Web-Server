@@ -6,7 +6,7 @@
 /*   By: dbonilla <dbonilla@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/19 16:46:12 by dbonilla          #+#    #+#             */
-/*   Updated: 2025/06/20 17:51:29 by dbonilla         ###   ########.fr       */
+/*   Updated: 2025/06/20 21:01:19 by dbonilla         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,16 @@
 # define STATICFILEHANDLER_HPP
 
 # include "handler/IRequestHandler.hpp"
+# include "../../include/response/IResponseBuilder.hpp"
+class IResponseBuilder;
 
 
 class StaticFileHandler : public IRequestHandler
 {
     private:
 	std::string _rootPath;
+    IResponseBuilder* _builder;
+
 	Response	doGET(Response& res, std::string uri);
 	Response	doPOST(const Request& req, Response& res);
 	int			createPOSTfile(const Request& req, std::string& relative_path);
@@ -28,6 +32,7 @@ class StaticFileHandler : public IRequestHandler
 	std::string	get_date();
     
     public:
+    StaticFileHandler(const std::string& root, IResponseBuilder* b);
 	StaticFileHandler(const std::string &root);
 	virtual ~StaticFileHandler();
     

@@ -19,18 +19,20 @@ obj/main.o: src/main.cpp src/../include/config/ConfigParser.hpp \
   src/../include/server/../cgi/../../include/core/Response.hpp \
   src/../include/server/../cgi/../../include/handler/IRequestHandler.hpp \
   include/../include/handler/StaticFileHandler.hpp \
-  include/handler/IRequestHandler.hpp src/../include/router/Router.hpp \
+  include/handler/IRequestHandler.hpp \
+  src/../include/server/../router/../handler/../../include/response/IResponseBuilder.hpp \
+  src/../include/server/../router/../handler/../../include/response/../../include/core/Response.hpp \
+  src/../include/router/Router.hpp \
   src/../include/factory/StaticHandlerFactory.hpp \
   src/../include/server/../router/../factory/../../include/factory/IHandlerFactory.hpp \
   src/../include/server/../router/../factory/../../include/handler/IRequestHandler.hpp \
+  src/../include/server/../router/../factory/../response/IResponseBuilder.hpp \
   src/../include/factory/UploadHandlerFactory.hpp \
   src/../include/server/../router/../factory/../handler/UploadHandler.hpp \
   src/../include/server/../router/../handler/../utils/Utils.hpp \
   src/../include/factory/CGIHandlerFactory.hpp \
   src/../include/server/../router/../factory/../cgi/CGIHandler.hpp \
-  src/../include/response/DefaultResponseBuilder.hpp \
-  src/../include/response/../../include/response/IResponseBuilder.hpp \
-  src/../include/response/../../include/core/Response.hpp
+  src/../include/response/DefaultResponseBuilder.hpp
 
 src/../include/config/ConfigParser.hpp:
 
@@ -78,6 +80,10 @@ include/../include/handler/StaticFileHandler.hpp:
 
 include/handler/IRequestHandler.hpp:
 
+src/../include/server/../router/../handler/../../include/response/IResponseBuilder.hpp:
+
+src/../include/server/../router/../handler/../../include/response/../../include/core/Response.hpp:
+
 src/../include/router/Router.hpp:
 
 src/../include/factory/StaticHandlerFactory.hpp:
@@ -85,6 +91,8 @@ src/../include/factory/StaticHandlerFactory.hpp:
 src/../include/server/../router/../factory/../../include/factory/IHandlerFactory.hpp:
 
 src/../include/server/../router/../factory/../../include/handler/IRequestHandler.hpp:
+
+src/../include/server/../router/../factory/../response/IResponseBuilder.hpp:
 
 src/../include/factory/UploadHandlerFactory.hpp:
 
@@ -97,7 +105,3 @@ src/../include/factory/CGIHandlerFactory.hpp:
 src/../include/server/../router/../factory/../cgi/CGIHandler.hpp:
 
 src/../include/response/DefaultResponseBuilder.hpp:
-
-src/../include/response/../../include/response/IResponseBuilder.hpp:
-
-src/../include/response/../../include/core/Response.hpp:
