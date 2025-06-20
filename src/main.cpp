@@ -72,11 +72,7 @@ int main(int argc, char** argv)
     server.setRouter(router);
 
     /* 6. socket de escucha + bucle epoll ------------------------------- */
-    if (server.addListeningSocket() != 0) {
-        std::cerr << "Error al crear socket de escucha\n";
-        return 1;
-    }
-    std::cout << "[🔁] Webserv arrancado en puerto "
+	std::cout << "OLAOLA [🔁] Webserv arrancado en puerto "
               << cfg.getGlobal("port") << " — Ctrl-C para parar\n";
 
     server.startEpoll();

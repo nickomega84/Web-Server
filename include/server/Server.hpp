@@ -57,7 +57,7 @@ class Server
 
         int		addListeningSocket();
         void	startEpoll();
-        void	freeListenSockets();
+        void	closeListenSockets();
 
         void	setRouter(const Router &router);                 
         void	setMiddlewareStack(const MiddlewareStack &stack);
