@@ -7,20 +7,20 @@
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include <netdb.h>       // getaddrinfo, addrinfo, AI_PASSIVE
 
-// // Server::Server()
-// // {
-// // }
+/* Server::Server()
+{
+}
 
-// Server::Server(ConfigParser& cfg, const std::string& root) : _c(conf), _rootPath(root)
-// {
+Server::Server(ConfigParser& cfg, const std::string& root) : _c(conf), _rootPath(root)
+{
 
-// }
-// Server::~Server() {
-//     delete c;
-//     freeListenSockets();
-//     std::vector<int> dummyClients;
-//     freeEpoll(epollfd_, dummyClients);   // si guardas epollfd_ como miembro
-// }
+} */
+Server::~Server() {
+    delete c;
+    freeListenSockets();
+    std::vector<int> dummyClients;
+    freeEpoll(epollfd_, dummyClients);   si guardas epollfd_ como miembro
+}
 
 
 // Server::Server(ConfigParser& cfg, const std::string& root)
@@ -40,6 +40,42 @@
 //                     // si procede
 // }
 
+// En tu constructor de Server, tras llamar addListeningSocket():
+Server::Server(ConfigParser& cfg, const std::string& root)
+  : _cfg(cfg), _rootPath(root), _epollfd(-1)
+{
+	// Crear epoll
+	_epollfd = epoll_create(1024);
+	if (_epollfd < 0) throw std::runtime_error("epoll_create failed");
+
+	int rc = addListeningSocket();
+	std::cout << "[DEBUG] addListeningSocket() returned " << rc << "\n";
+	if (rc != 0) {
+		std::cerr << "Error al crear socket de escucha\n";
+		return;
+	}
+
+	// Registrar todos los listen_sockets en epoll
+	if (!listen_sockets.empty()) {
+	for (size_t i = 0; i < listen_sockets.size(); ++i) {
+		int fd = listen_sockets[i];
+		struct epoll_event ev;
+		ev.events  = EPOLLIN;
+		ev.data.fd = fd;
+		if (epoll_ctl(_epollfd, EPOLL_CTL_ADD, fd, &ev) < 0) {
+			perror("[ERROR] epoll_ctl ADD listenSock");
+			close(fd);
+		} else {
+			std::cout << "[DEBUG] epoll_ctl added fd=" << fd << "\n";
+		}
+	}
+	std::cout << "[🔁] Webserv arrancado en puerto '"
+			  << (_cfg.getGlobal("listen").empty() ? _cfg.getGlobal("port")
+												   : _cfg.getGlobal("listen"))
+			  << "' — Ctrl-C para parar\n";
+	}
+
+}
 Server::~Server()
 {
     if (_epollfd != -1)
@@ -142,46 +178,6 @@ int Server::addListeningSocket()
 
     return 0;
 }
-
-// En tu constructor de Server, tras llamar addListeningSocket():
-Server::Server(ConfigParser& cfg, const std::string& root)
-  : _cfg(cfg), _rootPath(root), _epollfd(-1)
-{
-    // Crear epoll
-    _epollfd = epoll_create(1024);
-    if (_epollfd < 0) throw std::runtime_error("epoll_create failed");
-
-    int rc = addListeningSocket();
-    std::cout << "[DEBUG] addListeningSocket() returned " << rc << "\n";
-    if (rc != 0) {
-        std::cerr << "Error al crear socket de escucha\n";
-        return;
-    }
-
-    // Registrar todos los listen_sockets en epoll
-    if (!listen_sockets.empty()) {
-    for (size_t i = 0; i < listen_sockets.size(); ++i) {
-        int fd = listen_sockets[i];
-        struct epoll_event ev;
-        ev.events  = EPOLLIN;
-        ev.data.fd = fd;
-        if (epoll_ctl(_epollfd, EPOLL_CTL_ADD, fd, &ev) < 0) {
-            perror("[ERROR] epoll_ctl ADD listenSock");
-            close(fd);
-        } else {
-            std::cout << "[DEBUG] epoll_ctl added fd=" << fd << "\n";
-        }
-    }
-    std::cout << "[🔁] Webserv arrancado en puerto '"
-              << (_cfg.getGlobal("listen").empty() ? _cfg.getGlobal("port")
-                                                   : _cfg.getGlobal("listen"))
-              << "' — Ctrl-C para parar\n";
-    }
-
-}
-
-
-
 
 
 void Server::startEpoll()

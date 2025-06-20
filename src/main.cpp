@@ -29,11 +29,13 @@ int main(int argc, char** argv)
         std::cerr << "Uso: " << argv[0] << " <config.conf>\n";
         return 1;
     }
+
     const std::string confPath = argv[1];
     if (confPath.rfind(".conf") != confPath.size() - 5) {
         std::cerr << "Error: el archivo debe terminar en .conf\n";
         return 1;
     }
+	
     if (!std::ifstream(confPath.c_str())) {
         std::cerr << "Error: no se pudo abrir " << confPath << '\n';
         return 1;
