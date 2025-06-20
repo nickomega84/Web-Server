@@ -6,14 +6,14 @@
 #include "../../include/middleware/MiddlewareStack.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 
-Server::~Server() 
-{
-    closeListenSockets();
-}
-
-Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath(root), _epollfd(-1)
+Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath(root) /* _epollfd(-1) */
 {
 	addListeningSocket();
+}
+
+Server::~Server()
+{
+    closeListenSockets();
 }
 
 void Server::closeListenSockets()
@@ -25,93 +25,52 @@ void Server::closeListenSockets()
 
 int Server::addListeningSocket()
 {
-    std::string listenDirective = _cfg.getGlobal("listen");
-    std::string host, port;
-    if (!listenDirective.empty()) {
+	std::string listenDirective = _cfg.getGlobal("listen");
+    std::string host;
+	std::string port;
+    if (!listenDirective.empty()) 
+	{
         size_t p = listenDirective.find(':');
-        if (p != std::string::npos) {
+        if (p != std::string::npos) 
+		{
             host = listenDirective.substr(0, p);
             port = listenDirective.substr(p + 1);
-        } else {
+        } 
+		else
             port = listenDirective;
-        }
-    } else {
+    } 
+	else 
+	{
         host = _cfg.getGlobal("host");
         port = _cfg.getGlobal("port");
     }
+	
+	int listen_socket;
 
-    std::cout << "[DEBUG] Parsed listen config -> host: '" 
-              << host << "', port: '" << port << "'\n";
+	struct addrinfo input;
+	struct addrinfo *output = NULL;
+	::bzero(&input, sizeof(input));
+	input.ai_flags = AI_PASSIVE;
+	input.ai_family = AF_INET;
+	input.ai_socktype = SOCK_STREAM;
 
-    struct addrinfo hints;
-    std::memset(&hints, 0, sizeof(hints));
-    hints.ai_family   = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags    = AI_PASSIVE;
-
-    struct addrinfo* res = NULL;
-    int err = getaddrinfo(
-        host.empty() ? NULL : host.c_str(),
-        port.c_str(), &hints, &res
-    );
-    if (err) {
-        std::cerr << "[ERROR] getaddrinfo: " << gai_strerror(err) << "\n";
-        return 500;
-    }
-
-    int listenSock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-    if (listenSock < 0) {
-        freeaddrinfo(res);
-        perror("[ERROR] socket()");
-        return 500;
-    }
-    std::cout << "[DEBUG] Created socket fd=" << listenSock << "\n";
-
-    int yes = 1;
-    if (setsockopt(listenSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
-        freeaddrinfo(res);
-        perror("[ERROR] setsockopt()");
-        close(listenSock);
-        return 500;
-    }
-
-       int rc = bind(listenSock, res->ai_addr, res->ai_addrlen);
-    if (rc < 0) {
-        int e = errno;
-        freeaddrinfo(res);
-        if (e == EADDRINUSE) {
-            std::cerr << "[WARN] puerto ya en uso, omitiendo socket fd=" 
-                      << listenSock << "\n";
-            close(listenSock);
-            return 0;   // no es un error crítico
-        }
-        errno = e;
-        perror("[ERROR] bind failed");
-        close(listenSock);
-        return 500;
-    }
-    std::cout << "[DEBUG] bind() succeeded on fd=" << listenSock << "\n";
-
-    if (::listen(listenSock, SOMAXCONN) < 0) {
-        int e = errno;
-        freeaddrinfo(res);
-        errno = e;
-        perror("[ERROR] listen failed");
-        close(listenSock);
-        return 500;
-    }
-    std::cout << "[DEBUG] listen() succeeded on fd=" << listenSock << "\n";
-
-    freeaddrinfo(res);
-
-    // En lugar de epoll_ctl aquí, devolvemos el fd para gestionarlo externamente:
-    listen_sockets.push_back(listenSock);
-    std::cout << "[DEBUG] Added listen socket to list: fd="
-              << listenSock << "\n";
-
-    return 0;
+	if (getaddrinfo(host.empty() ? NULL : host.c_str(), port.c_str(), &input, &output))
+		return (std::cerr << "[ERROR] calling getaddrinfo()" << std::endl, 500);
+	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, output->ai_protocol)) < 0)
+		return (std::cerr << "[ERROR] creating server socket" << std::endl, freeaddrinfo(output), 500);
+	int opt = 1;
+	if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+		return (std::cerr << "[ERROR] calling setsockopt()" << std::endl, freeaddrinfo(output), close(listen_socket), 500);
+	if (bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0)
+		return (std::cerr << "[ERROR] binding listen_socket" << std::endl, freeaddrinfo(output), close(listen_socket), 500);
+	if (listen(listen_socket, SOMAXCONN) < 0)
+		return (std::cerr << "[ERROR] on listen()" << std::endl, freeaddrinfo(output), close(listen_socket), 500);
+	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
+	listen_sockets.push_back(listen_socket);
+	std::cout << "[DEBUG] New listenSocket fd = " << listen_socket << std::endl;
+	freeaddrinfo(output);
+	return (0);
 }
-
 
 void Server::startEpoll()
 {

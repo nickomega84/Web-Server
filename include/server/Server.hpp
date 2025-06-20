@@ -28,13 +28,9 @@ extern volatile sig_atomic_t g_signal_received;
 class Server
 {
 	private:
-        // const ConfigTEMPORAL _c;
-        std::vector<int> listen_sockets;
-        
-        
-        ConfigParser& _cfg;     // <-  referencia; NO puntero heap
-        std::string _rootPath;
-        int _epollfd;
+		ConfigParser& _cfg;
+		std::string _rootPath;
+		std::vector<int> listen_sockets;   
         MiddlewareStack _middleware;
         Router _router;
 

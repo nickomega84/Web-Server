@@ -45,5 +45,5 @@ fi
 echo "</body></html>"
 
 
-#curl "http://localhost:8080/cgi-bin/shellGET.sh?id=123&categoria=electronica"
-#http://localhost:8080/cgi-bin/shellGET.sh?busqueda=web&page=2
+#curl "http://localhost:8081/cgi-bin/shellGET.sh?id=123&categoria=electronica"
+#http://localhost:8081/cgi-bin/shellGET.sh?busqueda=web&page=2

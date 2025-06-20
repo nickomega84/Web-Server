@@ -59,4 +59,4 @@ fi
 echo "</body>"
 echo "</html>"
 
-#curl -X POST -H "Content-Type: text/plain" --data "Contenido del archivo via shell." http://localhost:8080/cgi-bin/shellPOST.sh
+#curl -X POST -H "Content-Type: text/plain" --data "Contenido del archivo via shell." http://localhost:8081/cgi-bin/shellPOST.sh

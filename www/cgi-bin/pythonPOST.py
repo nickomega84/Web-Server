@@ -61,4 +61,4 @@ else:
 print("</body>")
 print("</html>")
 
-#curl -X POST -H "Content-Type: text/plain" --data "Este es el contenido de mi nuevo recurso." http://localhost:8080/cgi-bin/pythonPOST.py
+#curl -X POST -H "Content-Type: text/plain" --data "Este es el contenido de mi nuevo recurso." http://localhost:8081/cgi-bin/pythonPOST.py
