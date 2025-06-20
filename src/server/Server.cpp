@@ -7,38 +7,38 @@
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include <netdb.h>       // getaddrinfo, addrinfo, AI_PASSIVE
 
-// // Server::Server()
-// // {
-// // }
-
-// Server::Server(ConfigParser& cfg, const std::string& root) : _c(conf), _rootPath(root)
+// Server::Server()
 // {
-
-// }
-// Server::~Server() {
-//     delete c;
-//     freeListenSockets();
-//     std::vector<int> dummyClients;
-//     freeEpoll(epollfd_, dummyClients);   // si guardas epollfd_ como miembro
 // }
 
+Server::Server(ConfigParser& cfg, const std::string& root) : _cfg(conf), _rootPath(root)
+{
 
-// Server::Server(ConfigParser& cfg, const std::string& root)
-//     : _cfg(cfg), _rootPath(root), _epollfd(-1)
-// {
-//     // …cuerpo instrumentado…
-// }
-// Server::Server(ConfigParser& cfg, const std::string& root)
-//     : _cfg(cfg), _rootPath(root), _epollfd(-1)
-// {
-//     _epollfd = epoll_create(1024);            // epoll_create1 no existe en 98
-//     if (_epollfd == -1)
-//         throw std::runtime_error("epoll_create failed");
+}
+Server::~Server() {
+    delete c;
+    freeListenSockets();
+    std::vector<int> dummyClients;
+    freeEpoll(epollfd_, dummyClients);   // si guardas epollfd_ como miembro
+}
 
-//     int code = addListeningSocket();
-//     std::cout << "addListeningSocket() returned: " << code << "\n";
-//                     // si procede
-// }
+
+Server::Server(ConfigParser& cfg, const std::string& root)
+    : _cfg(cfg), _rootPath(root), _epollfd(-1)
+{
+    // …cuerpo instrumentado…
+}
+Server::Server(ConfigParser& cfg, const std::string& root)
+    : _cfg(cfg), _rootPath(root), _epollfd(-1)
+{
+    _epollfd = epoll_create(1024);            // epoll_create1 no existe en 98
+    if (_epollfd == -1)
+        throw std::runtime_error("epoll_create failed");
+
+    int code = addListeningSocket();
+    std::cout << "addListeningSocket() returned: " << code << "\n";
+                    // si procede
+}
 
 Server::~Server()
 {

@@ -18,3 +18,5 @@ public:
     virtual ~IResponseBuilder() {}
     virtual Response build(const Payload& p) = 0;
 };
+
+#endif

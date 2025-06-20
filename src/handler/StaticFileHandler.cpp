@@ -6,7 +6,8 @@
 
 StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root) 
 {
-
+    std::cout << "[DEBUG] StaticFileHandler initialized with root path: " << _rootPath << std::endl;
+    // Aquí podrías inicializar otros recursos si es necesario
 }
 
 StaticFileHandler::~StaticFileHandler() {}

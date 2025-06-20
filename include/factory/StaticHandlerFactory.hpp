@@ -6,10 +6,15 @@
 
 class StaticHandlerFactory : public IHandlerFactory 
 {
-    public:
-	    // StaticHandlerFactory();
-        explicit StaticFileHandler(const std::string& rootDir);
+    private:
+        std::string _rootDir;
 
+        // // Disable copy constructor and assignment operator
+        // StaticHandlerFactory(const StaticHandlerFactory&);
+        // StaticHandlerFactory& operator=(const StaticHandlerFactory&);
+    public:
+        explicit StaticHandlerFactory(const std::string& rootDir);
+	    // StaticHandlerFactory();
         virtual ~StaticHandlerFactory();
         IRequestHandler* createHandler() const;
 };
