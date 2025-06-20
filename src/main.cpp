@@ -1,98 +1,122 @@
-#include "../include/router/Router.hpp"
-#include "../include/factory/StaticHandlerFactory.hpp"
-#include "../include/factory/UploadHandlerFactory.hpp"
-#include "../include/middleware/AllowMethodMiddleware.hpp"
-#include "../include/middleware/MiddlewareStack.hpp"
-#include "../include/server/Server.hpp"
-#include "../include/server/Config.hpp"
+/* ************************************************************************** */
+/*                                webserv main                                */
+/* ************************************************************************** */
+
+#include <iostream>
+#include <fstream>
+#include <csignal>
+
 #include "../include/config/ConfigParser.hpp"
-#include <stdexcept>
+#include "../include/server/Server.hpp"
 
-int main() {
-	Config config;
-	Server server(config.getServerConf());
+// #include "../include/router/Router.hpp"
+// #include "../include/factory/StaticHandlerFactory.hpp"
+// #include "../include/factory/UploadHandlerFactory.hpp"
+// #include "../include/factory/CGIHandlerFactory.hpp"
+// #include "../include/response/DefaultResponseBuilder.hpp"
 
-	// 🧠 Router
-	Router router;
-	router.registerFactory("/", new StaticHandlerFactory());
-	router.registerFactory("/upload", new UploadHandlerFactory());
-	server.setRouter(router);
-
-	// 🛡️ Middleware
-	// MiddlewareStack middleware;
-	// AllowMethodMiddleware* allow = new AllowMethodMiddleware();
-
-	// allow->allow("/", std::vector<std::string>(1, "GET"));
-	// allow->allow("/upload", std::vector<std::string>(1, "POST"));
-	// allow->allow("/index.html", std::vector<std::string>(1, "DELETE"));
-
-	// middleware.add(allow);
-	// server.setMiddlewareStack(middleware);
-
-	server.addListeningSocket();
-	std::cout << "[🔁] Iniciando el servidor Epoll...\n";
-	server.startEpoll();
-
-	try {
-		ConfigParser &config = ConfigParser::getInst();
-		if (!config.load("../include/config/ConfigParser.hpp")) {	
-			throw std::runtime_error("Error al cargar el archivo de configuración");
-		}
-
-		// Solicitud HTTP, lo podemos comprobar con cualquier método GET/POST/DELETE
-		std::string httpMethod = "POST";
-		std::string requestPath = "/www/index.html";
-
-		// Verificando permisos
-		bool isAllowed = false;
-		if (httpMethod == "GET") {
-			isAllowed = (config.getGlobal("get_allowed") == true);
-		}
-		else if (httpMethod == "POST") {
-			isAllowed = (config.getGlobal("post_allowed") == true);
-		}
-		else if (httpMethod == "DELETE") {
-			isAllowed = (config.getGlobal("delete_allowed") == false);
-		}
-		else {
-			throw std::runtime_error("Método HTTP sin soportar: " + httpMethod);
-		}
-		
-		// Procesando solicitud
-		if (isAllowed) {
-			std::cout << "[OK] Método " << httpMethod << " permitido para " << requestPath << std::endl;
-			if (httpMethod == "GET") {
-				std::string filePath = config.getGlobal("root") + requestPath;
-				std::cout << "Leyendo archivo: " << config.getGlobal("root") + requestPath << std::endl;
-			}
-			else if (httpMethod == "POST") {
-				std::cout << "Guardando datos en: " << requestPath << std::endl;
-			}
-		}
-		else {
-			throw std::runtime_error("Error 403: Forbidden: Método " << httpMethod << " no está permitido."); 
-		}
-	}
-	catch (const std::exception& e) {
-		std::cerr << "[ERROR]" << e.what() << std::endl;
-
-		ConfigParser& config = ConfigParser::getInst();
-		std::string errorPage = config.getLocation("/www/error_pages", "forbidden");
-		if(!errorPage.empty()) {
-			std::cerr << ">> Redirigiendo a: " << errorPage << std::endl;
-		}
-
-		return 1;
-	}
-
-	std::cout << "Puerto: " << config.getGlobalAsInt("port") << std::endl;
-	std::cout << "Ruta: " << config.getGlobal("root") << std::endl;
-	std::cout << "Autoindex en /www: " << config.getLocation("/www", "autoindex") << std::endl;
-
-	config.setGlobal("port", "8080");
-
-
-	config.print();
-	
-	return 0;
+volatile sig_atomic_t g_signal_received = 0;
+static void sigHandler(int sig)
+{
+    if (sig == SIGINT || sig == SIGTERM) g_signal_received = 1;
+    std::cout << "\n[!] Signal received, shutting down…\n";
 }
+
+/* ************************************************************************** */
+int main(int argc, char** argv)
+{
+    /* 1. argumento único: .conf ---------------------------------------- */
+    if (argc != 2) {
+        std::cerr << "Uso: " << argv[0] << " <config.conf>\n";
+        return 1;
+    }
+    const std::string confPath = argv[1];
+    if (confPath.rfind(".conf") != confPath.size() - 5) {
+        std::cerr << "Error: el archivo debe terminar en .conf\n";
+        return 1;
+    }
+    if (!std::ifstream(confPath.c_str())) {
+        std::cerr << "Error: no se pudo abrir " << confPath << '\n';
+        return 1;
+    }
+
+    /* 2. señales -------------------------------------------------------- */
+    std::signal(SIGINT,  sigHandler);
+    std::signal(SIGTERM, sigHandler);
+    std::signal(SIGPIPE, SIG_IGN);
+
+    /* 3. cargar configuración con el singleton ------------------------- */
+    ConfigParser& cfg = ConfigParser::getInst();
+    if (!cfg.load(confPath)) {
+        std::cerr << "Error parseando " << confPath << '\n';
+        return 1;
+    }
+
+    const std::string rootPath = cfg.getGlobal("root");
+    if (rootPath.empty()) {
+        std::cerr << "Error: directiva 'root' no encontrada en el .conf\n";
+        return 1;
+    }
+
+    /* 4. obtener roots físicos ----------------------------------------- */
+    const std::string rootStatic  = cfg.getRoot();                    // p.ej. /var/www/html
+    const std::string rootUpload  = cfg.getLocationRoot("/upload");   // /var/www/uploads
+    const std::string rootCgi     = cfg.getLocationRoot("/cgi-bin");  // /var/www/cgi-bin
+    const int         listenPort  = cfg.getPort();                    // 8080, etc.
+
+    if (rootStatic.empty() || rootUpload.empty() || rootCgi.empty()) {
+        std::cerr << "Error: faltan rutas 'root' en el .conf\n";
+        return 1;
+    }
+
+    /* 5. crear servidor ------------------------------------------------- */
+    Server server(cfg, rootStatic);          // rootStatic como valor global
+
+    /* 6. router & fábricas --------------------------------------------- */
+    // Router router;
+    // router.registerFactory("/cgi-bin",
+    //         new CGIHandlerFactory(rootCgi, "/cgi-bin"));
+
+    // router.registerFactory("/upload",
+    //         new UploadHandlerFactory(rootUpload));
+
+    // router.registerFactory("/",
+    //         new StaticHandlerFactory(rootStatic));   // catch-all
+
+    // server.setRouter(router);
+
+    /* 7. socket de escucha + bucle epoll -------------------------------- */
+    if (server.addListeningSocket() != 0) {
+        std::cerr << "Error al crear socket de escucha\n";
+        return 1;
+    }
+    std::cout << "[🔁] Webserv arrancado en puerto "
+              << listenPort << " — Ctrl-C para parar\n";
+
+    server.startEpoll();
+
+    // Crea los fabricantes
+    RootConfig rootConfig;
+    UploadsConfig uploadsConfig;
+    CgiBinConfig cgiBinConfig;
+    PortConfig portConfig;
+
+    // Parametros de configuración del parseo seleccionadas
+    rootConfig.parse(config);
+    uploadsConfig.parse(config);
+    cgiBinConfig.parse(config);
+    portConfig.parse(config);
+
+    // Usa los datos parseados
+    std::cout << "Server root: " << rootConfig.getRootPath() << std::endl;
+    std::cout << "Uploads dir: " << uploadsConfig.getUploadPath() << std::endl;
+    std::cout << "CGI extensions: ";
+    const std::vector<std::string>& exts = cgiBinConfig.getCgiExtensions();
+    for (size_t i = 0; i < exts.size(); ++i) {
+        std::cout << exts[i] << " ";
+    }
+    std::cout << "\nPort: " << portConfig.getPort() << std::endl;
+    return 0;
+}
+
+
