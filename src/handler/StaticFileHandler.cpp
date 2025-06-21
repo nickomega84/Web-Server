@@ -78,7 +78,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
     std::string method = request.getMethod();
     
     if (uri == "/") 
-    uri = "/index.html";
+    uri = "index.html";
     
     Response res;
     
