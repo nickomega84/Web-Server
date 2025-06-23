@@ -5,7 +5,7 @@
 
 Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath(root)
 {
-	addListeningSocket(); //habría que llamar a addListeningSocket() una vez por cada servidor en el archivo de configuracion 
+	addListeningSocket();
 }
 
 Server::~Server()
@@ -95,6 +95,8 @@ void Server::startEpoll()
 				close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
 			else
 			{
+				std::cout << std::endl << "------------------------LOOP_EPOLL++------------------------" << std::endl << std::endl;
+
 				if (events[i].events & EPOLLIN)
 				{
 					if (handleClientRead(events[i].data.fd, pending_writes))
@@ -185,21 +187,23 @@ void Server::freeEpoll(int epollfd, std::vector<int> &client_fds)
 
 int Server::handleClientRead(const int client_fd, std::map<int, Response>& pending_writes)
 {
-    char     buffer[BUFFER_SIZE];
+	char     buffer[BUFFER_SIZE];
     ssize_t  n = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
     
-    if (n <= 0) {
-        std::cout << "[-] Client fd " << client_fd << " cerró conexión\n";
-        return 1;
-    }
+    if (n <= 0) 
+        return (std::cout << "[-] Client fd " << client_fd << " cerró conexión\n", 1);
     buffer[n] = '\0';
     
     Request  req;
     Response res;
-    std::cout << "[BUFFER] [" << buffer << "]\n";
-    std::cout << "[READ " << client_fd << "] Recibido: " << buffer << "\n";
-    std::cout << "[READ " << client_fd << "] Tamaño del buffer: " << n << "\n"; 
-    std::cout << "[READ " << client_fd << "] AUII TERMINA EL BUFFER\n";
+
+	std::cout << "-----------------------------------------------------" << std::endl;
+	std::cout << "handleClientRead (Server.cpp)" << std::endl;
+    std::cout << "[DEBUG] [READ " << client_fd << "] Recibido: " << std::endl << std::endl;
+	std::cout << buffer << std::endl;
+    std::cout << "[DEBUG] [READ " << client_fd << "] Tamaño del buffer: " << n << std::endl;
+	std::cout << "-----------------------------------------------------" << std::endl;
+
     
     if (!req.parse(buffer)) 
 	{
@@ -211,24 +215,28 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response>& pendi
         res400.setStatus(400, "Bad Request");
         res400.setBody(err.render(400, "Bad Request"));
         pending_writes[client_fd] = res400;
-        return 0;
+        return (0);
     }
 
     IRequestHandler* h = _router.resolve(req);
 
-    if (h) {
+    if (h) 
+	{
         res = h->handleRequest(req);    // el handler construye la respuesta
         delete h;
-    } else { 
+    } 
+	else 
+	{ 
         ErrorPageHandler err(_rootPath);   // no hay ruta → 404        
         Response res404;
         res404.setStatus(404, "Ruta no encontrada");
         res404.setBody(err.render(404, "Ruta no encontrada"));
         pending_writes[client_fd] = res404;
+		return (0);
     }
 
     pending_writes[client_fd] = res;
-    return 0;
+    return (0);
 }
 
 int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes)
