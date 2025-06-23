@@ -8,7 +8,7 @@
 
 Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath(root) /* _epollfd(-1) */
 {
-	addListeningSocket();
+	addListeningSocket(); //habría que llamar a addListeningSocket() una vez por cada servidor en el archivo de configuracion 
 }
 
 Server::~Server()
