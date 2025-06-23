@@ -83,13 +83,13 @@ tests = [
         "cookies": {"SESSIONID": "PKdhtXMmr18n2L9K"},
         "expected_status": 200
     },
-    # {
-    #     "name": "POST /secure with invalid session",
-    #     "method": "POST",
-    #     "path": "/secure",
-    #     "cookies": {"SESSIONID": "invalid123"},
-    #     "expected_status": 401
-    # },
+    {
+        "name": "POST /secure with invalid session",
+        "method": "POST",
+        "path": "/secure",
+        "cookies": {"SESSIONID": "invalid123"},
+        "expected_status": 401
+    },
 
     # 🧪 Custom Header Test
     {

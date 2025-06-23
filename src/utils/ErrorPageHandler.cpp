@@ -7,21 +7,25 @@
 #include "iostream"
 // Inicialización del array estático
 const ErrorPageHandler::ErrorPageEntry ErrorPageHandler::errorPages[] = {
-    {404, "./www/error_pages/404.html"},
-    {403, "./www/error_pages/403.html"},
-    {500, "./www/error_pages/500.html"},
+    {404, "/error_pages/404.html"},
+    {403, "/error_pages/403.html"},
+    {500, "/error_pages/500.html"},
     {-1, NULL}
 };
 
 // Constructor
-ErrorPageHandler::ErrorPageHandler(const std::string& rootPath) : _rootPath(rootPath) {}
+ErrorPageHandler::ErrorPageHandler(const std::string& rootPath) : _rootPath(rootPath) {
+    std::cout << "ErrorPageHandler initialized with root path: " << _rootPath << std::endl;
+    // ErrorPageHandler initialized with root path: 0x43f508/sgoinfre/students/dbonilla/webServer/www
+}
 
 // Constructor copia
 ErrorPageHandler::ErrorPageHandler(const ErrorPageHandler& other) : _rootPath(other._rootPath) {}
 
 // Operador asignación
 ErrorPageHandler& ErrorPageHandler::operator=(const ErrorPageHandler& other) {
-    if (this != &other) {
+    if (this != &other) 
+    {
         _rootPath = other._rootPath;
     }
     return *this;
@@ -52,13 +56,32 @@ std::string ErrorPageHandler::readFile(const std::string& path) const {
     return ss.str();
 }
 
-std::string ErrorPageHandler::render(int code, const std::string& fallbackText) const {
+std::string ErrorPageHandler::render(int code, const std::string& fallbackText) const 
+{
+    std::cout << "Rendering error page for code: " << code << std::endl;
     const char* relPath = getErrorPagePath(code);
+    try 
+    {
+        if (relPath == NULL) {
+            std::cout << "No error page found for code: " << code << std::endl;
+            relPath = getErrorPagePath(500); // Fallback to 500 error page
+        }
+    } catch (const std::exception& e) 
+    {
+        std::cerr << "Error retrieving error page path: " << e.what() << std::endl;
+        relPath = NULL; // Fallback to NULL if an error occurs
+    }
+    std::cout << "Relative path: AQUIIIIIIIIII \n \n " << (relPath ? relPath : "NULL") << std::endl;
     std::string fullPath = _rootPath + relPath;
-    std::cout << fullPath << "\nPATH ERROPage_Handler" << std::endl;
-    if (relPath != NULL) {
+    std::cout << "ErrorPageHandler: relPath: " << relPath << std::endl;
+    std::cout << "\n Page_Handler: " << fullPath  << std::endl;
+    if (relPath != NULL) 
+    {
+        std::cout << "Checking if file exists: " << fullPath << std::endl;
         if (fileExists(fullPath)) {
+            std::cout << "File exists: " << fullPath << std::endl;
             std::string content = readFile(fullPath);
+            std::cout << "File content content length: " << content << std::endl;
             if (!content.empty())
                 return content;
         }

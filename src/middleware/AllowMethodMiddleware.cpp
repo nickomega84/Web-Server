@@ -30,11 +30,12 @@ bool AllowMethodMiddleware::handle(const Request& req, Response& res)
 
     // 2. Si no hay regla y el método no es seguro => bloquear
     if (method != "GET" && method != "HEAD") {
-        res.setStatus(405, "Method Not Allowed");
+        res.setStatus(501, "Method Not Allowed");
         res.setHeader("Content-Type", "text/plain");
-        res.setBody("405 - Método no permitido");
+        res.setBody("501 - Método no permitido");
         return false;
     }
+
     return true; // GET y HEAD por defecto
 }
 
