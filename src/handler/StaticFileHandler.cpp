@@ -4,28 +4,17 @@
 #include "../../include/utils/MimeTypes.hpp"
 #include "../../include/response/IResponseBuilder.hpp"
 #include <iostream>
-// #include "..../include/utils/MimeTypes.hpp" 
-// #include "../../include/utils/MimeType.hpp" // o el path real si está en otro lugar
-
-
-
 
 StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root) 
 {
     std::cout << "[DEBUG] StaticFileHandler initialized with root path: " << _rootPath << std::endl;
-    // Aquí podrías inicializar otros recursos si es necesario
 }
 
-StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* b)
-  : _rootPath(root), _builder(b)
+StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* b): _rootPath(root), _builder(b)
 {
     std::cout << "[DEBUG] StaticFileHandler initialized with root and builder\n";
 }
 StaticFileHandler::~StaticFileHandler() {}
-
-// static bool isPathUnsafe(const std::string& path) {
-// 	return (path.find("..") != std::string::npos);
-// }
 
 static bool fileExists(const std::string& path) 
 {
@@ -57,7 +46,6 @@ static std::string readFile(const std::string& path)
 	return (ss.str());
 }
 
-
 Response StaticFileHandler::handleRequest(const Request& request)
 {
     std::string uri    = request.getPath();
@@ -88,7 +76,6 @@ Response StaticFileHandler::handleRequest(const Request& request)
         return _builder->build(payload);
     }
     
-
     // 🚫 Prevención XSS muy básica
     if (qs.find("<script") != std::string::npos) {
         payload.status = 400;
@@ -264,7 +251,6 @@ Response StaticFileHandler::doGET(Response& res, std::string uri)
     _builder->setHeader(res, "Content-Length", Utils::intToString(body.length()));
     return res;
 }
-
 
 Response StaticFileHandler::doDELETE(Response res, std::string uri) {
     std::string fullPath = _rootPath + uri;

@@ -6,8 +6,8 @@
 class ErrorPageHandler {
     private:
         std::string _rootPath;
-    
-        struct ErrorPageEntry {
+        struct ErrorPageEntry 
+		{
             int code;
             const char* file;
         };
@@ -17,15 +17,14 @@ class ErrorPageHandler {
         const char* getErrorPagePath(int code) const;
         bool fileExists(const std::string& path) const;
         std::string readFile(const std::string& path) const;
-    public:
 
+    public:
         explicit ErrorPageHandler(const std::string& rootPath);
         ErrorPageHandler(const ErrorPageHandler& other);
         ErrorPageHandler& operator=(const ErrorPageHandler& other);
         ~ErrorPageHandler();
         
         std::string render(int code, const std::string& fallbackText) const;
-        
 };
 
 #endif

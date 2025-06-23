@@ -4,7 +4,8 @@
 #include <string>
 #include <map>
 
-class Utils {
+class Utils 
+{
     public:
         static  std::string intToString(int value);
         bool    strToBool(const std::string& str);
@@ -12,10 +13,6 @@ class Utils {
         static  void createDirectoriesIfNotExist(const std::string& path);
         static  std::string resolveAndValidateDir(const std::string& path);
         static  std::string resolveAndValidateFile(const std::string& path);
-
-
-
 };
-    
 
 #endif

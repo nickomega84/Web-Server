@@ -28,4 +28,5 @@ bool UploadsConfig::isPostAllowed() const {
 bool UploadsConfig::isDeleteAllowed() const {
     return deleteAllowed;
 }
+
 #endif

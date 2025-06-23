@@ -7,4 +7,3 @@ void PortConfig::parse(const ConfigParser& config) {
 int PortConfig::getPort() const {
     return port;
 }
-

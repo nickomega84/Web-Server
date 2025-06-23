@@ -5,14 +5,9 @@ UploadHandlerFactory::UploadHandlerFactory(const std::string& path, IResponseBui
     std::cout << "[DEBUG] UploadHandlerFactory created with uploads path: " << _uploadsPath << "\n";
 }
 
-
-
-
-
 UploadHandlerFactory::~UploadHandlerFactory() 
 {
     std::cout << "[DEBUG] UploadHandlerFactory destroyed\n";
-    
 }
 
 IRequestHandler* UploadHandlerFactory::createHandler() const {

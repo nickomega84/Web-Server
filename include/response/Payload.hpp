@@ -4,7 +4,8 @@
 
 #include <string>
 
-struct Payload {
+struct Payload 
+{
     int         status;
     std::string reason;
     std::string mime;

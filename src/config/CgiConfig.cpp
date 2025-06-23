@@ -46,7 +46,6 @@ void CgiConfig::parse(const ConfigParser& config)
     }
 }
 
-
 std::string CgiConfig::getCgiPath() const {
     return cgiPath;
 }

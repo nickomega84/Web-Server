@@ -24,9 +24,7 @@ Response& Response::operator=(const Response& other) {
 }
 
 Response::~Response() 
-{
-	/* Request */
-}
+{}
 
 void Response::setStatus(int code, const std::string& text) {
 	_statusCode = code;
@@ -57,6 +55,7 @@ std::string Response::toString() const {
 	res << "\r\n" << _body;
 	return res.str();
 }
+
 const std::string& Response::getBody() const {
 	return _body;
 }

@@ -1,5 +1,3 @@
-// #include "../../include/handler/UploadHandler.hpp"
-
 #include "handler/UploadHandler.hpp"
 #include "../../include/utils/Utils.hpp"
 #include <fstream>
@@ -9,7 +7,6 @@ UploadHandler::UploadHandler(const std::string& uploadsPath, IResponseBuilder* b
     : _uploadsPath(uploadsPath), _builder(builder) {}
 
 UploadHandler::~UploadHandler() {}
-
 
 Response UploadHandler::handleRequest(const Request& req) 
 {
@@ -52,7 +49,6 @@ Response UploadHandler::handleRequest(const Request& req)
     payload.keepAlive = true;
     return _builder->build(payload);
 }
-
 
 // Response UploadHandler::handleRequest(const Request& req) {
 //     if (req.getMethod() != "POST") {

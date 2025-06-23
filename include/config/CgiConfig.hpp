@@ -13,4 +13,4 @@ class CgiConfig : public ConfigFactory {
         const std::vector<std::string>& getCgiExtensions() const;
 };
 
-#endif // CGI_CONFIG_HPP
+#endif

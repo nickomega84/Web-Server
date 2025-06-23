@@ -3,13 +3,13 @@
 #include <iostream>
 
 Request::Request()
-{
-    /* std::cout << "Request constructor called" << std::endl; */
-}
+{}
+
 Request::Request(const Request& other)
 {
     *this = other; 
 }
+
 Request& Request::operator=(const Request& other) 
 {
 	if (this != &other) 
@@ -24,11 +24,7 @@ Request& Request::operator=(const Request& other)
 	return *this;
 }
 Request::~Request() 
-{
-    /* std::cout << "Request destructor called" << std::endl; */
-}
-
-
+{}
 
 bool Request::parse(const std::string& raw)
 {
@@ -115,38 +111,41 @@ bool Request::parse(const std::string& raw)
     return (true);
 }
 
-
-// Getters
-
-
 const std::string& Request::getPath() const        
 { 
     return _path;
 }
+
 const std::string& Request::getQueryString() const
 { 
     return _queryString; 
 }
+
 bool    Request::isKeepAlive() const
 { 
         return _keepAlive; 
 }
+
 const std::string& Request::Request::getMethod() const 
 {
     return _method; 
 }
+
 const std::string& Request::getURI() const 
 {
     return _uri; 
 }
+
 const std::string& Request::getVersion() const 
 {
     return _version; 
 }
+
 const std::map<std::string, std::string>& Request::getHeaders() const 
 {
     return _headers; 
 }
+
 const std::string& Request::getHeader(const std::string& key) const 
 {
     static const std::string empty;
@@ -155,6 +154,7 @@ const std::string& Request::getHeader(const std::string& key) const
 		return it->second;
 	return empty;
 }
+
 const std::string& Request::getBody() const 
 {
     return _body; 

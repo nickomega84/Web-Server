@@ -14,6 +14,7 @@ class Request
         std::string _path;
         std::string _queryString;
         bool _keepAlive;
+		
     public:
         Request();
         Request(const Request& other);

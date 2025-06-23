@@ -1,6 +1,3 @@
-
-
-// IResponseBuilder.hpp
 #ifndef I_RESPONSE_BUILDER_HPP
 #define I_RESPONSE_BUILDER_HPP
 

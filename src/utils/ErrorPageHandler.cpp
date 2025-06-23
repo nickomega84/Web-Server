@@ -1,11 +1,9 @@
-// ErrorPageHandler.cpp
-
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
 #include "iostream"
-// Inicialización del array estático
+
 const ErrorPageHandler::ErrorPageEntry ErrorPageHandler::errorPages[] = {
     {404, "/error_pages/404.html"},
     {403, "/error_pages/403.html"},
@@ -13,16 +11,13 @@ const ErrorPageHandler::ErrorPageEntry ErrorPageHandler::errorPages[] = {
     {-1, NULL}
 };
 
-// Constructor
 ErrorPageHandler::ErrorPageHandler(const std::string& rootPath) : _rootPath(rootPath) {
     std::cout << "ErrorPageHandler initialized with root path: " << _rootPath << std::endl;
     // ErrorPageHandler initialized with root path: 0x43f508/sgoinfre/students/dbonilla/webServer/www
 }
 
-// Constructor copia
 ErrorPageHandler::ErrorPageHandler(const ErrorPageHandler& other) : _rootPath(other._rootPath) {}
 
-// Operador asignación
 ErrorPageHandler& ErrorPageHandler::operator=(const ErrorPageHandler& other) {
     if (this != &other) 
     {
@@ -31,7 +26,6 @@ ErrorPageHandler& ErrorPageHandler::operator=(const ErrorPageHandler& other) {
     return *this;
 }
 
-// Destructor
 ErrorPageHandler::~ErrorPageHandler() {}
 
 const char* ErrorPageHandler::getErrorPagePath(int code) const {

@@ -1,12 +1,9 @@
 #include "../../include/server/Server.hpp"
 #include "../../include/core/Request.hpp"
 #include "../../include/core/Response.hpp"
-#include "../../include/middleware/AllowMethodMiddleware.hpp"
-#include "../../include/middleware/CookieMiddleware.hpp"
-#include "../../include/middleware/MiddlewareStack.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 
-Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath(root) /* _epollfd(-1) */
+Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath(root)
 {
 	addListeningSocket(); //habría que llamar a addListeningSocket() una vez por cada servidor en el archivo de configuracion 
 }
@@ -144,9 +141,6 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &
 
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
 	client_fds.push_back(client_fd);
-
-    //COOKIES
-
 	std::cout << "New connection accepted() fd = " << client_fd << std::endl;
 	return (0);
 }
@@ -184,8 +178,6 @@ void Server::freeEpoll(int epollfd, std::vector<int> &client_fds)
 		epoll_ctl(epollfd, EPOLL_CTL_DEL, *it, NULL);
 		close(*it);
 	}
-
-    //COOKIES
 
 	close(epollfd);
 	client_fds.clear();
@@ -234,11 +226,6 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response>& pendi
     //     pending_writes[client_fd] = res404;
     //     return 0;
     // }
-    
-    if (!_middleware.handle(req, res)) {           // algún middleware corta
-        pending_writes[client_fd] = res;
-        return 0;
-    }
 
     IRequestHandler* h = _router.resolve(req);
 
@@ -273,14 +260,4 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 
 void Server::setRouter(const Router& router) {
 	this->_router = router;
-}
-
-void Server::setMiddlewareStack(const MiddlewareStack& stack) {
-	this->_middleware = stack;
-}
-
-void Server::initMiddleware()
-{
-	_middleware.add(new CookieMiddleware());
-	_middleware.add(new AllowMethodMiddleware());
 }

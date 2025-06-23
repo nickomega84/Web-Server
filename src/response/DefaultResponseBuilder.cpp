@@ -1,12 +1,7 @@
-// #include "response/DefaultResponseBuilder.hpp"
 #include "../../include/response/DefaultResponseBuilder.hpp"
 #include "../../include/response/DefaultResponseBuilder.hpp"
-
 #include "../../include/utils/Utils.hpp"
-
-
 #include <sstream>
-
 
 DefaultResponseBuilder::DefaultResponseBuilder() {}
 
@@ -46,6 +41,7 @@ Response DefaultResponseBuilder::build(const Payload& p)
     std::cout << p.body << "\n";
     return res;
 }
+
 void DefaultResponseBuilder::setStatus(Response& res, int code, const std::string& reason) {
 	res.setStatus(code, reason);
 }

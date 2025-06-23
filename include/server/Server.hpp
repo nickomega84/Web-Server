@@ -14,15 +14,12 @@
 
 #include "../include/libraries.hpp"
 #include "../include/config/ConfigParser.hpp"
-// #include "../include/server/ConfigTEMPORAL.hpp"
 #include "../core/Response.hpp"
-#include "../middleware/MiddlewareStack.hpp"
 #include "../include/libraries.hpp"
-#include "../middleware/AllowMethodMiddleware.hpp"
-#include "../middleware/IMiddleware.hpp"
 #include "../router/Router.hpp"
 #include "../cgi/CGIHandler.hpp"
 #include "../include/handler/StaticFileHandler.hpp"
+
 extern volatile sig_atomic_t g_signal_received;
 
 class Server
@@ -31,7 +28,6 @@ class Server
 		ConfigParser& _cfg;
 		std::string _rootPath;
 		std::vector<int> listen_sockets;   
-        MiddlewareStack _middleware;
         Router _router;
 
         Server(const Server& other);
@@ -46,19 +42,12 @@ class Server
         void	freeEpoll(int epollfd, std::vector<int> &client_fds);
 
 	public:
-        // explicit Server(const ConfigTEMPORAL &conf, const std::string &root);
-        // explicit Server(const Server* sc);   // rootPath lo sacas del conf
         Server(ConfigParser& cfg, const std::string& rootPath);
         ~Server();
 
         int		addListeningSocket();
         void	startEpoll();
         void	closeListenSockets();
-
         void	setRouter(const Router &router);                 
-        void	setMiddlewareStack(const MiddlewareStack &stack);
-        void    initMiddleware();
 };
 
-//python3 test_webserv_full.py
-//CONFIG! para buscar cosas que hemos dejado para cuando el archivo de configuracion este hecho

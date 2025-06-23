@@ -7,8 +7,7 @@
 
 
 
-CGIHandler::CGIHandler(const std::string& cgiRoot)
-    : _cgiRoot(cgiRoot), _error(200)
+CGIHandler::CGIHandler(const std::string& cgiRoot): _cgiRoot(cgiRoot), _error(200)
 {
     std::cout << "[DEBUG] CGIHandler Constructor: cgiRoot = " << _cgiRoot << std::endl;
 }
@@ -29,19 +28,14 @@ CGIHandler::~CGIHandler()
     std::cout << "CGI Handler Destructed" << std::endl;
 }
 
-
-
 Response CGIHandler::handleRequest(const Request& req) {
     Response res;
 
     bool ok = identifyCGI(req, res);
     std::cout << "[DEBUG] CGIHandler::handleRequest()" << std::endl;
     if ((!ok || _error >= 400 )) 
-    {
-        // std::cout << "Error root: " << _rootPath << "\n" << std::endl;
-        // std::cout << "[-] Petición mal formada: " << buffer << "\n" << std::endl;
-        
-        ErrorPageHandler err(req.getPath()); // ruta pública
+    {    
+        ErrorPageHandler err(req.getPath());
         Response res400;
         res400.setStatus(_error, "Bad Request");
         res400.setBody(err.render(_error, "Bad Request"));
@@ -52,17 +46,6 @@ Response CGIHandler::handleRequest(const Request& req) {
     return res;
 }
 
-// ErrorPageHandler err("/sgoinfre/students/dbonilla/webServer/www");                    // ruta pública
-// // std::string body = err.render(_error, "Error en CGI");
-
-// Response res404;
-// res404.setStatus(_error, "Error");
-// res404.setHeader("Content-Type",  "text/html");
-// res404.setBody(err.render(_error, "Ruta no encontrada"));
-// res404.setHeader("Content-Length", Utils::intToString(body.length()));
-// // res404.setStatus(404, "Ruta no encontrada");
-// // ErrorPageHandler err(_rootPath);   // no hay ruta → 404        
-// // res.setBody(body);
 int CGIHandler::identifyType(const Request &req)
 {
 	std::string uri = req.getURI();
@@ -92,32 +75,6 @@ void CGIHandler::handleError(int error)
 	_error = error;
 }
 
-// bool CGIHandler::identifyCGI(const Request& req, Response& res) {
-//     int type = identifyType(req);
-//     if (type == 0) {
-//         _error = 404;
-//         return false;
-//     }
-//     int method = identifyMethod(req);
-//     if (method == -1) {
-//         _error = 501;
-//         return false;
-//     }
-
-//     int code = type + method;
-
-//     if (code == 11) // GET PY
-//         return handleGET(req, res, PYTHON_INTERPRETER) == 0;
-//     else if (code == 12) // GET SH
-//         return handleGET(req, res, SH_INTERPRETER) == 0;
-//     else if (code == 21) // POST PY
-//         return handlePOST(req, res, PYTHON_INTERPRETER) == 0;
-//     else if (code == 22) // POST SH
-//         return handlePOST(req, res, SH_INTERPRETER) == 0;
-
-//     _error = 500;
-//     return false;
-// }
 bool CGIHandler::identifyCGI(const Request &req, Response &res)
 {
 	int indx = identifyType(req);
@@ -167,55 +124,6 @@ std::string CGIHandler::getQueryString(const std::string &uri)
 		return ("");
 	return (uri.substr(pos_query + 1)); //si omotimos el segundo argumento de substr se usa std::string::npos por defecto (el final dels string)
 }
-
-// bool CGIHandler::checkLocation(std::string &directory, std::string &name)
-// {
-// 	std::cout << "[HOLA] CGIHandler::checkLocation() directory: " << directory << std::endl;
-// 	std::cout << "[DEBUG] CGIHandler::checkLocation() name: " << name << std::endl;
-//     std::cout << "[DEBUG] CGIHandler::AQUIOO" << std::endl;
-//     // std::string full_path = joinPath(directory, name);
-//     std::string full_path = _cgiRoot + "/" + name; // Aseguramos que el path es absoluto
-//     std::cout << "[DEBUG] CGIHandler::checkLocation() full_path: " << full_path << std::endl;
-// 	struct stat sb;
-//     if (stat(full_path.c_str(), &sb) != 0) {
-//         std::cerr << "[ERROR] No se pudo acceder a: " << full_path <<
-//                         " — " << strerror(errno) << "\n";
-//     }
-// 	// if (stat(directory.c_str(), &sb) != 0) {
-// 	// 	std::cerr << "[ERROR] No se pudo acceder a: " << directory << " — " << strerror(errno) << "\n";
-// 	// 	return false;
-// 	// }
-
-// 	// Si es un archivo regular ejecutable, entonces no es un directorio.
-// 	if (S_ISREG(sb.st_mode)) {
-// 		if (access(directory.c_str(), X_OK) != 0) {
-// 			std::cerr << "[ERROR] No tiene permisos de ejecución: " << directory << "\n";
-// 			return false;
-// 		}
-// 		std::cout << "[DEBUG] Es un ejecutable válido.\n";
-// 		return true;
-// 	}
-
-// 	// Si es un directorio, buscamos el archivo dentro
-// 	if (S_ISDIR(sb.st_mode)) {
-// 		DIR *dir = opendir(directory.c_str());
-// 		if (!dir) {
-// 			std::cerr << "[ERROR] opendir() falló para: " << directory << " — " << strerror(errno) << "\n";
-// 			return false;
-// 		}
-
-// 		std::vector<std::string> file_names;
-// 		struct dirent *entry;
-// 		while ((entry = readdir(dir)) != NULL)
-// 			file_names.push_back(entry->d_name);
-// 		closedir(dir);
-
-// 		return (std::find(file_names.begin(), file_names.end(), name) != file_names.end());
-// 	}
-
-// 	std::cerr << "[ERROR] No es ni archivo ni directorio válido: " << directory << "\n";
-// 	return false;
-// }
 
 bool CGIHandler::checkLocation(std::string &directory, std::string &name)
 {

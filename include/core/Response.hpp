@@ -6,28 +6,28 @@
 
 class Response 
 {
-private:
-	int _statusCode;
-	std::string _statusText;
-	std::map<std::string, std::string> _headers;
-	std::string _body;
+	private:
+		int _statusCode;
+		std::string _statusText;
+		std::map<std::string, std::string> _headers;
+		std::string _body;
 
-public:
-	Response();
-	Response(const Response& other);
-	Response& operator=(const Response& other);
-	~Response();
-    
-	void setStatus(int code, const std::string& text);
-	void setHeader(const std::string& key, const std::string& value);
-	void setBody(const std::string& body);
-    
-    const std::string&  getBody() const;
-	int                 getStatus();
-	std::string         getHeaders();
-	std::string         getBody();
+	public:
+		Response();
+		Response(const Response& other);
+		Response& operator=(const Response& other);
+		~Response();
+		
+		void setStatus(int code, const std::string& text);
+		void setHeader(const std::string& key, const std::string& value);
+		void setBody(const std::string& body);
+		
+		const std::string&  getBody() const;
+		int                 getStatus();
+		std::string         getHeaders();
+		std::string         getBody();
 
-	std::string toString() const;
+		std::string toString() const;
 };
 
 #endif
