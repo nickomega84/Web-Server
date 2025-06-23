@@ -1,7 +1,6 @@
 #ifndef CONFIG_FACTORY_HPP
 #define CONFIG_FACTORY_HPP
 
-
 #include "ConfigParser.hpp"
 
 class ConfigParser;
@@ -12,5 +11,4 @@ class ConfigFactory {
         virtual ~ConfigFactory();
 };
 
-#endif // CONFIG_FACTORY_HPP
-// ConfigFactory.hpp
+#endif

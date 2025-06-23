@@ -27,22 +27,22 @@ static void sigHandler(int sig)
     std::cout << "\n[!] Signal received, shutting down…\n";
 }
 
-/* ************************************************************************** */// Helper POSIX: stat + realpath resolution
-
-int main(int argc, char** argv) {
+int main(int argc, char** argv) 
+{
     // 1. Validar argumentos
     if (argc != 2) {
-        std::cerr << "Uso: " << argv[0] << " <config.conf>\n";
+        std::cerr << "[ERROR] Uso: " << argv[0] << " <config.conf>\n";
         return EXIT_FAILURE;
     }
+
     std::string confPath = argv[1];
     if (confPath.size() < 5 || confPath.substr(confPath.size() - 5) != ".conf") {
-        std::cerr << "Error: el archivo debe terminar en .conf\n";
+        std::cerr << "[ERROR] Error: el archivo debe terminar en .conf\n";
         return EXIT_FAILURE;
     }
 	
     if (!std::ifstream(confPath.c_str())) {
-        std::cerr << "Error: no se pudo abrir " << confPath << '\n';
+        std::cerr << "[ERROR] Error: no se pudo abrir " << confPath << '\n';
         return EXIT_FAILURE;
     }
 
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     // 3. Cargar configuración (Singleton)
     ConfigParser& cfg = ConfigParser::getInst();
     if (!cfg.load(confPath)) {
-        std::cerr << "Error parseando " << confPath << '\n';
+        std::cerr << "[ERROR] Error parseando " << confPath << '\n';
         return EXIT_FAILURE;
     }
 
@@ -70,41 +70,34 @@ int main(int argc, char** argv) {
     
     PortConfig portCfg;
     portCfg.parse(cfg);
+
     // 5. Usa los datos parseados
-    std::cout << "Server root: " << rootCfg.getRootPath() << std::endl;
-    std::cout << "Uploads dir: " << upCfg.getUploadPath() << std::endl;
-    std::cout << "CGI dir: " << cgiCfg.getCgiPath() << std::endl;
+    std::cout << "[DEBUG] Server root: " << rootCfg.getRootPath() << std::endl;
+    std::cout << "[DEBUG] Uploads dir: " << upCfg.getUploadPath() << std::endl;
+    std::cout << "[DEBUG] CGI dir: " << cgiCfg.getCgiPath() << std::endl;
     std::cout << "\nPort: " << portCfg.getPort() << std::endl;
     
     // 4. Crear servidor y router
-    std::string rootPath   = Utils::resolveAndValidateDir(rootCfg.getRootPath());
-    // // Cambiar dir de trabajo al root
-    // if (chdir(rootPath.c_str()) != 0) {
-    //     std::cerr << "Error: no se pudo cambiar a directorio raíz " << rootPath
-    //     << ": " << strerror(errno) << "\n";
-    //     return EXIT_FAILURE;
-    // }
+    std::string rootPath = Utils::resolveAndValidateDir(rootCfg.getRootPath());
     Router router;
     Server server(cfg, rootPath);
     
     //  Mostrar configuración de rutas
-        std::cout << "CGI extensions: \n";
+	std::cout << "[DEBUG] CGI extensions: " << std::endl;
     const std::vector<std::string>& exts = cgiCfg.getCgiExtensions();
     for (size_t i = 0; i < exts.size(); ++i) 
     {
-        std::cout << exts[i] << " " << "\n";
-        std::cout << "[DEBUG] Registrando CGI handler para extensión: " << exts[i] << "\n";
+        std::cout << exts[i] << " " << std::endl;
+        std::cout << "[DEBUG] Registrando CGI handler para extensión: " << exts[i] << std::endl;
     }
     
     // 5. Construir y validar rutas absolutas (POSIX)
     std::string uploadPath = Utils::resolveAndValidateDir(upCfg.getUploadPath());
-    std::string cgiPath    = Utils::resolveAndValidateFile(cgiCfg.getCgiPath());
-    std::cout << "[DEBUG] CGI path: " << cgiPath << "\n";
+    std::string cgiPath = Utils::resolveAndValidateFile(cgiCfg.getCgiPath());
+    std::cout << "[DEBUG] CGI path: " << cgiPath << std::endl;
+
     // 6. Crear ResponseBuilder
     IResponseBuilder* responseBuilder = new DefaultResponseBuilder();
-
-    // CGIHandler* handler = new CGIHandler("/www/cgi-bin", "/usr/bin/python3.10", responseBuilder);
-
 
     //.. 7. Configurar router con fábricas (Factory Pattern)
     router.registerFactory("/www/cgi-bin", new CGIHandlerFactory(cgiPath));
@@ -113,8 +106,7 @@ int main(int argc, char** argv) {
 
     // 8. Asignar router al servidor
     server.setRouter(router);
-    std::cout << "[🔁] Webserv arrancado en puerto "
-              << cfg.getGlobal("port") << " — Ctrl-C para parar\n";
+    std::cout << "[🔁] Webserv arrancado en puerto " << cfg.getGlobal("port") << " — Ctrl-C para parar" << std::endl;
 
     // 9. Bucle principal (epoll)
     server.startEpoll();

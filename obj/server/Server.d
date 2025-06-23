@@ -23,6 +23,7 @@ obj/server/Server.o: src/server/Server.cpp \
   include/handler/IRequestHandler.hpp \
   src/server/../../include/server/../router/../handler/../../include/response/IResponseBuilder.hpp \
   src/server/../../include/server/../router/../handler/../../include/response/../../include/core/Response.hpp \
+  src/server/../../include/server/../router/../handler/../../include/response/../../include/response/Payload.hpp \
   src/server/../../include/core/Request.hpp \
   src/server/../../include/core/Response.hpp \
   src/server/../../include/middleware/AllowMethodMiddleware.hpp \
@@ -81,6 +82,8 @@ include/handler/IRequestHandler.hpp:
 src/server/../../include/server/../router/../handler/../../include/response/IResponseBuilder.hpp:
 
 src/server/../../include/server/../router/../handler/../../include/response/../../include/core/Response.hpp:
+
+src/server/../../include/server/../router/../handler/../../include/response/../../include/response/Payload.hpp:
 
 src/server/../../include/core/Request.hpp:
 

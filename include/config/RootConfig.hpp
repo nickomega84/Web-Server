@@ -14,4 +14,5 @@ class RootConfig : public ConfigFactory {
         std::string getIndexFile() const;
         bool isAutoIndexEnabled() const;
 };
-#endif // ROOT_CONFIG_HPP
+
+#endif

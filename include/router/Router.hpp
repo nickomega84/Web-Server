@@ -6,7 +6,6 @@
 #include "../factory/IHandlerFactory.hpp"
 #include "../include/libraries.hpp"
 
-
 class Router {
 public:
 	Router();

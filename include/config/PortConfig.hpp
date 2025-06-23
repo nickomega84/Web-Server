@@ -7,7 +7,6 @@ class PortConfig : public ConfigFactory {
         int port;
     public: 
         void parse(const ConfigParser &config);
-
         int getPort() const;
 };
-#endif // PORTCONFIG_HPP
+#endif
