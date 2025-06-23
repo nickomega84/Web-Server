@@ -24,7 +24,7 @@ void CgiConfig::parse(const ConfigParser& config)
         --end;
 
     if (end <= start) {
-        std::cout << "[DEBUG] CgiConfig::exts vacío, no se cargan extensiones.\n";
+        std::cout << "[ERROR] CgiConfig::exts vacío, no se cargan extensiones.\n";
         return;
     }
 

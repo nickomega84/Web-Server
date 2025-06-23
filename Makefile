@@ -30,7 +30,6 @@ CLEAR 		= \033[0m
 #                                ARCHIVOS                                      #
 # **************************************************************************** #
 
-# Encuentra todos los .cpp en src/ y subdirectorios
 SRCS        := $(shell find $(SRC_DIR) -name "*.cpp")
 OBJS        := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS        := $(OBJS:.o=.d)

@@ -188,7 +188,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response>& pendi
     char     buffer[BUFFER_SIZE];
     ssize_t  n = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
     
-    if (n <= 0) {                       // 0 = FIN,  <0 = error
+    if (n <= 0) {
         std::cout << "[-] Client fd " << client_fd << " cerró conexión\n";
         return 1;
     }
@@ -201,10 +201,8 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response>& pendi
     std::cout << "[READ " << client_fd << "] Tamaño del buffer: " << n << "\n"; 
     std::cout << "[READ " << client_fd << "] AUII TERMINA EL BUFFER\n";
     
-    
-    
-    
-    if (!req.parse(buffer)) {           // petición mal formada → 400
+    if (!req.parse(buffer)) 
+	{
         std::cout << "Error root: " << _rootPath << "\n" << std::endl;
         std::cout << "[-] Petición mal formada: " << buffer << "\n" << std::endl;
         
@@ -215,17 +213,6 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response>& pendi
         pending_writes[client_fd] = res400;
         return 0;
     }
-    // if (fileExists2(req.getURI())) {  // ruta no existe → 404
-    //     // std::cout << "Error root: " << _rootPath << "\n" << std::endl;
-    //     // std::cout << "[-] Petición mal formada: " << buffer << "\n" << std::endl;
-        
-    //     ErrorPageHandler err("/sgoinfre/students/dbonilla/webServer/www");
-    //     Response res404;
-    //     res404.setStatus(200, "Bad Request");
-    //     res404.setBody(err.render(404, "Bad Request"));
-    //     pending_writes[client_fd] = res404;
-    //     return 0;
-    // }
 
     IRequestHandler* h = _router.resolve(req);
 
@@ -243,7 +230,6 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response>& pendi
     pending_writes[client_fd] = res;
     return 0;
 }
-
 
 int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes)
 {

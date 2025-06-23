@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     for (size_t i = 0; i < exts.size(); ++i) 
     {
         std::cout << exts[i] << " " << std::endl;
-        std::cout << "[DEBUG] Registrando CGI handler para extensión: " << exts[i] << std::endl;
+        std::cout << "[OLABEBE DEBUG] Registrando CGI handler para extensión: " << exts[i] << std::endl;
     }
     
     // 5. Construir y validar rutas absolutas (POSIX)
@@ -99,9 +99,12 @@ int main(int argc, char** argv)
     IResponseBuilder* responseBuilder = new DefaultResponseBuilder();
 
     //.. 7. Configurar router con fábricas (Factory Pattern)
-    router.registerFactory("/www/cgi-bin", new CGIHandlerFactory(cgiPath));
-    router.registerFactory("/", new StaticHandlerFactory(rootPath, responseBuilder));
-    router.registerFactory("/upload", new UploadHandlerFactory(uploadPath, responseBuilder));
+	IHandlerFactory* cgiFactory = new CGIHandlerFactory(cgiPath);
+    router.registerFactory("/www/cgi-bin", cgiFactory);
+	IHandlerFactory* staticFactory = new StaticHandlerFactory(rootPath, responseBuilder);
+    router.registerFactory("/", staticFactory);
+	IHandlerFactory* uploadFactory = new UploadHandlerFactory(uploadPath, responseBuilder);
+    router.registerFactory("/upload", uploadFactory);
 
     // 8. Asignar router al servidor
 	Server server(cfg, rootPath);
@@ -110,6 +113,11 @@ int main(int argc, char** argv)
 
     // 9. Bucle principal (epoll)
     server.startEpoll();
+
+	delete responseBuilder;
+	delete cgiFactory;
+	delete staticFactory;
+	delete uploadFactory;
 
     return EXIT_SUCCESS;
 }
