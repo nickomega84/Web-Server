@@ -255,3 +255,10 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 void Server::setRouter(const Router& router) {
 	this->_router = router;
 }
+
+/* POST
+curl -X POST -F "file=@/home/dangonz3/Desktop/logo.png" http://localhost:8081/uploads
+
+GET
+http://localhost:8081/logo.png
+curl http://localhost:8081/logo.png */
