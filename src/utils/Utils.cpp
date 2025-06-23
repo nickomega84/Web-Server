@@ -41,29 +41,28 @@ void Utils::createDirectoriesIfNotExist(const std::string& path) {
     }
 }
 
-
 std::string Utils::resolveAndValidateDir(const std::string& path) {
     std::string p = path;
-    std::cout << "[DEBUG] Resolviendo ruta absoluta: " << p << "\n";
+    std::cout << "[DEBUG] Resolviendo ruta absoluta: " << p << std::endl;
 
     if (p.size() > 1 && p[p.size() - 1] == '/') {
         p.erase(p.size() - 1);
     }
 
-    char real[PATH_MAX] = {0}; // opcional pero buena práctica
+    char real[PATH_MAX] = {0};
     
     if (::realpath(p.c_str(), real) == NULL) {
-        std::cerr << "Error: no se pudo resolver ruta absoluta para " << p
-                  << ": " << strerror(errno) << "\n";
+        std::cerr << "[ERROR] no se pudo resolver ruta absoluta para " << p
+                  << ": " << strerror(errno) << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
-    std::cout << "[DEBUG] Resolviendo ruta absoluta -->>>: " << real << "\n";
+    std::cout << "[DEBUG] Resolviendo ruta absoluta -->>>: " << real << std::endl;
 
     struct stat sb;
     if (stat(real, &sb) != 0 || !S_ISDIR(sb.st_mode)) {
-        std::cerr << "Error: la ruta no es un directorio válido " << real
-                  << ": " << strerror(errno) << "\n";
+        std::cerr << "[ERROR] la ruta no es un directorio válido " << real
+                  << ": " << strerror(errno) << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
@@ -73,12 +72,12 @@ std::string Utils::resolveAndValidateDir(const std::string& path) {
 std::string Utils::resolveAndValidateFile(const std::string& path) {
     char real[PATH_MAX] = {0};
     if (::realpath(path.c_str(), real) == NULL) {
-        std::cerr << "Error al resolver ruta: " << path << ": " << strerror(errno) << "\n";
+        std::cerr << "[ERROR] Error al resolver ruta: " << path << ": " << strerror(errno) << std::endl;
         std::exit(EXIT_FAILURE);
     }
     struct stat sb;
     if (stat(real, &sb) != 0 || !S_ISREG(sb.st_mode)) {
-        std::cerr << "Error: la ruta no es un archivo válido " << real << "\n";
+        std::cerr << "[ERROR] la ruta no es un archivo válido " << real << std::endl;
         std::exit(EXIT_FAILURE);
     }
     return std::string(real);

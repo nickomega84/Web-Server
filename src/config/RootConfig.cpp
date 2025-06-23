@@ -4,11 +4,11 @@
 
 void RootConfig::parse(const ConfigParser& config) {
     rootPath = config.getGlobal("root");
-    std::cout << "[DEBUG] Root path: " << rootPath << "\n" << std::endl;
+    std::cout << "[DEBUG] Root path: " << rootPath << std::endl;
     indexFile = config.getGlobal("index");
-    std::cout << "[DEBUG] Index file: " << indexFile << "\n" << std::endl;
+    std::cout << "[DEBUG] Index file: " << indexFile << std::endl;
     autoIndex = (config.getGlobal("autoindex") == "on");
-    std::cout << "[DEBUG] Autoindex: " << (autoIndex ? "enabled" : "disabled") << "\n" << std::endl;    
+    std::cout << "[DEBUG] Autoindex: " << (autoIndex ? "enabled" : "disabled") << std::endl;    
 }
 
 std::string RootConfig::getRootPath() const {

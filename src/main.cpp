@@ -75,12 +75,11 @@ int main(int argc, char** argv)
     std::cout << "[DEBUG] Server root: " << rootCfg.getRootPath() << std::endl;
     std::cout << "[DEBUG] Uploads dir: " << upCfg.getUploadPath() << std::endl;
     std::cout << "[DEBUG] CGI dir: " << cgiCfg.getCgiPath() << std::endl;
-    std::cout << "\nPort: " << portCfg.getPort() << std::endl;
+    std::cout << "[DEBUG] Port: " << portCfg.getPort() << std::endl;
     
     // 4. Crear servidor y router
     std::string rootPath = Utils::resolveAndValidateDir(rootCfg.getRootPath());
     Router router;
-    Server server(cfg, rootPath);
     
     //  Mostrar configuración de rutas
 	std::cout << "[DEBUG] CGI extensions: " << std::endl;
@@ -105,6 +104,7 @@ int main(int argc, char** argv)
     router.registerFactory("/upload", new UploadHandlerFactory(uploadPath, responseBuilder));
 
     // 8. Asignar router al servidor
+	Server server(cfg, rootPath);
     server.setRouter(router);
     std::cout << "[🔁] Webserv arrancado en puerto " << cfg.getGlobal("port") << " — Ctrl-C para parar" << std::endl;
 
