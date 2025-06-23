@@ -14,12 +14,14 @@
  */
 class CGIHandlerFactory : public IHandlerFactory
 {
-public:
+    private:
+        std::string _cgiRoot;
+    
+    public:
     // Constructor toma la ruta física a /cgi-bin
-    explicit CGIHandlerFactory(const std::string& cgiRoot)
-      : _cgiRoot(cgiRoot) {}
+        explicit CGIHandlerFactory(const std::string& cgiRoot) : _cgiRoot(cgiRoot) {}
 
-    virtual ~CGIHandlerFactory() {}
+        virtual ~CGIHandlerFactory() {}
 
     // Implementación de la función pura: crea el handler
     virtual IRequestHandler* createHandler() const
@@ -27,8 +29,6 @@ public:
         return new CGIHandler(_cgiRoot);
     }
 
-private:
-    std::string _cgiRoot;
 };
 
 #endif // CGI_HANDLER_FACTORY_HPP

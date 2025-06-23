@@ -29,6 +29,7 @@ class CGIHandler : public IRequestHandler
 	private:
        /* Raíz física de /cgi-bin (inyectada por la factory) */
         std::string _cgiRoot;
+        int     _error;
         std::vector<std::string> enviromentGET(std::string path, std::string queryString);
         std::vector<std::string> enviromentPOST(std::string path, std::string queryString, const Request &req);
         std::string     getDir(const std::string &uri, bool *success);
@@ -36,7 +37,6 @@ class CGIHandler : public IRequestHandler
         std::string     getQueryString(const std::string &uri);
         std::string     joinPath(const std::string &a, const std::string &b);
         
-        int     _error;
         int     identifyType(const Request &req);
         int     identifyMethod(const Request &req);
         int     checkHandler(const Request &req, std::map<std::string, std::string> &m);

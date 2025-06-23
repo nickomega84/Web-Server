@@ -27,12 +27,16 @@ Request::~Request()
 {
     /* std::cout << "Request destructor called" << std::endl; */
 }
+
+
+
 bool Request::parse(const std::string& raw)
 {
     std::istringstream stream(raw);
     std::string line;
 
     /* ── 1. START-LINE ───────────────────────────── */
+
     if (!std::getline(stream, line))
         return false;
         
@@ -95,6 +99,7 @@ bool Request::parse(const std::string& raw)
     } else { // HTTP/1.0
         _keepAlive = (getHeader("Connection") == "keep-alive");
     }
+   
     std::cout << "[DEBUG] Request parsed successfully:\n"
               << "Method: " << _method << "\n"
               << "URI: " << _uri << "\n"
@@ -109,6 +114,7 @@ bool Request::parse(const std::string& raw)
     
     return (true);
 }
+
 
 // Getters
 

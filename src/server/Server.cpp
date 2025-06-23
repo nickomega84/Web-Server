@@ -302,19 +302,39 @@ void Server::freeEpoll(int epollfd, std::vector<int> &client_fds)
 	close(epollfd);
 	client_fds.clear();
 }
-
+// static bool fileExists2(const std::string& path) 
+// {
+//     std::cout << "[DEBUG] Verificando existencia del archivo: " << path << std::endl;
+//     std::ifstream file(path.c_str());
+//     if (!file) {
+//         std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
+//         return false;
+//     }
+//     // std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
+//     file.close();
+//     // Verificar si el archivo es accesible
+//     // struct stat buffer;
+//     // return (stat(path.c_str(), &buffer) == 0 && S_ISREG(buffer.st_mode));
+//     // Verificar si el archivo existe y es un archivo regular
+//     // Nota: S_ISREG(buffer.st_mode) comprueba si es un archivo regular
+//     // Nota: stat() devuelve 0 si el archivo existe y se puede acceder
+//     // Nota: Si quieres comprobar si es un directorio, puedes usar S_ISDIR(buffer.st_mode)
+//     // Nota: Si quieres comprobar si es un enlace simbólico, puedes usar S_ISLNK(buffer.st_mode)        
+//     struct stat buffer;
+//     return (stat(path.c_str(), &buffer) == 0);
+// }
 int Server::handleClientRead(const int client_fd,
                              std::map<int, Response>& pending_writes)
 {
     char     buffer[BUFFER_SIZE];
     ssize_t  n = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-
+    
     if (n <= 0) {                       // 0 = FIN,  <0 = error
         std::cout << "[-] Client fd " << client_fd << " cerró conexión\n";
         return 1;
     }
     buffer[n] = '\0';
-
+    
     Request  req;
     Response res;
     std::cout << "[BUFFER] [" << buffer << "]\n";
@@ -322,20 +342,32 @@ int Server::handleClientRead(const int client_fd,
     std::cout << "[READ " << client_fd << "] Tamaño del buffer: " << n << "\n"; 
     std::cout << "[READ " << client_fd << "] AUII TERMINA EL BUFFER\n";
     
-
-
+    
+    
+    
     if (!req.parse(buffer)) {           // petición mal formada → 400
         std::cout << "Error root: " << _rootPath << "\n" << std::endl;
         std::cout << "[-] Petición mal formada: " << buffer << "\n" << std::endl;
         
-        ErrorPageHandler err("");
+        ErrorPageHandler err(_rootPath);
         Response res400;
         res400.setStatus(400, "Bad Request");
         res400.setBody(err.render(400, "Bad Request"));
         pending_writes[client_fd] = res400;
         return 0;
     }
-
+    // if (fileExists2(req.getURI())) {  // ruta no existe → 404
+    //     // std::cout << "Error root: " << _rootPath << "\n" << std::endl;
+    //     // std::cout << "[-] Petición mal formada: " << buffer << "\n" << std::endl;
+        
+    //     ErrorPageHandler err("/sgoinfre/students/dbonilla/webServer/www");
+    //     Response res404;
+    //     res404.setStatus(200, "Bad Request");
+    //     res404.setBody(err.render(404, "Bad Request"));
+    //     pending_writes[client_fd] = res404;
+    //     return 0;
+    // }
+    
     if (!_middleware.handle(req, res)) {           // algún middleware corta
         pending_writes[client_fd] = res;
         return 0;
@@ -347,7 +379,7 @@ int Server::handleClientRead(const int client_fd,
         res = h->handleRequest(req);    // el handler construye la respuesta
         delete h;
     } else { 
-        ErrorPageHandler err("");   // no hay ruta → 404        
+        ErrorPageHandler err(_rootPath);   // no hay ruta → 404        
         Response res404;
         res404.setStatus(404, "Ruta no encontrada");
         res404.setBody(err.render(404, "Ruta no encontrada"));

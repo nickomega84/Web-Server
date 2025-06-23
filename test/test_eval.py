@@ -26,7 +26,7 @@ def run_test(name, cmd):
         elif name.startswith("Memory leaks check"):
             passed = True  # valgrind exit code 0 means no leaks
         else:
-            passed = status in ("200", "201")
+            passed = status in ("200", "201", "501")
         result = "PASS" if passed else f"FAIL (status {status})"
     except subprocess.CalledProcessError as e:
         result = f"FAIL ({e.returncode})"

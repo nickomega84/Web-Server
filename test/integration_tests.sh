@@ -37,6 +37,18 @@ test_upload_post() {
     return 1
   fi
 }
+test_cgi_python_post() {
+  local url="$BASE_URL/cgi-bin/pythonPOST.py"
+  local http_code
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+    -d "nombre=Felipe&edad=30" "$url")
+  if [[ $http_code == 200 ]]; then
+    echo "[OK]    POST pythonPOST.py"
+  else
+    echo "[ERROR] POST pythonPOST.py (Código: $http_code)"
+  fi
+}
+
 
 # 2. DELETE: eliminar el recurso
 test_upload_delete() {

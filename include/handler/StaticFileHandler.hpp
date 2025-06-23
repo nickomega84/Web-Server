@@ -6,7 +6,7 @@
 /*   By: dbonilla <dbonilla@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/19 16:46:12 by dbonilla          #+#    #+#             */
-/*   Updated: 2025/06/20 21:01:19 by dbonilla         ###   ########.fr       */
+/*   Updated: 2025/06/22 16:47:29 by dbonilla         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class StaticFileHandler : public IRequestHandler
     IResponseBuilder* _builder;
 
 	Response	doGET(Response& res, std::string uri);
-	Response	doPOST(const Request& req, Response& res);
+	// Response	doPOST(const Request& req, Response& res);
 	int			createPOSTfile(const Request& req, std::string& relative_path);
 	std::string	createPOSTbody(std::string full_path);
 	Response	doDELETE(Response res, std::string uri);

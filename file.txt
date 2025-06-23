@@ -1,0 +1,857 @@
+Constructor del parseo del archivo de configuración creado
+[DEBUG] Root path: ./www
+[DEBUG] Index file: index.html
+[DEBUG] Autoindex: disabled
+[DEBUG] ConfigParser::getLocation - location:  / 
+[DEBUG] ConfigParser::getLocation - name: /
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - location:  /error_pages 
+[DEBUG] ConfigParser::getLocation - name: /error_pages
+[DEBUG] ConfigParser::getLocation - location:  /uploads 
+[DEBUG] ConfigParser::getLocation - name: /uploads
+[DEBUG] ConfigParser::getLocation - key: upload_path
+[DEBUG] ConfigParser::getLocation - it: found
+[DEBUG] ConfigParser::getLocation - location:  / 
+[DEBUG] ConfigParser::getLocation - name: /
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - location:  /error_pages 
+[DEBUG] ConfigParser::getLocation - name: /error_pages
+[DEBUG] ConfigParser::getLocation - location:  /uploads 
+[DEBUG] ConfigParser::getLocation - name: /uploads
+[DEBUG] ConfigParser::getLocation - key: postOn
+[DEBUG] ConfigParser::getLocation - it: end
+[DEBUG] ConfigParser::getLocation - location:  / 
+[DEBUG] ConfigParser::getLocation - name: /
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - location:  /error_pages 
+[DEBUG] ConfigParser::getLocation - name: /error_pages
+[DEBUG] ConfigParser::getLocation - location:  /uploads 
+[DEBUG] ConfigParser::getLocation - name: /uploads
+[DEBUG] ConfigParser::getLocation - key: deleteOn
+[DEBUG] ConfigParser::getLocation - it: end
+[DEBUG] ConfigParser::getLocation - location:  / 
+[DEBUG] ConfigParser::getLocation - name: /
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - key: cgi_path
+[DEBUG] ConfigParser::getLocation - it: found
+[DEBUG] CgiConfig::cgiPath = /usr/bin/python3.10
+[DEBUG] ConfigParser::getLocation - location:  / 
+[DEBUG] ConfigParser::getLocation - name: /
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - key: cgi_ext
+[DEBUG] ConfigParser::getLocation - it: found
+[DEBUG] CgiConfig::exts raw: '.sh .py'
+[DEBUG] CgiConfig::ext[0] = .sh
+[DEBUG] CgiConfig::ext[1] = .py
+Server root: ./www
+Uploads dir: ./uploads
+CGI dir: /usr/bin/python3.10
+
+Port: 8081
+[DEBUG] Resolviendo ruta absoluta: ./www
+[DEBUG] Resolviendo ruta absoluta -->>>: /sgoinfre/students/dbonilla/webServer/www
+Router constructor called
+MiddlewareStack constructor called
+Router constructor called
+[DEBUG] Parsed listen config -> host: '127.0.0.1', port: '8081'
+[DEBUG] Created socket fd=4
+[DEBUG] bind() succeeded on fd=4
+[DEBUG] listen() succeeded on fd=4
+[DEBUG] Added listen socket to list: fd=4
+[DEBUG] addListeningSocket() returned 0
+[DEBUG] epoll_ctl added fd=4
+[🔁] Webserv arrancado en puerto '8081' — Ctrl-C para parar
+CGI extensions: 
+CgiConfig::getCgiExtensions called
+CgiConfig::getCgiExtensions size: 2
+.sh 
+[DEBUG] Registrando CGI handler para extensión: .sh
+.py 
+[DEBUG] Registrando CGI handler para extensión: .py
+[DEBUG] Resolviendo ruta absoluta: ./uploads
+[DEBUG] Resolviendo ruta absoluta -->>>: /sgoinfre/students/dbonilla/webServer/uploads
+[DEBUG] CGI path: /usr/bin/python3.10
+[DEBUG] UploadHandlerFactory created with uploads path: /sgoinfre/students/dbonilla/webServer/uploads
+[DEBUG] Parsed listen config -> host: '127.0.0.1', port: '8081'
+[DEBUG] Created socket fd=5
+[🔁] Webserv arrancado en puerto 8081 — Ctrl-C para parar
+New connection accepted() fd = 6
+Response constructor called
+[BUFFER] [GET / HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+]
+[READ 6] Recibido: GET / HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+
+[READ 6] Tamaño del buffer: 78
+[READ 6] AUII TERMINA EL BUFFER
+[DEBUG] Start line parsed: GET / HTTP/1.1
+[DEBUG] Path: /
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8081
+[DEBUG] Header found: User-Agent =  curl/7.81.0
+[DEBUG] Header found: Accept =  */*
+[DEBUG] Request parsed successfully:
+Method: GET
+URI: /
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /
+Checking route: /www/cgi-bin
+Checking route: /upload
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+[DEBUG] Sirviendo archivo fullPath: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] Verificando existencia del archivo:  StaticFileHandler/sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] MimeTypes::getContentType() called witt extension: .html
+
+Response constructor called
+[DEBUG] Setting response status: 200 OK
+[DEBUG] Setting response Content-Type: text/html
+[DEBUG] Setting response Content-Length: 227
+[DEBUG] Setting response Connection: keep-alive
+!<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web Page</title>
+    <link rel="stylesheet" href="style.css">
+</html>
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+[-] Client fd 6 cerró conexión
+client_fd: 6 closed
+
+New connection accepted() fd = 6
+Response constructor called
+[BUFFER] [GET /style.css HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+]
+[READ 6] Recibido: GET /style.css HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+
+[READ 6] Tamaño del buffer: 87
+[READ 6] AUII TERMINA EL BUFFER
+[DEBUG] Start line parsed: GET /style.css HTTP/1.1
+[DEBUG] Path: /style.css
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8081
+[DEBUG] Header found: User-Agent =  curl/7.81.0
+[DEBUG] Header found: Accept =  */*
+[DEBUG] Request parsed successfully:
+Method: GET
+URI: /style.css
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /style.css
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /style.css
+Checking route: /www/cgi-bin
+Checking route: /upload
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+[DEBUG] Sirviendo archivo fullPath: /sgoinfre/students/dbonilla/webServer/www/style.css
+[DEBUG] Verificando existencia del archivo:  StaticFileHandler/sgoinfre/students/dbonilla/webServer/www/style.css
+[DEBUG] MimeTypes::getContentType() called witt extension: .css
+
+Response constructor called
+[DEBUG] Setting response status: 200 OK
+[DEBUG] Setting response Content-Type: text/css
+[DEBUG] Setting response Content-Length: 40
+[DEBUG] Setting response Connection: keep-alive
+body { background: rgb(18, 175, 228); }
+
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+[-] Client fd 6 cerró conexión
+client_fd: 6 closed
+
+New connection accepted() fd = 6
+Response constructor called
+[BUFFER] [GET /cgi-bin/pythonGET.py HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+]
+[READ 6] Recibido: GET /cgi-bin/pythonGET.py HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+
+[READ 6] Tamaño del buffer: 98
+[READ 6] AUII TERMINA EL BUFFER
+[DEBUG] Start line parsed: GET /cgi-bin/pythonGET.py HTTP/1.1
+[DEBUG] Path: /cgi-bin/pythonGET.py
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8081
+[DEBUG] Header found: User-Agent =  curl/7.81.0
+[DEBUG] Header found: Accept =  */*
+[DEBUG] Request parsed successfully:
+Method: GET
+URI: /cgi-bin/pythonGET.py
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /cgi-bin/pythonGET.py
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /cgi-bin/pythonGET.py
+Checking route: /www/cgi-bin
+Checking route: /upload
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+[DEBUG] Sirviendo archivo fullPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG] Verificando existencia del archivo:  StaticFileHandler/sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG] MimeTypes::getContentType() called witt extension: .py
+
+Response constructor called
+[DEBUG] Setting response status: 200 OK
+[DEBUG] Setting response Content-Type: text/plain
+[DEBUG] Setting response Content-Length: 831
+[DEBUG] Setting response Connection: keep-alive
+#!/usr/bin/python3
+
+import os
+import sys
+
+print("Content-Type: text/html\n")
+print("<html>")
+print("<head><title>Python GET</title></head>")
+print("<body>")
+print("<h1>GET Request Processed by Python CGI</h1>")
+
+query_string = os.environ.get("QUERY_STRING", "")
+if query_string:
+    print(f"<p>Query String: {query_string}</p>")
+    params = query_string.split('&')
+    print("<ul>")
+    for param in params:
+        if '=' in param:
+            key, value = param.split('=', 1)
+            print(f"<li>{key}: {value}</li>")
+        else:
+            print(f"<li>{param}</li>")
+    print("</ul>")
+else:
+    print("<p>No query string provided.</p>")
+
+print("</body>")
+print("</html>")
+
+#curl "http://localhost:8080/cgi-bin/pythonGET.py?nombre=Juan&ciudad=Madrid"
+#http://localhost:8080/cgi-bin/pythonGET.py?producto=libro&cantidad=5
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+[-] Client fd 6 cerró conexión
+client_fd: 6 closed
+
+New connection accepted() fd = 6
+Response constructor called
+[BUFFER] [POST /upload HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Length: 9
+Content-Type: application/x-www-form-urlencoded
+
+test=data]
+[READ 6] Recibido: POST /upload HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Length: 9
+Content-Type: application/x-www-form-urlencoded
+
+test=data
+[READ 6] Tamaño del buffer: 162
+[READ 6] AUII TERMINA EL BUFFER
+[DEBUG] Start line parsed: POST /upload HTTP/1.1
+[DEBUG] Path: /upload
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8081
+[DEBUG] Header found: User-Agent =  curl/7.81.0
+[DEBUG] Header found: Accept =  */*
+[DEBUG] Header found: Content-Length =  9
+[DEBUG] Header found: Content-Type =  application/x-www-form-urlencoded
+[DEBUG] Request parsed successfully:
+Method: POST
+URI: /upload
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /upload
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /upload
+Checking route: /www/cgi-bin
+Checking route: /upload
+Response constructor called
+[DEBUG] Setting response status: 200 OK
+[DEBUG] Setting response Content-Type: text/plain
+[DEBUG] Setting response Content-Length: 28
+[DEBUG] Setting response Connection: keep-alive
+Archivo recibido y guardado.
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+[-] Client fd 6 cerró conexión
+client_fd: 6 closed
+
+New connection accepted() fd = 6
+Response constructor called
+[BUFFER] [POST /cgi-bin/pythonPOST.py HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Length: 7
+Content-Type: application/x-www-form-urlencoded
+
+foo=bar]
+[READ 6] Recibido: POST /cgi-bin/pythonPOST.py HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Length: 7
+Content-Type: application/x-www-form-urlencoded
+
+foo=bar
+[READ 6] Tamaño del buffer: 175
+[READ 6] AUII TERMINA EL BUFFER
+[DEBUG] Start line parsed: POST /cgi-bin/pythonPOST.py HTTP/1.1
+[DEBUG] Path: /cgi-bin/pythonPOST.py
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8081
+[DEBUG] Header found: User-Agent =  curl/7.81.0
+[DEBUG] Header found: Accept =  */*
+[DEBUG] Header found: Content-Length =  7
+[DEBUG] Header found: Content-Type =  application/x-www-form-urlencoded
+[DEBUG] Request parsed successfully:
+Method: POST
+URI: /cgi-bin/pythonPOST.py
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /cgi-bin/pythonPOST.py
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /cgi-bin/pythonPOST.py
+Checking route: /www/cgi-bin
+Checking route: /upload
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+[DEBUG] Sirviendo archivo fullPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonPOST.py
+[DEBUG] Verificando existencia del archivo:  StaticFileHandler/sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonPOST.py
+[DEBUG] MimeTypes::getContentType() called witt extension: .py
+
+Response constructor called
+[DEBUG] Setting response status: 200 OK
+[DEBUG] Setting response Content-Type: text/plain
+[DEBUG] Setting response Content-Length: 2493
+[DEBUG] Setting response Connection: keep-alive
+#!/usr/bin/python3
+
+import os
+import sys
+import cgi # Módulo CGI para manejar datos de formularios
+
+print("Content-Type: text/html\n")
+print("<html>")
+print("<head><title>Python POST - Crear Recurso</title></head>")
+print("<body>")
+print("<h1>POST Request Processed by Python CGI</h1>")
+
+content_length = int(os.environ.get("CONTENT_LENGTH", 0))
+
+if content_length > 0:
+    post_data = sys.stdin.read(content_length)
+
+    # 1. Obtener un nombre para el nuevo recurso
+    # Podrías obtenerlo de un campo en los datos POST,
+    # o generarlo (por ejemplo, con un timestamp).
+    # Aquí, para simplificar, usaremos un nombre fijo o generado por tiempo.
+    
+    # Ejemplo 1: Usar un nombre fijo (para demostración, no en producción real)
+    # file_name = "nuevo_recurso.txt"
+    
+    # Ejemplo 2: Generar un nombre basado en el tiempo para evitar sobrescribir
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    file_name = f"resource_{timestamp}.txt"
+    
+    # 2. Definir la ruta donde se guardará el recurso
+    # Asegúrate de que este directorio exista y el CGI tenga permisos de escritura.
+    # Por ejemplo, un directorio 'uploads' dentro de tu carpeta 'www'.
+    # Si tu script está en www/cgi-bin/post.py, esto podría ser www/uploads/
+    upload_dir = "../../uploads" # Asegúrate de que esta ruta sea relativa al directorio de ejecución del CGI (m["dir"] en tu C++)
+    
+    # Asegúrate de que el directorio de subida exista
+    if not os.path.exists(upload_dir):
+        try:
+            os.makedirs(upload_dir)
+        except OSError as e:
+            print(f"<p style='color:red;'>Error al crear directorio: {e}</p>")
+            print("</body></html>")
+            sys.exit(1) # Salir con error
+            
+    file_path = os.path.join(upload_dir, file_name)
+
+    try:
+        with open(file_path, "w") as f:
+            f.write(post_data)
+        print(f"<p>Recurso creado con éxito: <strong>{file_name}</strong></p>")
+        print(f"<p>Contenido guardado en: <code>{file_path}</code></p>")
+    except Exception as e:
+        print(f"<p style='color:red;'>Error al guardar el recurso: {e}</p>")
+    
+    print("<p>Datos POST recibidos:</p>")
+    print(f"<pre>{post_data}</pre>")
+else:
+    print("<p>No se recibieron datos POST para crear un recurso.</p>")
+
+print("</body>")
+print("</html>")
+
+#curl -X POST -H "Content-Type: text/plain" --data "Este es el contenido de mi nuevo recurso." http://localhost:8080/cgi-bin/pythonPOST.py
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+[-] Client fd 6 cerró conexión
+client_fd: 6 closed
+
+New connection accepted() fd = 6
+Response constructor called
+[BUFFER] [DELETE /index.html HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+]
+[READ 6] Recibido: DELETE /index.html HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+
+[READ 6] Tamaño del buffer: 91
+[READ 6] AUII TERMINA EL BUFFER
+[DEBUG] Start line parsed: DELETE /index.html HTTP/1.1
+[DEBUG] Path: /index.html
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8081
+[DEBUG] Header found: User-Agent =  curl/7.81.0
+[DEBUG] Header found: Accept =  */*
+[DEBUG] Request parsed successfully:
+Method: DELETE
+URI: /index.html
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /index.html
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /index.html
+Checking route: /www/cgi-bin
+Checking route: /upload
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+[DEBUG] Sirviendo archivo fullPath: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] Verificando existencia del archivo:  StaticFileHandler/sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] MimeTypes::getContentType() called witt extension: .html
+
+Response constructor called
+[DEBUG] Setting response status: 200 OK
+[DEBUG] Setting response Content-Type: text/html
+[DEBUG] Setting response Content-Length: 227
+[DEBUG] Setting response Connection: keep-alive
+!<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web Page</title>
+    <link rel="stylesheet" href="style.css">
+</html>
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+[-] Client fd 6 cerró conexión
+client_fd: 6 closed
+
+New connection accepted() fd = 6
+Response constructor called
+[BUFFER] [FOO / HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+]
+[READ 6] Recibido: FOO / HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+
+[READ 6] Tamaño del buffer: 78
+[READ 6] AUII TERMINA EL BUFFER
+[DEBUG] Start line parsed: FOO / HTTP/1.1
+[DEBUG] Path: /
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8081
+[DEBUG] Header found: User-Agent =  curl/7.81.0
+[DEBUG] Header found: Accept =  */*
+[DEBUG] Request parsed successfully:
+Method: FOO
+URI: /
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /
+Checking route: /www/cgi-bin
+Checking route: /upload
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+Response constructor called
+[DEBUG] Setting response status: 501 Method Not Allowed
+[DEBUG] Setting response Content-Type: text/plain
+[DEBUG] Setting response Content-Length: 24
+[DEBUG] Setting response Connection: keep-alive
+501 - Method Not Allowed
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+[-] Client fd 6 cerró conexión
+client_fd: 6 closed
+
+New connection accepted() fd = 6
+Response constructor called
+[BUFFER] [GET / HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+]
+[READ 6] Recibido: GET / HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+
+[READ 6] Tamaño del buffer: 78
+[READ 6] AUII TERMINA EL BUFFER
+[DEBUG] Start line parsed: GET / HTTP/1.1
+[DEBUG] Path: /
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8081
+[DEBUG] Header found: User-Agent =  curl/7.81.0
+[DEBUG] Header found: Accept =  */*
+[DEBUG] Request parsed successfully:
+Method: GET
+URI: /
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /
+Checking route: /www/cgi-bin
+Checking route: /upload
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+[DEBUG] Sirviendo archivo fullPath: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] Verificando existencia del archivo:  StaticFileHandler/sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] MimeTypes::getContentType() called witt extension: .html
+
+Response constructor called
+[DEBUG] Setting response status: 200 OK
+[DEBUG] Setting response Content-Type: text/html
+[DEBUG] Setting response Content-Length: 227
+[DEBUG] Setting response Connection: keep-alive
+!<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web Page</title>
+    <link rel="stylesheet" href="style.css">
+</html>
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+[-] Client fd 6 cerró conexión
+client_fd: 6 closed
+
+New connection accepted() fd = 6
+Response constructor called
+[BUFFER] [GET / HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+]
+[READ 6] Recibido: GET / HTTP/1.1
+Host: localhost:8081
+User-Agent: curl/7.81.0
+Accept: */*
+
+
+[READ 6] Tamaño del buffer: 78
+[READ 6] AUII TERMINA EL BUFFER
+[DEBUG] Start line parsed: GET / HTTP/1.1
+[DEBUG] Path: /
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8081
+[DEBUG] Header found: User-Agent =  curl/7.81.0
+[DEBUG] Header found: Accept =  */*
+[DEBUG] Request parsed successfully:
+Method: GET
+URI: /
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /
+Checking route: /www/cgi-bin
+Checking route: /upload
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+[DEBUG] Sirviendo archivo fullPath: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] Verificando existencia del archivo:  StaticFileHandler/sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] MimeTypes::getContentType() called witt extension: .html
+
+Response constructor called
+[DEBUG] Setting response status: 200 OK
+[DEBUG] Setting response Content-Type: text/html
+[DEBUG] Setting response Content-Length: 227
+[DEBUG] Setting response Connection: keep-alive
+!<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Web Page</title>
+    <link rel="stylesheet" href="style.css">
+</html>
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+[-] Client fd 6 cerró conexión
+client_fd: 6 closed
+
+New connection accepted() fd = 6
+Response constructor called
+[BUFFER] [GET /cgi-bin/pythonGET.py HTTP/1.1
+Host: localhost:8081
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+
+]
+[READ 6] Recibido: GET /cgi-bin/pythonGET.py HTTP/1.1
+Host: localhost:8081
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+
+
+[READ 6] Tamaño del buffer: 690
+[READ 6] AUII TERMINA EL BUFFER
+[DEBUG] Start line parsed: GET /cgi-bin/pythonGET.py HTTP/1.1
+[DEBUG] Path: /cgi-bin/pythonGET.py
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8081
+[DEBUG] Header found: Connection =  keep-alive
+[DEBUG] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG] Header found: Sec-Fetch-Site =  none
+[DEBUG] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG] Header found: Sec-Fetch-User =  ?1
+[DEBUG] Header found: Sec-Fetch-Dest =  document
+[DEBUG] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG] Request parsed successfully:
+Method: GET
+URI: /cgi-bin/pythonGET.py
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /cgi-bin/pythonGET.py
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /cgi-bin/pythonGET.py
+Checking route: /www/cgi-bin
+Checking route: /upload
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+[DEBUG] Sirviendo archivo fullPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG] Verificando existencia del archivo:  StaticFileHandler/sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG] MimeTypes::getContentType() called witt extension: .py
+
+Response constructor called
+[DEBUG] Setting response status: 200 OK
+[DEBUG] Setting response Content-Type: text/plain
+[DEBUG] Setting response Content-Length: 831
+[DEBUG] Setting response Connection: keep-alive
+#!/usr/bin/python3
+
+import os
+import sys
+
+print("Content-Type: text/html\n")
+print("<html>")
+print("<head><title>Python GET</title></head>")
+print("<body>")
+print("<h1>GET Request Processed by Python CGI</h1>")
+
+query_string = os.environ.get("QUERY_STRING", "")
+if query_string:
+    print(f"<p>Query String: {query_string}</p>")
+    params = query_string.split('&')
+    print("<ul>")
+    for param in params:
+        if '=' in param:
+            key, value = param.split('=', 1)
+            print(f"<li>{key}: {value}</li>")
+        else:
+            print(f"<li>{param}</li>")
+    print("</ul>")
+else:
+    print("<p>No query string provided.</p>")
+
+print("</body>")
+print("</html>")
+
+#curl "http://localhost:8080/cgi-bin/pythonGET.py?nombre=Juan&ciudad=Madrid"
+#http://localhost:8080/cgi-bin/pythonGET.py?producto=libro&cantidad=5
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+New connection accepted() fd = 7
+
+[!] Signal received, shutting down…
+Router destructor called
+MiddlewareStack destructor called
+Router destructor called
+Destructor del parseo del archivo de configuración creado
