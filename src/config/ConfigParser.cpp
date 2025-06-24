@@ -6,9 +6,7 @@
 #include "../../include/libraries.hpp"
 #include "../../include/utils/Utils.hpp"
 
-ConfigParser::ConfigParser () {
-    std::cout << "Constructor del parseo del archivo de configuración creado" << std::endl;
-}
+ConfigParser::ConfigParser () {}
 
 ConfigParser& ConfigParser::getInst() {
     static ConfigParser inst;

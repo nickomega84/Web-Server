@@ -1,6 +1,7 @@
 #include "../../include/server/Server.hpp"
 #include "../../include/core/Request.hpp"
 #include "../../include/core/Response.hpp"
+#include "../../include/server/ClientBuffer.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 
 Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath(root)
@@ -25,6 +26,7 @@ int Server::addListeningSocket()
 	std::string listenDirective = _cfg.getGlobal("listen");
     std::string host;
 	std::string port;
+
     if (!listenDirective.empty()) 
 	{
         size_t p = listenDirective.find(':');
@@ -71,9 +73,11 @@ int Server::addListeningSocket()
 
 void Server::startEpoll()
 {
-	int						epollfd;
-	std::vector<int>		client_fds;
-	std::map<int, Response> pending_writes;
+	int							epollfd;
+	std::vector<int>			clientFdList;
+	std::map<int, Response> 	pending_writes;
+	std::map<int, ClientBuffer> client_buffers;
+	int 						client_fd;
 
 	if ((epollfd = init_epoll()) < 0)
 		return;
@@ -89,32 +93,34 @@ void Server::startEpoll()
 		}
 		for (int i = 0; i < event_nmb; i++)
 		{
-			if (std::find(listen_sockets.begin(), listen_sockets.end(), events[i].data.fd) != listen_sockets.end())
-				accept_connection(events[i].data.fd, epollfd, client_fds);
+			client_fd = events[i].data.fd;
+			if (std::find(listen_sockets.begin(), listen_sockets.end(), client_fd) != listen_sockets.end())
+				accept_connection(client_fd, epollfd, clientFdList);
 			else if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT)))
-				close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
+				close_fd(client_fd, epollfd, clientFdList, pending_writes);
 			else
 			{
 				std::cout << std::endl << "------------------------LOOP_EPOLL++------------------------" << std::endl << std::endl;
 
 				if (events[i].events & EPOLLIN)
-				{
-					if (handleClientRead(events[i].data.fd, pending_writes))
-						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
-					else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
-						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
+				{				
+					if (handleClientRead(client_fd, pending_writes, client_buffers))
+						close_fd(client_fd, epollfd, clientFdList, pending_writes);
+					else if (client_buffers[client_fd].looping() == false && \
+					ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
+						close_fd(client_fd, epollfd, clientFdList, pending_writes);
 				}
 				if (events[i].events & EPOLLOUT)
 				{
-					if (handleClientResponse(events[i].data.fd, pending_writes))
-						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
-					else if (ft_epoll_ctl(events[i].data.fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
-						close_fd(events[i].data.fd, epollfd, client_fds, pending_writes);
+					if (handleClientResponse(client_fd, pending_writes))
+						close_fd(client_fd, epollfd, clientFdList, pending_writes);
+					else if (ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
+						close_fd(client_fd, epollfd, clientFdList, pending_writes);
 				}
 			}
 		}
     }
-	freeEpoll(epollfd, client_fds);
+	freeEpoll(epollfd, clientFdList);
 }
 
 int Server::init_epoll()
@@ -131,7 +137,7 @@ int Server::init_epoll()
 	return (epollfd);
 }
 
-int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &client_fds)
+int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &clientFdList)
 {
 	int client_fd;
 
@@ -142,7 +148,7 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &
 		return (close(client_fd), std::cerr << "[ERROR] accepting incoming connection, fd = " << client_fd << std::endl, 1);
 
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
-	client_fds.push_back(client_fd);
+	clientFdList.push_back(client_fd);
 	std::cout << "New connection accepted() fd = " << client_fd << std::endl;
 	return (0);
 }
@@ -157,58 +163,73 @@ int	Server::ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events)
 	return (0);
 }
 
-void Server::close_fd(const int fd, int epollfd, std::vector<int> &client_fds,  std::map<int, Response> &pending_writes)
+void Server::close_fd(const int fd, int epollfd, std::vector<int> &clientFdList,  std::map<int, Response> &pending_writes)
 {
 	epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, NULL);
 
-	std::vector<int>::iterator it = std::find(client_fds.begin(), client_fds.end(), fd);
-	if (it != client_fds.end())
-		client_fds.erase(it);
+	std::vector<int>::iterator it = std::find(clientFdList.begin(), clientFdList.end(), fd);
+	if (it != clientFdList.end())
+		clientFdList.erase(it);
 	pending_writes.erase(fd);
 	close(fd);
 	std::cout << "client_fd: " << fd << " closed" << std::endl << std::endl;
 }
 
-void Server::freeEpoll(int epollfd, std::vector<int> &client_fds)
+void Server::freeEpoll(int epollfd, std::vector<int> &clientFdList)
 {
 	if (epollfd < 0)
 		return;
 	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); ++it)
 		epoll_ctl(epollfd, EPOLL_CTL_DEL, *it, NULL);
-	for (std::vector<int>::iterator it = client_fds.begin(); it != client_fds.end(); ++it)
+	for (std::vector<int>::iterator it = clientFdList.begin(); it != clientFdList.end(); ++it)
 	{
 		epoll_ctl(epollfd, EPOLL_CTL_DEL, *it, NULL);
 		close(*it);
 	}
 
 	close(epollfd);
-	client_fds.clear();
+	clientFdList.clear();
 }
 
-int Server::handleClientRead(const int client_fd, std::map<int, Response>& pending_writes)
+int Server::handleClientRead(const int client_fd, std::map<int, Response>& pending_writes, std::map<int, ClientBuffer>& client_buffers)
 {
-	char     buffer[BUFFER_SIZE];
-    ssize_t  n = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-    
+	char     str_buffer[BUFFER_SIZE];
+    ssize_t  n = recv(client_fd, str_buffer, sizeof(str_buffer) - 1, 0);
     if (n <= 0) 
-        return (std::cout << "[-] Client fd " << client_fd << " cerró conexión\n", 1);
-    buffer[n] = '\0';
-    
+		return (std::cout << "[-] Client fd " << client_fd << " cerró conexión\n", 1);
+	std::string buffer(str_buffer);
+
+	std::cout << "--------------------handleClientRead (Server.cpp)--------------------" << std::endl;
+    std::cout << "[DEBUG] [READ " << client_fd << "] Recibido: " << std::endl;
+	std::cout << buffer.c_str() << std::endl;
+    std::cout << "[DEBUG] [READ " << client_fd << "] Tamaño del buffer: " << n << std::endl;
+	std::cout << "---------------------------------------------------------------------" << std::endl << std::endl;
+
+	//hemos recibido el header completo?
+	ClientBuffer additive_bff = client_buffers[client_fd];
+	if ((buffer.find("\r\n\r\n")) == std::string::npos && !additive_bff.looping())
+		return (getCompleteHeader(buffer, client_fd, additive_bff, n, pending_writes));
+
+	//hemos leído todo el body?
+	if (additive_bff.looping())
+	{
+		additive_bff.read_all(buffer, n, client_fd);
+		if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getBodyLenght())
+			return (0);
+		else
+		{
+			additive_bff.set_loop(false);
+			buffer = additive_bff.get_buffer();
+		}
+	}
+
     Request  req;
     Response res;
 
-	std::cout << "-----------------------------------------------------" << std::endl;
-	std::cout << "handleClientRead (Server.cpp)" << std::endl;
-    std::cout << "[DEBUG] [READ " << client_fd << "] Recibido: " << std::endl << std::endl;
-	std::cout << buffer << std::endl;
-    std::cout << "[DEBUG] [READ " << client_fd << "] Tamaño del buffer: " << n << std::endl;
-	std::cout << "-----------------------------------------------------" << std::endl;
-
-    
-    if (!req.parse(buffer)) 
+    if (!req.parse(buffer.c_str())) 
 	{
         std::cout << "Error root: " << _rootPath << "\n" << std::endl;
-        std::cout << "[-] Petición mal formada: " << buffer << "\n" << std::endl;
+        std::cout << "[-] Petición mal formada: " << buffer.c_str() << "\n" << std::endl;
         
         ErrorPageHandler err(_rootPath);
         Response res400;
@@ -256,9 +277,34 @@ void Server::setRouter(const Router& router) {
 	this->_router = router;
 }
 
-/* POST
-curl -X POST -F "file=@/home/dangonz3/Desktop/logo.png" http://localhost:8081/uploads
-
-GET
-http://localhost:8081/logo.png
-curl http://localhost:8081/logo.png */
+int Server::getCompleteHeader(std::string buffer, int client_fd, ClientBuffer additive_bff, ssize_t n, std::map<int, Response>& pending_writes)
+{
+	additive_bff.setClientFd(client_fd);
+	additive_bff.read_all(buffer, n, client_fd);
+	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
+	if (pos == std::string::npos)
+		return (std::cerr << "[ERROR] incomplete header" << std::endl, 1);
+	else
+	{
+		Request  reqLoop;
+		additive_bff.setHeaderEnd(pos);
+		std::string contentLenght = reqLoop.getHeader("Content-Length");
+		if (!reqLoop.parse(additive_bff.get_buffer().c_str())) 
+		{
+			std::cout << "Error root: " << _rootPath << "\n" << std::endl;
+			std::cout << "[-] Petición mal formada: " << buffer.c_str() << "\n" << std::endl;
+			ErrorPageHandler err(_rootPath);
+			Response res400;
+			res400.setStatus(400, "Bad Request");
+			res400.setBody(err.render(400, "Bad Request"));
+			pending_writes[client_fd] = res400;
+			return (0);
+		}
+		else if (reqLoop.getMethod().compare("POST") && contentLenght.empty())
+			return (std::cerr << "[ERROR] POST method with no Content-Length" << std::endl, 1);
+		else if (additive_bff.setBodyLenght(contentLenght))
+			return (std::cerr << "[ERROR] Content-Length is not a number" << std::endl, 1);
+		additive_bff.set_loop(true);
+		return (0);
+	}
+}

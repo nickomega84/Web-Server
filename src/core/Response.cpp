@@ -2,9 +2,7 @@
 #include <sstream>
 
 Response::Response() : _statusCode(200), _statusText("OK") 
-{
-     std::cout << "Response constructor called" << std::endl; 
-}
+{}
 
 Response::Response(const Response& other) : _statusCode(other._statusCode), 
     _statusText(other._statusText), _headers(other._headers), _body(other._body)

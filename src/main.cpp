@@ -109,7 +109,10 @@ int main(int argc, char** argv)
     // 8. Asignar router al servidor
 	Server server(cfg, rootPath);
     server.setRouter(router);
+	
+	std::cout << std::endl;
     std::cout << "[🔁] Webserv arrancado en puerto " << cfg.getGlobal("port") << " — Ctrl-C para parar" << std::endl;
+	std::cout << std::endl;
 
     // 9. Bucle principal (epoll)
     server.startEpoll();
