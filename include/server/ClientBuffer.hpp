@@ -1,5 +1,4 @@
 #pragma once
-#include "../include/server/Server.hpp"
 #include "../../include/core/Request.hpp"
 
 class ClientBuffer
@@ -17,8 +16,7 @@ class ClientBuffer
 		ClientBuffer(const ClientBuffer& other);
 		ClientBuffer& operator=(const ClientBuffer& other);
 		~ClientBuffer();
-
-		void read_all(std::string buffer, ssize_t n, int client_fd);
+		void read_all(int client_fd, std::string buffer, ssize_t n);
 		std::string get_buffer() const;
 
 		void setNmbRead(ssize_t n);
@@ -28,7 +26,7 @@ class ClientBuffer
 		int getClientFd() const;
 
 		void set_loop(bool bol);
- 		bool looping() const;
+ 		bool get_loop() const;
 
 		int setBodyLenght(std::string contentLenght);
 		ssize_t getBodyLenght();

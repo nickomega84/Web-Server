@@ -13,6 +13,7 @@ class Utils
         static  void createDirectoriesIfNotExist(const std::string& path);
         static  std::string resolveAndValidateDir(const std::string& path);
         static  std::string resolveAndValidateFile(const std::string& path);
+		size_t	strToSizeT(const std::string& str);
 };
 
 #endif

@@ -1,50 +1,53 @@
 #include "../../include/server/ClientBuffer.hpp"
 
-ClientBuffer::ClientBuffer(): nmb_read(0), client_fd(-1), loop_active(false), lenght(0)
+ClientBuffer::ClientBuffer(): nmb_read(0), client_fd(-1), loop_active(false), bodyLenght(0)
 {}
 
 ClientBuffer::ClientBuffer(const ClientBuffer& other)
 {
-	n = other.n;
-	loop_active = other.flag;
+	nmb_read = other.nmb_read;
+	loop_active = other.loop_active;
 }
 
 ClientBuffer& ClientBuffer::operator=(const ClientBuffer& other)
 {
-	if (this != other)
+	if (this != &other)
 	{
-		n = other.n;
-		loop_active = other.flag;
+		nmb_read = other.nmb_read;
+		loop_active = other.loop_active;
 	}
-	return (*other);
+	return (*this);
 }
 
-~ClientBuffer::ClientBuffer()
+ClientBuffer::~ClientBuffer()
 {}
 
 void ClientBuffer::read_all(int client_fd, std::string buffer, ssize_t n)
 {
-	std::string new_buffer;
-	if (n > 0)
+	while (n > 0)
 	{
-    	n = recv(client_fd, new_buffer.c_str(), sizeof(new_buffer.c_str()), 0);
-		buffer += new_buffer;
-		read_all(buffer, n);
+		char new_buffer[BUFFER_SIZE];
+    	n = recv(client_fd, new_buffer, BUFFER_SIZE - 1, 0);
+		new_buffer[n] = '\0';
+		buffer = buffer + new_buffer;
+		std::cout << "[DEBUG] read_all n = "<< n << std::endl;
 	}
-	persistent_buffer += buffer;
+	persistent_buffer = persistent_buffer + buffer;
+
+	std::cout << "[DEBUG MARTES] persistent_buffer.length = "<< persistent_buffer.length() << std::endl;
 }
 
 std::string ClientBuffer::get_buffer() const {return (persistent_buffer);}
 
 void ClientBuffer::setNmbRead(ssize_t n) {nmb_read = n;}
 
-ssize_t ClientBuffer::getNmbRead() const {return (n);}
+ssize_t ClientBuffer::getNmbRead() const {return (nmb_read);}
 
 void ClientBuffer::setClientFd(int fd) {client_fd = fd;}
 
 int ClientBuffer::getClientFd() const {return (client_fd);}
 
-void ClientBuffer::looping(bool bol)
+void ClientBuffer::set_loop(bool bol)
 {
 	if (bol)
 		loop_active = true;
@@ -52,14 +55,14 @@ void ClientBuffer::looping(bool bol)
 		loop_active = false;
 }
 
-bool ClientBuffer::looping() const {return (bool);}
+bool ClientBuffer::get_loop() const {return (loop_active);}
 
 int ClientBuffer::setBodyLenght(std::string contentLenght)
 {
 	int len;
 
 	std::stringstream ss(contentLenght);
-	ss >> lenght;
+	ss >> len;
 	if (ss.fail())
 		return (1);
 	bodyLenght = len;

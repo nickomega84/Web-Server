@@ -51,10 +51,10 @@ bool Request::parse(const std::string& raw)
         _queryString.clear();
     }
 
-    std::cout << "[DEBUG] Start line parsed: " << _method << " " << _uri << " " << _version << "\n";
+    std::cout << "[DEBUG][Request] Start line parsed: " << _method << " " << _uri << " " << _version << "\n";
 
-    std::cout << "[DEBUG] Path: " << _path << "\n" << std::endl;
-    std::cout << "[DEBUG] Query String: " << _queryString << "\n" << std::endl;
+    std::cout << "[DEBUG][Request] Path: " << _path << "\n" << std::endl;
+    std::cout << "[DEBUG][Request] Query String: " << _queryString << "\n" << std::endl;
     /* ── 2. HEADERS ─────────────────────────────── */
     while (std::getline(stream, line) && line != "\r" && line != "\n") {
         size_t pos = line.find(':');
@@ -63,7 +63,7 @@ bool Request::parse(const std::string& raw)
         std::string key   = line.substr(0, pos);
         std::string value = line.substr(pos + 1);
 
-        std::cout << "[DEBUG] Header found: " << key << " = " << value << "\n";
+        std::cout << "[DEBUG][Request] Header found: " << key << " = " << value << "\n";
         // Convertir a minúsculas
         for (size_t i = 0; i < key.size(); ++i) {
             key[i] = std::tolower(key[i]);
@@ -96,7 +96,7 @@ bool Request::parse(const std::string& raw)
         _keepAlive = (getHeader("Connection") == "keep-alive");
     }
    
-    std::cout << "[DEBUG] Request parsed successfully:\n"
+    std::cout << "[DEBUG][Request] Request parsed successfully:\n"
               << "Method: " << _method << "\n"
               << "URI: " << _uri << "\n"
               << "Version: " << _version << "\n" << std::endl;

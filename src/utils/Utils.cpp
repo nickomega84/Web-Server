@@ -82,3 +82,15 @@ std::string Utils::resolveAndValidateFile(const std::string& path) {
     }
     return std::string(real);
 }
+
+size_t Utils::strToSizeT(const std::string& str)
+{
+	std::stringstream ss(str);
+	size_t nmb;
+	
+	ss >> nmb;
+	if (ss.fail())
+		return (-1);
+	else
+		return (nmb);
+}
