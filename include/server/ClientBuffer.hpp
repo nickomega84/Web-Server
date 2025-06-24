@@ -16,6 +16,7 @@ class ClientBuffer
 		ClientBuffer(const ClientBuffer& other);
 		ClientBuffer& operator=(const ClientBuffer& other);
 		~ClientBuffer();
+		
 		void read_all(int client_fd, std::string buffer, ssize_t n);
 		std::string get_buffer() const;
 
