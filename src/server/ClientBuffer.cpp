@@ -28,7 +28,12 @@ ClientBuffer& ClientBuffer::operator=(const ClientBuffer& other)
 ClientBuffer::~ClientBuffer()
 {}
 
-void ClientBuffer::read_all(int client_fd, std::string buffer, ssize_t n)
+void ClientBuffer::add_buffer(std::string buffer)
+{
+	persistent_buffer = persistent_buffer + buffer;
+}
+
+/* void ClientBuffer::read_all(int client_fd, std::string buffer, ssize_t n)
 {
 	while (n > 0)
 	{
@@ -41,7 +46,7 @@ void ClientBuffer::read_all(int client_fd, std::string buffer, ssize_t n)
 	persistent_buffer = persistent_buffer + buffer;
 
 	std::cout << "[DEBUG][read_all] persistent_buffer.length = "<< persistent_buffer.length() << std::endl;
-}
+} */
 
 std::string& ClientBuffer::get_buffer() {return (persistent_buffer);}
 

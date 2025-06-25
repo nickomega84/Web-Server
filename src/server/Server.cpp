@@ -102,7 +102,7 @@ void Server::startEpoll()
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), client_fd) != listen_sockets.end())
 			{
 				std::cout << "[DEBUG][LOOP_EPOLL] accept_connection" << std::endl;
-				accept_connection(client_fd, epollfd, clientFdList);
+				accept_connection(client_fd, epollfd, clientFdList, client_buffers);
 			}
 			else if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT)))
 			{
@@ -125,7 +125,6 @@ void Server::startEpoll()
 						std::cout << "[DEBUG][LOOP_EPOLL EPOLLIN] getFinishedReading() == " << client_buffers[client_fd].getFinishedReading() << std::endl;
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					}
-					std::cout << "[DEBUG][LOOP_EPOLL EPOLLIN] getFinishedReading() == " << client_buffers[client_fd].getFinishedReading() << std::endl;
 					std::cout << "[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN" << std::endl;
 				}
 				if (events[i].events & EPOLLOUT)
@@ -138,7 +137,6 @@ void Server::startEpoll()
 					client_buffers[client_fd].reset();
 					std::cout << "[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT" << std::endl;
 				}
-
 				std::cout << "------------------------TERMINADO LOOP_EPOLL------------------------" << std::endl;
 			}
 		}
@@ -160,7 +158,7 @@ int Server::init_epoll()
 	return (epollfd);
 }
 
-int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &clientFdList)
+int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &clientFdList, std::map<int, ClientBuffer> &client_buffers)
 {
 	int client_fd;
 
@@ -171,8 +169,11 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &
 		return (close(client_fd), std::cerr << "[ERROR] accepting incoming connection, fd = " << client_fd << std::endl, 1);
 
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
+
 	clientFdList.push_back(client_fd);
-	std::cout << "New connection accepted() fd = " << client_fd << std::endl;
+	ClientBuffer newClientBuffer;
+	client_buffers[listen_socket] = newClientBuffer;
+	std::cout << "[DEBUG][accept_connection] New connection accepted() fd = " << client_fd << std::endl;
 	return (0);
 }
 
@@ -224,15 +225,22 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 		return (0);
 	
 	std::string buffer(str_buffer, n);
-	
 	ClientBuffer &additive_bff = client_buffers[client_fd];
+	additive_bff.add_buffer(buffer);
+
+	std::cout << "--------------------handleClientRead--------------------" << std::endl;
+	std::cout << "buffer" << std::endl;
+	std::cout << buffer.c_str() << std::endl << std::endl;
+	std::cout << "additive_bff.get_buffer(buffer):" << std::endl;
+	std::cout << additive_bff.get_buffer().c_str() << std::endl;
+	std::cout << "--------------------handleClientRead (END)---------------------------" << std::endl << std::endl;
 	
 	if (additive_bff.getClientFd() == -1)
 		additive_bff.setClientFd(client_fd);
 
 	if (additive_bff.getHeaderEnd() < 0)
 	{
-		if (!getCompleteHeader(buffer, client_fd, additive_bff, n))
+		if (!getCompleteHeader(additive_bff))
 			return (std::cout << "[DEBUG][handleClientRead] SALIDA 0 getCompleteHeader()" << std::endl, 0);
 		else
 			return (requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), \
@@ -240,14 +248,8 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	}
 
 	if (additive_bff.getFinishedReading() == false)
-		if (!Server::doWeNeedToKeepReading(buffer, client_fd, additive_bff, n))
+		if (!Server::doWeNeedToKeepReading(buffer, additive_bff))
 			return (0);
-
-	std::cout << "--------------------handleClientRead (Server.cpp)--------------------" << std::endl;
-    std::cout << "[DEBUG] [READ " << client_fd << "] Recibido: " << std::endl;
-	std::cout << buffer.c_str() << std::endl;
-    std::cout << "[DEBUG] [READ " << client_fd << "] Tamaño del buffer: " << n << std::endl;
-	std::cout << "--------------------handleClientRead (END)---------------------------" << std::endl << std::endl;
 
     Request  req;
     Response res;
@@ -293,11 +295,9 @@ void Server::setRouter(const Router& router) {
 	this->_router = router;
 }
 
-int Server::getCompleteHeader(std::string &buffer, int client_fd, ClientBuffer &additive_bff, ssize_t n)
+int Server::getCompleteHeader(ClientBuffer &additive_bff)
 {
 	std::cout << "[DEBUG][INICIADO] getCompleteHeader" << std::endl;
-	
-	additive_bff.read_all(client_fd, buffer, n);
 
 	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
 	if (pos == std::string::npos)
@@ -318,15 +318,13 @@ int Server::getCompleteHeader(std::string &buffer, int client_fd, ClientBuffer &
 
 	additive_bff.setHeaderEnd(pos + 4);
 	std::string emptyStr;
-	doWeNeedToKeepReading(emptyStr, client_fd, additive_bff, 0);
+	doWeNeedToKeepReading(emptyStr, additive_bff);
 	return (std::cout << "[DEBUG][getCompleteHeader] SALIDA we finished reading the header" << std::endl, 0);
 }
 
-int Server::doWeNeedToKeepReading(std::string &buffer, int client_fd, ClientBuffer &additive_bff, ssize_t n)
+int Server::doWeNeedToKeepReading(std::string &buffer, ClientBuffer &additive_bff)
 {
 	std::cout << "[DEBUG][INICIADO] doWeNeedToKeepReading" << std::endl;
-
-	additive_bff.read_all(client_fd, buffer, n);
 
 	std::cout << "[DEBUG][doWeNeedToKeepReading] if (additive_bff.get_buffer().length() = " << additive_bff.get_buffer().length() << " - additive_bff.getHeaderEnd() = " << additive_bff.getHeaderEnd() << " < additive_bff.getBodyLenght() = " << additive_bff.getBodyLenght() << ")" << std::endl;
 
@@ -334,7 +332,7 @@ int Server::doWeNeedToKeepReading(std::string &buffer, int client_fd, ClientBuff
 		return (std::cout << "[DEBUG][doWeNeedToKeepReading] SALIDA we still need to read" << std::endl, 0);
 	additive_bff.setFinishedReading(true);
 	buffer = additive_bff.get_buffer();
-	return (std::cout << "[DEBUG][doWeNeedToKeepReading] SALIDA we finished reading" << std::endl, 1);
+	return (std::cout << std::endl << std::endl << std::endl << std::endl << "[DEBUG][doWeNeedToKeepReading] ¡¡¡SALIDA WE FINISHED READING!!!" << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl, 1);
 }
 
 void Server::requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff)
