@@ -1,0 +1,754 @@
+[33mcommit bfc84b9f2885f277921d5dcf098e7292d967129b[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r3s3.42urduliz.com>
+Date:   Mon Jun 23 20:45:56 2025 +0200
+
+    Lune2
+
+[33mcommit a746b75a4dd191012386bc8945bf87e6dbae6c55[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r3s3.42urduliz.com>
+Date:   Mon Jun 23 20:45:02 2025 +0200
+
+    Lunes1
+
+[33mcommit 59f9dddab4c8d6a534ec0bae6fe76b85631ab556[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r3s3.42urduliz.com>
+Date:   Mon Jun 23 19:01:55 2025 +0200
+
+    Corregidos leaks factories main, siguen quedando leaks
+
+[33mcommit fbed6dafd4087e478a5b9815254882c6002cbf33[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r3s3.42urduliz.com>
+Date:   Mon Jun 23 18:04:09 2025 +0200
+
+    Eliminados elementos sobrantes
+
+[33mcommit cecff647b2db39b82020047186da2f505c98a9c3[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r3s3.42urduliz.com>
+Date:   Mon Jun 23 17:27:05 2025 +0200
+
+    PRE purga directorio trash
+
+[33mcommit e2ae0d7e72c66519ec695dff9c5e44303d72dceb[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r3s3.42urduliz.com>
+Date:   Mon Jun 23 16:05:03 2025 +0200
+
+    Cambios menores, eliminación de comentarios
+
+[33mcommit 2550845299a361216e955b5cd42de1ea8093b361[m
+Merge: 13f2e6d 506b14f
+Author: Daniel Gonzalez Torralba <dangonz3@c3r3s3.42urduliz.com>
+Date:   Mon Jun 23 13:56:40 2025 +0200
+
+    Merge remote-tracking branch 'origin/pipefd' into DANIrama3
+
+[33mcommit 13f2e6d1d7152067458fe8d340ca77083114fe85[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r3s2.42urduliz.com>
+Date:   Mon Jun 23 11:29:08 2025 +0200
+
+    Mergeo rama Parse
+
+[33mcommit 506b14fff64ad9128bce200204472f1188c36dc8[m[33m ([m[1;31morigin/pipefd[m[33m)[m
+Merge: 7c2b1bb f7ab798
+Author: David Felipe Bonilla Ladino <dbonilla@c3r1s2.42urduliz.com>
+Date:   Mon Jun 23 02:15:34 2025 +0200
+
+    Integración completada
+
+[33mcommit 7c2b1bb86cc7ac43dea8b7956e0e42cf3db5a5e0[m
+Author: PIPEFD <gameadv68@gmail.com>
+Date:   Sat Jun 21 15:24:55 2025 +0200
+
+    in progress
+
+[33mcommit f7ab798a16fbb134be750fbe91bf5a435373535a[m[33m ([m[1;31morigin/nikelsproof[m[33m)[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Sat Jun 21 01:00:52 2025 +0200
+
+    Add files via upload
+
+[33mcommit 89a1c09121a7b8f3f3172e7deaa7719f525d0fc6[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Sat Jun 21 00:59:41 2025 +0200
+
+    Add files via upload
+
+[33mcommit 19929e477fbdd6e34b874706e3e64acb9166bb40[m[33m ([m[1;31morigin/DANIrama3[m[33m)[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r1s5.42urduliz.com>
+Date:   Fri Jun 20 22:42:04 2025 +0200
+
+    Eliminados elementos innecesarios servidor
+
+[33mcommit 3567163172caf8d6f6e1c40301bcfb2084d159c3[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r1s5.42urduliz.com>
+Date:   Fri Jun 20 21:51:24 2025 +0200
+
+    Eliminados elementos sobrantes de Server.cpp
+
+[33mcommit 7c0c2b692058b1de1fa7e85f8be4a84505f740c2[m
+Author: David Felipe Bonilla Ladino <dbonilla@c3r1s1.42urduliz.com>
+Date:   Fri Jun 20 21:19:46 2025 +0200
+
+    vamoos
+
+[33mcommit e4bcf91e881fda53b2aef760d313d061b7904c76[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r1s5.42urduliz.com>
+Date:   Fri Jun 20 20:52:04 2025 +0200
+
+    Cambios pequeños main
+
+[33mcommit 522cfa25c2091f17ac74bf6095f4c1cef1768a73[m
+Author: David Felipe Bonilla Ladino <dbonilla@c3r1s1.42urduliz.com>
+Date:   Fri Jun 20 19:29:10 2025 +0200
+
+    hola aqui nada funciona
+
+[33mcommit 0596918d0a9e27948b022c3064f4c530ca096868[m
+Author: David Felipe Bonilla Ladino <dbonilla@c3r1s1.42urduliz.com>
+Date:   Thu Jun 19 17:13:43 2025 +0200
+
+    config nico
+
+[33mcommit e81cab5532a6dcd1bb8732d2283e4221bb49d7ea[m
+Author: PIPEFD <gameadv68@gmail.com>
+Date:   Thu Jun 19 15:34:48 2025 +0200
+
+    Before implemetation, rootPath and build class response
+
+[33mcommit 6784c687f1d87bb297da236cee35c442cfb29b0c[m
+Author: David Felipe Bonilla Ladino <dbonilla@c3r1s1.42urduliz.com>
+Date:   Tue Jun 17 17:06:22 2025 +0200
+
+    merge e pruebas y tests
+
+[33mcommit c748eb93cd0c06d74e02af4ef9e30a56cebe1305[m
+Author: David Felipe Bonilla Ladino <dbonilla@c3r1s1.42urduliz.com>
+Date:   Tue Jun 17 17:04:31 2025 +0200
+
+    fase de pruebas
+
+[33mcommit c7492380007c2655158b1091597560d22c082e0f[m
+Author: David Felipe Bonilla Ladino <dbonilla@c3r3s3.42urduliz.com>
+Date:   Sun Jun 15 11:50:58 2025 +0200
+
+    aja
+
+[33mcommit 9d8954526d7ba2386b796ee97d1ecd0719dd6296[m
+Author: David Felipe Bonilla Ladino <dbonilla@c3r3s3.42urduliz.com>
+Date:   Sun Jun 15 11:49:15 2025 +0200
+
+     valiacion de tests
+
+[33mcommit c8cddb9bf60f7e941b2051cec5c9c2cfbd3f181f[m
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Wed Jun 11 11:51:16 2025 +0200
+
+    rm de archivos inecesarios
+
+[33mcommit e9ed65725383f9d8037ad4c91a678c2c1736b5d5[m
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Wed Jun 11 11:48:19 2025 +0200
+
+    Merge desde la rama Pipefd hacia el main, testear depurar y generar cambios pero antes hacerlo en vuestra rama para evitar que el main sea tocado, recuerda que el uso del programa es ./webserver [file.conf]
+
+[33mcommit f147a15af73e7b6488de1d6f3519fd90d3bb64c2[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Tue Jun 10 15:35:10 2025 +0200
+
+    Add files via upload
+
+[33mcommit 22ed508d4b6f8aa01c3d85ff4c69a7b14f10d41b[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Tue Jun 10 15:33:59 2025 +0200
+
+    Add files via upload
+
+[33mcommit a9116fbdd0a37a1ced4880d877366d30a83b3915[m
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Tue Jun 10 10:27:35 2025 +0200
+
+     It seems the integration is complete, however, we need to be able to build the factory for the response, as well as run tests to verify the operation of each of the components, in addition to being able to perform the necessary tests to verify the behavior of the program. Furthermore, we are still missing the verification and correct use of cookies, in addition to the three memory leaks that are currently present... CGI functions have been changed, as well as server.cpp, in order to achieve a successful integration without changing the initial logic proposed within the project.
+
+[33mcommit 38f05d43d35c68e18f7a52b870c3285ca5df21eb[m
+Merge: bfb7706 bcd5cab
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Mon Jun 9 12:56:29 2025 +0200
+
+    Merge remote-tracking branch 'origin/nikelsproof' into pipefd
+
+[33mcommit bfb7706638018c1d315ac24e5a90dc2a6761f8c6[m
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Mon Jun 9 12:49:29 2025 +0200
+
+    Integracion de la clase configuracion al Server, Para su correcto funcionamiento. Segun El Subject
+
+[33mcommit 4de2e72dc6cdd5cdbe798b40da6adadee3b4c3d7[m
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Thu Jun 5 18:02:10 2025 +0200
+
+    Coordinated ErrorHandler, Dinosaur Rex running on error page, you can make any error call needed by instantiating the Error_handler_page class...
+
+[33mcommit 1d7fd4488d564953bd53534a3e381c051f69f0bc[m
+Merge: fed2594 d20d3b0
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Thu Jun 5 16:29:59 2025 +0200
+
+    Merge branch 'main' into pipefd
+
+[33mcommit d20d3b0299b7c616b01d6a536d3268bb677c8343[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s1.42urduliz.com>
+Date:   Thu Jun 5 15:57:06 2025 +0200
+
+    PreMergeo PARSE PUNTO DE GUARDADO, BUENA SUERTE!
+
+[33mcommit fed2594b60e0131d6e27b073574098a432473b2a[m
+Merge: 7cdc781 18e3443
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Thu Jun 5 15:50:30 2025 +0200
+
+    Merge antes de la entrega
+
+[33mcommit 18e344308630e034b41324b961e25f668e60c5da[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s1.42urduliz.com>
+Date:   Thu Jun 5 14:04:30 2025 +0200
+
+    Deleted second main
+
+[33mcommit 47eb91c603d9b4a63dd65bbd00435d01127d3d91[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s1.42urduliz.com>
+Date:   Thu Jun 5 14:01:43 2025 +0200
+
+    preMERGE
+
+[33mcommit d437b3bd8143270031bc12d43926f995958c4a1c[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s1.42urduliz.com>
+Date:   Thu Jun 5 13:21:56 2025 +0200
+
+    preMerge
+
+[33mcommit 0510ab7632ee563c4b6a4df61bbe3321c7294422[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s1.42urduliz.com>
+Date:   Thu Jun 5 12:11:21 2025 +0200
+
+    pre merge
+
+[33mcommit 7cdc7811813b4de6deb6e57ce96535816fb98bec[m
+Merge: ba4b683 f08c7f7
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Thu Jun 5 00:37:43 2025 +0200
+
+    merge desde la rama main
+
+[33mcommit 41d6e3491e9e9e1d13b35521be0372ca5bdfe336[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s1.42urduliz.com>
+Date:   Wed Jun 4 21:13:39 2025 +0200
+
+    Creado metodo POST y metodo DELETE
+
+[33mcommit 9d3ea5999ed99536c32591d4966c0df9b9aa7729[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s1.42urduliz.com>
+Date:   Wed Jun 4 20:27:19 2025 +0200
+
+    Miercoles1
+
+[33mcommit 497af3450cc0849d6c51b1fe8314fc6ecc51d62c[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s1.42urduliz.com>
+Date:   Wed Jun 4 12:07:01 2025 +0200
+
+    Corrected response on CGI
+
+[33mcommit d81212d44045bbe69eb5d406181ef3d74055e48b[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s1.42urduliz.com>
+Date:   Wed Jun 4 09:46:44 2025 +0200
+
+    Signal class deleted
+
+[33mcommit f08c7f753e58340510a1f8aee8ca92411b7bcf14[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s2.42urduliz.com>
+Date:   Tue Jun 3 19:18:05 2025 +0200
+
+    Añadido gestor de señales
+
+[33mcommit 17c984a7cdf7f9238360e258938764b316fb6aeb[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s2.42urduliz.com>
+Date:   Tue Jun 3 17:54:42 2025 +0200
+
+    pre push
+
+[33mcommit 69ef1e9a0931a682d38ff1200bf0472afa875370[m
+Merge: 6cd299c ff310b1
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s2.42urduliz.com>
+Date:   Tue Jun 3 17:53:22 2025 +0200
+
+    Merge branch 'main' of github.com:nickomega84/Web-Server
+
+[33mcommit 6cd299cd0d192356dc2e81dbc7337719e75d7d35[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s2.42urduliz.com>
+Date:   Tue Jun 3 17:50:45 2025 +0200
+
+    changed makefile so make clean deletes uploaded txts
+
+[33mcommit 4d67123f7d8c9f905e4fa660b656d27030e94688[m
+Merge: 9cc4eb2 9b7f221
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s2.42urduliz.com>
+Date:   Tue Jun 3 17:43:09 2025 +0200
+
+    Merge branch 'main' into DANIrama2
+
+[33mcommit 9cc4eb236078923640659f0ece57fcae915b867e[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s2.42urduliz.com>
+Date:   Tue Jun 3 17:40:59 2025 +0200
+
+    CHIHandler terminado. Pre-merge con main
+
+[33mcommit bcd5cab3eab950d5d15b4696c41bd8f96f95df77[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Mon Jun 2 04:37:28 2025 +0200
+
+    Add files via upload
+
+[33mcommit 62ef60b915bee39b80f2bce7c47993f8505157c3[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Mon Jun 2 04:36:58 2025 +0200
+
+    Add files via upload
+
+[33mcommit 6c684234f00a974f9e1ac2e7a0056a5796c02604[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Mon Jun 2 04:36:04 2025 +0200
+
+    Add files via upload
+
+[33mcommit 3a700b5475ef605fc467a9681821a54ba7513ac2[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Mon Jun 2 04:34:59 2025 +0200
+
+    Add files via upload
+
+[33mcommit e8e714c01e06897e313fe68e9efdb659a03813cf[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Mon Jun 2 04:34:01 2025 +0200
+
+    Add files via upload
+
+[33mcommit 0d175a19dd091a6f8a6426e35c043b452342c8c5[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Thu May 29 14:01:36 2025 +0200
+
+    Add files via upload
+
+[33mcommit 5867d160deedba560ecb6cfd75d787e2ea21c2da[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s5.42urduliz.com>
+Date:   Wed May 28 20:23:56 2025 +0200
+
+    CGIHandler works?
+
+[33mcommit 5f6a6aedca25caa179145f80baae439f9b6d748c[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Wed May 28 18:03:19 2025 +0200
+
+    Add files via upload
+
+[33mcommit ff310b1cf99cad3a6d5c0f19d48deba281f93171[m
+Merge: 6e83951 d3b6fad
+Author: Nikola Krasimirov zhekov <nkrasimi@c4r8s4.42urduliz.com>
+Date:   Wed May 28 17:38:29 2025 +0200
+
+    merge brachs nikels2 & main
+
+[33mcommit 8ce498262c8af347dbfb17351627f35f0068656a[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s5.42urduliz.com>
+Date:   Wed May 28 17:28:21 2025 +0200
+
+    CGIHandler half-done
+
+[33mcommit f4fc228785e9ba0a2dff24a606060c80a0fa230d[m
+Merge: d3b6fad 6e83951
+Author: Nikola Krasimirov zhekov <nkrasimi@c4r8s4.42urduliz.com>
+Date:   Wed May 28 17:24:35 2025 +0200
+
+    Rama_funcional
+
+[33mcommit ff4c60dec27da01a218e05d5f9ad814707b72a33[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s2.42urduliz.com>
+Date:   Wed May 28 14:05:29 2025 +0200
+
+    CGIHandler handles
+
+[33mcommit 5b9a8b0141f52c85ffda879501db78f15e373c77[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s2.42urduliz.com>
+Date:   Wed May 28 12:56:47 2025 +0200
+
+    Quiero cambiar de rama
+
+[33mcommit c433560323800b4b5fa9aae256cb9c5944116f8d[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s2.42urduliz.com>
+Date:   Wed May 28 10:19:51 2025 +0200
+
+    Advanced CGIHandler
+
+[33mcommit d822522ebf13c99fdba2c1160c4d847c523be88d[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s1.42urduliz.com>
+Date:   Tue May 27 18:20:31 2025 +0200
+
+    Advanccing CGIHandler
+
+[33mcommit d352dcd417515dede14bc1d4dabf66c9465fdb1f[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s1.42urduliz.com>
+Date:   Tue May 27 16:47:46 2025 +0200
+
+    Advanced with CGIHandler
+
+[33mcommit ba4b6835efa7a9c7fb99a85944611d47c4ea48fe[m
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Tue May 27 13:28:41 2025 +0200
+
+    Dinasario Rex
+
+[33mcommit d979d9d6ba3d160da1986f265b32a5079f856641[m
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Sun May 25 01:18:29 2025 +0200
+
+    Merge Main
+
+[33mcommit d384295618a4f36de428521b711e4ddc2596b049[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Fri May 23 21:17:33 2025 +0200
+
+    CGHandler medio hecho
+
+[33mcommit d3b6fadf453a8c038aa48ca72b45e41fd34a58ec[m[33m ([m[1;31morigin/nikels2[m[33m)[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Fri May 23 18:07:43 2025 +0200
+
+    Add files via upload
+
+[33mcommit d4090e8f0474e758d10e6cc9de5ac9a0e9c0f45b[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Fri May 23 17:46:44 2025 +0200
+
+    Add files via upload
+
+[33mcommit 6e83951390f83c764d7dea40ad14ddbca4665bcb[m
+Author: David Felipe Bonilla Ladino <dbonilla@c3r2s3.42urduliz.com>
+Date:   Fri May 23 16:45:28 2025 +0200
+
+    Metting about proyect and changes in files 23/05/2025
+
+[33mcommit a986482ba5135940e6f61b4583360fc5ef339d1c[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Thu May 22 18:12:25 2025 +0200
+
+    Working on CGIHandler
+
+[33mcommit df4ef2de62a41e16045c529528770885d5dc255b[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Thu May 22 13:29:55 2025 +0200
+
+    Starting CGIHandler class
+
+[33mcommit 74177b13bb1934bde0d6564d194a84b10040f13f[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 21:19:43 2025 +0200
+
+    miercoles1
+
+[33mcommit bbe969fdc0b36f3342b2bdb4d5e3c9b88ec18a4c[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 20:20:55 2025 +0200
+
+    Cambio rama
+
+[33mcommit 3c6f331d012174a474f6c5c8befd9c4f28ff7933[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 18:27:37 2025 +0200
+
+    Fixed handleClientResponse usage of pending_writes
+
+[33mcommit b0a63f796b04cf78898e9934f76b4833457db2b9[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 17:28:17 2025 +0200
+
+    Intermedio
+
+[33mcommit 9b7f22191b2047462196fc89b07fc6600a232f9c[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 17:09:34 2025 +0200
+
+    Reverted changes to Response so the testers can work
+
+[33mcommit 9acdbf227820d172289110fdecd0b5c5aafdc4e5[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 17:02:36 2025 +0200
+
+    Cambio de rama
+
+[33mcommit ffd1410852f0d5ec918d3002110285419ddb2f5b[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 16:16:23 2025 +0200
+
+    Cambios pre cambio rama
+
+[33mcommit 1e318ee5bf1b2284cb2c1925a7a4b26df95fb997[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 15:06:32 2025 +0200
+
+    Cleaned up parser prints
+
+[33mcommit 8b9f2f03e683dc00f4bc6c0f6f92f21cb4a249b7[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 15:02:45 2025 +0200
+
+    Added Server class instead of EpollServer, added Config class
+
+[33mcommit 8303eaa5ee436ef69657b83c5145625b4f05bce4[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 12:34:10 2025 +0200
+
+    Cambios pre-merge Server
+
+[33mcommit 2dae8d4a3a4a4d1b78094eaed7ded356ed559d8b[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 12:08:20 2025 +0200
+
+    Changing Server class
+
+[33mcommit 1652b27a9553ea8c87be9065479c7feafcc0b92e[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 11:27:50 2025 +0200
+
+    Commited merge to README.md
+
+[33mcommit e20a387e2eee031b48d09122c85dd9ab9f11481b[m
+Merge: e06c1ff e3bf658
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Wed May 21 11:25:36 2025 +0200
+
+    Merge server Dani
+
+[33mcommit e3bf658380387bcdf8417b783fb15afd8ac953df[m
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Wed May 21 11:09:00 2025 +0200
+
+    request and middleware
+
+[33mcommit 7790836a40e410772f898907820886cae88d0f32[m
+Author: PIPEFD <gamedav68@gmail.com>
+Date:   Mon May 19 12:52:28 2025 +0200
+
+    hola
+
+[33mcommit 2e49a3378d873af5aed44046f1d2bdb7c007e3e0[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Fri May 16 04:54:15 2025 +0200
+
+    Add files via upload
+
+[33mcommit 87ebf922b0dadde4868c2ecd7d27e75ff5728d46[m[33m ([m[1;31morigin/nikels[m[33m)[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Fri May 16 04:41:38 2025 +0200
+
+    Add files via upload
+
+[33mcommit 73fa80cdcb7a8508e8233ee79958f58c4a96d84d[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Fri May 16 04:40:12 2025 +0200
+
+    Add files via upload
+
+[33mcommit 01584c56a5967feb9bfe76dbac9eb940f2c78faa[m
+Author: David Felipe Bonilla Ladino <dbonilla@c4r8s4.42urduliz.com>
+Date:   Tue May 13 19:26:55 2025 +0200
+
+    http in process
+
+[33mcommit 9f66f0d26ab794ecd0e8c00aa9cdb68f31d257ad[m
+Author: David Felipe Bonilla Ladino <dbonilla@c4r8s4.42urduliz.com>
+Date:   Tue May 13 12:23:55 2025 +0200
+
+    Importante
+
+[33mcommit 09a28f56c7ccd5ab0925f59117822b68f083664d[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Wed May 7 18:49:42 2025 +0200
+
+    Add files via upload
+
+[33mcommit 033763dfc2c49e82b67b85a1dfc9cc3c152bdbd1[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Tue May 6 13:48:37 2025 +0100
+
+    Add files via upload
+
+[33mcommit e06c1ffb753bf5389634e4dc3c82e74984590d59[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s2.42urduliz.com>
+Date:   Mon May 5 13:51:52 2025 +0200
+
+    send fixed: now send waits for revc before sending again
+
+[33mcommit 955052b84f99cfa70cd159e9e26a95ddacb79ae4[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Fri May 2 16:50:44 2025 +0200
+
+    Add files via upload
+
+[33mcommit d2983e9f9a2abfe02655a9ea14d93440e68fbfd5[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Fri May 2 16:27:05 2025 +0200
+
+    Add files via upload
+
+[33mcommit 99ac45e8e663ae0eccd5d0a9a85dc6c2c1772edf[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s2.42urduliz.com>
+Date:   Thu May 1 18:12:57 2025 +0200
+
+    jueves1
+
+[33mcommit b0ff83d32f7d2465e6fa402afe60a84ef1bf884d[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s2.42urduliz.com>
+Date:   Thu May 1 17:09:51 2025 +0200
+
+    epoll operativo, pero con mensajes de error
+
+[33mcommit bba177bd24a768ae641040e62ac37d75213a6cfb[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r8s2.42urduliz.com>
+Date:   Thu May 1 14:22:38 2025 +0200
+
+    epoll half way there!
+
+[33mcommit 9424ef4fd033d1d743e578d16d86219196187ff3[m
+Author: Inad5050 <168408845+Inad5050@users.noreply.github.com>
+Date:   Tue Apr 29 23:00:55 2025 +0100
+
+    Update readme.md
+
+[33mcommit 1c4d883dee88a95d749f060767867f52319d7941[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Tue Apr 29 19:16:46 2025 +0200
+
+    epoll half-way there
+
+[33mcommit c5bd3fc4e6376ffd8cbae8eba8ee596f5294a425[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r8s4.42urduliz.com>
+Date:   Tue Apr 29 16:51:58 2025 +0200
+
+    martes1
+
+[33mcommit 96e5c9e67098c72c86e685cf8b9f79b26521e089[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Tue Apr 29 15:02:20 2025 +0200
+
+    Add files via upload
+
+[33mcommit 5640f3d3b9270db6916722766f8718b8734309ed[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Tue Apr 29 12:00:29 2025 +0200
+
+    lunes1
+
+[33mcommit ca5a6e2daf10a5a482b3efba207544c863fa79a1[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r3s2.42urduliz.com>
+Date:   Mon Apr 28 17:58:06 2025 +0200
+
+    make client 2
+
+[33mcommit 890d79ab9610f42d7522f496ba4aacd2d8f9540d[m
+Author: Daniel Gonzalez Torralba <dangonz3@c3r3s2.42urduliz.com>
+Date:   Mon Apr 28 17:48:59 2025 +0200
+
+    Añadido make client
+
+[33mcommit 77eab44435e8656809fd7fb77c5d7c933f2f0ce9[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Fri Apr 25 19:57:59 2025 +0200
+
+    viernes1
+
+[33mcommit 59b0a518ed2066572c3b9774a6779af13712e870[m
+Author: Inad5050 <168408845+Inad5050@users.noreply.github.com>
+Date:   Fri Apr 25 19:48:16 2025 +0200
+
+    Update readme.md
+
+[33mcommit 52711f951ea65ff78452a6a8c6ca058ef4748b48[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Fri Apr 25 19:41:46 2025 +0200
+
+    eliminado directorio obsoleto
+
+[33mcommit bcc96d866156ea7218c8c3b3bfd255c80654c29c[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Fri Apr 25 19:22:01 2025 +0200
+
+    Add files via upload
+
+[33mcommit d9de920d3644b00bbebb52f1b31e2b0130498f3c[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Fri Apr 25 19:19:40 2025 +0200
+
+    renombrado /otros
+
+[33mcommit d36859d8288ae49a58227fe782a055539e93cb68[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Fri Apr 25 19:18:03 2025 +0200
+
+    readme2
+
+[33mcommit 32013f7a9cd0e07347925abc5feb243910c228a6[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Fri Apr 25 19:16:52 2025 +0200
+
+    añadido readme.md
+
+[33mcommit f1e1eb2c7b1cd927e51d84264335b4ffd65690e6[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Fri Apr 25 19:11:25 2025 +0200
+
+    añadido .gitignore2
+
+[33mcommit 2913619890aab594639ef672fe6a2e14e4920990[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Fri Apr 25 19:10:49 2025 +0200
+
+    añadido .gitignore
+
+[33mcommit a5d5b0ba22faa3a41ce069c12f295171332c7363[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Fri Apr 25 19:06:21 2025 +0200
+
+    revisada teoria
+
+[33mcommit 2688c85ca0fd36c1e67998f3358ae8bf008930c6[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Fri Apr 25 19:02:36 2025 +0200
+
+    Eliminados elementos sobrantes de las notas
+
+[33mcommit f411eca300590f9c59c7c8f7d75dc322f89961de[m
+Author: Daniel Gonzalez Torralba <dangonz3@c4r2s5.42urduliz.com>
+Date:   Fri Apr 25 17:45:08 2025 +0200
+
+    creada clase Server
+
+[33mcommit 7cd310abaf84fb9a58de911cbf152a4e4a4ac375[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Mon Mar 10 12:25:40 2025 +0100
+
+    Update README.md
+
+[33mcommit 7a28c70856be5e0d9e6b14f55cc2d10b67b36ff9[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Mon Mar 10 12:25:22 2025 +0100
+
+    Update README.md
+
+[33mcommit b408ab5d65717830bfbb8e05823088872c84e12c[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Mon Mar 10 12:25:10 2025 +0100
+
+    Update README.md
+
+[33mcommit 5d27638d81f593e53d8ea9fc7c3914ddaf8bef9c[m
+Author: nickomega84 <77319957+nickomega84@users.noreply.github.com>
+Date:   Mon Mar 10 12:22:47 2025 +0100
+
+    Initial commit

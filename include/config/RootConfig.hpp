@@ -8,7 +8,7 @@ class RootConfig : public ConfigFactory {
         std::string indexFile;
         bool autoIndex;
     public:
-        void parse(const ConfigParser& config);
+        void parse(const ConfigParser& config, const std::string& relativePaths, const std::string& basesDir);
 
         std::string getRootPath() const;
         std::string getIndexFile() const;

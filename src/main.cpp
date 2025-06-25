@@ -20,6 +20,8 @@
 #include "../include/factory/CGIHandlerFactory.hpp"
 #include "../include/response/DefaultResponseBuilder.hpp"
 
+#include "../src/config/DirectoryRoot.cpp"
+
 volatile sig_atomic_t g_signal_received = 0;
 static void sigHandler(int sig)
 {
@@ -36,6 +38,7 @@ int main(int argc, char** argv)
     }
 
     std::string confPath = argv[1];
+    std::string baseDir = getConfigDir(configPath);
     if (confPath.size() < 5 || confPath.substr(confPath.size() - 5) != ".conf") {
         std::cerr << "[ERROR] Error: el archivo debe terminar en .conf\n";
         return EXIT_FAILURE;
@@ -60,7 +63,9 @@ int main(int argc, char** argv)
 
     // 4. Parsear bloques específicos
     RootConfig rootCfg;
-    rootCfg.parse(cfg);
+    rootCfg.parse(cfg, relativePaths, baseDir);
+
+    std::cout << "Root absolute: " << rootCfg.getRootPath() << std::endl;
     
     UploadsConfig upCfg;
     upCfg.parse(cfg);
@@ -118,6 +123,8 @@ int main(int argc, char** argv)
 	delete cgiFactory;
 	delete staticFactory;
 	delete uploadFactory;
+
+   
 
     return EXIT_SUCCESS;
 }
