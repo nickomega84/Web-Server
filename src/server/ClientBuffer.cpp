@@ -36,11 +36,11 @@ void ClientBuffer::read_all(int client_fd, std::string buffer, ssize_t n)
     	n = recv(client_fd, new_buffer, BUFFER_SIZE - 1, 0);
 		new_buffer[n] = '\0';
 		buffer = buffer + new_buffer;
-		std::cout << "[DEBUG] read_all n = "<< n << std::endl;
+		std::cout << "[DEBUG][read_all] n = "<< n << std::endl;
 	}
 	persistent_buffer = persistent_buffer + buffer;
 
-	std::cout << "[DEBUG MARTES] persistent_buffer.length = "<< persistent_buffer.length() << std::endl;
+	std::cout << "[DEBUG][read_all] persistent_buffer.length = "<< persistent_buffer.length() << std::endl;
 }
 
 std::string& ClientBuffer::get_buffer() {return (persistent_buffer);}

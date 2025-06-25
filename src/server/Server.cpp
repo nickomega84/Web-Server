@@ -85,7 +85,10 @@ void Server::startEpoll()
 	struct epoll_event events[MAX_EVENTS];
 	while (g_signal_received == 0)
 	{
+		std::cout << std::endl << "------------------------WHILE_EPOLL++------------------------" << std::endl << std::endl;
+		std::cout << "[DEBUG][WHILE_EPOLL] empieza epoll_wait" << std::endl;
 		int event_nmb = epoll_wait(epollfd, events, MAX_EVENTS, -1);
+		std::cout << "[DEBUG][WHILE_EPOLL] termina epoll_wait" << std::endl;
 		if (event_nmb == -1)
 		{
 			std::cerr << "[ERROR] on epoll_wait(), epollfd = " << epollfd << std::endl;
@@ -93,30 +96,50 @@ void Server::startEpoll()
 		}
 		for (int i = 0; i < event_nmb; i++)
 		{
+			std::cout << std::endl << "------------------------LOOP_EPOLL++------------------------" << std::endl << std::endl;
+			
 			client_fd = events[i].data.fd;
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), client_fd) != listen_sockets.end())
+			{
+				std::cout << "[DEBUG][LOOP_EPOLL] accept_connection" << std::endl;
 				accept_connection(client_fd, epollfd, clientFdList);
+			}
 			else if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT)))
+			{
+				std::cout << "[DEBUG][LOOP_EPOLL] EPOLLERR EPOLLHUP" << std::endl;
 				close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
+			}
 			else
 			{
-				std::cout << std::endl << "------------------------LOOP_EPOLL++------------------------" << std::endl << std::endl;
-
+				std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN EPOLLOUT" << std::endl;
 				if (events[i].events & EPOLLIN)
 				{					
 					if (handleClientRead(client_fd, pending_writes, client_buffers))
+					{
+						std::cout << "[DEBUG][LOOP_EPOLL EPOLLIN] handleClientRead() salida 1" << std::endl;
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
-					else if (client_buffers[client_fd].getFinishedReading() == true && ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
+					}
+					std::cout << "[DEBUG][LOOP_EPOLL EPOLLIN] handleClientRead() salida 0" << std::endl;
+					if (client_buffers[client_fd].getFinishedReading() == true && ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
+					{
+						std::cout << "[DEBUG][LOOP_EPOLL EPOLLIN] getFinishedReading() == " << client_buffers[client_fd].getFinishedReading() << std::endl;
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
+					}
+					std::cout << "[DEBUG][LOOP_EPOLL EPOLLIN] getFinishedReading() == " << client_buffers[client_fd].getFinishedReading() << std::endl;
+					std::cout << "[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN" << std::endl;
 				}
 				if (events[i].events & EPOLLOUT)
 				{
+					std::cout << "[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT" << std::endl;
 					if (handleClientResponse(client_fd, pending_writes))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					else if (ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					client_buffers[client_fd].reset();
+					std::cout << "[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT" << std::endl;
 				}
+
+				std::cout << "------------------------TERMINADO LOOP_EPOLL------------------------" << std::endl;
 			}
 		}
     }
@@ -173,7 +196,7 @@ void Server::close_fd(const int fd, int epollfd, std::vector<int> &clientFdList,
 	pending_writes.erase(fd);
 	client_buffers.erase(fd);
 	close(fd);
-	std::cout << "client_fd: " << fd << " closed" << std::endl << std::endl;
+	std::cout << "[DEBUG][close_fd] client_fd: " << fd << " closed" << std::endl << std::endl;
 }
 
 void Server::freeEpoll(int epollfd, std::vector<int> &clientFdList)
@@ -187,7 +210,6 @@ void Server::freeEpoll(int epollfd, std::vector<int> &clientFdList)
 		epoll_ctl(epollfd, EPOLL_CTL_DEL, *it, NULL);
 		close(*it);
 	}
-
 	close(epollfd);
 	clientFdList.clear();
 }
@@ -197,7 +219,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	char     str_buffer[BUFFER_SIZE];
     ssize_t  n = recv(client_fd, str_buffer, sizeof(str_buffer) - 1, 0);
     if (n == 0) 
-		return (std::cout << "Client fd = " << client_fd << " closed connection" << std::endl, 1);
+		return (std::cout << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl, 1);
 	if (n < 0)
 		return (0);
 	
@@ -210,10 +232,11 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 
 	if (additive_bff.getHeaderEnd() < 0)
 	{
-		if (!getCompleteHeader(buffer, client_fd, additive_bff, n, pending_writes))
-			return (0);
+		if (!getCompleteHeader(buffer, client_fd, additive_bff, n))
+			return (std::cout << "[DEBUG][handleClientRead] SALIDA 0 getCompleteHeader()" << std::endl, 0);
 		else
-			return (requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), 0);
+			return (requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), \
+		std::cout << "[DEBUG][handleClientRead] SALIDA 1 getCompleteHeader()" << std::endl, 0);
 	}
 
 	if (additive_bff.getFinishedReading() == false)
@@ -270,23 +293,23 @@ void Server::setRouter(const Router& router) {
 	this->_router = router;
 }
 
-int Server::getCompleteHeader(std::string &buffer, int client_fd, ClientBuffer &additive_bff, ssize_t n, std::map<int, Response> &pending_writes)
+int Server::getCompleteHeader(std::string &buffer, int client_fd, ClientBuffer &additive_bff, ssize_t n)
 {
-	std::cout << "[DEBUG MARTES] getCompleteHeader" << std::endl;
+	std::cout << "[DEBUG][INICIADO] getCompleteHeader" << std::endl;
 	
 	additive_bff.read_all(client_fd, buffer, n);
+
 	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
 	if (pos == std::string::npos)
-		return (0);
+		return (std::cout << "[DEBUG][getCompleteHeader] SALIDA we didn't read all the header" << std::endl, 0);
 
 	Request  reqGetHeader;
 	if (!reqGetHeader.parse(additive_bff.get_buffer().c_str())) 
-		return (requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), 0);
+		return (std::cout << "[EROR][getCompleteHeader] HTTP request contains errors" << std::endl, 1);
 
 	if (reqGetHeader.getMethod() == "POST")
 	{
 		std::string contentLenght = reqGetHeader.getHeader("content-length");
-
 		if (contentLenght.empty())
 			return (std::cerr << "[ERROR][getCompleteHeader] POST method with no Content-Length" << std::endl, 1);
 		if (additive_bff.setBodyLenght(contentLenght))
@@ -296,26 +319,28 @@ int Server::getCompleteHeader(std::string &buffer, int client_fd, ClientBuffer &
 	additive_bff.setHeaderEnd(pos + 4);
 	std::string emptyStr;
 	doWeNeedToKeepReading(emptyStr, client_fd, additive_bff, 0);
-	return (0);
+	return (std::cout << "[DEBUG][getCompleteHeader] SALIDA we finished reading the header" << std::endl, 0);
 }
 
 int Server::doWeNeedToKeepReading(std::string &buffer, int client_fd, ClientBuffer &additive_bff, ssize_t n)
 {
-	std::cout << "[DEBUG MARTES] doWeNeedToKeepReading" << std::endl;
+	std::cout << "[DEBUG][INICIADO] doWeNeedToKeepReading" << std::endl;
 
 	additive_bff.read_all(client_fd, buffer, n);
 
+	std::cout << "[DEBUG][doWeNeedToKeepReading] if (additive_bff.get_buffer().length() = " << additive_bff.get_buffer().length() << " - additive_bff.getHeaderEnd() = " << additive_bff.getHeaderEnd() << " < additive_bff.getBodyLenght() = " << additive_bff.getBodyLenght() << ")" << std::endl;
+
 	if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getBodyLenght())
-		return (0);
+		return (std::cout << "[DEBUG][doWeNeedToKeepReading] SALIDA we still need to read" << std::endl, 0);
 	additive_bff.setFinishedReading(true);
 	buffer = additive_bff.get_buffer();
-	return (1);
+	return (std::cout << "[DEBUG][doWeNeedToKeepReading] SALIDA we finished reading" << std::endl, 1);
 }
 
 void Server::requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff)
 {
-	std::cout << "Error root: " << _rootPath << "\n" << std::endl;
-	std::cout << "[-] Petición mal formada: " << buffer.c_str() << "\n" << std::endl;
+	std::cout << "[DEBUG][requestParseError] Error root: " << _rootPath << "\n" << std::endl;
+	std::cout << "[DEBUG][requestParseError] Petición mal formada, BUFFER: " << buffer.c_str() << "\n" << std::endl;
 	
 	ErrorPageHandler err(_rootPath);
 	Response res400;

@@ -41,7 +41,7 @@ class Server
         int		handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes);
         void	close_fd(const int socket, int epollfd, std::vector<int> &container,  std::map<int, Response> &pending_writes, std::map<int, ClientBuffer> &client_buffers);
         void	freeEpoll(int epollfd, std::vector<int> &client_fds);
-		int		getCompleteHeader(std::string &buffer, int client_fd, ClientBuffer &additive_bff, ssize_t n, std::map<int, Response> &pending_writes);
+		int		getCompleteHeader(std::string &buffer, int client_fd, ClientBuffer &additive_bff, ssize_t n);
 		int		doWeNeedToKeepReading(std::string &buffer, int client_fd, ClientBuffer &additive_bff, ssize_t n);
 		int		didWeReadAllTheBody(const int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff, int n);
 		void	requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
