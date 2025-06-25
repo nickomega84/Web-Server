@@ -94,7 +94,6 @@ void Server::startEpoll()
 		for (int i = 0; i < event_nmb; i++)
 		{
 			std::cout << "------------------------LOOP_EPOLL++------------------------" << std::endl;
-			
 			client_fd = events[i].data.fd;
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), client_fd) != listen_sockets.end())
 			{
@@ -229,8 +228,8 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	if (additive_bff.getHeaderEnd() < 0)
 	{
 		if (getCompleteHeader(additive_bff))
-			return (requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), \
-			std::cout << "[DEBUG][handleClientRead] SALIDA 1 getCompleteHeader() Error on the request" << std::endl, 0);
+			return (std::cout << "[DEBUG][handleClientRead] SALIDA 1 getCompleteHeader() Error on the request" << std::endl, \
+			requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), 0);
 		else if (additive_bff.getHeaderEnd() < 0)
 			return (std::cout << "[DEBUG][handleClientRead] SALIDA 0 getCompleteHeader() We still need to read the header" << std::endl, 0);
 		else if (additive_bff.getFinishedReading() == false)
@@ -239,7 +238,6 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 
 	if (!doWeNeedToKeepReading(additive_bff))
 		return (0);
-
 
 	std::cout << std::endl << std::endl << std::endl << std::endl << "WE FINISHED READING!!!" << std::endl << std::endl << std::endl << std::endl;
 	std::string buffer = additive_bff.get_buffer();
