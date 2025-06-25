@@ -85,10 +85,7 @@ void Server::startEpoll()
 	struct epoll_event events[MAX_EVENTS];
 	while (g_signal_received == 0)
 	{
-		std::cout << std::endl << "------------------------WHILE_EPOLL++------------------------" << std::endl << std::endl;
-		std::cout << "[DEBUG][WHILE_EPOLL] empieza epoll_wait" << std::endl;
 		int event_nmb = epoll_wait(epollfd, events, MAX_EVENTS, -1);
-		std::cout << "[DEBUG][WHILE_EPOLL] termina epoll_wait" << std::endl;
 		if (event_nmb == -1)
 		{
 			std::cerr << "[ERROR] on epoll_wait(), epollfd = " << epollfd << std::endl;
@@ -96,7 +93,7 @@ void Server::startEpoll()
 		}
 		for (int i = 0; i < event_nmb; i++)
 		{
-			std::cout << std::endl << "------------------------LOOP_EPOLL++------------------------" << std::endl << std::endl;
+			std::cout << "------------------------LOOP_EPOLL++------------------------" << std::endl;
 			
 			client_fd = events[i].data.fd;
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), client_fd) != listen_sockets.end())
@@ -111,20 +108,12 @@ void Server::startEpoll()
 			}
 			else
 			{
-				std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN EPOLLOUT" << std::endl;
 				if (events[i].events & EPOLLIN)
 				{					
 					if (handleClientRead(client_fd, pending_writes, client_buffers))
-					{
-						std::cout << "[DEBUG][LOOP_EPOLL EPOLLIN] handleClientRead() salida 1" << std::endl;
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
-					}
-					std::cout << "[DEBUG][LOOP_EPOLL EPOLLIN] handleClientRead() salida 0" << std::endl;
 					if (client_buffers[client_fd].getFinishedReading() == true && ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
-					{
-						std::cout << "[DEBUG][LOOP_EPOLL EPOLLIN] getFinishedReading() == " << client_buffers[client_fd].getFinishedReading() << std::endl;
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
-					}
 					std::cout << "[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN" << std::endl;
 				}
 				if (events[i].events & EPOLLOUT)
@@ -137,7 +126,6 @@ void Server::startEpoll()
 					client_buffers[client_fd].reset();
 					std::cout << "[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT" << std::endl;
 				}
-				std::cout << "------------------------TERMINADO LOOP_EPOLL------------------------" << std::endl;
 			}
 		}
     }
@@ -197,7 +185,7 @@ void Server::close_fd(const int fd, int epollfd, std::vector<int> &clientFdList,
 	pending_writes.erase(fd);
 	client_buffers.erase(fd);
 	close(fd);
-	std::cout << "[DEBUG][close_fd] client_fd: " << fd << " closed" << std::endl << std::endl;
+	std::cout << "[DEBUG][close_fd] client_fd: " << fd << " closed" << std::endl;
 }
 
 void Server::freeEpoll(int epollfd, std::vector<int> &clientFdList)
@@ -224,14 +212,14 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	if (n < 0)
 		return (0);
 	
-	std::string buffer(str_buffer, n);
+	std::string new_buffer(str_buffer, n);
 	ClientBuffer &additive_bff = client_buffers[client_fd];
-	additive_bff.add_buffer(buffer);
+	additive_bff.add_buffer(new_buffer);
 
-	std::cout << "--------------------handleClientRead--------------------" << std::endl;
-	std::cout << "buffer" << std::endl;
-	std::cout << buffer.c_str() << std::endl << std::endl;
-	std::cout << "additive_bff.get_buffer(buffer):" << std::endl;
+	std::cout << std::endl << "--------------------handleClientRead--------------------" << std::endl;
+	std::cout << "[[new_buffer:]]" << std::endl << std::endl;
+	std::cout << new_buffer.c_str() << std::endl;
+	std::cout << "[[additive_bff.get_buffer(buffer):]]" << std::endl << std::endl;
 	std::cout << additive_bff.get_buffer().c_str() << std::endl;
 	std::cout << "--------------------handleClientRead (END)---------------------------" << std::endl << std::endl;
 	
@@ -240,16 +228,19 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 
 	if (additive_bff.getHeaderEnd() < 0)
 	{
-		if (!getCompleteHeader(additive_bff))
-			return (std::cout << "[DEBUG][handleClientRead] SALIDA 0 getCompleteHeader()" << std::endl, 0);
-		else
+		if (getCompleteHeader(additive_bff))
 			return (requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), \
-		std::cout << "[DEBUG][handleClientRead] SALIDA 1 getCompleteHeader()" << std::endl, 0);
+			std::cout << "[DEBUG][handleClientRead] SALIDA 1 getCompleteHeader() Error on the request" << std::endl, 0);
+		else if (additive_bff.getHeaderEnd() < 0)
+			return (std::cout << "[DEBUG][handleClientRead] SALIDA 0 getCompleteHeader() We still need to read the header" << std::endl, 0);
+		else if (additive_bff.getFinishedReading() == false)
+			return (std::cout << "[DEBUG][handleClientRead] SALIDA 0 getCompleteHeader() We read the header, but we still need to read the body" << std::endl, 0);
 	}
 
-	if (additive_bff.getFinishedReading() == false)
-		if (!Server::doWeNeedToKeepReading(buffer, additive_bff))
-			return (0);
+	if (!doWeNeedToKeepReading(additive_bff))
+		return (0);
+
+	std::string buffer = additive_bff.get_buffer();
 
     Request  req;
     Response res;
@@ -274,6 +265,8 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 		return (0);
     }
 
+	std::cout << "[DEBUG][handleClientRead]" << std::endl << "tamaño response = " << res.toString().length() << std::endl << "Response:" << std::endl << res.toString() << std::endl;
+
     pending_writes[client_fd] = res;
     return (0);
 }
@@ -282,6 +275,8 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 {
     std::string response = pending_writes[client_fd].toString();
 	
+	std::cout << "[DEBUG][handleClientResponse]" << std::endl << "tamaño response = " << response.length() << std::endl << "Response:" << std::endl << response << std::endl;
+
 	ssize_t bytes_sent = send(client_fd, response.c_str(), response.length(), 0);
 	if (bytes_sent == 0)
 		return (std::cout << "[-] No data sent: " << client_fd << std::endl, 1);
@@ -317,21 +312,18 @@ int Server::getCompleteHeader(ClientBuffer &additive_bff)
 	}
 
 	additive_bff.setHeaderEnd(pos + 4);
-	std::string emptyStr;
-	doWeNeedToKeepReading(emptyStr, additive_bff);
+	doWeNeedToKeepReading(additive_bff);
 	return (std::cout << "[DEBUG][getCompleteHeader] SALIDA we finished reading the header" << std::endl, 0);
 }
 
-int Server::doWeNeedToKeepReading(std::string &buffer, ClientBuffer &additive_bff)
+int Server::doWeNeedToKeepReading(ClientBuffer &additive_bff)
 {
 	std::cout << "[DEBUG][INICIADO] doWeNeedToKeepReading" << std::endl;
-
-	std::cout << "[DEBUG][doWeNeedToKeepReading] if (additive_bff.get_buffer().length() = " << additive_bff.get_buffer().length() << " - additive_bff.getHeaderEnd() = " << additive_bff.getHeaderEnd() << " < additive_bff.getBodyLenght() = " << additive_bff.getBodyLenght() << ")" << std::endl;
-
+	std::cout << "[DEBUG][doWeNeedToKeepReading] LEIDO (del body) = " << additive_bff.get_buffer().length() - additive_bff.getHeaderEnd() << "; HAY QUE LEER = " << additive_bff.getBodyLenght() << std::endl;
+	
 	if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getBodyLenght())
 		return (std::cout << "[DEBUG][doWeNeedToKeepReading] SALIDA we still need to read" << std::endl, 0);
 	additive_bff.setFinishedReading(true);
-	buffer = additive_bff.get_buffer();
 	return (std::cout << std::endl << std::endl << std::endl << std::endl << "[DEBUG][doWeNeedToKeepReading] ¡¡¡SALIDA WE FINISHED READING!!!" << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl, 1);
 }
 
