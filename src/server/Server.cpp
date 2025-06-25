@@ -240,6 +240,8 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	if (!doWeNeedToKeepReading(additive_bff))
 		return (0);
 
+
+	std::cout << std::endl << std::endl << std::endl << std::endl << "WE FINISHED READING!!!" << std::endl << std::endl << std::endl << std::endl;
 	std::string buffer = additive_bff.get_buffer();
 
     Request  req;
@@ -324,7 +326,7 @@ int Server::doWeNeedToKeepReading(ClientBuffer &additive_bff)
 	if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getBodyLenght())
 		return (std::cout << "[DEBUG][doWeNeedToKeepReading] SALIDA we still need to read" << std::endl, 0);
 	additive_bff.setFinishedReading(true);
-	return (std::cout << std::endl << std::endl << std::endl << std::endl << "[DEBUG][doWeNeedToKeepReading] ¡¡¡SALIDA WE FINISHED READING!!!" << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl, 1);
+	return (std::cout << "[DEBUG][doWeNeedToKeepReading] SALIDA finished reading" << std::endl, 1);
 }
 
 void Server::requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff)
