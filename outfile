@@ -1,0 +1,238 @@
+Constructor del parseo del archivo de configuración creado
+[DEBUG] Root path: ./
+[DEBUG] Index file: index.html
+[DEBUG] Autoindex: disabled
+[DEBUG] ConfigParser::getLocation - location:   del  URI
+[DEBUG] ConfigParser::getLocation - name: del  uri
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - location:  /uploads 
+[DEBUG] ConfigParser::getLocation - name: /uploads
+[DEBUG] ConfigParser::getLocation - key: upload_path
+[DEBUG] ConfigParser::getLocation - it: found
+[DEBUG] ConfigParser::getLocation - location:   del  URI
+[DEBUG] ConfigParser::getLocation - name: del  uri
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - location:  /uploads 
+[DEBUG] ConfigParser::getLocation - name: /uploads
+[DEBUG] ConfigParser::getLocation - key: postOn
+[DEBUG] ConfigParser::getLocation - it: end
+[DEBUG] ConfigParser::getLocation - location:   del  URI
+[DEBUG] ConfigParser::getLocation - name: del  uri
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - location:  /uploads 
+[DEBUG] ConfigParser::getLocation - name: /uploads
+[DEBUG] ConfigParser::getLocation - key: deleteOn
+[DEBUG] ConfigParser::getLocation - it: end
+[DEBUG] ConfigParser::getLocation - location:   del  URI
+[DEBUG] ConfigParser::getLocation - name: del  uri
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - key: cgi_path
+[DEBUG] ConfigParser::getLocation - it: found
+[DEBUG] CgiConfig::cgiPath = /bin/bash
+[DEBUG] ConfigParser::getLocation - location:   del  URI
+[DEBUG] ConfigParser::getLocation - name: del  uri
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - key: cgi_ext
+[DEBUG] ConfigParser::getLocation - it: found
+[DEBUG] CgiConfig::exts raw: '.sh .py'
+[DEBUG] CgiConfig::ext[0] = .sh
+[DEBUG] CgiConfig::ext[1] = .py
+[DEBUG] Server root: ./
+[DEBUG] Uploads dir: ./uploads
+[DEBUG] CGI dir: /bin/bash
+[DEBUG] Port: 8082
+[DEBUG] Resolviendo ruta absoluta: ./
+[DEBUG] Resolviendo ruta absoluta -->>>: /sgoinfre/students/dbonilla/webServer
+Router constructor called
+[DEBUG] CGI extensions: 
+CgiConfig::getCgiExtensions called
+CgiConfig::getCgiExtensions size: 2
+.sh 
+[OLABEBE DEBUG] Registrando CGI handler para extensión: .sh
+.py 
+[OLABEBE DEBUG] Registrando CGI handler para extensión: .py
+[DEBUG] Resolviendo ruta absoluta: ./uploads
+[DEBUG] Resolviendo ruta absoluta -->>>: /sgoinfre/students/dbonilla/webServer/uploads
+[DEBUG] CGI path: /usr/bin/bash
+[DEBUG] UploadHandlerFactory created with uploads path: /sgoinfre/students/dbonilla/webServer/uploads
+Router constructor called
+[DEBUG] New listenSocket fd = 3
+[🔁] Webserv arrancado en puerto 8082 — Ctrl-C para parar
+New connection accepted() fd = 5
+
+------------------------LOOP_EPOLL++------------------------
+
+Response constructor called
+-----------------------------------------------------
+handleClientRead (Server.cpp)
+[DEBUG] [READ 5] Recibido: 
+
+GET /logo.png HTTP/1.1
+Host: localhost:8082
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+
+
+[DEBUG] [READ 5] Tamaño del buffer: 678
+-----------------------------------------------------
+[DEBUG] Start line parsed: GET /logo.png HTTP/1.1
+[DEBUG] Path: /logo.png
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8082
+[DEBUG] Header found: Connection =  keep-alive
+[DEBUG] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG] Header found: Sec-Fetch-Site =  none
+[DEBUG] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG] Header found: Sec-Fetch-User =  ?1
+[DEBUG] Header found: Sec-Fetch-Dest =  document
+[DEBUG] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG] Request parsed successfully:
+Method: GET
+URI: /logo.png
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /logo.png
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /logo.png
+Checking route: /www/cgi-bin
+Checking route: /uploads
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+[DEBUG] Sirviendo archivo fullPath: /sgoinfre/students/dbonilla/webServer/logo.png
+[DEBUG] Verificando existencia del archivo:  StaticFileHandler/sgoinfre/students/dbonilla/webServer/logo.png
+[DEBUG] MimeTypes::getContentType() called witt extension: .png
+
+Response constructor called
+[DEBUG] Setting response status: 200 OK
+[DEBUG] Setting response Content-Type: image/png
+[DEBUG] Setting response Content-Length: 50704
+[DEBUG] Setting response Connection: keep-alive
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+
+------------------------LOOP_EPOLL++------------------------
+
+New connection accepted() fd = 6
+
+------------------------LOOP_EPOLL++------------------------
+
+Response constructor called
+-----------------------------------------------------
+handleClientRead (Server.cpp)
+[DEBUG] [READ 5] Recibido: 
+
+GET /favicon.ico HTTP/1.1
+Host: localhost:8082
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+sec-ch-ua-mobile: ?0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+sec-ch-ua-platform: "Linux"
+Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Dest: image
+Referer: http://localhost:8082/logo.png
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+
+
+[DEBUG] [READ 5] Tamaño del buffer: 604
+-----------------------------------------------------
+[DEBUG] Start line parsed: GET /favicon.ico HTTP/1.1
+[DEBUG] Path: /favicon.ico
+
+[DEBUG] Query String: 
+
+[DEBUG] Header found: Host =  localhost:8082
+[DEBUG] Header found: Connection =  keep-alive
+[DEBUG] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG] Header found: Accept =  image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+[DEBUG] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG] Header found: Sec-Fetch-Mode =  no-cors
+[DEBUG] Header found: Sec-Fetch-Dest =  image
+[DEBUG] Header found: Referer =  http://localhost:8082/logo.png
+[DEBUG] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG] Request parsed successfully:
+Method: GET
+URI: /favicon.ico
+Version: HTTP/1.1
+
+Body: 
+Keep-Alive: true
+
+Path: /favicon.ico
+Query String: 
+
+Request parsing completed successfully.
+
+Resolving request for URI: /favicon.ico
+Checking route: /www/cgi-bin
+Checking route: /uploads
+Checking route: /
+[DEBUG] StaticFileHandler initialized with root and builder
+[DEBUG] Sirviendo archivo fullPath: /sgoinfre/students/dbonilla/webServer/favicon.ico
+[DEBUG] Verificando existencia del archivo:  StaticFileHandler/sgoinfre/students/dbonilla/webServer/favicon.ico
+[DEBUG] Archivo no encontrado: /sgoinfre/students/dbonilla/webServer/favicon.ico
+[DEBUG] Archivo no encontrado: /sgoinfre/students/dbonilla/webServer/favicon.ico
+ErrorPageHandler initialized with root path: /sgoinfre/students/dbonilla/webServer
+Rendering error page for code: 404
+Relative path: AQUIIIIIIIIII 
+ 
+ /error_pages/404.html
+ErrorPageHandler: relPath: /error_pages/404.html
+
+ Page_Handler: /sgoinfre/students/dbonilla/webServer/error_pages/404.html
+Checking if file exists: /sgoinfre/students/dbonilla/webServer/error_pages/404.html
+Response constructor called
+[DEBUG] Setting response status: 404 Not Found
+[DEBUG] Setting response Content-Type: text/html
+[DEBUG] Setting response Content-Length: 97
+[DEBUG] Setting response Connection: keep-alive
+Response constructor called
+Response copy constructor called
+Response copy constructor called
+
+------------------------LOOP_EPOLL++------------------------
+
+
+[!] Signal received, shutting down…
+[DEBUG] UploadHandlerFactory destroyed
+Router destructor called
+Router destructor called
+Destructor del parseo del archivo de configuración creado

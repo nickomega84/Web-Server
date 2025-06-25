@@ -1,0 +1,42 @@
+==26436== Memcheck, a memory error detector
+==26436== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==26436== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==26436== Command: ../webserv ../config/config_test.conf
+==26436== Parent PID: 26434
+==26436== 
+==26436== 
+==26436== HEAP SUMMARY:
+==26436==     in use at exit: 122 bytes in 3 blocks
+==26436==   total heap usage: 91 allocs, 88 frees, 95,680 bytes allocated
+==26436== 
+==26436== 27 bytes in 1 blocks are still reachable in loss record 1 of 3
+==26436==    at 0x4849013: operator new(unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26436==    by 0x49C0289: void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char const*>(char const*, char const*, std::forward_iterator_tag) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+==26436==    by 0x42379E: main (in /sgoinfre/students/dbonilla/webServer/webserv)
+==26436== 
+==26436== 31 bytes in 1 blocks are still reachable in loss record 2 of 3
+==26436==    at 0x4849013: operator new(unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==26436==    by 0x49BCFEE: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+==26436==    by 0x49BD4AC: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::operator=(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+==26436==    by 0x40CF56: CgiConfig::parse(ConfigParser const&) (in /sgoinfre/students/dbonilla/webServer/webserv)
+==26436==    by 0x423B7E: main (in /sgoinfre/students/dbonilla/webServer/webserv)
+==26436== 
+    ==26436== 64 bytes in 1 blocks are still reachable in loss record 3 of 3
+    ==26436==    at 0x4849013: operator new(unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+    ==26436==    by 0x40CB7F: std::__new_allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::allocate(unsigned long, void const*) (in /sgoinfre/students/dbonilla/webServer/webserv)
+    ==26436==    by 0x40CB10: __gnu_cxx::__alloc_traits<std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >::allocate(std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >&, unsigned long) (in /sgoinfre/students/dbonilla/webServer/webserv)
+    ==26436==    by 0x40C8CF: std::_Vector_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::_M_allocate(unsigned long) (in /sgoinfre/students/dbonilla/webServer/webserv)
+    ==26436==    by 0x40C44B: std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::_M_realloc_insert(__gnu_cxx::__normal_iterator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /sgoinfre/students/dbonilla/webServer/webserv)
+    ==26436==    by 0x40AA2C: std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::push_back(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (in /sgoinfre/students/dbonilla/webServer/webserv)
+    ==26436==    by 0x40D5BB: CgiConfig::parse(ConfigParser const&) (in /sgoinfre/students/dbonilla/webServer/webserv)
+    ==26436==    by 0x423B7E: main (in /sgoinfre/students/dbonilla/webServer/webserv)
+==26436== 
+==26436== LEAK SUMMARY:
+==26436==    definitely lost: 0 bytes in 0 blocks
+==26436==    indirectly lost: 0 bytes in 0 blocks
+==26436==      possibly lost: 0 bytes in 0 blocks
+==26436==    still reachable: 122 bytes in 3 blocks
+==26436==         suppressed: 0 bytes in 0 blocks
+==26436== 
+==26436== For lists of detected and suppressed errors, rerun with: -s
+==26436== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

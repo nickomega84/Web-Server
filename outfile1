@@ -1,0 +1,69 @@
+Constructor del parseo del archivo de configuración creado
+[DEBUG] Root path: /home/usuario/dbonilla/webServer/
+[DEBUG] Index file: index.html
+[DEBUG] Autoindex: disabled
+[DEBUG] ConfigParser::getLocation - location:   del  URI
+[DEBUG] ConfigParser::getLocation - name: del  uri
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - location:  /uploads 
+[DEBUG] ConfigParser::getLocation - name: /uploads
+[DEBUG] ConfigParser::getLocation - key: upload_path
+[DEBUG] ConfigParser::getLocation - it: found
+[DEBUG] ConfigParser::getLocation - location:   del  URI
+[DEBUG] ConfigParser::getLocation - name: del  uri
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - location:  /uploads 
+[DEBUG] ConfigParser::getLocation - name: /uploads
+[DEBUG] ConfigParser::getLocation - key: postOn
+[DEBUG] ConfigParser::getLocation - it: end
+[DEBUG] ConfigParser::getLocation - location:   del  URI
+[DEBUG] ConfigParser::getLocation - name: del  uri
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - location:  /uploads 
+[DEBUG] ConfigParser::getLocation - name: /uploads
+[DEBUG] ConfigParser::getLocation - key: deleteOn
+[DEBUG] ConfigParser::getLocation - it: end
+[DEBUG] ConfigParser::getLocation - location:   del  URI
+[DEBUG] ConfigParser::getLocation - name: del  uri
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - key: cgi_path
+[DEBUG] ConfigParser::getLocation - it: found
+[DEBUG] CgiConfig::cgiPath = /bin/bash
+[DEBUG] ConfigParser::getLocation - location:   del  URI
+[DEBUG] ConfigParser::getLocation - name: del  uri
+[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
+[DEBUG] ConfigParser::getLocation - name: /cgi-bin
+[DEBUG] ConfigParser::getLocation - key: cgi_ext
+[DEBUG] ConfigParser::getLocation - it: found
+[DEBUG] CgiConfig::exts raw: '.sh .py'
+[DEBUG] CgiConfig::ext[0] = .sh
+[DEBUG] CgiConfig::ext[1] = .py
+[DEBUG] Server root: /home/usuario/dbonilla/webServer/
+[DEBUG] Uploads dir: /home/usuario/Desktop/webServer/uploads
+[DEBUG] CGI dir: /bin/bash
+[DEBUG] Port: 8081
+[DEBUG] Resolviendo ruta absoluta: /home/usuario/dbonilla/webServer/
+Router constructor called
+[DEBUG] CGI extensions: 
+CgiConfig::getCgiExtensions called
+CgiConfig::getCgiExtensions size: 2
+.sh 
+[OLABEBE DEBUG] Registrando CGI handler para extensión: .sh
+.py 
+[OLABEBE DEBUG] Registrando CGI handler para extensión: .py
+[DEBUG] Resolviendo ruta absoluta: /home/usuario/Desktop/webServer/uploads
+[DEBUG] CGI path: /usr/bin/bash
+[DEBUG] UploadHandlerFactory created with uploads path: 
+Router constructor called
+[DEBUG] New listenSocket fd = 3
+[🔁] Webserv arrancado en puerto 8081 — Ctrl-C para parar
+
+[!] Signal received, shutting down…
+[DEBUG] UploadHandlerFactory destroyed
+Router destructor called
+Router destructor called
+Destructor del parseo del archivo de configuración creado

@@ -1,0 +1,15 @@
+==53036== Memcheck, a memory error detector
+==53036== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==53036== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==53036== Command: ../webserv ../config/configNiko.conf
+==53036== Parent PID: 53034
+==53036== 
+==53036== 
+==53036== HEAP SUMMARY:
+==53036==     in use at exit: 0 bytes in 0 blocks
+==53036==   total heap usage: 955 allocs, 955 frees, 194,903 bytes allocated
+==53036== 
+==53036== All heap blocks were freed -- no leaks are possible
+==53036== 
+==53036== For lists of detected and suppressed errors, rerun with: -s
+==53036== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

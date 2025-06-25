@@ -29,6 +29,28 @@ static void sigHandler(int sig)
     std::cout << "\n[!] Signal received, shutting down…\n";
 }
 
+
+
+// bool changeToConfigDirectory(const std::string& configFile) {
+//     size_t pos = configFile.find_last_of("/");
+
+//     // Si no hay '/', asumimos que el archivo está en el directorio actual
+//     if (pos == std::string::npos) {
+//         std::cout << "[DEBUG] No se encontró '/', se asume directorio actual" << std::endl;
+//         return true;
+//     }
+
+//     std::string dirPath = configFile.substr(0, pos);
+
+//     std::cout << "[DEBUG] Cambiando a directorio: " << dirPath << std::endl;
+
+//     if (chdir(dirPath.c_str()) != 0) {
+//         perror("chdir");
+//         return false;
+//     }
+//     return true;
+// }
+
 int main(int argc, char** argv) 
 {
     // 1. Validar argumentos
@@ -38,7 +60,7 @@ int main(int argc, char** argv)
     }
 
     std::string confPath = argv[1];
-    std::string baseDir = getConfigDir(configPath);
+
     if (confPath.size() < 5 || confPath.substr(confPath.size() - 5) != ".conf") {
         std::cerr << "[ERROR] Error: el archivo debe terminar en .conf\n";
         return EXIT_FAILURE;
@@ -49,23 +71,36 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    // 2. Manejo de señales
+    // // 2. Cambiar al directorio del archivo de configuración
+    // size_t pos = confPath.find_last_of("/");
+    // if (pos != std::string::npos) {
+    //     std::string dirPath = confPath.substr(0, pos);
+    //     if (chdir(dirPath.c_str()) != 0) {
+    //         perror("chdir");
+    //         return EXIT_FAILURE;
+    //     }
+    //     confPath = confPath.substr(pos + 1); // Solo el nombre del archivo
+    // }
+    // std::cout << "[DEBUG] Cambiando al directorio: " << confPath << std::endl;
+
+
+    // 3. Manejo de señales
     std::signal(SIGINT,  sigHandler);
     std::signal(SIGTERM, sigHandler);
     std::signal(SIGPIPE, SIG_IGN);
 
-    // 3. Cargar configuración (Singleton)
+    // 4. Cargar configuración (Singleton)
     ConfigParser& cfg = ConfigParser::getInst();
     if (!cfg.load(confPath)) {
         std::cerr << "[ERROR] Error parseando " << confPath << '\n';
         return EXIT_FAILURE;
     }
 
-    // 4. Parsear bloques específicos
+    
+    // std::cout << "Root absolute: " << rootCfg.getRootPath() << std::endl;
+    // 5. Parsear configuración
     RootConfig rootCfg;
-    rootCfg.parse(cfg, relativePaths, baseDir);
-
-    std::cout << "Root absolute: " << rootCfg.getRootPath() << std::endl;
+    rootCfg.parse(cfg);
     
     UploadsConfig upCfg;
     upCfg.parse(cfg);
@@ -84,6 +119,10 @@ int main(int argc, char** argv)
     
     // 4. Crear servidor y router
     std::string rootPath = Utils::resolveAndValidateDir(rootCfg.getRootPath());
+    if (rootPath == "") {
+        std::cerr << "[ERROR] Error al resolver el directorio raíz: " << rootCfg.getRootPath() << std::endl;
+        return EXIT_FAILURE;
+    }
     Router router;
     
     //  Mostrar configuración de rutas
@@ -97,7 +136,15 @@ int main(int argc, char** argv)
     
     // 5. Construir y validar rutas absolutas (POSIX)
     std::string uploadPath = Utils::resolveAndValidateDir(upCfg.getUploadPath());
+    if (uploadPath == "") {
+        std::cerr << "[ERROR] Error al resolver el directorio de uploads: " << upCfg.getUploadPath() << std::endl;
+        return EXIT_FAILURE;
+    }
     std::string cgiPath = Utils::resolveAndValidateFile(cgiCfg.getCgiPath());
+    if (cgiPath == "") {
+        std::cerr << "[ERROR] Error al resolver el directorio CGI: " << cgiCfg.getCgiPath() << std::endl;
+        return EXIT_FAILURE;
+    }
     std::cout << "[DEBUG] CGI path: " << cgiPath << std::endl;
 
     // 6. Crear ResponseBuilder
@@ -109,7 +156,7 @@ int main(int argc, char** argv)
 	IHandlerFactory* staticFactory = new StaticHandlerFactory(rootPath, responseBuilder);
     router.registerFactory("/", staticFactory);
 	IHandlerFactory* uploadFactory = new UploadHandlerFactory(uploadPath, responseBuilder);
-    router.registerFactory("/upload", uploadFactory);
+    router.registerFactory("/uploads", uploadFactory);
 
     // 8. Asignar router al servidor
 	Server server(cfg, rootPath);

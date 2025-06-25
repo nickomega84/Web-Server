@@ -102,6 +102,7 @@ bool ConfigParser::load(std::string const &file) {
 std::string ConfigParser::getGlobal(std::string const &key) const 
 {
 	std::map<std::string, std::string>::const_iterator it = globalConfig.find(key);
+    std::cout << "[DEBUG] ConfigParser::getGlobal - key: " << key << std::endl;
 	return (it != globalConfig.end()) ? it->second : "";
 }
 

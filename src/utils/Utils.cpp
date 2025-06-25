@@ -28,57 +28,77 @@ std::string Utils::trim(const std::string& str) {
     return str.substr(start, end - start + 1);
 }
 
-void Utils::createDirectoriesIfNotExist(const std::string& path) {
-    struct stat st;
-    if (stat(path.c_str(), &st) != 0) {
-        if (mkdir(path.c_str(), 0777) != 0) {
-            std::cerr << "[ERROR] No se pudo crear directorio: " << path << ": " << strerror(errno) << std::endl;
-        } else {
-            std::cout << "[DEBUG] Directorio creado: " << path << std::endl;
-        }
-    } else {
-        std::cout << "[DEBUG] Directorio ya existe: " << path << std::endl;
-    }
-}
+// void Utils::createDirectoriesIfNotExist(const std::string& path) {
+//     struct stat st;
+//     if (path.empty()) {
+//         std::cerr << "[ERROR] la ruta no puede estar vacía" << std::endl;
+//         // std::exit(EXIT_FAILURE);
+//         return std::string("");
+//     }
+//     if (path.size() > 1 && path[path.size() - 1] == '/') {
+//         std::cerr << "[ERROR] la ruta no puede terminar con '/'" << std::endl;
+//         // std::exit(EXIT_FAILURE);
+//         return std::string("");
+//     }
+//     if (stat(path.c_str(), &st) != 0) {
+//         if (mkdir(path.c_str(), 0777) != 0) {
+//             std::cerr << "[ERROR] No se pudo crear directorio: " << path << ": " << strerror(errno) << std::endl;
+//         } else {
+//             std::cout << "[DEBUG] Directorio creado: " << path << std::endl;
+//         }
+//     } else {
+//         std::cout << "[DEBUG] Directorio ya existe: " << path << std::endl;
+//     }
+// }
 
 std::string Utils::resolveAndValidateDir(const std::string& path) {
     std::string p = path;
     std::cout << "[DEBUG] Resolviendo ruta absoluta: " << p << std::endl;
+    if (p.empty()) {
+        std::cerr << "[ERROR] la ruta no puede estar vacía" << std::endl;
+        // std::exit(EXIT_FAILURE);
+        return std::string("");
+        // std::exit(EX)
+    }
 
     if (p.size() > 1 && p[p.size() - 1] == '/') {
         p.erase(p.size() - 1);
-    }
-
-    char real[PATH_MAX] = {0};
+    }   
     
-    if (::realpath(p.c_str(), real) == NULL) {
-        std::cerr << "[ERROR] no se pudo resolver ruta absoluta para " << p
-                  << ": " << strerror(errno) << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
-
-    std::cout << "[DEBUG] Resolviendo ruta absoluta -->>>: " << real << std::endl;
 
     struct stat sb;
-    if (stat(real, &sb) != 0 || !S_ISDIR(sb.st_mode)) {
-        std::cerr << "[ERROR] la ruta no es un directorio válido " << real
-                  << ": " << strerror(errno) << std::endl;
-        std::exit(EXIT_FAILURE);
+    if (stat(p.c_str(), &sb) != 0 || !S_ISDIR(sb.st_mode)) {
+        std::cerr << "[ERROR] Error al resolver ruta: " << p << ": " << strerror(errno) << std::endl;
+        // std::exit(EXIT_FAILURE);
+        return std::string("");
     }
 
-    return std::string(real);
+    return (p);
 }
 
-std::string Utils::resolveAndValidateFile(const std::string& path) {
-    char real[PATH_MAX] = {0};
-    if (::realpath(path.c_str(), real) == NULL) {
-        std::cerr << "[ERROR] Error al resolver ruta: " << path << ": " << strerror(errno) << std::endl;
-        std::exit(EXIT_FAILURE);
+std::string Utils::resolveAndValidateFile(const std::string& path) 
+{
+    std::string p = path;
+    if (p.empty())
+    {
+        std::cerr << "[ERROR] la ruta no puede estar vacía" << std::endl;
+        // std::exit(EXIT_FAILURE);
+        return std::string("");
+    }
+    if (p.size() > 1 && p[p.size() - 1] == '/') 
+    {
+        std::cerr << "[ERROR] la ruta no puede terminar con '/'" << std::endl;
+        // std::exit(EXIT_FAILURE);
+        return std::string("");
+    
     }
     struct stat sb;
-    if (stat(real, &sb) != 0 || !S_ISREG(sb.st_mode)) {
-        std::cerr << "[ERROR] la ruta no es un archivo válido " << real << std::endl;
-        std::exit(EXIT_FAILURE);
+    if (stat(p.c_str(), &sb) != 0 || !S_ISREG(sb.st_mode)) 
+    {
+        std::cerr << "[ERROR] Error al resolver ruta: " << p << ": " << strerror(errno) << std::endl;
+        // std::exit(EXIT_FAILURE);
+        return std::string("");
+        
     }
-    return std::string(real);
+    return std::string(p);
 }
