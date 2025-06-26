@@ -42,7 +42,10 @@ class Server
         void	close_fd(const int socket, int epollfd, std::vector<int> &container, std::map<int, Response> &pending_writes, std::map<int, ClientBuffer> &client_buffers);
         void	freeEpoll(int epollfd, std::vector<int> &client_fds);
 		int		getCompleteHeader(ClientBuffer &additive_bff);
-		int		doWeNeedToKeepReading(ClientBuffer &additive_bff);
+		int		checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader);
+		int		checkChunked(ClientBuffer &additive_bff, Request &reqGetHeader);
+		int		checkContentLength(ClientBuffer &additive_bff, Request &reqGetHeader);
+		bool	areWeFinishedReading(ClientBuffer &additive_bff);
 		void	requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
 
 	public:

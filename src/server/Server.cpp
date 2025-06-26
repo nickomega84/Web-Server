@@ -209,7 +209,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
     if (n == 0) 
 		return (std::cout << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl, 1);
 	if (n < 0)
-		return (0);
+		return (0); //ya no quedan datos por leer. Iniciamos un nuevo ciclo epoll a ver si llegan más.
 	
 	std::string new_buffer(str_buffer, n);
 	ClientBuffer &additive_bff = client_buffers[client_fd];
@@ -222,24 +222,14 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	std::cout << additive_bff.get_buffer().c_str() << std::endl;
 	std::cout << "--------------------handleClientRead (END)---------------------------" << std::endl << std::endl;
 	
-	if (additive_bff.getClientFd() == -1)
-		additive_bff.setClientFd(client_fd);
-
-	if (additive_bff.getHeaderEnd() < 0)
+	try
 	{
-		if (getCompleteHeader(additive_bff))
-			return (std::cout << "[DEBUG][handleClientRead] SALIDA 1 getCompleteHeader() Error on the request" << std::endl, \
-			requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), 0);
-		else if (additive_bff.getHeaderEnd() < 0)
-			return (std::cout << "[DEBUG][handleClientRead] SALIDA 0 getCompleteHeader() We still need to read the header" << std::endl, 0);
-		else if (additive_bff.getFinishedReading() == false)
-			return (std::cout << "[DEBUG][handleClientRead] SALIDA 0 getCompleteHeader() We read the header, but we still need to read the body" << std::endl, 0);
+		if (!readRequest(client_fd, additive_bff))
+			return (0);
 	}
+	catch
 
-	if (!doWeNeedToKeepReading(additive_bff))
-		return (0);
 
-	std::cout << std::endl << std::endl << std::endl << std::endl << "WE FINISHED READING!!!" << std::endl << std::endl << std::endl << std::endl;
 	std::string buffer = additive_bff.get_buffer();
 
     Request  req;
@@ -286,45 +276,104 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	return (0);
 }
 
-void Server::setRouter(const Router& router) {
-	this->_router = router;
+int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
+{
+	if (additive_bff.getClientFd() == -1)
+		additive_bff.setClientFd(client_fd);
+
+	if (additive_bff.getHeaderEnd() < 0)
+	{
+		if (!getCompleteHeader(additive_bff))
+			return (std::cout << "[ERROR][readRequest] SALIDA 1 getCompleteHeader() Error on the request" << std::endl, \
+			requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), 0);
+		else if (additive_bff.getHeaderEnd() < 0)
+			return (0);
+	}
+
+	int finishedReading areWeFinishedReading(additive_bff);
+	if (finishedReading == 2)
+		return (std::cout << "[ERROR][readRequest] SALIDA 1 areWeFinishedReading() Error on the request" << std::endl, \
+		requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), 0);
+	else if (!finishedReading)
+		return (0);
+
+	std::cout << std::endl << std::endl << std::endl << std::endl << "WE FINISHED READING!!!" << std::endl << std::endl << std::endl << std::endl;
+	return (1);
 }
 
 int Server::getCompleteHeader(ClientBuffer &additive_bff)
 {
-	std::cout << "[DEBUG][INICIADO] getCompleteHeader" << std::endl;
-
 	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
 	if (pos == std::string::npos)
-		return (std::cout << "[DEBUG][getCompleteHeader] SALIDA we didn't read all the header" << std::endl, 0);
+		return (std::cout << "[DEBUG][getCompleteHeader] we didn't read all the header" << std::endl, 0);
 
 	Request  reqGetHeader;
 	if (!reqGetHeader.parse(additive_bff.get_buffer().c_str())) 
-		return (std::cout << "[EROR][getCompleteHeader] HTTP request contains errors" << std::endl, 1);
+		throw (std::runtime_error("[ERROR][getCompleteHeader] HTTP request contains errors"));
 
-	if (reqGetHeader.getMethod() == "POST")
-	{
-		std::string contentLenght = reqGetHeader.getHeader("content-length");
-		if (contentLenght.empty())
-			return (std::cerr << "[ERROR][getCompleteHeader] POST method with no Content-Length" << std::endl, 1);
-		if (additive_bff.setBodyLenght(contentLenght))
-			return (std::cerr << "[ERROR][getCompleteHeader] Content-Length is not a number" << std::endl, 1);
-	}
+	if (checkBodyLimits(additive_bff, reqGetHeader))
+		return (1);
 
 	additive_bff.setHeaderEnd(pos + 4);
-	doWeNeedToKeepReading(additive_bff);
-	return (std::cout << "[DEBUG][getCompleteHeader] SALIDA we finished reading the header" << std::endl, 0);
+	return (std::cout << "[DEBUG][getCompleteHeader] we finished reading the header" << std::endl, 1);
 }
 
-int Server::doWeNeedToKeepReading(ClientBuffer &additive_bff)
+int Server::checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader)
 {
-	std::cout << "[DEBUG][INICIADO] doWeNeedToKeepReading" << std::endl;
-	std::cout << "[DEBUG][doWeNeedToKeepReading] LEIDO (del body) = " << additive_bff.get_buffer().length() - additive_bff.getHeaderEnd() << "; HAY QUE LEER = " << additive_bff.getBodyLenght() << std::endl;
-	
-	if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getBodyLenght())
-		return (std::cout << "[DEBUG][doWeNeedToKeepReading] SALIDA we still need to read" << std::endl, 0);
-	additive_bff.setFinishedReading(true);
-	return (std::cout << "[DEBUG][doWeNeedToKeepReading] SALIDA finished reading" << std::endl, 1);
+	if (reqGetHeader.getMethod() != "POST")
+		return (0);
+
+	int chuncked = checkChunked(additive_bff, reqGetHeader);
+	int contentLenght = checkContentLength(additive_bff, reqGetHeader);
+	if (contentLenght == 2)
+		return (1);
+
+	if (contentLenght && chuncked)
+		return (std::cerr << "[ERROR][checkBodyLimits] both ContentLenght and Chunked on HTTP request" << std::endl, 1);
+	else if (contentLenght || chuncked)
+		return (0);
+	else
+		return (std::cerr << "[ERROR][checkBodyLimits] No body limits on POST request" << std::endl, 1);
+}
+
+int Server::checkChunked(ClientBuffer &additive_bff, Request &reqGetHeader)
+{
+	std::string transferEncoding = reqGetHeader.getHeader("transfer-encoding");
+	if (transferEncoding != "chunked")
+		return (0);
+	additive_bff.setChunked(true);
+	return (std::cerr << "[DEBUG][checkChunked] POST method with Chunked" << std::endl, 1);
+}
+
+int Server::checkContentLength(ClientBuffer &additive_bff, Request &reqGetHeader)
+{
+	std::string contentLenght = reqGetHeader.getHeader("content-length");
+	if (contentLenght.empty())
+		return (0);
+	if (additive_bff.setBodyLenght(contentLenght))
+		return (std::cerr << "[ERROR][checkContentLength] Content-Length is not a number" << std::endl, 2);
+	return (std::cerr << "[DEBUG][checkContentLength] POST method with Content-Length" << std::endl, 1);
+}
+
+int Server::areWeFinishedReading(ClientBuffer &additive_bff)
+{
+	if (additive_bff.getChunked())
+	{
+		if (checkChunkedEnd(additive_bff))
+			return (std::cout << "[ERROR][areWeFinishedReading] (Chunked) Invalid chunked size" << std::endl, 2);
+		if (!getChunkedEnd())
+			return (std::cout << "[DEBUG][areWeFinishedReading] (Chunked) we still need to read" << std::endl, 0);
+		else
+			return (std::cout << "[DEBUG][areWeFinishedReading] (Chunked) finished reading" << std::endl, 0);
+	}
+	if (additive_bff.getBodyLenght() > 0)
+	{
+		if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getBodyLenght())
+			return (std::cout << "[DEBUG][areWeFinishedReading] (BodyLenght) we still need to read" << std::endl, 0);
+		else
+			return (std::cout << "[DEBUG][areWeFinishedReading] (BodyLenght) finished reading" << std::endl, 1);
+	}
+	return (std::cout << "[DEBUG][areWeFinishedReading] there is no body" << std::endl, 1);
 }
 
 void Server::requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff)
@@ -338,4 +387,8 @@ void Server::requestParseError(int client_fd, std::string &buffer, std::map<int,
 	res400.setBody(err.render(400, "Bad Request"));
 	pending_writes[client_fd] = res400;
 	additive_bff.setFinishedReading(true);
+}
+
+void Server::setRouter(const Router& router) {
+	this->_router = router;
 }

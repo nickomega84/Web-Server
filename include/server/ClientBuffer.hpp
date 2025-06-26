@@ -7,6 +7,8 @@ class ClientBuffer
 		std::string persistent_buffer;
 		ssize_t nmb_read;
 		int client_fd;
+		bool chunked;
+		bool chunkedEnd;
 		ssize_t bodyLenght;
 		ssize_t headerEnd;
 		bool finishedReading;
@@ -29,6 +31,12 @@ class ClientBuffer
 
 		int setBodyLenght(std::string contentLenght);
 		ssize_t getBodyLenght() const;
+
+		void setChunked(bool bol);
+		bool getChunked() const;
+
+		void setChunkedEnd(bool bol);
+		bool getChunkedEnd() const;
 
 		void setHeaderEnd(ssize_t pos);
 		ssize_t getHeaderEnd() const;
