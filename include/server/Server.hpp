@@ -39,12 +39,14 @@ class Server
         int		accept_connection(int listen_socket, int epollfd, std::vector<int> &client_fds, std::map<int, ClientBuffer> &client_buffers);
 		int		handleClientRead(const int client_fd, std::map<int, Response> &pending_writes, std::map<int, ClientBuffer> &client_buffers);
         int		handleClientResponse(const int client_fd, std::map<int, Response> &pending_writes);
-        void	close_fd(const int socket, int epollfd, std::vector<int> &container, std::map<int, Response> &pending_writes, std::map<int, ClientBuffer> &client_buffers);
+        int		readRequest(int client_fd, ClientBuffer &additive_bff);
+		void	close_fd(const int socket, int epollfd, std::vector<int> &container, std::map<int, Response> &pending_writes, std::map<int, ClientBuffer> &client_buffers);
         void	freeEpoll(int epollfd, std::vector<int> &client_fds);
 		int		getCompleteHeader(ClientBuffer &additive_bff);
-		int		checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader);
-		int		checkChunked(ClientBuffer &additive_bff, Request &reqGetHeader);
-		int		checkContentLength(ClientBuffer &additive_bff, Request &reqGetHeader);
+		void	checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader);
+		bool	checkChunked(ClientBuffer &additive_bff, Request &reqGetHeader);
+		bool	checkChunkedEnd(ClientBuffer &additive_bff, Request &reqGetHeader);
+		bool	checkContentLength(ClientBuffer &additive_bff, Request &reqGetHeader);
 		bool	areWeFinishedReading(ClientBuffer &additive_bff);
 		void	requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
 
