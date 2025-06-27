@@ -32,11 +32,11 @@ IRequestHandler* Router::resolve(const Request& request) const
 	const std::string& uri = request.getURI();
 
 	std::map<std::string, IHandlerFactory*>::const_reverse_iterator it;
-	std::cout << "Resolving request for URI: " << uri << std::endl;
+	std::cout << "[DEBUG][IRequestHandler][resolve] START Resolving request for URI: " << uri << std::endl;
 
 	for (it = _routes.rbegin(); it != _routes.rend(); ++it) 
     {
-		std::cout << "Checking route: " << it->first << std::endl;
+		std::cout << "[DEBUG][IRequestHandler][resolve] Checking route: " << it->first << std::endl;
 		const std::string& route = it->first;
 		if (uri == route || (uri.find(route) == 0))
 		{

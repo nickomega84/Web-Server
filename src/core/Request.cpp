@@ -105,7 +105,7 @@ bool Request::parse(const std::string& raw)
               << "Keep-Alive: " << (_keepAlive ? "true" : "false") << "\n" << std::endl;
     std::cout << "Path: " << _path << "\n"
               << "Query String: " << _queryString << "\n" << std::endl;
-    std::cout << "Request parsing completed successfully.\n" << std::endl;
+    std::cout << "[DEBUG][Request] Request parsing completed successfully.\n" << std::endl;
     // Si llegamos hasta aquí, todo ha ido bien
     
     return (true);
