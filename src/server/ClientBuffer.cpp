@@ -7,6 +7,8 @@ ClientBuffer::ClientBuffer(const ClientBuffer& other)
 {
 	nmb_read = other.nmb_read;
 	client_fd = other.client_fd;
+	chunked = other.chunked;
+	chunkedEnd = other.chunkedEnd;
 	contentLenght = other.contentLenght;
 	headerEnd = other.headerEnd;
 	finishedReading = other.finishedReading;
@@ -18,6 +20,8 @@ ClientBuffer& ClientBuffer::operator=(const ClientBuffer& other)
 	{
 		nmb_read = other.nmb_read;
 		client_fd = other.client_fd;
+		chunked = other.chunked;
+		chunkedEnd = other.chunkedEnd;
 		contentLenght = other.contentLenght;
 		headerEnd = other.headerEnd;
 		finishedReading = other.finishedReading;

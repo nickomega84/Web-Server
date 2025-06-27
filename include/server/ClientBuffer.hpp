@@ -20,7 +20,6 @@ class ClientBuffer
 		~ClientBuffer();
 
 		void add_buffer(std::string buffer);
-		/* void read_all(int client_fd, std::string buffer, ssize_t n); */
 		std::string& get_buffer();
 
 		void setNmbRead(ssize_t n);

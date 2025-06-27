@@ -259,7 +259,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 		return (0);
     }
 
-	std::cout << "[DEBUG][handleClientRead]" << std::endl << "tamaño response = " << res.toString().length() << std::endl << "Response:" << std::endl << res.toString() << std::endl;
+	std::cout << "[DEBUG][handleClientRead]" << std::endl << "tamaño response = " << res.toString().length() << std::endl;
 
     pending_writes[client_fd] = res;
     return (0);
@@ -267,7 +267,9 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 
 int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes)
 {
-    std::string response = pending_writes[client_fd].toString();
+	std::cout << "[DEBUG][handleClientResponse] START" << std::endl;
+	
+	std::string response = pending_writes[client_fd].toString();
 	
 	std::cout << "[DEBUG][handleClientResponse]" << std::endl << "tamaño response = " << response.length() << std::endl << "Response:" << std::endl << response << std::endl;
 
@@ -282,6 +284,8 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 
 int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
 {
+	std::cout << "[DEBUG][readRequest] START" << std::endl;
+	
 	if (additive_bff.getClientFd() == -1)
 		additive_bff.setClientFd(client_fd);
 
@@ -296,11 +300,13 @@ int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
 	return (1);
 }
 
-int Server::getCompleteHeader(ClientBuffer &additive_bff)
+bool Server::getCompleteHeader(ClientBuffer &additive_bff)
 {
+	std::cout << "[DEBUG][getCompleteHeader] START" << std::endl;
+	
 	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
 	if (pos == std::string::npos)
-		return (std::cout << "[DEBUG][getCompleteHeader] we didn't read all the header" << std::endl, 0);
+		return (std::cout << "[DEBUG][getCompleteHeader] we didn't read all the header" << std::endl, false);
 
 	Request  reqGetHeader;
 	if (!reqGetHeader.parse(additive_bff.get_buffer().c_str())) 
@@ -309,11 +315,13 @@ int Server::getCompleteHeader(ClientBuffer &additive_bff)
 	checkBodyLimits(additive_bff, reqGetHeader);
 
 	additive_bff.setHeaderEnd(pos + 4);
-	return (std::cout << "[DEBUG][getCompleteHeader] we finished reading the header" << std::endl, 1);
+	return (true);
 }
 
 void Server::checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader)
 {
+	std::cout << "[DEBUG][checkBodyLimits] START" << std::endl;
+	
 	if (reqGetHeader.getMethod() != "POST")
 		return;
 
@@ -330,6 +338,8 @@ void Server::checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader)
 
 bool Server::checkIsChunked(ClientBuffer &additive_bff, Request &reqGetHeader)
 {
+	std::cout << "[DEBUG][checkIsChunked] START" << std::endl;
+	
 	std::string transferEncoding = reqGetHeader.getHeader("transfer-encoding");
 	if (transferEncoding != "chunked")
 		return (false);
@@ -339,6 +349,8 @@ bool Server::checkIsChunked(ClientBuffer &additive_bff, Request &reqGetHeader)
 
 bool Server::checkIsContentLength(ClientBuffer &additive_bff, Request &reqGetHeader)
 {
+	std::cout << "[DEBUG][checkIsContentLength] START" << std::endl;
+	
 	std::string contentLenght = reqGetHeader.getHeader("content-length");
 	if (contentLenght.empty())
 		return (false);
@@ -349,6 +361,8 @@ bool Server::checkIsContentLength(ClientBuffer &additive_bff, Request &reqGetHea
 
 bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
 {
+	std::cout << "[DEBUG][areWeFinishedReading] START" << std::endl;
+
 	if (additive_bff.getChunked())
 	{
 		if (additive_bff.get_buffer().find("0\r\n\r\n") != std::string::npos)
@@ -369,6 +383,8 @@ bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
 
 void Server::validateChunkedBody(ClientBuffer &additive_bff)
 {
+	std::cout << "[DEBUG][validateChunkedBody] START" << std::endl;
+
 	const std::string buffer = additive_bff.get_buffer();
 	size_t start_pos = buffer.find("\r\n\r\n") + 4;
 	size_t end_pos;
