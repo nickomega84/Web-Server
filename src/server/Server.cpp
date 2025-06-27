@@ -230,6 +230,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	catch (const std::runtime_error &e)
 	{
 		std::cerr << "[[   [ERROR][CATCH]   ]]" << std::endl;
+		std::cerr << e.what() << std::endl;
 		return (requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), 0);
 	}
 
@@ -279,7 +280,7 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	return (0);
 }
 
-int Server::readRequest(int client_fd, const ClientBuffer &additive_bff)
+int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
 {
 	if (additive_bff.getClientFd() == -1)
 		additive_bff.setClientFd(client_fd);
@@ -295,7 +296,7 @@ int Server::readRequest(int client_fd, const ClientBuffer &additive_bff)
 	return (1);
 }
 
-int Server::getCompleteHeader(const ClientBuffer &additive_bff)
+int Server::getCompleteHeader(ClientBuffer &additive_bff)
 {
 	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
 	if (pos == std::string::npos)
@@ -311,7 +312,7 @@ int Server::getCompleteHeader(const ClientBuffer &additive_bff)
 	return (std::cout << "[DEBUG][getCompleteHeader] we finished reading the header" << std::endl, 1);
 }
 
-void Server::checkBodyLimits(const ClientBuffer &additive_bff, Request &reqGetHeader)
+void Server::checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader)
 {
 	if (reqGetHeader.getMethod() != "POST")
 		return;
@@ -327,7 +328,7 @@ void Server::checkBodyLimits(const ClientBuffer &additive_bff, Request &reqGetHe
 		throw (std::runtime_error("[ERROR][checkBodyLimits] No body limits on POST request"));
 }
 
-bool Server::checkIsChunked(const ClientBuffer &additive_bff, Request &reqGetHeader)
+bool Server::checkIsChunked(ClientBuffer &additive_bff, Request &reqGetHeader)
 {
 	std::string transferEncoding = reqGetHeader.getHeader("transfer-encoding");
 	if (transferEncoding != "chunked")
@@ -336,7 +337,7 @@ bool Server::checkIsChunked(const ClientBuffer &additive_bff, Request &reqGetHea
 	return (std::cerr << "[DEBUG][checkIsChunked] POST method with Chunked" << std::endl, true);
 }
 
-bool Server::checkIsContentLength(const ClientBuffer &additive_bff, Request &reqGetHeader)
+bool Server::checkIsContentLength(ClientBuffer &additive_bff, Request &reqGetHeader)
 {
 	std::string contentLenght = reqGetHeader.getHeader("content-length");
 	if (contentLenght.empty())
@@ -346,12 +347,12 @@ bool Server::checkIsContentLength(const ClientBuffer &additive_bff, Request &req
 	return (std::cerr << "[DEBUG][checkIsContentLength] POST method with Content-Length" << std::endl, true);
 }
 
-bool Server::areWeFinishedReading(const ClientBuffer &additive_bff)
+bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
 {
 	if (additive_bff.getChunked())
 	{
-		if (additive_bff.get_buffer().find("0\r\n\r\n") != std::string:npos);
-			return (validateChunkedBody(additive_bff); \
+		if (additive_bff.get_buffer().find("0\r\n\r\n") != std::string::npos)
+			return (validateChunkedBody(additive_bff), \
 			std::cout << "[DEBUG][areWeFinishedReading] (Chunked) finished reading" << std::endl, true);
 		else
 			return (std::cout << "[DEBUG][areWeFinishedReading] (Chunked) we still need to read" << std::endl, false);
@@ -366,7 +367,7 @@ bool Server::areWeFinishedReading(const ClientBuffer &additive_bff)
 	return (std::cout << "[DEBUG][areWeFinishedReading] there is no body" << std::endl, true);
 }
 
-void Server::validateChunkedBody(const ClientBuffer &additive_bff)
+void Server::validateChunkedBody(ClientBuffer &additive_bff)
 {
 	const std::string buffer = additive_bff.get_buffer();
 	size_t start_pos = buffer.find("\r\n\r\n") + 4;
@@ -398,7 +399,7 @@ void Server::validateChunkedBody(const ClientBuffer &additive_bff)
 	}
 }
 
-void Server::requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, const ClientBuffer &additive_bff)
+void Server::requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff)
 {
 	std::cout << "[DEBUG][requestParseError] Error root: " << _rootPath << "\n" << std::endl;
 	std::cout << "[DEBUG][requestParseError] Petición mal formada, BUFFER: " << buffer.c_str() << "\n" << std::endl;
