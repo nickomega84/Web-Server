@@ -1,13 +1,13 @@
 #include "../../include/server/ClientBuffer.hpp"
 
-ClientBuffer::ClientBuffer(): nmb_read(0), client_fd(-1), chunked(false), chunkedEnd(false), bodyLenght(0), headerEnd(-1), finishedReading(false)
+ClientBuffer::ClientBuffer(): nmb_read(0), client_fd(-1), chunked(false), chunkedEnd(false), contentLenght(0), headerEnd(-1), finishedReading(false)
 {}
 
 ClientBuffer::ClientBuffer(const ClientBuffer& other)
 {
 	nmb_read = other.nmb_read;
 	client_fd = other.client_fd;
-	bodyLenght = other.bodyLenght;
+	contentLenght = other.contentLenght;
 	headerEnd = other.headerEnd;
 	finishedReading = other.finishedReading;
 }
@@ -18,7 +18,7 @@ ClientBuffer& ClientBuffer::operator=(const ClientBuffer& other)
 	{
 		nmb_read = other.nmb_read;
 		client_fd = other.client_fd;
-		bodyLenght = other.bodyLenght;
+		contentLenght = other.contentLenght;
 		headerEnd = other.headerEnd;
 		finishedReading = other.finishedReading;
 	}
@@ -51,7 +51,7 @@ void ClientBuffer::setChunkedEnd(bool bol) {chunkedEnd = bol;}
 
 bool ClientBuffer::getChunkedEnd() const {return (chunkedEnd);}
 
-int ClientBuffer::setBodyLenght(std::string contentLenght)
+int ClientBuffer::setContentLenght(std::string contentLenght)
 {
 	int len;
 
@@ -59,11 +59,11 @@ int ClientBuffer::setBodyLenght(std::string contentLenght)
 	ss >> len;
 	if (ss.fail())
 		return (1);
-	bodyLenght = len;
+	contentLenght = len;
 	return (0);
 }
 
-ssize_t ClientBuffer::getBodyLenght() const {return (bodyLenght);}
+ssize_t ClientBuffer::getContentLenght() const {return (contentLenght);}
 
 void ClientBuffer::setHeaderEnd(ssize_t pos) {headerEnd = pos;}
 
@@ -78,7 +78,7 @@ void ClientBuffer::reset()
 	persistent_buffer.clear();
 	nmb_read = 0;
 	client_fd = -1;
-	bodyLenght = 0;
+	contentLenght = 0;
 	headerEnd = -1;
 	finishedReading = false;
 }

@@ -229,7 +229,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	}
 	catch (const std::runtime_error &e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cerr << "[[   [ERROR][CATCH]   ]]" << std::endl;
 		return (requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), 0);
 	}
 
@@ -279,7 +279,7 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	return (0);
 }
 
-int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
+int Server::readRequest(int client_fd, const ClientBuffer &additive_bff)
 {
 	if (additive_bff.getClientFd() == -1)
 		additive_bff.setClientFd(client_fd);
@@ -295,7 +295,7 @@ int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
 	return (1);
 }
 
-int Server::getCompleteHeader(ClientBuffer &additive_bff)
+int Server::getCompleteHeader(const ClientBuffer &additive_bff)
 {
 	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
 	if (pos == std::string::npos)
@@ -311,13 +311,13 @@ int Server::getCompleteHeader(ClientBuffer &additive_bff)
 	return (std::cout << "[DEBUG][getCompleteHeader] we finished reading the header" << std::endl, 1);
 }
 
-void Server::checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader)
+void Server::checkBodyLimits(const ClientBuffer &additive_bff, Request &reqGetHeader)
 {
 	if (reqGetHeader.getMethod() != "POST")
 		return;
 
-	bool chuncked = checkChunked(additive_bff, reqGetHeader);
-	bool contentLenght = checkContentLength(additive_bff, reqGetHeader);
+	bool chuncked = checkIsChunked(additive_bff, reqGetHeader);
+	bool contentLenght = checkIsContentLength(additive_bff, reqGetHeader);
 
 	if (contentLenght && chuncked)
 		throw (std::runtime_error("[ERROR][checkBodyLimits] both ContentLenght and Chunked on HTTP request"));
@@ -327,39 +327,38 @@ void Server::checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader)
 		throw (std::runtime_error("[ERROR][checkBodyLimits] No body limits on POST request"));
 }
 
-bool Server::checkChunked(ClientBuffer &additive_bff, Request &reqGetHeader)
+bool Server::checkIsChunked(const ClientBuffer &additive_bff, Request &reqGetHeader)
 {
 	std::string transferEncoding = reqGetHeader.getHeader("transfer-encoding");
 	if (transferEncoding != "chunked")
 		return (false);
 	additive_bff.setChunked(true);
-	return (std::cerr << "[DEBUG][checkChunked] POST method with Chunked" << std::endl, true);
+	return (std::cerr << "[DEBUG][checkIsChunked] POST method with Chunked" << std::endl, true);
 }
 
-bool Server::checkContentLength(ClientBuffer &additive_bff, Request &reqGetHeader)
+bool Server::checkIsContentLength(const ClientBuffer &additive_bff, Request &reqGetHeader)
 {
 	std::string contentLenght = reqGetHeader.getHeader("content-length");
 	if (contentLenght.empty())
 		return (false);
-	if (additive_bff.setBodyLenght(contentLenght))
-		throw (std::runtime_error("[ERROR][checkContentLength] Content-Length is not a number"));
-	return (std::cerr << "[DEBUG][checkContentLength] POST method with Content-Length" << std::endl, true);
+	if (additive_bff.setContentLenght(contentLenght))
+		throw (std::runtime_error("[ERROR][checkIsContentLength] Content-Length is not a number"));
+	return (std::cerr << "[DEBUG][checkIsContentLength] POST method with Content-Length" << std::endl, true);
 }
 
-bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
+bool Server::areWeFinishedReading(const ClientBuffer &additive_bff)
 {
-/* 	if (additive_bff.getChunked())
+	if (additive_bff.getChunked())
 	{
-		if (checkChunkedEnd(additive_bff))
-			throw (std::runtime_error("[ERROR][areWeFinishedReading] (Chunked) Invalid chunked size"));
-		if (!getChunkedEnd())
-			return (std::cout << "[DEBUG][areWeFinishedReading] (Chunked) we still need to read" << std::endl, false);
+		if (additive_bff.get_buffer().find("0\r\n\r\n") != std::string:npos);
+			return (validateChunkedBody(additive_bff); \
+			std::cout << "[DEBUG][areWeFinishedReading] (Chunked) finished reading" << std::endl, true);
 		else
-			return (std::cout << "[DEBUG][areWeFinishedReading] (Chunked) finished reading" << std::endl, false);
-	} */
-	if (additive_bff.getBodyLenght() > 0)
+			return (std::cout << "[DEBUG][areWeFinishedReading] (Chunked) we still need to read" << std::endl, false);
+	}
+	if (additive_bff.getContentLenght() > 0)
 	{
-		if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getBodyLenght())
+		if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getContentLenght())
 			return (std::cout << "[DEBUG][areWeFinishedReading] (BodyLenght) we still need to read" << std::endl, false);
 		else
 			return (std::cout << "[DEBUG][areWeFinishedReading] (BodyLenght) finished reading" << std::endl, true);
@@ -367,10 +366,39 @@ bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
 	return (std::cout << "[DEBUG][areWeFinishedReading] there is no body" << std::endl, true);
 }
 
-/* bool Server::checkChunkedEnd(ClientBuffer &additive_bff, Request &reqGetHeader)
-{}; */
+void Server::validateChunkedBody(const ClientBuffer &additive_bff)
+{
+	const std::string buffer = additive_bff.get_buffer();
+	size_t start_pos = buffer.find("\r\n\r\n") + 4;
+	size_t end_pos;
+	std::string sizeStr;
+	std::stringstream sizeSS;
+	size_t chunkSize;
+	const size_t bufferLength = buffer.length();
 
-void Server::requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff)
+	while (start_pos < bufferLength)
+	{
+		end_pos = buffer.find("\r\n", start_pos);
+		if (end_pos == std::string::npos)
+			throw (std::runtime_error("[ERROR][validateChunkedBody] Incomplete chunk"));
+		sizeStr = buffer.substr(start_pos, end_pos - start_pos);
+		sizeSS << std::hex << sizeStr;
+		sizeSS >> chunkSize;
+		if (sizeSS.fail())
+			throw (std::runtime_error("[ERROR][validateChunkedBody] Size section not a number"));
+		if (!chunkSize)
+			break;
+		start_pos = end_pos + 2 + chunkSize + 2;
+		if (start_pos > bufferLength)
+			throw (std::runtime_error("[ERROR][validateChunkedBody] Incomplete chunk"));
+		if (buffer.substr(end_pos + 2 + chunkSize, 2) != "\r\n")
+			throw (std::runtime_error("[ERROR][validateChunkedBody] Incorrect chunked size"));
+		sizeSS.str("");
+		sizeSS.clear();
+	}
+}
+
+void Server::requestParseError(int client_fd, std::string &buffer, std::map<int, Response> &pending_writes, const ClientBuffer &additive_bff)
 {
 	std::cout << "[DEBUG][requestParseError] Error root: " << _rootPath << "\n" << std::endl;
 	std::cout << "[DEBUG][requestParseError] Petición mal formada, BUFFER: " << buffer.c_str() << "\n" << std::endl;
