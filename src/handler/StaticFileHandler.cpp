@@ -48,14 +48,28 @@ static std::string readFile(const std::string& path)
 
 Response StaticFileHandler::handleRequest(const Request& request)
 {
+    Payload payload;
+    payload.keepAlive = true; // o hazlo condicional al header del request
     std::string uri    = request.getPath();
     std::string qs     = request.getQueryString();
     std::string method = request.getMethod();
+    const std::string& path = request.getPhysicalPath();       // ✓ validado
+    int fd = ::open(path.c_str(), O_RDONLY);               // symlink final ya bloqueado
 
+
+
+    if (fd == -1)
+    {
+        std::cerr << "[ERROR] No se pudo abrir el archivo: " << strerror(errno) << std::endl;
+        ErrorPageHandler errorHandler(_rootPath);
+        payload.status = 404;
+        payload.reason = "Not Found";
+        payload.mime = "text/html";
+        payload.body = errorHandler.render(404, "Archivo no encontrado");
+        return _builder->build(payload);
+    }
     if (uri == "/") uri = "/index.html";
 
-    Payload payload;
-    payload.keepAlive = true; // o hazlo condicional al header del request
     
     if (method != "GET" && method != "HEAD" && method 
         != "POST" && method != "DELETE" && method != "PUT" && 
@@ -93,26 +107,28 @@ Response StaticFileHandler::handleRequest(const Request& request)
         payload.body = "403 - Path traversal";
         return _builder->build(payload);
     }
-    if (uri.length() > 1 && uri[uri.length() - 1] == '/')
-        uri.erase(uri.length() - 1);
-    std::string fullPath = _rootPath + uri;
-    std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
+    // if (uri.length() > 1 && uri[uri.length() - 1] == '/')
+    //     uri.erase(uri.length() - 1);
+    // // std::string fullPath = _rootPath + uri;
+    // // // std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
+    // // const std::string& fullPath = request.getPhysicalPath();   // ⇦ ya es absoluta
+    // // std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
 
-    if (!fileExists(fullPath)) {
-        std::cout << "[DEBUG] Archivo no encontrado: " << fullPath << std::endl;
-        ErrorPageHandler errorHandler(_rootPath);
-        payload.status = 404;
-        payload.reason = "Not Found";
-        payload.mime = "text/html";
-        payload.body = errorHandler.render(404, "Archivo no encontrado");
-        return _builder->build(payload);
-    }
+    // if (!fileExists(path)) {
+    //     std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
+    //     ErrorPageHandler errorHandler(_rootPath);
+    //     payload.status = 404;
+    //     payload.reason = "Not Found";
+    //     payload.mime = "text/html";
+    //     payload.body = errorHandler.render(404, "Archivo no encontrado");
+    //     return _builder->build(payload);
+    // }
 
     // ✅ Archivo encontrado
     payload.status = 200;
     payload.reason = "OK";
-    payload.mime = MimeTypes::getContentType(fullPath); // o un tipo por defecto si no se puede adivinar
-    payload.body = readFile(fullPath);
+    payload.mime = MimeTypes::getContentType(path); // o un tipo por defecto si no se puede adivinar
+    payload.body = readFile(path);
     return _builder->build(payload);
 }
 

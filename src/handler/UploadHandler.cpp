@@ -1,4 +1,6 @@
 #include "handler/UploadHandler.hpp"
+#include "../../include/utils/MimeTypes.hpp"
+
 #include "../../include/utils/Utils.hpp"
 #include <fstream>
 #include <sys/stat.h>
@@ -44,7 +46,8 @@ Response UploadHandler::handleRequest(const Request& req)
     Payload payload;
     payload.status = 200;
     payload.reason = "OK";
-    payload.mime = "text/plain";
+    // payload.mime = "text/plain"; // o cámbialo según el tipo de archivo
+    payload.mime = MimeTypes::getContentType(uploadsPath); // o un tipo por defecto si no se puede adivinar
     payload.body = "Archivo recibido y guardado.";
     payload.keepAlive = true;
     return _builder->build(payload);

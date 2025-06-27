@@ -122,12 +122,12 @@ std::string ConfigParser::getLocation(const std::string& rawLoc, const std::stri
 
     for (std::map<std::string, std::map<std::string, std::string> >::const_iterator locIt = locations.begin();
          locIt != locations.end(); ++locIt) {
-        std::cout << "[DEBUG] ConfigParser::getLocation - location: " << locIt->first << std::endl;
+        // std::cout << "[DEBUG] ConfigParser::getLocation - location: " << locIt->first << std::endl;
         std::string name = Utils::trim(locIt->first);
         if (name.compare(0, 2, "./") == 0)
             name.erase(0, 2);
-        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-        std::cout << "[DEBUG] ConfigParser::getLocation - name: " << name << std::endl;
+        // std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+        // std::cout << "[DEBUG] ConfigParser::getLocation - name: " << name << std::endl;
 
         if (name.size() > 1 && name[name.size() - 1] == '/') {
             name.erase(name.size() - 1);
@@ -135,8 +135,8 @@ std::string ConfigParser::getLocation(const std::string& rawLoc, const std::stri
         if (name == loc) {
             const std::map<std::string, std::string>& directives = locIt->second;
             std::map<std::string, std::string>::const_iterator it = directives.find(key);
-            std::cout << "[DEBUG] ConfigParser::getLocation - key: " << key << std::endl;
-            std::cout << "[DEBUG] ConfigParser::getLocation - it: " << (it == directives.end() ? "end" : "found") << std::endl;
+            // std::cout << "[DEBUG] ConfigParser::getLocation - key: " << key << std::endl;
+            // std::cout << "[DEBUG] ConfigParser::getLocation - it: " << (it == directives.end() ? "end" : "found") << std::endl;
             //
             if (it != directives.end()) {
                 return Utils::trim(it->second);

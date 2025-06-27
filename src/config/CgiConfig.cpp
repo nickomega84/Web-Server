@@ -5,6 +5,7 @@
 
 void CgiConfig::parse(const ConfigParser& config) 
 {
+    
     cgiPath = config.getLocation("/cgi-bin", "cgi_path");
     if (cgiPath.empty()) {
         std::cerr << "[ERROR] No se encontró 'cgi_path' en la sección /src/cgi\n";

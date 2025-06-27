@@ -3,6 +3,7 @@
 
 #include "IHandlerFactory.hpp"
 #include "../cgi/CGIHandler.hpp"
+#include "../../include/response/IResponseBuilder.hpp"
 #include <string>
 #include <iostream>
 
@@ -12,23 +13,21 @@
  * Implementa IHandlerFactory::createHandler() para crear un CGIHandler
  * a partir de la raíz absoluta del directorio cgi-bin.
  */
+
+ class IresponseBuilder; // Forward declaration
 class CGIHandlerFactory : public IHandlerFactory
 {
     private:
-        std::string _cgiRoot;
+        std::string _cgiBinPath;;
+        IResponseBuilder* _builder; // No es necesario, se pasa al handler
     
     public:
     // Constructor toma la ruta física a /cgi-bin
-
-        explicit CGIHandlerFactory(const std::string& cgiRoot) : _cgiRoot(cgiRoot) {}
-
-        virtual ~CGIHandlerFactory() {}
-
+        explicit CGIHandlerFactory(const std::string& cgiRoot, IResponseBuilder* builder);
+        explicit CGIHandlerFactory(const std::string& cgiBinPath);
+        virtual ~CGIHandlerFactory();
     // Implementación de la función pura: crea el handler
-    virtual IRequestHandler* createHandler() const
-    {
-		return new CGIHandler(_cgiRoot);
-    }
+        virtual IRequestHandler* createHandler() const;
 
 };
 

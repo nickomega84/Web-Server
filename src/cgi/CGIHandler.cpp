@@ -7,9 +7,14 @@
 
 
 
-CGIHandler::CGIHandler(const std::string& cgiRoot): _cgiRoot(cgiRoot), _error(200)
+// CGIHandler::CGIHandler(const std::string& cgiRoot): _cgiRoot(cgiRoot), _error(200)
+// {
+//     std::cout << "[DEBUG] CGIHandler Constructor: cgiRoot = " << _cgiRoot << std::endl;
+// }
+
+CGIHandler::CGIHandler(IResponseBuilder* b, const std::string& cgiBin) : _cgiBin(cgiBin), _builder(b), _error(200) 
 {
-    std::cout << "[DEBUG] CGIHandler Constructor: cgiRoot = " << _cgiRoot << std::endl;
+    std::cout << "[DEBUG] CGIHandler Constructor: _cgiBin = " << _cgiBin << std::endl;
 }
 
 CGIHandler::CGIHandler(const CGIHandler& other) {
@@ -119,6 +124,7 @@ std::string CGIHandler::getName(const std::string &uri, bool *success)
 
 std::string CGIHandler::getQueryString(const std::string &uri)
 {
+    std::cout << "[DEBUG] CGIHandler::getQueryString() uri: " << uri << std::endl;
 	std::string::size_type pos_query = uri.find("?");
 	if (pos_query == std::string::npos)
 		return ("");
@@ -218,24 +224,38 @@ int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::stri
 {
 	bool success = true;
 
-	// 1. Obtener ruta y nombre del script desde URI
-	std::string uri = req.getURI(); // Ej: /cgi-bin/shellGET.sh?id=123
-	std::string scriptName  = getName(uri, &success);
-	if (!success)
-		return (std::cerr << "[ERROR] CGI couldn't getName()" << std::endl, handleError(404), 1);
-        // return (std::cout << "[DEBUG] CGIHandler::checkHandler() scriptName: " << scriptName << std::endl, 0);
-	if (!scriptName.empty() && scriptName[0] == '/')
-		scriptName = scriptName.substr(1); // Quitar el slash inicial
+	// // 1. Obtener ruta y nombre del script desde URI
+	// std::string uri = req.getURI(); // Ej: /cgi-bin/shellGET.sh?id=123
+	// std::string scriptName  = getName(uri, &success);
+	// if (!success)
+	// 	return (std::cerr << "[ERROR] CGI couldn't getName()" << std::endl, handleError(404), 1);
+    //     // return (std::cout << "[DEBUG] CGIHandler::checkHandler() scriptName: " << scriptName << std::endl, 0);
+	// if (!scriptName.empty() && scriptName[0] == '/')
+	// 	scriptName = scriptName.substr(1); // Quitar el slash inicial
 
-	// 2. Construir el mapa m
-	std::string cgiRoot = _cgiRoot; // Raíz física de /cgi-bin (inyectada por la factory)
-	m["dir"] = cgiRoot + "/";
-	m["name"] = scriptName; // sin slash
-	m["name_without_slash"] = scriptName;
-	m["path"] = m["dir"] + m["name"];
-	m["queryString"] = getQueryString(uri);
+	// // 2. Construir el mapa m
+	// std::string cgiRoot = _cgiRoot; // Raíz física de /cgi-bin (inyectada por la factory)
+	// m["dir"] = cgiRoot;
+	// m["name"] = scriptName; // sin slash
+	// m["name_without_slash"] = scriptName;
+	// m["path"] = m["dir"] + m["name"];
+	m["queryString"] = getQueryString(req.getURI());
 
-	std::cout << "\n[CGI CHECK] -----------------------------\n";
+    // / 	bool success = true;
+	m["dir"] = req.getPath() + getDir(req.getURI(), &success);
+    m["dir"] = _cgiBin       ;              // ya apunta a /abs/path/to/cgi-bin
+	m["name"] = getName(req.getURI(), &success);
+	m["name_without_slash"] = m["name"].substr(1);
+	m["path"] = m["name"];
+	m["queryString"] = getQueryString(req.getURI());
+
+	std::cout << "\n[CGI  CGIHandler::checkHandler ]-----------------------------\n";
+    std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"dir\"]: " << m["dir"] << std::endl;
+    std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"path\"]: " << m["path"] << std::endl;
+    std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"name\"]: " << m["name"] << std::endl;
+    std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"name_without_slash\"]: " << m["name_without_slash"] << std::endl;
+    std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"path\"]: " << m["path"] << std::endl;
+    std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"queryString\"]: " << m["queryString"] << std::endl;
 	for (std::map<std::string, std::string>::iterator it = m.begin(); it != m.end(); ++it)
 		std::cout << it->first << " = " << it->second << std::endl;
 	std::cout << "------------------------------------------\n";
@@ -298,6 +318,7 @@ std::vector<std::string> CGIHandler::enviromentGET(std::string path, std::string
 
 int CGIHandler::handleGET(const Request &req, Response &res, std::string interpreter) //ejemplo del header del request: GET /cgi-bin/hello.cgi?name=Juan HTTP/1.1
 {
+    std::cout << "[DEBUG] CGIHandler::HandleGET: "  << std::endl;
 	std::map<std::string, std::string> m;
 	if (checkHandler(req, m))
 		return (1);

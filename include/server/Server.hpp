@@ -19,8 +19,12 @@
 #include "../router/Router.hpp"
 #include "../cgi/CGIHandler.hpp"
 #include "../include/handler/StaticFileHandler.hpp"
-
+// #include "../include/response/IresponseBuilder.hpp"
+#include "../include/response/DefaultResponseBuilder.hpp"
+#include "../../include/response/IResponseBuilder.hpp"
 extern volatile sig_atomic_t g_signal_received;
+
+
 
 class Server
 {
@@ -29,6 +33,7 @@ class Server
 		std::string _rootPath;
 		std::vector<int> listen_sockets;   
         Router _router;
+        IResponseBuilder* _builder; // Builder para construir respuestas
 
         Server(const Server& other);
         Server& operator=(const Server& other);
@@ -42,7 +47,10 @@ class Server
         void	freeEpoll(int epollfd, std::vector<int> &client_fds);
 
 	public:
-        Server(ConfigParser& cfg, const std::string& rootPath);
+        // Server(ConfigParser& cfg, const std::string& rootPath);
+        // Server(ConfigParser& cfg, const std::string& absRoot, IResponseBuilder *builder);
+        Server(ConfigParser& cfg, const std::string& absRoot, const std::string& uploadsAbs, const std::string& cgiBinAbs, IResponseBuilder* builder);
+
         ~Server();
 
         int		addListeningSocket();

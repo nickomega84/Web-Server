@@ -4,6 +4,13 @@
 
 Request::Request()
 {}
+// Request::Request(const std::string& raw)
+//     : _keepAlive(false), _physPath(raw) // Inicializar _physPath
+// {
+//     if (!parse(raw)) {
+//         std::cerr << "[ERROR] Failed to parse request: " << raw << std::endl;
+//     }
+// }
 
 Request::Request(const Request& other)
 {
@@ -158,4 +165,13 @@ const std::string& Request::getHeader(const std::string& key) const
 const std::string& Request::getBody() const 
 {
     return _body; 
+}
+
+void    Request::setPhysicalPath(const std::string& p) 
+{ 
+    _physPath = p; 
+}
+const std::string& Request::getPhysicalPath() const        
+{ 
+    return _physPath; 
 }

@@ -2,6 +2,7 @@
 #include "../../include/core/Request.hpp"
 #include "../../include/core/Response.hpp"
 #include "../../include/handler/IRequestHandler.hpp"
+// #include "../../include/response/IResponseBuilder.hpp>"
 #include <string>
 #include <dirent.h> //DIR
 #include <signal.h> //SIGTERM
@@ -12,7 +13,7 @@
 #define SH_INTERPRETER "/usr/bin/sh"
 #define BUFFER_SIZE	1024
 
-
+class IResponseBuilder; // Forward declaration
 enum Type
 {
 	NO_CGI = 0,
@@ -28,7 +29,9 @@ class CGIHandler : public IRequestHandler
 {
 	private:
        /* Raíz física de /cgi-bin (inyectada por la factory) */
-        std::string _cgiRoot;
+        std::string _cgiBin;
+        IResponseBuilder* _builder;
+
         int     _error;
         std::vector<std::string> enviromentGET(std::string path, std::string queryString);
         std::vector<std::string> enviromentPOST(std::string path, std::string queryString, const Request &req);
@@ -53,7 +56,8 @@ class CGIHandler : public IRequestHandler
 	public:
         
         CGIHandler();
-        CGIHandler(const std::string& cgiRoot);   // ctor ligero
+        CGIHandler(IResponseBuilder* b, const std::string& cgiRoot);
+        // CGIHandler(const std::string& cgiRoot);   // ctor ligero
         CGIHandler(const CGIHandler& other);
         CGIHandler& operator=(const CGIHandler& other);
         virtual ~CGIHandler();
