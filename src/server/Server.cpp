@@ -233,7 +233,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 		std::cerr << e.what() << std::endl;
 		return (requestParseError(client_fd, additive_bff.get_buffer(), pending_writes, additive_bff), 0);
 	}
-
+	additive_bff.setFinishedReading(true);
 	std::string buffer = additive_bff.get_buffer();
 
     Request  req;
@@ -258,9 +258,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
         pending_writes[client_fd] = res404;
 		return (0);
     }
-
-	std::cout << "[DEBUG][handleClientRead]" << std::endl << "tamaño response = " << res.toString().length() << std::endl;
-
+	
     pending_writes[client_fd] = res;
     return (0);
 }
@@ -270,8 +268,6 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	std::cout << "[DEBUG][handleClientResponse] START" << std::endl;
 	
 	std::string response = pending_writes[client_fd].toString();
-	
-	std::cout << "[DEBUG][handleClientResponse]" << std::endl << "tamaño response = " << response.length() << std::endl << "Response:" << std::endl << response << std::endl;
 
 	ssize_t bytes_sent = send(client_fd, response.c_str(), response.length(), 0);
 	if (bytes_sent == 0)
@@ -296,7 +292,7 @@ int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
 	if (!areWeFinishedReading(additive_bff))
 		return (0);
 
-	std::cout << std::endl << std::endl << std::endl << "WE FINISHED READING!!!" << std::endl << std::endl << std::endl << std::endl;
+	std::cout << std::endl << std::endl << "[DEBUG] WE FINISHED READING THE REQUEST!!!" << std::endl << std::endl << std::endl;
 	return (1);
 }
 
