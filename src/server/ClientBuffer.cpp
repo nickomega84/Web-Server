@@ -6,7 +6,7 @@ chunkedEnd(false), contentLenght(0), headerEnd(-1), finishedReading(false)
 
 ClientBuffer::ClientBuffer(const ClientBuffer& other)
 {
-	*other = other;
+	*this = other;
 }
 
 ClientBuffer& ClientBuffer::operator=(const ClientBuffer& other)

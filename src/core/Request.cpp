@@ -28,7 +28,9 @@ Request::~Request()
 
 bool Request::parse(const std::string& raw)
 {
-    std::istringstream stream(raw);
+    std::cout << std::endl << "[DEBUG]-------------------[REQUEST] START-------------------" << std::endl;
+	
+	std::istringstream stream(raw);
     std::string line;
 
     /* ── 1. START-LINE ───────────────────────────── */
@@ -53,8 +55,8 @@ bool Request::parse(const std::string& raw)
 
     std::cout << "[DEBUG][Request] Start line parsed: " << _method << " " << _uri << " " << _version << "\n";
 
-    std::cout << "[DEBUG][Request] Path: " << _path << "\n" << std::endl;
-    std::cout << "[DEBUG][Request] Query String: " << _queryString << "\n" << std::endl;
+    std::cout << "[DEBUG][Request] Path: " << _path << std::endl;
+    std::cout << "[DEBUG][Request] Query String: " << _queryString << std::endl;
     /* ── 2. HEADERS ─────────────────────────────── */
     while (std::getline(stream, line) && line != "\r" && line != "\n") {
         size_t pos = line.find(':');
@@ -82,6 +84,8 @@ bool Request::parse(const std::string& raw)
     }
 
     /* ── 3. BODY ─────────────────────────────────── */
+	std::cout << "OLAOLAOLAOLAOLAOLAOLAOLAOLA _headers.count(Content-Length) = " << _headers.count("Content-Length") << std::endl;
+
     if (_headers.count("Content-Length") > 0) {
         std::stringstream ss;
         ss << stream.rdbuf();
@@ -97,17 +101,18 @@ bool Request::parse(const std::string& raw)
     }
    
     std::cout << "[DEBUG][Request] Request parsed successfully:\n"
-              << "Method: " << _method << "\n"
-              << "URI: " << _uri << "\n"
-              << "Version: " << _version << "\n" << std::endl;
+              << "[Request] Method: " << _method << "\n"
+              << "[Request] URI: " << _uri << "\n"
+              << "[Request] Version: " << _version << std::endl;
     // std::cout << "Headers:\n";
-    std::cout << "Body: " << _body << "\n"
-              << "Keep-Alive: " << (_keepAlive ? "true" : "false") << "\n" << std::endl;
-    std::cout << "Path: " << _path << "\n"
-              << "Query String: " << _queryString << "\n" << std::endl;
-    std::cout << "[DEBUG][Request] Request parsing completed successfully.\n" << std::endl;
-    // Si llegamos hasta aquí, todo ha ido bien
+    std::cout << "[Request] Body: " << _body << "\n"
+              << "[Request] Keep-Alive: " << (_keepAlive ? "true" : "false") << std::endl;
+    std::cout << "[Request] Path: " << _path << "\n"
+              << "[Request] Query String: " << _queryString << std::endl;
+    std::cout << "[DEBUG][Request] Request parsing completed successfully." << std::endl;
     
+	// Si llegamos hasta aquí, todo ha ido bien
+    std::cout << "[DEBUG]-------------------[REQUEST] END-------------------" << std::endl << std::endl;
     return (true);
 }
 
