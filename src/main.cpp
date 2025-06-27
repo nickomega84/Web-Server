@@ -77,7 +77,7 @@ int main(int argc, char** argv)
     std::cout << "[DEBUG] CGI dir: " << cgiCfg.getCgiPath() << std::endl;
     std::cout << "[DEBUG] Port: " << portCfg.getPort() << std::endl;
     
-    // 4. Crear servidor y router
+    // 4. Crear y router
     std::string rootPath = Utils::resolveAndValidateDir(rootCfg.getRootPath());
     Router router;
     
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     for (size_t i = 0; i < exts.size(); ++i) 
     {
         std::cout << exts[i] << " " << std::endl;
-        std::cout << "[OLABEBE DEBUG] Registrando CGI handler para extensión: " << exts[i] << std::endl;
+        std::cout << "[DEBUG] Registrando CGI handler para extensión: " << exts[i] << std::endl;
     }
     
     // 5. Construir y validar rutas absolutas (POSIX)
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 	IHandlerFactory* uploadFactory = new UploadHandlerFactory(uploadPath, responseBuilder);
     router.registerFactory("/upload", uploadFactory);
 
-    // 8. Asignar router al servidor
+    // 8. Crear servidor y asignarle el
 	Server server(cfg, rootPath);
     server.setRouter(router);
 	

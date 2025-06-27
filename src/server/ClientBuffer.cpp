@@ -1,17 +1,12 @@
 #include "../../include/server/ClientBuffer.hpp"
 
-ClientBuffer::ClientBuffer(): nmb_read(0), client_fd(-1), chunked(false), chunkedEnd(false), contentLenght(0), headerEnd(-1), finishedReading(false)
+ClientBuffer::ClientBuffer(): nmb_read(0), client_fd(-1), chunked(false), \
+chunkedEnd(false), contentLenght(0), headerEnd(-1), finishedReading(false)
 {}
 
 ClientBuffer::ClientBuffer(const ClientBuffer& other)
 {
-	nmb_read = other.nmb_read;
-	client_fd = other.client_fd;
-	chunked = other.chunked;
-	chunkedEnd = other.chunkedEnd;
-	contentLenght = other.contentLenght;
-	headerEnd = other.headerEnd;
-	finishedReading = other.finishedReading;
+	*other = other;
 }
 
 ClientBuffer& ClientBuffer::operator=(const ClientBuffer& other)
@@ -57,7 +52,7 @@ bool ClientBuffer::getChunkedEnd() const {return (chunkedEnd);}
 
 int ClientBuffer::setContentLenght(std::string contentLenght)
 {
-	int len;
+	size_t len;
 
 	std::stringstream ss(contentLenght);
 	ss >> len;
@@ -82,6 +77,8 @@ void ClientBuffer::reset()
 	persistent_buffer.clear();
 	nmb_read = 0;
 	client_fd = -1;
+	chunked = false;
+	chunkedEnd = false;
 	contentLenght = 0;
 	headerEnd = -1;
 	finishedReading = false;

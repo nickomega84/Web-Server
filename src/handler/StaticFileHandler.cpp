@@ -18,10 +18,10 @@ StaticFileHandler::~StaticFileHandler() {}
 
 static bool fileExists(const std::string& path) 
 {
-    std::cout << "[DEBUG] Verificando existencia del archivo:  StaticFileHandler" << path << std::endl;
+    std::cout << "[DEBUG][StaticFileHandler] Verificando existencia del archivo:  StaticFileHandler" << path << std::endl;
     std::ifstream file(path.c_str());
     if (!file) {
-        std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
+        std::cout << "[DEBUG][StaticFileHandler] Archivo no encontrado: " << path << std::endl;
         return false;
     }
     // std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;

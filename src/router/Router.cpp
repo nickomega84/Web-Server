@@ -2,7 +2,7 @@
 
 Router::Router() 
 {
-    std::cout << "Router constructor called" << std::endl;
+    std::cout << "[DEBUG] Router constructor called" << std::endl;
 }
 
 Router::Router(const Router& other) 
@@ -19,7 +19,7 @@ Router& Router::operator=(const Router& other)
 
 Router::~Router() 
 {
-    std::cout << "Router destructor called" << std::endl;
+    std::cout << "[DEBUG] Router destructor called" << std::endl;
 }
 
 void Router::registerFactory(const std::string& pathPrefix, IHandlerFactory* factory)
@@ -32,11 +32,11 @@ IRequestHandler* Router::resolve(const Request& request) const
 	const std::string& uri = request.getURI();
 
 	std::map<std::string, IHandlerFactory*>::const_reverse_iterator it;
-	std::cout << "[DEBUG][IRequestHandler][resolve] START Resolving request for URI: " << uri << std::endl;
+	std::cout << "[DEBUG][Router][resolve] START Resolving request for URI: " << uri << std::endl;
 
 	for (it = _routes.rbegin(); it != _routes.rend(); ++it) 
     {
-		std::cout << "[DEBUG][IRequestHandler][resolve] Checking route: " << it->first << std::endl;
+		std::cout << "[DEBUG][Router][resolve] Checking route: " << it->first << std::endl;
 		const std::string& route = it->first;
 		if (uri == route || (uri.find(route) == 0))
 		{
