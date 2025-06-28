@@ -38,7 +38,8 @@ class Server
         int		ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events);
         int		accept_connection(int listen_socket, int epollfd, std::vector<int> &client_fds, std::map<int, ClientBuffer> &client_buffers);
 		int		handleClientRead(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
-        int		handleClientResponse(const int client_fd, std::map<int, Response> &pending_writes);
+        int		createResponse(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
+		int		handleClientResponse(const int client_fd, std::map<int, Response> &pending_writes);
         int		readRequest(int client_fd, ClientBuffer &additive_bff);
 		void	close_fd(const int socket, int epollfd, std::vector<int> &container, std::map<int, Response> &pending_writes, std::map<int, ClientBuffer> &client_buffers);
         void	freeEpoll(int epollfd, std::vector<int> &client_fds);

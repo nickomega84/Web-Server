@@ -235,24 +235,29 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	}
 	std::cout << "[DEBUG] [[  [FINISHED READING REQUEST  ]]" << std::endl;
 
-	Request  req;
-    Response res;
+	createResponse(client_fd, pending_writes, additive_bff);
 
+	return (0);
+}
+
+int Server::createResponse(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff)
+{
+	std::cout << "[DEBUG][createResponse] START" << std::endl;
+	
+	Request  req;
     if (!req.parse(additive_bff.get_buffer()))
 		return (requestParseError(client_fd, pending_writes), 0);
 
-	IRequestHandler* h = _router.resolve(req);
-
-    if (h) 
+	IRequestHandler* handler = _router.resolve(req);
+    if (handler) 
 	{
-        res = h->handleRequest(req);    // el handler construye la respuesta
-        delete h;
+		Response res;
+        res = handler->handleRequest(req);
+		pending_writes[client_fd] = res;
+		return (delete handler, 0);
     } 
 	else
-		return (requestParseError(client_fd, pending_writes), 0);
-	
-    pending_writes[client_fd] = res;
-    return (0);
+		return (requestParseError(client_fd, pending_writes), 0);    
 }
 
 int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes)
