@@ -42,7 +42,6 @@ bool Request::parse(const std::string& raw)
     if (!(firstLine >> _method >> _uri >> _version))
         return false;
         
-    
     // ▶ Separar path y query-string
     size_t q = _uri.find('?');
     if (q != std::string::npos) {
@@ -71,8 +70,6 @@ bool Request::parse(const std::string& raw)
             key[i] = std::tolower(key[i]);
         }
 
-
-
         // Trim whitespace inicial
         value.erase(0, value.find_first_not_of(" \t"));
         // Trim CR/LF final
@@ -84,9 +81,7 @@ bool Request::parse(const std::string& raw)
     }
 
     /* ── 3. BODY ─────────────────────────────────── */
-	std::cout << "OLAOLAOLAOLAOLAOLAOLAOLAOLA _headers.count(Content-Length) = " << _headers.count("Content-Length") << std::endl;
-
-    if (_headers.count("Content-Length") > 0) {
+    if (_headers.count("content-length") > 0 || _headers.count("transfer-encoding")) {
         std::stringstream ss;
         ss << stream.rdbuf();
         _body = ss.str();
@@ -105,7 +100,7 @@ bool Request::parse(const std::string& raw)
               << "[Request] URI: " << _uri << "\n"
               << "[Request] Version: " << _version << std::endl;
     // std::cout << "Headers:\n";
-    std::cout << "[Request] Body: " << _body << "\n"
+    std::cout << "[Request] Body: " << _body
               << "[Request] Keep-Alive: " << (_keepAlive ? "true" : "false") << std::endl;
     std::cout << "[Request] Path: " << _path << "\n"
               << "[Request] Query String: " << _queryString << std::endl;

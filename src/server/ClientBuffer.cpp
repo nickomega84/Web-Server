@@ -50,11 +50,10 @@ void ClientBuffer::setChunkedEnd(bool bol) {chunkedEnd = bol;}
 
 bool ClientBuffer::getChunkedEnd() const {return (chunkedEnd);}
 
-int ClientBuffer::setContentLenght(std::string contentLenght)
+int ClientBuffer::setContentLenght(std::string newContentLenght)
 {
 	size_t len;
-
-	std::stringstream ss(contentLenght);
+	std::stringstream ss(newContentLenght);
 	ss >> len;
 	if (ss.fail())
 		return (1);

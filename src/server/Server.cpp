@@ -211,15 +211,15 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	if (n < 0)
 		return (0);
 
-	std::string buffer(str_buffer, n);
-	additive_bff.add_buffer(buffer);
+	std::string newBuffer(str_buffer, n);
+	additive_bff.add_buffer(newBuffer);
 
-/* 	std::cout << std::endl << "--------------------handleClientRead--------------------" << std::endl;
+/* 	std::cout << std::endl << "[DEBUG]--------------------handleClientRead--------------------" << std::endl;
 	std::cout << "[[buffer:]]" << std::endl << std::endl;
 	std::cout << buffer.c_str() << std::endl;
 	std::cout << "[[additive_bff.get_buffer(buffer):]]" << std::endl << std::endl;
 	std::cout << additive_bff.get_buffer().c_str() << std::endl;
-	std::cout << "--------------------handleClientRead (END)---------------------------" << std::endl << std::endl; */
+	std::cout << "[DEBUG]--------------------handleClientRead (END)---------------------------" << std::endl << std::endl; */
 	
 	try
 	{
@@ -235,10 +235,10 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	}
 	std::cout << "[DEBUG] [[  [FINISHED READING REQUEST  ]]" << std::endl;
 
-    Request  req;
+	Request  req;
     Response res;
 
-    if (!req.parse(buffer.c_str()))
+    if (!req.parse(additive_bff.get_buffer()))
 		return (requestParseError(client_fd, pending_writes), 0);
 
 	IRequestHandler* h = _router.resolve(req);
@@ -345,7 +345,7 @@ bool Server::checkIsContentLength(ClientBuffer &additive_bff, Request &reqGetHea
 		return (false);
 	if (additive_bff.setContentLenght(contentLenght))
 		throw (std::runtime_error("[ERROR][checkIsContentLength] Content-Length is not a number"));
-	return (std::cout << "[DEBUG][checkIsChunked] is content lenght" << std::endl, true);
+	return (std::cout << "[DEBUG][checkIsContentLength] is content lenght = " << additive_bff.getContentLenght() << std::endl, true);
 }
 
 bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
@@ -363,9 +363,9 @@ bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
 	if (additive_bff.getContentLenght() > 0)
 	{
 		if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getContentLenght())
-			return (std::cout << "[DEBUG][areWeFinishedReading] (BodyLenght) we still need to read" << std::endl, false);
+			return (std::cout << "[DEBUG][areWeFinishedReading] (ContentLenght) we still need to read" << std::endl, false);
 		else
-			return (std::cout << "[DEBUG][areWeFinishedReading] (BodyLenght) finished reading" << std::endl, true);
+			return (std::cout << "[DEBUG][areWeFinishedReading] (ContentLenght) finished reading" << std::endl, true);
 	}
 	return (std::cout << "[DEBUG][areWeFinishedReading] request with no body" << std::endl, true);
 }
@@ -406,6 +406,8 @@ void Server::validateChunkedBody(ClientBuffer &additive_bff)
 
 void Server::requestParseError(int client_fd, std::map<int, Response> &pending_writes)
 {
+	std::cout << "[DEBUG][requestParseError] START" << std::endl;
+	
 	ErrorPageHandler err(_rootPath);
 	Response res400;
 	res400.setStatus(400, "Bad Request");
