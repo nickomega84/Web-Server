@@ -7,21 +7,20 @@
 
 StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root) 
 {
-    std::cout << "[DEBUG] StaticFileHandler initialized with root path: " << _rootPath << std::endl;
+    std::cout << "[DEBUG][StaticFileHandler] initialized with root path: " << _rootPath << std::endl;
 }
 
 StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* b): _rootPath(root), _builder(b)
 {
-    std::cout << "[DEBUG] StaticFileHandler initialized with root and builder\n";
+    std::cout << "[DEBUG][StaticFileHandler] initialized with root and builder\n";
 }
 StaticFileHandler::~StaticFileHandler() {}
 
 static bool fileExists(const std::string& path) 
 {
-    std::cout << "[DEBUG][StaticFileHandler] Verificando existencia del archivo:  StaticFileHandler" << path << std::endl;
+    std::cout << "[DEBUG][StaticFileHandler] Verifying file existence, file: " << path << std::endl;
     std::ifstream file(path.c_str());
     if (!file) {
-        std::cout << "[DEBUG][StaticFileHandler] Archivo no encontrado: " << path << std::endl;
         return false;
     }
     // std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
@@ -48,7 +47,9 @@ static std::string readFile(const std::string& path)
 
 Response StaticFileHandler::handleRequest(const Request& request)
 {
-    std::string uri    = request.getPath();
+    std::cout << "[DEBUG][StaticFileHandler][handleRequest] START" << std::endl;
+	
+	std::string uri    = request.getPath();
     std::string qs     = request.getQueryString();
     std::string method = request.getMethod();
 
@@ -96,10 +97,10 @@ Response StaticFileHandler::handleRequest(const Request& request)
     if (uri.length() > 1 && uri[uri.length() - 1] == '/')
         uri.erase(uri.length() - 1);
     std::string fullPath = _rootPath + uri;
-    std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
+    std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: " << fullPath << std::endl;
 
     if (!fileExists(fullPath)) {
-        std::cout << "[DEBUG] Archivo no encontrado: " << fullPath << std::endl;
+        std::cout << "[DEBUG][StaticFileHandler] File not found, file: " << fullPath << std::endl;
         ErrorPageHandler errorHandler(_rootPath);
         payload.status = 404;
         payload.reason = "Not Found";

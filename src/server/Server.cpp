@@ -215,11 +215,11 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	additive_bff.add_buffer(newBuffer);
 
 /* 	std::cout << std::endl << "[DEBUG]--------------------handleClientRead--------------------" << std::endl;
-	std::cout << "[[buffer:]]" << std::endl << std::endl;
+	std::cout << "[[buffer:]]" << "\n" << std::endl;
 	std::cout << buffer.c_str() << std::endl;
-	std::cout << "[[additive_bff.get_buffer(buffer):]]" << std::endl << std::endl;
+	std::cout << "[[additive_bff.get_buffer(buffer):]]" << "\n" << std::endl;
 	std::cout << additive_bff.get_buffer().c_str() << std::endl;
-	std::cout << "[DEBUG]--------------------handleClientRead (END)---------------------------" << std::endl << std::endl; */
+	std::cout << "[DEBUG]--------------------handleClientRead (END)---------------------------" << "\n" << std::endl; */
 	
 	try
 	{
@@ -365,7 +365,7 @@ bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
 		else
 			return (std::cout << "[DEBUG][areWeFinishedReading] (Chunked) we still need to read" << std::endl, false);
 	}
-	if (additive_bff.getContentLenght() > 0)
+	else if (additive_bff.getContentLenght() > 0)
 	{
 		if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getContentLenght())
 			return (std::cout << "[DEBUG][areWeFinishedReading] (ContentLenght) we still need to read" << std::endl, false);

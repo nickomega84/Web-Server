@@ -28,7 +28,7 @@ Request::~Request()
 
 bool Request::parse(const std::string& raw)
 {
-    std::cout << std::endl << "[DEBUG]-------------------[REQUEST] START-------------------" << std::endl;
+    std::cout << "\n[DEBUG]-------------------[REQUEST] START-------------------" << std::endl;
 	
 	std::istringstream stream(raw);
     std::string line;
@@ -100,14 +100,14 @@ bool Request::parse(const std::string& raw)
               << "[Request] URI: " << _uri << "\n"
               << "[Request] Version: " << _version << std::endl;
     // std::cout << "Headers:\n";
-    std::cout << "[Request] Body: " << _body
+    std::cout << "[Request] Body: " << _body << "\n"
               << "[Request] Keep-Alive: " << (_keepAlive ? "true" : "false") << std::endl;
     std::cout << "[Request] Path: " << _path << "\n"
               << "[Request] Query String: " << _queryString << std::endl;
     std::cout << "[DEBUG][Request] Request parsing completed successfully." << std::endl;
     
 	// Si llegamos hasta aquí, todo ha ido bien
-    std::cout << "[DEBUG]-------------------[REQUEST] END-------------------" << std::endl << std::endl;
+    std::cout << "[DEBUG]-------------------[REQUEST] END-------------------\n" << std::endl;
     return (true);
 }
 
