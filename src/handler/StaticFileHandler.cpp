@@ -69,7 +69,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
         return _builder->build(payload);
     }
     // 🚫 Bloqueo de métodos no permitidos
-    if (method != "GET" && method != "HEAD" && method != "POST" && method != "DELETE") {
+    if (method != "GET" /* && method != "HEAD" */ && method != "POST" && method != "DELETE") {
         payload.status = 405;
         payload.reason = "Method Not Allowed";
         payload.mime = "text/plain";
@@ -108,6 +108,42 @@ Response StaticFileHandler::handleRequest(const Request& request)
         payload.body = errorHandler.render(404, "Archivo no encontrado");
         return _builder->build(payload);
     }
+
+	if (method == "DELETE")
+	{
+		std::cout << "[DEBUG][StaticFileHandler] DELETE method called for file: " << fullPath << std::endl;
+		
+		//AQUI HABRIA QUE COMPROBAR SI TENEMOS PERMISO PARA EJECUTAR DELETE
+/* 		IF (NO TENEMOS PERMISO)
+		{
+			ErrorPageHandler errorHandler(_rootPath);
+			payload.status = 403;
+			payload.reason = "Forbidden";
+			payload.mime = "text/html";
+			payload.body = errorHandler.render(403, "Prohibido borrar el archivo");
+			return _builder->build(payload);
+		} */
+
+		if (!std::remove(fullPath.c_str()))
+		{
+			std::cout << "[DEBUG][StaticFileHandler] DELETE successful" << std::endl;
+			payload.status = 200;
+			payload.reason = "OK";
+			payload.mime = "text/html";
+			payload.body = "file: " + fullPath + " succesfully deleted";
+			return _builder->build(payload);
+		}
+		else
+		{
+			std::cout << "[DEBUG][StaticFileHandler] DELETE failed" << std::endl;
+			ErrorPageHandler errorHandler(_rootPath);
+			payload.status = 404;
+			payload.reason = "Not Found";
+			payload.mime = "text/html";
+			payload.body = errorHandler.render(404, "Archivo no encontrado");
+			return _builder->build(payload);
+		}
+	}
 
     // ✅ Archivo encontrado
     payload.status = 200;

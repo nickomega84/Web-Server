@@ -63,6 +63,10 @@ fclean: clean
 
 re: fclean all
 
+deleteme:
+	@echo "Creating temporal file: www/DELETEME.txt"
+	@touch "www/DELETEME.txt"
+
 -include $(DEPS)
 
 .PHONY: all clean fclean re
