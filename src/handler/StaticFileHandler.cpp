@@ -69,7 +69,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
         return _builder->build(payload);
     }
     // 🚫 Bloqueo de métodos no permitidos
-    if (method != "GET" /* && method != "HEAD" */ && method != "POST" && method != "DELETE") {
+    if (method != "GET" /* && method != "HEAD" */ /* && method != "POST" */ && method != "DELETE") {
         payload.status = 405;
         payload.reason = "Method Not Allowed";
         payload.mime = "text/plain";

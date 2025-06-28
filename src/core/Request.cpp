@@ -100,8 +100,11 @@ bool Request::parse(const std::string& raw)
               << "[Request] URI: " << _uri << "\n"
               << "[Request] Version: " << _version << std::endl;
     // std::cout << "Headers:\n";
-    std::cout << "[Request] Body: " << _body << "\n"
-              << "[Request] Keep-Alive: " << (_keepAlive ? "true" : "false") << std::endl;
+	if (_method != "POST")
+	    std::cout << "[Request] Body: " << _body << std::endl;
+	else
+		std::cout << "[Request] POST method body may be to big to print" << std::endl;
+	std::cout << "[Request] Keep-Alive: " << (_keepAlive ? "true" : "false") << std::endl;
     std::cout << "[Request] Path: " << _path << "\n"
               << "[Request] Query String: " << _queryString << std::endl;
     std::cout << "[DEBUG][Request] Request parsing completed successfully." << std::endl;

@@ -40,7 +40,7 @@ IRequestHandler* Router::resolve(const Request& request) const
 		const std::string& route = it->first;
 		if (uri == route || (uri.find(route) == 0))
 		{
-			std::cout << "[DEBUG][Router] Created IRequestHandler for route: " << it->first << std::endl;
+			std::cout << "[DEBUG][Router] Creating IRequestHandler for route: " << it->first << std::endl;
 			return it->second->createHandler();
 		}
 	}

@@ -23,35 +23,18 @@ void Server::closeListenSockets()
 
 int Server::addListeningSocket()
 {
-	std::string listenDirective = _cfg.getGlobal("listen");
-    std::string host;
-	std::string port;
+    int listen_socket;
 
-    if (!listenDirective.empty()) 
-	{
-        size_t p = listenDirective.find(':');
-        if (p != std::string::npos)
-		{
-            host = listenDirective.substr(0, p);
-            port = listenDirective.substr(p + 1);
-        }
-		else
-            port = listenDirective;
-    }
-	else
-	{
-        host = _cfg.getGlobal("host");
-        port = _cfg.getGlobal("port");
-    }
-	
-	int listen_socket;
+	std::string host;
+	std::string port;	
+	getHostAndPort(host, port);
 
 	struct addrinfo input;
-	struct addrinfo *output = NULL;
 	::bzero(&input, sizeof(input));
 	input.ai_flags = AI_PASSIVE;
 	input.ai_family = AF_INET;
 	input.ai_socktype = SOCK_STREAM;
+	struct addrinfo *output = NULL;
 
 	if (getaddrinfo(host.empty() ? NULL : host.c_str(), port.c_str(), &input, &output))
 		return (std::cerr << "[ERROR][addListeningSocket] calling getaddrinfo()" << std::endl, 500);
@@ -66,9 +49,32 @@ int Server::addListeningSocket()
 		return (std::cerr << "[ERROR][addListeningSocket] on listen()" << std::endl, freeaddrinfo(output), close(listen_socket), 500);
 	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
 	listen_sockets.push_back(listen_socket);
-	std::cout << "[DEBUG] New listenSocket fd = " << listen_socket << std::endl;
 	freeaddrinfo(output);
+
+	std::cout << "[DEBUG][addListeningSocket] New listenSocket fd = " << listen_socket << std::endl;
 	return (0);
+}
+
+void Server::getHostAndPort(std::string &host, std::string &port)
+{
+	std::string listenDirective = _cfg.getGlobal("listen");
+
+	if (!listenDirective.empty()) 
+	{
+		size_t p = listenDirective.find(':');
+		if (p != std::string::npos)
+		{
+			host = listenDirective.substr(0, p);
+			port = listenDirective.substr(p + 1);
+		}
+		else
+			port = listenDirective;
+	}
+	else
+	{
+		host = _cfg.getGlobal("host");
+		port = _cfg.getGlobal("port");
+	}
 }
 
 void Server::startEpoll()
@@ -88,7 +94,7 @@ void Server::startEpoll()
 		int event_nmb = epoll_wait(epollfd, events, MAX_EVENTS, -1);
 		if (event_nmb == -1)
 		{
-			std::cerr << "[ERROR][LOOP EPOLL] on epoll_wait(), epollfd = " << epollfd << std::endl;
+			std::cout << "[DEBUG][LOOP EPOLL] on epoll_wait(), epollfd = " << epollfd << std::endl;
 			break;
 		}
 		for (int i = 0; i < event_nmb; i++)
@@ -213,14 +219,6 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 
 	std::string newBuffer(str_buffer, n);
 	additive_bff.add_buffer(newBuffer);
-
-/* 	std::cout << std::endl << "[DEBUG]--------------------handleClientRead--------------------" << std::endl;
-	std::cout << "[[buffer:]]" << "\n" << std::endl;
-	std::cout << buffer.c_str() << std::endl;
-	std::cout << "[[additive_bff.get_buffer(buffer):]]" << "\n" << std::endl;
-	std::cout << additive_bff.get_buffer().c_str() << std::endl;
-	std::cout << "[DEBUG]--------------------handleClientRead (END)---------------------------" << "\n" << std::endl; */
-	
 	try
 	{
 		if (!readRequest(client_fd, additive_bff))

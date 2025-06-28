@@ -34,7 +34,8 @@ class Server
         Server(const Server& other);
         Server& operator=(const Server& other);
 
-        int		init_epoll();
+        void	getHostAndPort(std::string &host, std::string &port);
+		int		init_epoll();
         int		ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events);
         int		accept_connection(int listen_socket, int epollfd, std::vector<int> &client_fds, std::map<int, ClientBuffer> &client_buffers);
 		int		handleClientRead(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
@@ -56,8 +57,8 @@ class Server
         Server(ConfigParser& cfg, const std::string& rootPath);
         ~Server();
 
-        int		addListeningSocket();
+		void	closeListenSockets();
+		int		addListeningSocket();
         void	startEpoll();
-        void	closeListenSockets();
         void	setRouter(const Router &router);                 
 };
