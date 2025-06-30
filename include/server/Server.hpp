@@ -16,7 +16,7 @@
 #include "../include/core/Response.hpp"
 #include "../include/libraries.hpp"
 #include "../include/router/Router.hpp"
-#include "../include/cgi/CGIHandler.hpp"
+#include "../include/handler/CGIHandler.hpp"
 #include "../include/handler/StaticFileHandler.hpp"
 #include "../include/server/ClientBuffer.hpp"
 #include "../include/utils/Utils.hpp"
@@ -33,7 +33,6 @@ class Server
 
         Server(const Server& other);
         Server& operator=(const Server& other);
-		void	closeListenSockets();
 
 		//addListeningSocket
         void	getHostAndPort(std::string &host, std::string &port);
@@ -62,7 +61,7 @@ class Server
         Server(ConfigParser& cfg, const std::string& rootPath);
         ~Server();
 
+		void	setRouter(const Router &router);
 		int		addListeningSocket();
         void	startEpoll();
-        void	setRouter(const Router &router);                 
 };

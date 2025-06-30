@@ -2,7 +2,7 @@
 #define CGI_HANDLER_FACTORY_HPP
 
 #include "IHandlerFactory.hpp"
-#include "../cgi/CGIHandler.hpp"
+#include "../handler/CGIHandler.hpp"
 #include <string>
 #include <iostream>
 
@@ -38,7 +38,7 @@ class CGIHandlerFactory : public IHandlerFactory
 // #define CGI_HANDLER_FACTORY_HPP
 
 // #include "IHandlerFactory.hpp"
-// #include "../cgi/CGIHandler.hpp"
+// #include "../handler/CGIHandler.hpp"
 // #include <string>
 
 // class CGIHandlerFactory : public IHandlerFactory

@@ -11,14 +11,13 @@ Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath
 
 Server::~Server()
 {
-    closeListenSockets();
-}
-
-void Server::closeListenSockets()
-{
 	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); ++it)
 		close(*it);
 	listen_sockets.clear();
+}
+
+void Server::setRouter(const Router& router) {
+	this->_router = router;
 }
 
 int Server::addListeningSocket()
@@ -281,8 +280,4 @@ void Server::requestParseError(int client_fd, std::map<int, Response> &pending_w
 	res400.setStatus(400, "Bad Request");
 	res400.setBody(err.render(400, "Bad Request"));
 	pending_writes[client_fd] = res400;
-}
-
-void Server::setRouter(const Router& router) {
-	this->_router = router;
 }

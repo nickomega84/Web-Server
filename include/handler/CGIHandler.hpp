@@ -12,12 +12,8 @@
 #define SH_INTERPRETER "/usr/bin/sh"
 #define BUFFER_SIZE	1024
 
-
 enum Type
 {
-	NO_CGI = 0,
-	INVALID1 = 1,
-	INVALID2 = 2,
 	GET_PY = 3,
 	GET_SH = 4,
 	POST_PY = 5,
@@ -27,27 +23,32 @@ enum Type
 class CGIHandler : public IRequestHandler 
 {
 	private:
-       /* Raíz física de /cgi-bin (inyectada por la factory) */
-        std::string _cgiRoot;
-        int     _error;
-        std::vector<std::string> enviromentGET(std::string path, std::string queryString);
-        std::vector<std::string> enviromentPOST(std::string path, std::string queryString, const Request &req);
-        std::string     getDir(const std::string &uri, bool *success);
-        std::string     getName(const std::string &uri, bool *success);
-        std::string     getQueryString(const std::string &uri);
+        std::string	_cgiRoot; //Raíz física de /cgi-bin (inyectada por la factory)
+        int			_error;
+		Response	_res;
+       
+		Response	handleCGI( const Request &req, Response &res);
+		void		CGIerror(int status, std::string reason, std::string mime);
+		int			identifyScriptType(const Request &req);
+		int			identifyMethod(const Request &req);
+
+		void		handleGET(const Request &req, Response &res, std::string interpreter);
+        void		handlePOST(const Request &req, Response &res, std::string interpreter);
+		int			getScript(const Request &req, std::map<std::string, std::string> &map);
+		std::string	getScriptName(const std::string &uri, bool &success);
+		int			checkScript(std::string &directory, std::string &name);
+        char**		getEnviroment(std::string method, std::string path, std::string queryString, const Request &req);
+        
+		
+std::string     getDir(const std::string &uri, bool *success);
+        std::string     getScriptQuery(const std::string &uri);
         std::string     joinPath(const std::string &a, const std::string &b);
         
-        int     identifyType(const Request &req);
-        int     identifyMethod(const Request &req);
-        int     checkHandler(const Request &req, std::map<std::string, std::string> &m);
-        int     handleGET(const Request &req, Response &res, std::string interpreter);
-        int     handlePOST(const Request &req, Response &res, std::string interpreter);
+        
+        
         void    handleError(int error);
         int     createResponse(std::string output, Response &res);
-        
-        bool    checkLocation(std::string &directory, std::string &name);
-        bool    checkExePermission(std::string path);
-        bool    identifyCGI( const Request &req, Response &res);
+
     /* Utilidad para concatenar rutas en C++98 */
     
 	public:

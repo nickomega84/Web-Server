@@ -77,7 +77,7 @@ int main(int argc, char** argv)
     std::cout << "[DEBUG] CGI dir: " << cgiCfg.getCgiPath() << std::endl;
     std::cout << "[DEBUG] Port: " << portCfg.getPort() << std::endl;
     
-    // 4. Crear y router
+    // 6. Crear y router
     std::string rootPath = Utils::resolveAndValidateDir(rootCfg.getRootPath());
     Router router;
     
@@ -90,15 +90,15 @@ int main(int argc, char** argv)
         std::cout << "[DEBUG] Registrando CGI handler para extensión: " << exts[i] << std::endl;
     }
     
-    // 5. Construir y validar rutas absolutas (POSIX)
+    // 7. Construir y validar rutas absolutas (POSIX)
     std::string uploadPath = Utils::resolveAndValidateDir(upCfg.getUploadPath());
     std::string cgiPath = Utils::resolveAndValidateFile(cgiCfg.getCgiPath());
     std::cout << "[DEBUG] CGI path: " << cgiPath << std::endl;
 
-    // 6. Crear ResponseBuilder
+    // 8. Crear ResponseBuilder
     IResponseBuilder* responseBuilder = new DefaultResponseBuilder();
 
-    //.. 7. Configurar router con fábricas (Factory Pattern)
+    // 9. Configurar router con fábricas (Factory Pattern)
 	IHandlerFactory* cgiFactory = new CGIHandlerFactory(cgiPath);
     router.registerFactory("/www/cgi-bin", cgiFactory);
 	IHandlerFactory* staticFactory = new StaticHandlerFactory(rootPath, responseBuilder);
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 	IHandlerFactory* uploadFactory = new UploadHandlerFactory(uploadPath, responseBuilder);
     router.registerFactory("/upload", uploadFactory);
 
-    // 8. Crear servidor y asignarle el
+    // 10. Crear servidor y asignarle el
 	Server server(cfg, rootPath);
     server.setRouter(router);
 	
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
     std::cout << "[🔁] Webserv arrancado en puerto " << cfg.getGlobal("port") << " — Ctrl-C para parar" << std::endl;
 	std::cout << std::endl;
 
-    // 9. Bucle principal (epoll)
+    // 11. Bucle principal (epoll)
     server.startEpoll();
 
 	delete responseBuilder;
