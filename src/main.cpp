@@ -72,28 +72,32 @@ int main(int argc, char** argv)
     portCfg.parse(cfg);
 
     // 5. Usa los datos parseados
-    std::cout << "[DEBUG] Server root: " << rootCfg.getRootPath() << std::endl;
-    std::cout << "[DEBUG] Uploads dir: " << upCfg.getUploadPath() << std::endl;
-    std::cout << "[DEBUG] CGI dir: " << cgiCfg.getCgiPath() << std::endl;
-    std::cout << "[DEBUG] Port: " << portCfg.getPort() << std::endl;
+    std::cout << "[DEBUG][Main] Server root: " << rootCfg.getRootPath() << std::endl;
+    std::cout << "[DEBUG][Main] Uploads dir: " << upCfg.getUploadPath() << std::endl;
+    std::cout << "[DEBUG][Main] CGI dir: " << cgiCfg.getCgiPath() << std::endl;
+    std::cout << "[DEBUG][Main] Port: " << portCfg.getPort() << std::endl;
     
     // 6. Crear y router
     std::string rootPath = Utils::resolveAndValidateDir(rootCfg.getRootPath());
+	if (rootPath.empty())
+		return (EXIT_FAILURE);
     Router router;
     
     //  Mostrar configuración de rutas
-	std::cout << "[DEBUG] CGI extensions: " << std::endl;
+	std::cout << "[DEBUG][Main] CGI extensions: " << std::endl;
     const std::vector<std::string>& exts = cgiCfg.getCgiExtensions();
     for (size_t i = 0; i < exts.size(); ++i) 
     {
         std::cout << exts[i] << " " << std::endl;
-        std::cout << "[DEBUG] Registrando CGI handler para extensión: " << exts[i] << std::endl;
+        std::cout << "[DEBUG][Main] Registrando CGI handler para extensión: " << exts[i] << std::endl;
     }
     
     // 7. Construir y validar rutas absolutas (POSIX)
     std::string uploadPath = Utils::resolveAndValidateDir(upCfg.getUploadPath());
+	if (uploadPath.empty())
+		return (EXIT_FAILURE);
     std::string cgiPath = Utils::resolveAndValidateFile(cgiCfg.getCgiPath());
-    std::cout << "[DEBUG] CGI path: " << cgiPath << std::endl;
+    std::cout << "[DEBUG][Main] CGI path: " << cgiPath << std::endl;
 
     // 8. Crear ResponseBuilder
     IResponseBuilder* responseBuilder = new DefaultResponseBuilder();

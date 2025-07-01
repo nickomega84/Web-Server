@@ -51,7 +51,7 @@ std::string CgiConfig::getCgiPath() const {
 }
 
 const std::vector<std::string>& CgiConfig::getCgiExtensions() const {
-    std::cout << "CgiConfig::getCgiExtensions called" << std::endl;
-    std::cout << "CgiConfig::getCgiExtensions size: " << cgiExtensions.size() << std::endl;
+    std::cout << "[DEBUG] CgiConfig::getCgiExtensions called" << std::endl;
+    std::cout << "[DEBUG] CgiConfig::getCgiExtensions size: " << cgiExtensions.size() << std::endl;
     return cgiExtensions;  
 }

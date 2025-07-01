@@ -1,4 +1,4 @@
-
+#pragma once
 #include "ConfigFactory.hpp"
 
 class UploadsConfig : public ConfigFactory {

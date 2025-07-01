@@ -37,6 +37,7 @@ IRequestHandler* Router::resolve(const Request& request) const
 	for (it = _routes.rbegin(); it != _routes.rend(); ++it) 
     {
 		std::cout << "[DEBUG][Router] Checking route: " << it->first << std::endl;
+		std::cout << "[DEBUG][Router] Checking route: " << it->first << std::endl;
 		const std::string& route = it->first;
 		if (uri == route || (uri.find(route) == 0))
 		{

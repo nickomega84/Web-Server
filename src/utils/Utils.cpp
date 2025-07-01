@@ -54,7 +54,7 @@ std::string Utils::resolveAndValidateDir(const std::string& path) {
     if (::realpath(p.c_str(), real) == NULL) {
         std::cerr << "[ERROR] no se pudo resolver ruta absoluta para " << p
                   << ": " << strerror(errno) << std::endl;
-        std::exit(EXIT_FAILURE);
+        return ("");
     }
 
     std::cout << "[DEBUG] Resolviendo ruta absoluta -->>>: " << real << std::endl;
@@ -63,7 +63,7 @@ std::string Utils::resolveAndValidateDir(const std::string& path) {
     if (stat(real, &sb) != 0 || !S_ISDIR(sb.st_mode)) {
         std::cerr << "[ERROR] la ruta no es un directorio válido " << real
                   << ": " << strerror(errno) << std::endl;
-        std::exit(EXIT_FAILURE);
+        return ("");
     }
 
     return std::string(real);
@@ -73,12 +73,12 @@ std::string Utils::resolveAndValidateFile(const std::string& path) {
     char real[PATH_MAX] = {0};
     if (::realpath(path.c_str(), real) == NULL) {
         std::cerr << "[ERROR] Error al resolver ruta: " << path << ": " << strerror(errno) << std::endl;
-        std::exit(EXIT_FAILURE);
+        return ("");
     }
     struct stat sb;
     if (stat(real, &sb) != 0 || !S_ISREG(sb.st_mode)) {
         std::cerr << "[ERROR] la ruta no es un archivo válido " << real << std::endl;
-        std::exit(EXIT_FAILURE);
+        return ("");
     }
     return std::string(real);
 }
