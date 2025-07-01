@@ -25,6 +25,7 @@ class Utils
         static std::string mapUriToPath(const std::string& absRoot, const std::string& uri);
         static std::string validateFilesystemEntry(const std::string& absPath);
 
+		size_t	strToSizeT(const std::string& str);
 };
 
 #endif

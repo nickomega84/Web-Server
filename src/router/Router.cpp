@@ -4,7 +4,7 @@
 // Router::Router() 
 // {
 //     std::cout
-//     std::cout << "Router constructor called" << std::endl;
+//     std::cout << "[DEBUG] Router constructor called" << std::endl;
 // }
 
 
@@ -27,7 +27,7 @@ Router& Router::operator=(const Router& other)
 
 Router::~Router() 
 {
-    std::cout << "Router destructor called" << std::endl;
+    std::cout << "[DEBUG] Router destructor called" << std::endl;
 }
 
 void Router::registerFactory(const std::string& pathPrefix, IHandlerFactory* factory)

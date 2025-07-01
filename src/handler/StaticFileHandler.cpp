@@ -7,21 +7,20 @@
 
 StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root) 
 {
-    std::cout << "[DEBUG] StaticFileHandler initialized with root path: " << _rootPath << std::endl;
+    std::cout << "[DEBUG][StaticFileHandler] initialized with root path: " << _rootPath << std::endl;
 }
 
 StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* b): _rootPath(root), _builder(b)
 {
-    std::cout << "[DEBUG] StaticFileHandler initialized with root and builder\n";
+    std::cout << "[DEBUG][StaticFileHandler] initialized with root and builder\n";
 }
 StaticFileHandler::~StaticFileHandler() {}
 
 static bool fileExists(const std::string& path) 
 {
-    std::cout << "[DEBUG] Verificando existencia del archivo:  StaticFileHandler" << path << std::endl;
+    std::cout << "[DEBUG][StaticFileHandler] Verifying file existence, file: " << path << std::endl;
     std::ifstream file(path.c_str());
     if (!file) {
-        std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
         return false;
     }
     // std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
@@ -50,7 +49,9 @@ Response StaticFileHandler::handleRequest(const Request& request)
 {
     Payload payload;
     payload.keepAlive = true; // o hazlo condicional al header del request
-    std::string uri    = request.getPath();
+    std::cout << "[DEBUG][StaticFileHandler][handleRequest] START" << std::endl;
+	
+	std::string uri    = request.getPath();
     std::string qs     = request.getQueryString();
     std::string method = request.getMethod();
     const std::string& path = request.getPhysicalPath();       // ✓ validado
@@ -82,7 +83,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
         return _builder->build(payload);
     }
     // 🚫 Bloqueo de métodos no permitidos
-    if (method != "GET" && method != "HEAD" && method != "POST" && method != "DELETE") {
+    if (method != "GET" /* && method != "HEAD" */ /* && method != "POST" */ && method != "DELETE") {
         payload.status = 405;
         payload.reason = "Method Not Allowed";
         payload.mime = "text/plain";
@@ -110,19 +111,55 @@ Response StaticFileHandler::handleRequest(const Request& request)
     // if (uri.length() > 1 && uri[uri.length() - 1] == '/')
     //     uri.erase(uri.length() - 1);
     // // std::string fullPath = _rootPath + uri;
-    // // // std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
+    // // // std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: " << fullPath << std::endl;
     // // const std::string& fullPath = request.getPhysicalPath();   // ⇦ ya es absoluta
     // // std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
 
     // if (!fileExists(path)) {
-    //     std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
+    //     std::cout << "[DEBUG][StaticFileHandler] File not found, file: " << path << std::endl;
     //     ErrorPageHandler errorHandler(_rootPath);
     //     payload.status = 404;
     //     payload.reason = "Not Found";
     //     payload.mime = "text/html";
     //     payload.body = errorHandler.render(404, "Archivo no encontrado");
     //     return _builder->build(payload);
-    // }
+    }
+
+	if (method == "DELETE")
+	{
+		std::cout << "[DEBUG][StaticFileHandler] DELETE method called for file: " << fullPath << std::endl;
+		
+		//AQUI HABRIA QUE COMPROBAR SI TENEMOS PERMISO PARA EJECUTAR DELETE
+/* 		IF (NO TENEMOS PERMISO)
+		{
+			ErrorPageHandler errorHandler(_rootPath);
+			payload.status = 403;
+			payload.reason = "Forbidden";
+			payload.mime = "text/html";
+			payload.body = errorHandler.render(403, "Prohibido borrar el archivo");
+			return _builder->build(payload);
+		} */
+
+		if (!std::remove(fullPath.c_str()))
+		{
+			std::cout << "[DEBUG][StaticFileHandler] DELETE successful" << std::endl;
+			payload.status = 200;
+			payload.reason = "OK";
+			payload.mime = "text/html";
+			payload.body = "file: " + fullPath + " succesfully deleted";
+			return _builder->build(payload);
+		}
+		else
+		{
+			std::cout << "[DEBUG][StaticFileHandler] DELETE failed" << std::endl;
+			ErrorPageHandler errorHandler(_rootPath);
+			payload.status = 404;
+			payload.reason = "Not Found";
+			payload.mime = "text/html";
+			payload.body = errorHandler.render(404, "Archivo no encontrado");
+			return _builder->build(payload);
+		}
+	// }
 
     // ✅ Archivo encontrado
     payload.status = 200;

@@ -68,7 +68,7 @@ std::string ErrorPageHandler::render(int code, const std::string& fallbackText) 
     std::cout << "Relative path: AQUIIIIIIIIII \n \n " << (relPath ? relPath : "NULL") << std::endl;
     std::string fullPath = _rootPath + relPath;
     std::cout << "ErrorPageHandler: relPath: " << relPath << std::endl;
-    std::cout << "\n Page_Handler: " << fullPath  << std::endl;
+    std::cout << "\nPage_Handler: " << fullPath  << std::endl;
     if (relPath != NULL) 
     {
         std::cout << "Checking if file exists: " << fullPath << std::endl;

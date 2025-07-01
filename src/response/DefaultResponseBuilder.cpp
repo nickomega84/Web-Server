@@ -30,13 +30,13 @@ Response DefaultResponseBuilder::build(const Payload& p)
 {
     Response res;
     res.setStatus(p.status, p.reason);
-    std::cout << "[DEBUG] Setting response status: " << p.status << " " << p.reason << "\n";
+    std::cout << "[DEBUG][DefaultResponseBuilder] Setting response status: " << p.status << " " << p.reason << "\n";
     res.setHeader("Content-Type",   p.mime);
-    std::cout << "[DEBUG] Setting response Content-Type: " << p.mime << "\n";
+    std::cout << "[DEBUG][DefaultResponseBuilder] Setting response Content-Type: " << p.mime << "\n";
     res.setHeader("Content-Length", Utils::intToString(p.body.size()));
-    std::cout << "[DEBUG] Setting response Content-Length: " << p.body.size() << "\n";
+    std::cout << "[DEBUG][DefaultResponseBuilder] Setting response Content-Length: " << p.body.size() << "\n";
     res.setHeader("Connection",     p.keepAlive ? "keep-alive" : "close");
-    std::cout << "[DEBUG] Setting response Connection: " << (p.keepAlive ? "keep-alive" : "close") << "\n";
+    std::cout << "[DEBUG][DefaultResponseBuilder] Setting response Connection: " << (p.keepAlive ? "keep-alive" : "close") << "\n";
     res.setBody(p.body);
     /* std::cout << p.body << "\n"; */
     return res;

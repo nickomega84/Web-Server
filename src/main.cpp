@@ -92,7 +92,7 @@ int main(int argc, char** argv)
     for (size_t i = 0; i < exts.size(); ++i) 
     {
         std::cout << exts[i] << " " << std::endl;
-        std::cout << "[OLABEBE DEBUG] Registrando CGI handler para extensión: " << exts[i] << std::endl;
+        std::cout << "[DEBUG] Registrando CGI handler para extensión: " << exts[i] << std::endl;
     }
     // 6. Construir y validar rutas absolutas
     // std::string rootPath = Utils::resolveAndValidateDir(rootCfg.getRootPath());    // ahora absoluta
@@ -122,6 +122,7 @@ int main(int argc, char** argv)
 
     // server.setRouter(router);
     std::cout << "[🔁] Webserv arrancado en puerto " << cfg.getGlobal("port") << " — Ctrl-C para parar" << std::endl;
+	std::cout << std::endl;
 
     // 9. Bucle principal (epoll)
     server.startEpoll();

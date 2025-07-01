@@ -35,7 +35,9 @@ Request::~Request()
 
 bool Request::parse(const std::string& raw)
 {
-    std::istringstream stream(raw);
+    std::cout << "\n[DEBUG]-------------------[REQUEST] START-------------------" << std::endl;
+	
+	std::istringstream stream(raw);
     std::string line;
 
     /* ── 1. START-LINE ───────────────────────────── */
@@ -47,7 +49,6 @@ bool Request::parse(const std::string& raw)
     if (!(firstLine >> _method >> _uri >> _version))
         return false;
         
-    
     // ▶ Separar path y query-string
     size_t q = _uri.find('?');
     if (q != std::string::npos) {
@@ -58,10 +59,10 @@ bool Request::parse(const std::string& raw)
         _queryString.clear();
     }
 
-    std::cout << "[DEBUG] Start line parsed: " << _method << " " << _uri << " " << _version << "\n";
+    std::cout << "[DEBUG][Request] Start line parsed: " << _method << " " << _uri << " " << _version << "\n";
 
-    std::cout << "[DEBUG] Path: " << _path << "\n" << std::endl;
-    std::cout << "[DEBUG] Query String: " << _queryString << "\n" << std::endl;
+    std::cout << "[DEBUG][Request] Path: " << _path << std::endl;
+    std::cout << "[DEBUG][Request] Query String: " << _queryString << std::endl;
     /* ── 2. HEADERS ─────────────────────────────── */
     while (std::getline(stream, line) && line != "\r" && line != "\n") {
         size_t pos = line.find(':');
@@ -70,13 +71,11 @@ bool Request::parse(const std::string& raw)
         std::string key   = line.substr(0, pos);
         std::string value = line.substr(pos + 1);
 
-        std::cout << "[DEBUG] Header found: " << key << " = " << value << "\n";
+        std::cout << "[DEBUG][Request] Header found: " << key << " = " << value << "\n";
         // Convertir a minúsculas
         for (size_t i = 0; i < key.size(); ++i) {
             key[i] = std::tolower(key[i]);
         }
-
-
 
         // Trim whitespace inicial
         value.erase(0, value.find_first_not_of(" \t"));
@@ -89,7 +88,7 @@ bool Request::parse(const std::string& raw)
     }
 
     /* ── 3. BODY ─────────────────────────────────── */
-    if (_headers.count("Content-Length") > 0) {
+    if (_headers.count("content-length") > 0 || _headers.count("transfer-encoding")) {
         std::stringstream ss;
         ss << stream.rdbuf();
         _body = ss.str();
@@ -103,18 +102,22 @@ bool Request::parse(const std::string& raw)
         _keepAlive = (getHeader("Connection") == "keep-alive");
     }
    
-    std::cout << "[DEBUG] Request parsed successfully:\n"
-              << "Method: " << _method << "\n"
-              << "URI: " << _uri << "\n"
-              << "Version: " << _version << "\n" << std::endl;
+    std::cout << "[DEBUG][Request] Request parsed successfully:\n"
+              << "[Request] Method: " << _method << "\n"
+              << "[Request] URI: " << _uri << "\n"
+              << "[Request] Version: " << _version << std::endl;
     // std::cout << "Headers:\n";
-    std::cout << "Body: " << _body << "\n"
-              << "Keep-Alive: " << (_keepAlive ? "true" : "false") << "\n" << std::endl;
-    std::cout << "Path: " << _path << "\n"
-              << "Query String: " << _queryString << "\n" << std::endl;
-    std::cout << "Request parsing completed successfully.\n" << std::endl;
-    // Si llegamos hasta aquí, todo ha ido bien
+	if (_method != "POST")
+	    std::cout << "[Request] Body: " << _body << std::endl;
+	else
+		std::cout << "[Request] POST method body may be to big to print" << std::endl;
+	std::cout << "[Request] Keep-Alive: " << (_keepAlive ? "true" : "false") << std::endl;
+    std::cout << "[Request] Path: " << _path << "\n"
+              << "[Request] Query String: " << _queryString << std::endl;
+    std::cout << "[DEBUG][Request] Request parsing completed successfully." << std::endl;
     
+	// Si llegamos hasta aquí, todo ha ido bien
+    std::cout << "[DEBUG]-------------------[REQUEST] END-------------------\n" << std::endl;
     return (true);
 }
 

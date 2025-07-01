@@ -17,28 +17,30 @@ CGIHandler::CGIHandler(IResponseBuilder* b, const std::string& cgiBin) : _cgiBin
     std::cout << "[DEBUG] CGIHandler Constructor: _cgiBin = " << _cgiBin << std::endl;
 }
 
-CGIHandler::CGIHandler(const CGIHandler& other) {
+CGIHandler::CGIHandler(const CGIHandler& other) 
+{
     *this = other;
 }
 
-CGIHandler& CGIHandler::operator=(const CGIHandler &other) {
-    if (this != &other) {
+CGIHandler& CGIHandler::operator=(const CGIHandler &other) 
+{
+    if (this != &other) 
         _error = other._error;
-    }
-    return *this;
+    return (*this);
 }
 
 CGIHandler::~CGIHandler()
-{
-    std::cout << "CGI Handler Destructed" << std::endl;
-}
+{}
 
-Response CGIHandler::handleRequest(const Request& req) {
-    Response res;
+Response CGIHandler::handleRequest(const Request& req) 
+{
+	std::cout << "[DEBUG][CGI][handleRequest] START" << std::endl;
+
+	Response res;
 
     bool ok = identifyCGI(req, res);
-    std::cout << "[DEBUG] CGIHandler::handleRequest()" << std::endl;
-    if ((!ok || _error >= 400 )) 
+
+    if ((!ok || _error >= 400))
     {    
         ErrorPageHandler err(req.getPath());
         Response res400;
@@ -53,6 +55,8 @@ Response CGIHandler::handleRequest(const Request& req) {
 
 int CGIHandler::identifyType(const Request &req)
 {
+	std::cout << "[DEBUG][CGI][identifyType] START" << std::endl;
+
 	std::string uri = req.getURI();
 	std::string::size_type query_pos = uri.find('?');
 	std::string path_part = uri;
@@ -67,6 +71,8 @@ int CGIHandler::identifyType(const Request &req)
 
 int CGIHandler::identifyMethod(const Request &req)
 {
+	std::cout << "[DEBUG][CGI][identifyMethod] START" << std::endl;
+
 	std::string method = req.getMethod();
 	if (method == "GET")
 		return (2);
@@ -82,6 +88,8 @@ void CGIHandler::handleError(int error)
 
 bool CGIHandler::identifyCGI(const Request &req, Response &res)
 {
+	std::cout << "[DEBUG][CGI][identifyCGI] START" << std::endl;
+
 	int indx = identifyType(req);
 	if (indx == 0)
 		return ((_error =
@@ -103,6 +111,8 @@ bool CGIHandler::identifyCGI(const Request &req, Response &res)
 
 std::string CGIHandler::getDir(const std::string &uri, bool *success)
 {
+	std::cout << "[DEBUG][CGI][getDir] START" << std::endl;
+
 	std::string::size_type pos = uri.rfind("/");
 	if (pos == std::string::npos)
 		return (*success = false, "");
@@ -111,6 +121,8 @@ std::string CGIHandler::getDir(const std::string &uri, bool *success)
 
 std::string CGIHandler::getName(const std::string &uri, bool *success)
 {
+	std::cout << "[DEBUG][CGI][getName] START" << std::endl;
+
 	std::string::size_type pos_name = uri.rfind("/");
 	if (pos_name == std::string::npos)
 		return (*success = false, "");
@@ -124,7 +136,8 @@ std::string CGIHandler::getName(const std::string &uri, bool *success)
 
 std::string CGIHandler::getQueryString(const std::string &uri)
 {
-    std::cout << "[DEBUG] CGIHandler::getQueryString() uri: " << uri << std::endl;
+	std::cout << "[DEBUG][CGI][getQueryString] START" << std::endl;
+
 	std::string::size_type pos_query = uri.find("?");
 	if (pos_query == std::string::npos)
 		return ("");
@@ -133,8 +146,7 @@ std::string CGIHandler::getQueryString(const std::string &uri)
 
 bool CGIHandler::checkLocation(std::string &directory, std::string &name)
 {
-    std::cout << "[HOLA] CGIHandler::checkLocation() directory: " << directory << std::endl;
-    std::cout << "[DEBUG] CGIHandler::checkLocation() name: " << name << std::endl;
+	std::cout << "[DEBUG][CGI][checkLocation] START" << " directory: " << directory << " name: " << name << std::endl;
 
     // Componer ruta completa al script
     std::string fullPath = directory + "/" + name;
@@ -153,7 +165,7 @@ bool CGIHandler::checkLocation(std::string &directory, std::string &name)
         return false;
     }
 
-    std::cout << "[DEBUG] CGIHandler::checkLocation() script válido: " << fullPath << std::endl;
+    std::cout << "[DEBUG][CGI] CGIHandler::checkLocation() script válido: " << fullPath << std::endl;
     return true;
 }
 
@@ -161,11 +173,11 @@ bool CGIHandler::checkLocation(std::string &directory, std::string &name)
 // bool CGIHandler::checkLocation(std::string &directory, std::string &name) //comprueba si el archivo existe dentro del directorio
 // {
 // 	std::cout << "[HOLA] CGIHandler::checkLocation() directory: " << directory << std::endl;
-// 	std::cout <<  "[DEBUG] CGIHandler::checkLocation() name: " << name << std::endl;
+// 	std::cout <<  "[DEBUG][CGI] CGIHandler::checkLocation() name: " << name << std::endl;
 // 	DIR *dir;
 // 	struct dirent *entry;
 // 	std::vector<std::string> file_names;
-//     std::cout << "[DEBUG] directory: " << directory << std::endl;
+//     std::cout << "[DEBUG][CGI] directory: " << directory << std::endl;
 // 	if (access(directory.c_str(), F_OK) == -1) {
 // 		std::cerr << "[ERROR] CGIHandler::checkLocation() access() failed for "
 // 		          << directory << " — " << strerror(errno)        // <- clave
@@ -181,7 +193,7 @@ bool CGIHandler::checkLocation(std::string &directory, std::string &name)
 
 // 	// if ((dir = opendir(directory.c_str())) == NULL)	//DIR es una estructura opaca definida en <dirent.h>, utilizada por las funciones del sistema para representar un flujo de directorio abierto. Su contenido interno está oculto al usuario y gestionado por el sistema operativo.
 // 	// 	return (std::cerr << "[ERROR] CGIHandler::checkLocation() opendir() failed for directory: " << directory << std::endl, false);
-//     std::cout << "[DEBUG] CGIHandler::checkLocation() directory: " << directory << std::endl;
+//     std::cout << "[DEBUG][CGI] CGIHandler::checkLocation() directory: " << directory << std::endl;
 // 	while ((entry = readdir(dir)) != NULL)
 // 		file_names.push_back(entry->d_name);
 // 	closedir(dir);
@@ -192,6 +204,8 @@ bool CGIHandler::checkLocation(std::string &directory, std::string &name)
 
 bool CGIHandler::checkExePermission(std::string path)
 {
+	std::cout << "[DEBUG][CGI][checkExePermission] START" << std::endl;
+	
 	if (!access(path.c_str(), X_OK))
 		return (true);
 	return (false);
@@ -199,14 +213,14 @@ bool CGIHandler::checkExePermission(std::string path)
 // bool CGIHandler::checkLocation(std::string &directory, std::string &name, std::string &interpreter)
 // {
 // 	std::cout << "[HOLA] CGIHandler::checkLocation() directory: " << directory << std::endl;
-// 	std::cout <<  "[DEBUG] CGIHandler::checkLocation() name: " << name << std::endl;
+// 	std::cout <<  "[DEBUG][CGI] CGIHandler::checkLocation() name: " << name << std::endl;
 // 	DIR *dir;
 // 	struct dirent *entry;
 // 	std::vector<std::string> file_names;
-// 	std::cout << "[DEBUG] directory: " << directory << std::endl;
+// 	std::cout << "[DEBUG][CGI] directory: " << directory << std::endl;
 // 	if ((dir = opendir(directory.c_str())) == NULL)	//DIR es una estructura opaca definida en <dirent.h>, utilizada por las funciones del sistema para representar un flujo de directorio abierto. Su contenido interno está oculto al usuario y gestionado por el sistema operativo.
 // 		return (std::cerr << "[ERROR] CGIHandler::checkLocation() opendir() failed for directory: " << directory << std::endl, false);
-// 	std::cout << "[DEBUG] CGIHandler::checkLocation() directory: " << directory << std::endl;
+// 	std::cout << "[DEBUG][CGI] CGIHandler::checkLocation() directory: " << directory << std::endl;
 // 	while ((entry = readdir(dir)) != NULL)
 // 		file_names.push_back(entry->d_name);
 // 	closedir(dir);
@@ -222,6 +236,8 @@ bool CGIHandler::checkExePermission(std::string path)
 
 int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::string> &m)
 {
+	std::cout << "[DEBUG][CGI][checkHandler] START" << std::endl;
+	
 	bool success = true;
 
 	// // 1. Obtener ruta y nombre del script desde URI
@@ -229,7 +245,7 @@ int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::stri
 	// std::string scriptName  = getName(uri, &success);
 	// if (!success)
 	// 	return (std::cerr << "[ERROR] CGI couldn't getName()" << std::endl, handleError(404), 1);
-    //     // return (std::cout << "[DEBUG] CGIHandler::checkHandler() scriptName: " << scriptName << std::endl, 0);
+    //     // return (std::cout << "[DEBUG][CGI] CGIHandler::checkHandler() scriptName: " << scriptName << std::endl, 0);
 	// if (!scriptName.empty() && scriptName[0] == '/')
 	// 	scriptName = scriptName.substr(1); // Quitar el slash inicial
 
@@ -306,6 +322,8 @@ int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::stri
 
 std::vector<std::string> CGIHandler::enviromentGET(std::string path, std::string queryString)
 {
+	std::cout << "[DEBUG][CGI][enviromentGET] START" << std::endl;
+	
 	std::vector<std::string> envp;
 	envp.push_back("REQUEST_METHOD=GET");
 	envp.push_back("PATH_INFO=" + path);
@@ -318,7 +336,8 @@ std::vector<std::string> CGIHandler::enviromentGET(std::string path, std::string
 
 int CGIHandler::handleGET(const Request &req, Response &res, std::string interpreter) //ejemplo del header del request: GET /cgi-bin/hello.cgi?name=Juan HTTP/1.1
 {
-    std::cout << "[DEBUG] CGIHandler::HandleGET: "  << std::endl;
+	std::cout << "[DEBUG][CGI][handleGET] START" << std::endl;
+	
 	std::map<std::string, std::string> m;
 	if (checkHandler(req, m))
 		return (1);
@@ -374,6 +393,8 @@ int CGIHandler::handleGET(const Request &req, Response &res, std::string interpr
 
 std::vector<std::string> CGIHandler::enviromentPOST(std::string path, std::string queryString, const Request &req)
 {
+	std::cout << "[DEBUG][CGI][enviromentPOST] START" << std::endl;
+	
 	std::vector<std::string> envp;
 	std::stringstream body_lenght;
 	body_lenght << req.getBody().length();
@@ -390,6 +411,8 @@ std::vector<std::string> CGIHandler::enviromentPOST(std::string path, std::strin
 
 int CGIHandler::handlePOST(const Request &req, Response &res, std::string interpreter)
 {
+	std::cout << "[DEBUG][CGI][handlePOST] START" << std::endl;
+	
 	std::map<std::string, std::string> m;
 	if (checkHandler(req, m))
 		return (1);
@@ -459,6 +482,8 @@ int CGIHandler::handlePOST(const Request &req, Response &res, std::string interp
 
 int CGIHandler::createResponse(std::string output, Response &res)
 {
+	std::cout << "[DEBUG][CGI][createResponse] START" << std::endl;
+	
 	res.setStatus(200, "OK");
 
 	std::string cgi_headers_str;
@@ -498,10 +523,11 @@ int CGIHandler::createResponse(std::string output, Response &res)
 //     return (pos == std::string::npos) ? p : p.substr(pos + 1);
 // }
 
-std::string CGIHandler::joinPath(const std::string& a,
-                                 const std::string& b)
+std::string CGIHandler::joinPath(const std::string& a, const std::string& b)
 {
-    if (a.empty()) return b;
+	std::cout << "[DEBUG][CGI][joinPath] START" << std::endl;
+	
+	if (a.empty()) return b;
     if (b.empty()) return a;
     if (a[a.size()-1] == '/' && b[0] == '/') return a + b.substr(1);
     if (a[a.size()-1] != '/' && b[0] != '/') return a + "/" + b;
