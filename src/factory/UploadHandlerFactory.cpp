@@ -1,4 +1,5 @@
 #include "../../include/factory/UploadHandlerFactory.hpp"
+#include "../../include/handler/UploadHandler.hpp"
 
 UploadHandlerFactory::UploadHandlerFactory(const std::string& path, IResponseBuilder* builder) : _uploadsPath(path), _builder(builder) 
 {

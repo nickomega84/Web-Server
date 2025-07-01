@@ -14,7 +14,7 @@ class StaticHandlerFactory : public IHandlerFactory
         IResponseBuilder* _builder;
 
     public:
-        explicit StaticHandlerFactory(const std::string& rootDir, IResponseBuilder*  builder);
+        StaticHandlerFactory(const std::string& rootDir, IResponseBuilder*  builder);
         virtual ~StaticHandlerFactory();
         virtual IRequestHandler* createHandler() const;
 };

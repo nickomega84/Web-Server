@@ -99,13 +99,13 @@ int main(int argc, char** argv)
     IResponseBuilder* responseBuilder = new DefaultResponseBuilder();
 
     // 9. Configurar router con fábricas (Factory Pattern)
-	IHandlerFactory* cgiFactory = new CGIHandlerFactory(cgiPath);
-    router.registerFactory("/www/cgi-bin", cgiFactory);
 	IHandlerFactory* staticFactory = new StaticHandlerFactory(rootPath, responseBuilder);
     router.registerFactory("/", staticFactory);
 	IHandlerFactory* uploadFactory = new UploadHandlerFactory(uploadPath, responseBuilder);
     router.registerFactory("/upload", uploadFactory);
-
+	IHandlerFactory* cgiFactory = new CGIHandlerFactory(cgiPath, responseBuilder);
+    router.registerFactory("/www/cgi-bin", cgiFactory);
+	
     // 10. Crear servidor y asignarle el
 	Server server(cfg, rootPath);
     server.setRouter(router);

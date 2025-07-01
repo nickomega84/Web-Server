@@ -7,6 +7,12 @@
 #include <signal.h> //SIGTERM
 #include <csignal>
 #include <sys/wait.h>
+#include "../../include/utils/Utils.hpp"
+#include "../../include/utils/ErrorPageHandler.hpp"
+#include "../../include/utils/MimeTypes.hpp"
+#include "../../include/response/IResponseBuilder.hpp"
+#include <iostream>
+#include "../../include/response/IResponseBuilder.hpp"
 
 #define PYTHON_INTERPRETER "/usr/bin/python3"
 #define SH_INTERPRETER "/usr/bin/sh"
@@ -20,52 +26,33 @@ enum Type
 	POST_SH = 6,
 };
 
+class IResponseBuilder;
+
 class CGIHandler : public IRequestHandler 
 {
 	private:
-        std::string	_cgiRoot; //Raíz física de /cgi-bin (inyectada por la factory)
-        int			_error;
-		Response	_res;
+        std::string			_cgiRoot; //Raíz física de /cgi-bin (inyectada por la factory)
+		IResponseBuilder*	_builder;
+		Response			_res;
        
 		Response	handleCGI( const Request &req, Response &res);
 		void		CGIerror(int status, std::string reason, std::string mime);
 		int			identifyScriptType(const Request &req);
 		int			identifyMethod(const Request &req);
 
-		void		handleGET(const Request &req, Response &res, std::string interpreter);
-        void		handlePOST(const Request &req, Response &res, std::string interpreter);
+		int			handleGET(const Request &req, Response &res, std::string interpreter);
+        int			handlePOST(const Request &req, Response &res, std::string interpreter);
 		int			getScript(const Request &req, std::map<std::string, std::string> &map);
-		std::string	getScriptName(const std::string &uri, bool &success);
-		int			checkScript(std::string &directory, std::string &name);
+		std::string	getScriptName(const std::string &uri);
+		int			checkScriptAccess(std::string &directory, std::string &name);
         char**		getEnviroment(std::string method, std::string path, std::string queryString, const Request &req);
-        
-		
-std::string     getDir(const std::string &uri, bool *success);
-        std::string     getScriptQuery(const std::string &uri);
-        std::string     joinPath(const std::string &a, const std::string &b);
-        
-        
-        
-        void    handleError(int error);
-        int     createResponse(std::string output, Response &res);
-
-    /* Utilidad para concatenar rutas en C++98 */
     
-	public:
-        
-        CGIHandler();
-        CGIHandler(const std::string& cgiRoot);   // ctor ligero
-        CGIHandler(const CGIHandler& other);
-        CGIHandler& operator=(const CGIHandler& other);
-        virtual ~CGIHandler();
-        // virtual Response handleRequest(const Request& req);
-        // std::string joinPath(const std::string& a,
-        //                          const std::string& b);
+        std::string	getScriptQuery(const std::string &uri);            
+        int			createResponse(std::string output, Response &res);
 
-        /* IRequestHandler */
-        
+    
+	public:        
+        CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder);   // ctor ligero
+        virtual ~CGIHandler();    
         virtual Response handleRequest(const Request& req);
-        
-          // virtual Response handleRequest(const Request& req);
-	    // CGIHandler(int *error_code);
 };

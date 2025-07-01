@@ -2,8 +2,9 @@
 #ifndef UPLOADHANDLERFACTORY_HPP
 #define UPLOADHANDLERFACTORY_HPP
 
-#include "factory/IHandlerFactory.hpp"
-#include "handler/UploadHandler.hpp"
+#include "../../include/factory/IHandlerFactory.hpp"
+#include "../../include/handler/IRequestHandler.hpp"
+#include "../response/IResponseBuilder.hpp"
 
 class UploadHandlerFactory : public IHandlerFactory 
 {
