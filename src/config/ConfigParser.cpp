@@ -6,9 +6,7 @@
 #include "../../include/libraries.hpp"
 #include "../../include/utils/Utils.hpp"
 
-ConfigParser::ConfigParser () {
-    std::cout << "Constructor del parseo del archivo de configuración creado" << std::endl;
-}
+ConfigParser::ConfigParser () {}
 
 ConfigParser& ConfigParser::getInst() {
     static ConfigParser inst;
@@ -19,6 +17,10 @@ ConfigParser::~ConfigParser() {
     std::cout << "Destructor del parseo del archivo de configuración creado" << std::endl;
 }
 
+size_t ConfigParser::serverCount() const {
+    return _serversConfig.size();
+}
+
 bool ConfigParser::load(std::string const &file) {
     filename = file;
     std::ifstream fileStream(filename.c_str(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ));
@@ -27,82 +29,125 @@ bool ConfigParser::load(std::string const &file) {
         return (false);
     }
 
+    _serversConfig.clear();
+    _serversLocations.clear();
+    _serversConfig.push_back(std::map<std::string, std::string>());
+    _serversLocations.push_back(std::map<std::string, std::map<std::string, std::string> > ());
+    
     std::string line;
     std::string currentLocation;
+    bool inServerBlock = false;
+
     while (std::getline(fileStream, line))
     {
         line = Utils::trim(line);
 
         if (line.empty() || line[0] == '#')
             continue;
-        if (line.find("location") != std::string::npos)
-        {
-            size_t start = line.find("location") + 8;
-            size_t end = line.find("{");
-            currentLocation = line.substr(start, end - start);
-            Utils::trim(currentLocation);
+
+        if (line.find("server") != std::string::npos && line.find("{") != std::string::npos) {
+            _serversConfig.push_back(std::map<std::string, std::string>());
+            _serversLocations.push_back(std::map<std::string, std::map<std::string, std::string> >());
+            inServerBlock = true;
+            continue;
         }
-        else if (line.find("}") != std::string::npos)
+    
+        if (line.find("}") != std::string::npos) {
+            inServerBlock = false;
             currentLocation.clear();
-        if (!currentLocation.empty()) {
-            size_t separator = line.find(";");
-            if (separator != std::string::npos) {
-                size_t keyEnd = line.find_first_of(" \t");
-                std::string key = line.substr(0, keyEnd);
+            continue;
+        }
+    
+        // Dentro de un server block
+        if (inServerBlock) {
+            size_t serverIndex = _serversConfig.size() - 1;
+            if (line.find("location") != std::string::npos)
+            {
+                size_t start = line.find("location") + 8;
+                size_t end = line.find("{");
+                currentLocation = line.substr(start, end - start);
+                Utils::trim(currentLocation);
+            }
+            
+            else if (line.find("}") != std::string::npos)
+                currentLocation.clear();
+            if (!currentLocation.empty()) {
+                size_t separator = line.find(";");
+                if (separator != std::string::npos) {
+                    size_t keyEnd = line.find_first_of(" \t");
+                    std::string key = line.substr(0, keyEnd);
 
-                size_t firstVal = line.find_first_not_of(" \t", keyEnd);
-                std::string value = line.substr(firstVal, separator - firstVal);
+                    size_t firstVal = line.find_first_not_of(" \t", keyEnd);
+                    std::string value = line.substr(firstVal, separator - firstVal);
 
-                Utils::trim(key);
-                Utils::trim(value);
+                    Utils::trim(key);
+                    Utils::trim(value);
 
-                if (!value.empty() && value[value.size() - 1] == ';')
-                    value.erase(value.size() - 1);
+                    if (!value.empty() && value[value.size() - 1] == ';')
+                        value.erase(value.size() - 1);
 
-                Utils::trim(value);
+                    Utils::trim(value);
 
-                locations[currentLocation][key] = value;
+                    locations[currentLocation][key] = value;
+                }
+            }
+
+            else {
+                size_t separator = line.find(";");
+                if (separator != std::string::npos) {
+                    size_t keyEnd = line.find_first_of(" \t");
+                    std::string key = line.substr(0, keyEnd);
+
+                    size_t firstVal = line.find_first_not_of(" \t", keyEnd);
+                    std::string value = line.substr(firstVal, separator - firstVal);
+
+                    Utils::trim(key);
+                    Utils::trim(value);
+
+                    if (!value.empty() && value[value.size() - 1] == ';')
+                        value.erase(value.size() - 1);
+
+                    Utils::trim(value);
+                    if (key == "listen") {
+                        globalConfig["listen"] = value;
+                        size_t colon = value.find(':');
+                        globalConfig["port"] = (colon == std::string::npos)
+                                            ? value
+                                            : value.substr(colon + 1);
+                        return true;
+                    }
+
+                globalConfig[key] = value;
+                }
             }
         }
-
-        else {
-            size_t separator = line.find(";");
-            if (separator != std::string::npos) {
-                size_t keyEnd = line.find_first_of(" \t");
-                std::string key = line.substr(0, keyEnd);
-
-                size_t firstVal = line.find_first_not_of(" \t", keyEnd);
-                std::string value = line.substr(firstVal, separator - firstVal);
-
-                Utils::trim(key);
-                Utils::trim(value);
-
-                if (!value.empty() && value[value.size() - 1] == ';')
-                    value.erase(value.size() - 1);
-
-                Utils::trim(value);
-                if (key == "listen") {
-                    globalConfig["listen"] = value;
-                    size_t colon = value.find(':');
-                    globalConfig["port"] = (colon == std::string::npos)
-                                        ? value
-                                        : value.substr(colon + 1);
-                    return true;
-                }
-
-            globalConfig[key] = value;
-        }
-    }
-
     }
     fileStream.close();
     return (true);
+}
+
+void ConfigParser::setGlobal(std::string const &key, std::string const &value) {
+	globalConfig[key] = value;
+}
+
+void ConfigParser::setLocation(std::string const &location, std::string const &key, std::string const &value) {
+	locations[location][key] = value;
+}
+
+bool ConfigParser::setServer(size_t index) {
+    if (index >= _serversConfig.size()) return false;
+    _currentServer = index;
+    return true;
 }
 
 std::string ConfigParser::getGlobal(std::string const &key) const 
 {
 	std::map<std::string, std::string>::const_iterator it = globalConfig.find(key);
 	return (it != globalConfig.end()) ? it->second : "";
+    
+    if (_currentServer >= _serversConfig.size()) return "";
+        std::map<std::string, std::string>::const_iterator it = _serversConfig[_currentServer].find(key);
+        return (it != _serversConfig[_currentServer].end()) ? it->second : "";
 }
 
 int ConfigParser::getGlobalInt(std::string const &key) const {
@@ -119,6 +164,14 @@ std::string ConfigParser::getLocation(const std::string& rawLoc, const std::stri
     if (loc.size() > 1 && loc[loc.size() - 1] == '/') {
         loc.erase(loc.size() - 1);
     }
+    
+    if (_currentServer >= _serversLocations.size()) return "";
+        std::map<std::string, std::string>::const_iterator it = _serversConfig[_currentServer].find(key);
+        return (it != _serversConfig[_currentServer].end()) ? it->second : "";
+
+    if (_currentServer >= _serversConfig.size()) return "";
+        std::map<std::string, std::string>::const_iterator it = _serversConfig[_currentServer].find(key);
+        return (it != _serversConfig[_currentServer].end()) ? it->second : "";
 
     for (std::map<std::string, std::map<std::string, std::string> >::const_iterator locIt = locations.begin();
          locIt != locations.end(); ++locIt) {
@@ -147,14 +200,6 @@ std::string ConfigParser::getLocation(const std::string& rawLoc, const std::stri
     return std::string();
 }
 
-void ConfigParser::setGlobal(std::string const &key, std::string const &value) {
-	globalConfig[key] = value;
-}
-
-void ConfigParser::setLocation(std::string const &location, std::string const &key, std::string const &value) {
-	locations[location][key] = value;
-}
-
 void ConfigParser::print() const {
 	std::cout << "Global Configuration: " << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = globalConfig.begin(); it != globalConfig.end(); it++) {
@@ -167,4 +212,28 @@ void ConfigParser::print() const {
 			std::cout << " " << it->first << " = " << it->second << std::endl;
 		}
 	}
+}
+
+std::vector<int> ConfigParser::getPorts(size_t serverIndex) const {
+    std::vector<int> ports;
+    if (serverIndex >= _serversConfig.size())
+        return ports;
+
+    std::string portsStr = _serversConfig[serverIndex].count("listen") 
+                            ? _serversConfig[serverIndex].at("listen")
+                            : _serversConfig[serverIndex].at("port");
+
+    if (!portsStr.empty()) {
+        std::istringstream iss(portsStr);
+        std::string token;
+        while (std::getline(iss, token, ',')) {
+            size_t start = token.find_last_not_of(" ");
+            if (start != std::string::npos) {
+                int port = atoi(token.substr(start).c_str());
+                if (port > 0 && port <= 65535)
+                    ports.push_back(port);
+            }
+        }
+    }
+    return ports;
 }
