@@ -1,5 +1,6 @@
 #include "../../include/router/Router.hpp"
 #include "../../include/utils/Utils.hpp"
+#include "../../include/utils/ErrorPageHandler.hpp"
 
 // Router::Router() 
 // {

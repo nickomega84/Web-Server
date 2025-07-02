@@ -110,7 +110,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
     }
     // if (uri.length() > 1 && uri[uri.length() - 1] == '/')
     //     uri.erase(uri.length() - 1);
-    // // std::string fullPath = _rootPath + uri;
+    std::string fullPath = _rootPath + uri;
     // // // std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: " << fullPath << std::endl;
     // // const std::string& fullPath = request.getPhysicalPath();   // ⇦ ya es absoluta
     // // std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
@@ -123,14 +123,14 @@ Response StaticFileHandler::handleRequest(const Request& request)
     //     payload.mime = "text/html";
     //     payload.body = errorHandler.render(404, "Archivo no encontrado");
     //     return _builder->build(payload);
-    }
+    // }
 
 	if (method == "DELETE")
 	{
-		std::cout << "[DEBUG][StaticFileHandler] DELETE method called for file: " << fullPath << std::endl;
+		// std::cout << "[DEBUG][StaticFileHandler] DELETE method called for file: " << fullPath << std::endl;
 		
 		//AQUI HABRIA QUE COMPROBAR SI TENEMOS PERMISO PARA EJECUTAR DELETE
-/* 		IF (NO TENEMOS PERMISO)
+    	// IF (NO TENEMOS PERMISO)
 		{
 			ErrorPageHandler errorHandler(_rootPath);
 			payload.status = 403;
@@ -138,7 +138,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
 			payload.mime = "text/html";
 			payload.body = errorHandler.render(403, "Prohibido borrar el archivo");
 			return _builder->build(payload);
-		} */
+		} 
 
 		if (!std::remove(fullPath.c_str()))
 		{
@@ -159,7 +159,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
 			payload.body = errorHandler.render(404, "Archivo no encontrado");
 			return _builder->build(payload);
 		}
-	// }
+	}
 
     // ✅ Archivo encontrado
     payload.status = 200;
@@ -261,9 +261,11 @@ Response StaticFileHandler::doGET(Response& res, std::string uri)
 
     // Validación de URI malformada: ruta que termina con slash después de una extensión
     size_t extPos = uri.find_last_of('.');
-    if (extPos != std::string::npos) {
+    if (extPos != std::string::npos) 
+    {
         size_t slashAfterExt = uri.find('/', extPos);
-        if (slashAfterExt != std::string::npos) {
+        if (slashAfterExt != std::string::npos) 
+        {
             std::cout << "[ERROR] URI malformada detectada: " << uri << std::endl;
             std::string body = ErrorPageHandler(_rootPath).render(404, "Ruta inválida");
             _builder->setStatus(res, 404, "Not Found");
@@ -285,7 +287,8 @@ Response StaticFileHandler::doGET(Response& res, std::string uri)
     }
 
     std::ifstream file(fullPath.c_str(), std::ios::binary);
-    if (!file) {
+    if (!file) 
+    {
         std::string body = ErrorPageHandler(_rootPath).render(500, "Error al abrir el archivo");
         _builder->setStatus(res, 500, "Internal Server Error");
         _builder->setBody(res, body);
@@ -309,7 +312,8 @@ Response StaticFileHandler::doDELETE(Response res, std::string uri) {
     std::string fullPath = _rootPath + uri;
     std::cout << "[DEBUG] Intentando eliminar archivo: " << fullPath << std::endl;
 
-    if (!fileExists(fullPath)) {
+    if (!fileExists(fullPath)) 
+    {
         std::string body = ErrorPageHandler(_rootPath).render(404, "Archivo no encontrado");
         _builder->setStatus(res, 404, "Not Found");
         _builder->setBody(res, body);
@@ -318,7 +322,8 @@ Response StaticFileHandler::doDELETE(Response res, std::string uri) {
         return res;
     }
 
-    if (std::remove(fullPath.c_str()) != 0) {
+    if (std::remove(fullPath.c_str()) != 0) 
+    {
         std::cerr << "[ERROR] Fallo al eliminar archivo: " << strerror(errno) << std::endl;
         std::string body = ErrorPageHandler(_rootPath).render(500, "Error al eliminar archivo");
         _builder->setStatus(res, 500, "Internal Server Error");
