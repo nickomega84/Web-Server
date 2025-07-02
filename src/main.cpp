@@ -11,6 +11,7 @@
 #include "../include/config/UploadsConfig.hpp"
 #include "../include/config/CgiConfig.hpp"
 #include "../include/config/PortConfig.hpp"
+#include "../include/config/ErrorPagesConfig.hpp"
 #include "../include/server/Server.hpp"
 #include "../include/utils/Utils.hpp"
 
@@ -20,13 +21,22 @@
 #include "../include/factory/CGIHandlerFactory.hpp"
 #include "../include/response/DefaultResponseBuilder.hpp"
 
-#include "../src/config/DirectoryRoot.cpp"
-
 volatile sig_atomic_t g_signal_received = 0;
 static void sigHandler(int sig)
 {
     if (sig == SIGINT || sig == SIGTERM) g_signal_received = 1;
     std::cout << "\n[!] Signal received, shutting down…\n";
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<int>& ports) {
+    os << "[DEBUG] Ports: ";
+    for (size_t i = 0; i < ports.size(); ++i) {
+        os << ports[i];
+        if (i != ports.size() - 1) {
+            os << ", ";
+        }
+    }
+    return os;
 }
 
 int main(int argc, char** argv) 
@@ -38,7 +48,6 @@ int main(int argc, char** argv)
     }
 
     std::string confPath = argv[1];
-    std::string baseDir = getConfigDir(configPath);
     if (confPath.size() < 5 || confPath.substr(confPath.size() - 5) != ".conf") {
         std::cerr << "[ERROR] Error: el archivo debe terminar en .conf\n";
         return EXIT_FAILURE;
@@ -63,9 +72,7 @@ int main(int argc, char** argv)
 
     // 4. Parsear bloques específicos
     RootConfig rootCfg;
-    rootCfg.parse(cfg, relativePaths, baseDir);
-
-    std::cout << "Root absolute: " << rootCfg.getRootPath() << std::endl;
+    rootCfg.parse(cfg);
     
     UploadsConfig upCfg;
     upCfg.parse(cfg);
@@ -73,14 +80,27 @@ int main(int argc, char** argv)
     CgiConfig cgiCfg;
     cgiCfg.parse(cfg);
     
-    PortConfig portCfg;
-    portCfg.parse(cfg);
+    PortConfig portsCfg;
+    portsCfg.parse(cfg);
+
+    std::cout << "Puertos arrancados: ";
+    const std::vector<int>& ports = portsCfg.getPorts();
+    for (size_t i = 0; i < cfg.serverCount(); ++i) {
+        cfg.setServer(i);
+        std::string host = cfg.getGlobal("host");
+        for (size_t i = 0; i < ports.size(); i++) {
+            std::cout << "Server " << i << " listening on " << host << 
+            ":" << ports[i] << " " << std::endl;
+        }
+    
+    }
+    std::cout << std::endl;
 
     // 5. Usa los datos parseados
     std::cout << "[DEBUG] Server root: " << rootCfg.getRootPath() << std::endl;
     std::cout << "[DEBUG] Uploads dir: " << upCfg.getUploadPath() << std::endl;
     std::cout << "[DEBUG] CGI dir: " << cgiCfg.getCgiPath() << std::endl;
-    std::cout << "[DEBUG] Port: " << portCfg.getPort() << std::endl;
+    std::cout << "[DEBUG] Ports: " << portsCfg.getPorts() << std::endl;
     
     // 4. Crear servidor y router
     std::string rootPath = Utils::resolveAndValidateDir(rootCfg.getRootPath());
@@ -114,7 +134,10 @@ int main(int argc, char** argv)
     // 8. Asignar router al servidor
 	Server server(cfg, rootPath);
     server.setRouter(router);
-    std::cout << "[🔁] Webserv arrancado en puerto " << cfg.getGlobal("port") << " — Ctrl-C para parar" << std::endl;
+	
+	std::cout << std::endl;
+    std::cout << "[🔁] Webserv arrancado en puerto " << cfg.getGlobal("ports") << " — Ctrl-C para parar" << std::endl;
+	std::cout << std::endl;
 
     // 9. Bucle principal (epoll)
     server.startEpoll();
@@ -123,8 +146,6 @@ int main(int argc, char** argv)
 	delete cgiFactory;
 	delete staticFactory;
 	delete uploadFactory;
-
-   
 
     return EXIT_SUCCESS;
 }
