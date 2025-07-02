@@ -14,6 +14,7 @@ class Request
         std::string _path;
         std::string _queryString;
         bool _keepAlive;
+		std::string _physicalPath;
 		
     public:
         Request();
@@ -32,6 +33,8 @@ class Request
         const std::string& getVersion() const;
         const std::string& getHeader(const std::string& key) const;
         const std::string& getBody() const;
+		void setPhysicalPath(const std::string &p);
+		const std::string& getPhysicalPath();
 };
 
 #endif

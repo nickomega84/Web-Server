@@ -5,9 +5,11 @@
 #include "iostream"
 
 const ErrorPageHandler::ErrorPageEntry ErrorPageHandler::errorPages[] = {
+	{400, "/error_pages/400.html"},
     {404, "/error_pages/404.html"},
     {403, "/error_pages/403.html"},
     {500, "/error_pages/500.html"},
+	{502, "/error_pages/502.html"},
     {-1, NULL}
 };
 

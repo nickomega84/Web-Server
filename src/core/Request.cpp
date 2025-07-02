@@ -162,3 +162,13 @@ const std::string& Request::getBody() const
 {
     return _body; 
 }
+
+void Request::setPhysicalPath(const std::string &p)
+{
+	_physicalPath = p;
+}
+
+const std::string &Request::getPhysicalPath()
+{
+	return (_physicalPath);
+}

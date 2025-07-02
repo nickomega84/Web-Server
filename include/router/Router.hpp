@@ -8,17 +8,20 @@
 
 class Router 
 {
+    private:
+        std::map<std::string, IHandlerFactory*> _routes;
+        std::string               _absRoot;      // NUEVO
 	public:
-		Router();
+        Router(const std::string& root);
+		// Router();
 		Router(const Router& other);
 		Router& operator=(const Router& other);
 		~Router();
 
 		void registerFactory(const std::string& pathPrefix, IHandlerFactory* factory);
-		IRequestHandler* resolve(const Request& request) const;
+		IRequestHandler* resolve(Request& request) const;
 
-	private:
-		std::map<std::string, IHandlerFactory*> _routes;
+
 };
 
 #endif

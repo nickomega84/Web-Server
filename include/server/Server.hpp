@@ -21,16 +21,26 @@
 #include "../include/server/ClientBuffer.hpp"
 #include "../include/utils/Utils.hpp"
 
+#include "../../include/factory/StaticHandlerFactory.hpp"
+#include "../../include/factory/UploadHandlerFactory.hpp"
+#include "../../include/factory/CGIHandlerFactory.hpp"
+#include "../../include/response/IResponseBuilder.hpp"
+
+
 extern volatile sig_atomic_t g_signal_received;
+class IResponseBuilder;
 
 class Server
 {
 	private:
 		ConfigParser& _cfg;
+		std::string _cgiPath;
 		std::string _rootPath;
+		std::string _uploadPath;
+		IResponseBuilder* _responseBuilder;
+		Router _router;
 		std::vector<int> listen_sockets;   
-        Router _router;
-
+        
         Server(const Server& other);
         Server& operator=(const Server& other);
 
@@ -58,7 +68,8 @@ class Server
 		void	validateChunkedBody(ClientBuffer &additive_bff);
 
 	public:
-        Server(ConfigParser& cfg, const std::string& rootPath);
+/*         Server(ConfigParser& cfg, const std::string& rootPath); */
+		Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
         ~Server();
 
 		void	setRouter(const Router &router);

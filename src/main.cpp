@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     std::string rootPath = Utils::resolveAndValidateDir(rootCfg.getRootPath());
 	if (rootPath.empty())
 		return (EXIT_FAILURE);
-    Router router;
+    // Router router;
     
     //  Mostrar configuración de rutas
 	std::cout << "[DEBUG][Main] CGI extensions: " << std::endl;
@@ -96,23 +96,23 @@ int main(int argc, char** argv)
     std::string uploadPath = Utils::resolveAndValidateDir(upCfg.getUploadPath());
 	if (uploadPath.empty())
 		return (EXIT_FAILURE);
-    std::string cgiPath = Utils::resolveAndValidateFile(cgiCfg.getCgiPath());
-    std::cout << "[DEBUG][Main] CGI path: " << cgiPath << std::endl;
+    // std::string cgiPath = Utils::resolveAndValidateFile(cgiCfg.getCgiPath());
+    // std::cout << "[DEBUG][Main] CGI path: " << cgiPath << std::endl;
 
     // 8. Crear ResponseBuilder
     IResponseBuilder* responseBuilder = new DefaultResponseBuilder();
 
     // 9. Configurar router con fábricas (Factory Pattern)
-	IHandlerFactory* staticFactory = new StaticHandlerFactory(rootPath, responseBuilder);
+/* 	IHandlerFactory* staticFactory = new StaticHandlerFactory(rootPath, responseBuilder);
     router.registerFactory("/", staticFactory);
 	IHandlerFactory* uploadFactory = new UploadHandlerFactory(uploadPath, responseBuilder);
     router.registerFactory("/upload", uploadFactory);
 	IHandlerFactory* cgiFactory = new CGIHandlerFactory(cgiPath, responseBuilder);
-    router.registerFactory("/www/cgi-bin", cgiFactory);
+    router.registerFactory("/www/cgi-bin", cgiFactory); */
 	
     // 10. Crear servidor y asignarle el
-	Server server(cfg, rootPath);
-    server.setRouter(router);
+	Server server(cfg, cgiCfg.getCgiPath(), rootPath, uploadPath, responseBuilder);
+    // server.setRouter(router);
 	
 	std::cout << std::endl;
     std::cout << "[🔁] Webserv arrancado en puerto " << cfg.getGlobal("port") << " — Ctrl-C para parar" << std::endl;
@@ -120,11 +120,6 @@ int main(int argc, char** argv)
 
     // 11. Bucle principal (epoll)
     server.startEpoll();
-
-	delete responseBuilder;
-	delete cgiFactory;
-	delete staticFactory;
-	delete uploadFactory;
 
     return EXIT_SUCCESS;
 }

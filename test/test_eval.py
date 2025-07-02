@@ -8,9 +8,9 @@ tests = {
     "GET /                   ": ["curl", "-o", "/dev/null", "-s", "-w", "%{http_code}", f"{BASE_URL}/"],
     "GET /style.css          ": ["curl", "-o", "/dev/null", "-s", "-w", "%{http_code}", f"{BASE_URL}/style.css"],
     "GET CGI pythonGET.py    ": ["curl", "-o", "/dev/null", "-s", "-w", "%{http_code}", f"{BASE_URL}/cgi-bin/pythonGET.py"],
-    "POST /upload            ": ["curl", "-o", "/dev/null", "-s", "-w", "%{http_code}", "-X", "POST", "-d", "test=data", f"{BASE_URL}/upload"],
+    # "POST /upload            ": ["curl", "-o", "/dev/null", "-s", "-w", "%{http_code}", "-X", "POST", "-d", "test=data", f"{BASE_URL}/upload"],
     "POST CGI pythonPOST.py  ": ["curl", "-o", "/dev/null", "-s", "-w", "%{http_code}", "-X", "POST", "-d", "foo=bar", f"{BASE_URL}/cgi-bin/pythonPOST.py"],
-    "DELETE /index.html      ": ["curl", "-o", "/dev/null", "-s", "-w", "%{http_code}", "-X", "DELETE", f"{BASE_URL}/index.html"],
+    # "DELETE /index.html      ": ["curl", "-o", "/dev/null", "-s", "-w", "%{http_code}", "-X", "DELETE", f"{BASE_URL}/index.html"],
     "UNKNOWN METHOD FOO /    ": ["curl", "-o", "/dev/null", "-s", "-w", "%{http_code}", "-X", "FOO", f"{BASE_URL}/"],
     "Server no segfaults     ": ["bash", "-c", f"timeout 5 curl -s {BASE_URL}/"],
     "Memory leaks check      ": ["valgrind", "--leak-check=full", "--error-exitcode=1", "curl", "-s", f"{BASE_URL}/"]

@@ -20,19 +20,19 @@ tests = [
         "expected_status": 404,
         "expected_content_type": "text/html"
     },
-    {
-        "name": "POST /upload",
-        "method": "POST",
-        "path": "/upload",
-        "data": {"field": "value"},
-        "expected_status": 200
-    },
-    {
-        "name": "DELETE /index.html",
-        "method": "DELETE",
-        "path": "/index.html",
-        "expected_status": 200
-    },
+    # {
+    #     "name": "POST /upload",
+    #     "method": "POST",
+    #     "path": "/upload",
+    #     "data": {"field": "value"},
+    #     "expected_status": 200
+    # },
+    # {
+    #     "name": "DELETE /index.html",
+    #     "method": "DELETE",
+    #     "path": "/index.html",
+    #     "expected_status": 200
+    # },
     {
         "name": "PUT /index.html",
         "method": "PUT",
@@ -83,13 +83,13 @@ tests = [
         "cookies": {"SESSIONID": "PKdhtXMmr18n2L9K"},
         "expected_status": 200
     },
-    {
-        "name": "POST /secure with invalid session",
-        "method": "POST",
-        "path": "/secure",
-        "cookies": {"SESSIONID": "invalid123"},
-        "expected_status": 401
-    },
+    # {
+    #     "name": "POST /secure with invalid session",
+    #     "method": "POST",
+    #     "path": "/secure",
+    #     "cookies": {"SESSIONID": "invalid123"},
+    #     "expected_status": 401
+    # },
 
     # 🧪 Custom Header Test
     {

@@ -4,9 +4,15 @@
 #include "../../include/server/ClientBuffer.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 
-Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath(root)
+Server::Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder): _cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _responseBuilder(builder), _router(Router(_rootPath))
 {
 	addListeningSocket();
+	IHandlerFactory* staticFactory = new StaticHandlerFactory(_rootPath, _responseBuilder);
+    _router.registerFactory("/", staticFactory);
+	IHandlerFactory* uploadFactory = new UploadHandlerFactory(_uploadPath, _responseBuilder);
+    _router.registerFactory("/upload", uploadFactory);
+	IHandlerFactory* cgiFactory = new CGIHandlerFactory(_cgiPath, _responseBuilder);
+    _router.registerFactory("/cgi-bin", cgiFactory);
 }
 
 Server::~Server()
