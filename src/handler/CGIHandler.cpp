@@ -233,7 +233,7 @@ int CGIHandler::getScript(const Request &req, std::map<std::string, std::string>
 		return (std::cerr << "[ERROR][getScriptName] CGI couldn't get ScriptName" << std::endl, \
 		CGIerror(404, "Bad Request", "text/html"), 1);
 
-	if (!checkScriptAccess(_cgiRoot, scriptName))
+	if (checkScriptAccess(_cgiRoot, scriptName))
 		return (CGIerror(404, "Bad Request", "text/html"), 1);
 
 	map["dir"] = _cgiRoot + "/";
@@ -288,7 +288,7 @@ int CGIHandler::checkScriptAccess(std::string &dir, std::string &scriptName)
 		fullPath << " — " << strerror(errno) << std::endl, 1);
 
     if (access(fullPath.c_str(), X_OK) == -1)
-        return (std::cerr << "[ERROR][CGI][checkScriptAccess] can't execute script: " << \
+		return (std::cerr << "[ERROR][CGI][checkScriptAccess] can't execute script: " << \
 		fullPath << " — " << strerror(errno) << std::endl, 1);
     return (0);
 }

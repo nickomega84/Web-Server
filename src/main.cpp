@@ -76,6 +76,9 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+
+	std::cout << "OOLAOLAOLAOLA " << cgiCfg.getCgiDir() << std::endl;
+
     // 5. Usa los datos parseados
     std::cout << "[DEBUG][Main] Server root: " << rootCfg.getRootPath() << std::endl;
     std::cout << "[DEBUG][Main] Uploads dir: " << upCfg.getUploadPath() << std::endl;
@@ -116,7 +119,7 @@ int main(int argc, char** argv)
     router.registerFactory("/www/cgi-bin", cgiFactory); */
 	
     // 10. Crear servidor y asignarle el
-	Server server(cfg, cgiCfg.getCgiPath(), rootPath, uploadPath, responseBuilder);
+	Server server(cfg, cgiCfg.getCgiDir(), rootPath, uploadPath, responseBuilder);
     // server.setRouter(router);
 	
 	std::cout << std::endl;

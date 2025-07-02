@@ -32,6 +32,7 @@ class CGIHandler : public IRequestHandler
 {
 	private:
         std::string			_cgiRoot; //Raíz física de /cgi-bin (inyectada por la factory)
+		std::string			_cgiDir;
 		IResponseBuilder*	_builder;
 		Response			_res;
        

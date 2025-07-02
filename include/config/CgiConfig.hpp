@@ -5,6 +5,7 @@
 class CgiConfig : public ConfigFactory {
 	private:
 		std::string cgiPath;
+		std::string cgiDir;
 		std::vector<std::string> cgiExtensions;
 			
 	public:
@@ -12,6 +13,8 @@ class CgiConfig : public ConfigFactory {
 
 		std::string getCgiPath() const;
 		const std::vector<std::string>& getCgiExtensions() const;
+		std::string getCgiDir() const;
+		
 };
 
 #endif

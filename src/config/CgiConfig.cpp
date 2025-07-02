@@ -10,6 +10,13 @@ void CgiConfig::parse(const ConfigParser& config)
         std::cout << "[ERROR][CgiConfig] No se encontró 'cgi_path' en la sección /src/cgi" << std::endl;
         throw (std::runtime_error(""));
     }
+
+	cgiDir = config.getLocation("/cgi-bin", "root");
+    if (cgiDir.empty()) {
+        std::cout << "[ERROR][CgiConfig] No se encontró 'root' en la sección /src/cgi" << std::endl;
+        throw (std::runtime_error(""));
+    }
+	
     std::cout << "[DEBUG] CgiConfig::cgiPath = " << cgiPath << std::endl;
     
     std::string exts = config.getLocation("/cgi-bin", "cgi_ext");
@@ -54,4 +61,8 @@ const std::vector<std::string>& CgiConfig::getCgiExtensions() const {
     std::cout << "[DEBUG] CgiConfig::getCgiExtensions called" << std::endl;
     std::cout << "[DEBUG] CgiConfig::getCgiExtensions size: " << cgiExtensions.size() << std::endl;
     return cgiExtensions;  
+}
+
+std::string CgiConfig::getCgiDir() const {
+    return (cgiDir);
 }
