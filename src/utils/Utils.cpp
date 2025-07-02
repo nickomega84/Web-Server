@@ -67,11 +67,14 @@ std::string Utils::mapUriToPath(const std::string& absRoot,
 {
 std::string joined = absRoot;
 if (joined[joined.size()-1] != '/' && uri[0] != '/')
-joined += "/";
-joined += (uri[0] == '/') ? uri.substr(1) : uri;
+{
+    joined += "/";
+    joined += (uri[0] == '/') ? uri.substr(1) : uri;
+    std::cout << "[DEBUG] Utils::mapUriToPath joined: " << joined << std::endl;
+}
 
 std::string norm = normalisePath(joined);
-
+std::cout << "[DEBUG] Utils::mapUriToPath norm: " << norm << std::endl;
 if (norm.compare(0, absRoot.size(), absRoot) != 0)
 throw std::runtime_error("Path-traversal: " + uri);
 

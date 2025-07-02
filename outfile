@@ -1,0 +1,132 @@
+[DEBUG] Root path: ./www
+[DEBUG] Index file: index.html
+[DEBUG] Autoindex: disabled
+[DEBUG] CgiConfig::cgiPath = /usr/bin/python3.10
+[DEBUG] CgiConfig::exts raw: '.sh .py'
+[DEBUG] CgiConfig::ext[0] = .sh
+[DEBUG] CgiConfig::ext[1] = .py
+[DEBUG] Server root: ./www
+[DEBUG] Uploads dir: ./uploads
+[DEBUG] CGI dir: /usr/bin/python3.10
+[DEBUG] Port: 8081
+[DEBUG] CGI extensions: 
+CgiConfig::getCgiExtensions called
+CgiConfig::getCgiExtensions size: 2
+.sh 
+[DEBUG] Registrando CGI handler para extensión: .sh
+.py 
+[DEBUG] Registrando CGI handler para extensión: .py
+
+
+Router constructor called
+[DEBUG] Router absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][addListeningSocket] New listenSocket fd = 3
+[DEBUG] UploadHandlerFactory created with uploads path: /sgoinfre/students/dbonilla/webServer/uploads
+[DEBUG] CGIHandlerFactory initialized with cgiRoot: /usr/bin/python3.10
+[🔁] Webserv arrancado en puerto 8081 — Ctrl-C para parar
+
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: POST /cgi-bin/shellPOST.sh HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/shellPOST.sh
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[DEBUG][Request] Header found: Content-Type =  text/plain
+[DEBUG][Request] Header found: Content-Length =  32
+[DEBUG][Request] Request parsed successfully:
+[Request] Method: POST
+[Request] URI: /cgi-bin/shellPOST.sh
+[Request] Version: HTTP/1.1
+[Request] POST method body may be to big to print
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/shellPOST.sh
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][checkBodyLimits] START
+[DEBUG][checkIsChunked] START
+[DEBUG][checkIsContentLength] START
+[DEBUG][checkIsContentLength] is content lenght = 32
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG][areWeFinishedReading] (ContentLenght) finished reading
+[DEBUG] [[  [FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: POST /cgi-bin/shellPOST.sh HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/shellPOST.sh
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[DEBUG][Request] Header found: Content-Type =  text/plain
+[DEBUG][Request] Header found: Content-Length =  32
+[DEBUG][Request] Request parsed successfully:
+[Request] Method: POST
+[Request] URI: /cgi-bin/shellPOST.sh
+[Request] Version: HTTP/1.1
+[Request] POST method body may be to big to print
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/shellPOST.sh
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG] IRequestHandler* Router::resolve(Request& request) const
+[DEBUG] Request URI: /cgi-bin/shellPOST.sh
+[DEBUG] Utils::mapUriToPath norm: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG] CGIHandler Constructor: _cgiBin = /usr/bin/python3.10
+[DEBUG][CGI][handleRequest] START
+[DEBUG][CGI][identifyCGI] START
+[DEBUG][CGI][identifyType] START
+[DEBUG][CGI][identifyMethod] START
+[DEBUG][CGI][handlePOST] START
+[DEBUG][CGI][checkHandler] START
+[DEBUG][CGI][getQueryString] START
+[DEBUG][CGI][getName] START
+[DEBUG][CGI][getQueryString] START
+[DEBUG][CGI] CGIHandler:: _cgiBin: /usr/bin/python3.10
+
+[CGI  CGIHandler::checkHandler ]-----------------------------
+[DEBUG]CGIHandler::checkHandler() m["dir"]: /usr/bin/python3.10
+[DEBUG]CGIHandler::checkHandler() m["path"]: /shellPOST.sh
+[DEBUG]CGIHandler::checkHandler() m["name"]: /shellPOST.sh
+[DEBUG]CGIHandler::checkHandler() m["name_without_slash"]: shellPOST.sh
+[DEBUG]CGIHandler::checkHandler() m["path"]: /shellPOST.sh
+[DEBUG]CGIHandler::checkHandler() m["queryString"]: 
+dir = /usr/bin/python3.10
+name = /shellPOST.sh
+name_without_slash = shellPOST.sh
+path = /shellPOST.sh
+queryString = 
+------------------------------------------
+[DEBUG][CGI][checkLocation] START directory: /usr/bin/python3.10 name: shellPOST.sh
+ErrorPageHandler initialized with root path: /cgi-bin/shellPOST.sh
+Rendering error page for code: 404
+Relative path: AQUIIIIIIIIII 
+ 
+ /error_pages/404.html
+ErrorPageHandler: relPath: /error_pages/404.html
+
+Page_Handler: /cgi-bin/shellPOST.sh/error_pages/404.html
+Checking if file exists: /cgi-bin/shellPOST.sh/error_pages/404.html
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+
+[!] Signal received, shutting down…
+[DEBUG][LOOP EPOLL] on epoll_wait(), epollfd = 4
+[DEBUG] Router destructor called
+Destructor del parseo del archivo de configuración creado

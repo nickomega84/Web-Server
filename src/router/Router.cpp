@@ -52,6 +52,7 @@ IRequestHandler* Router::resolve(Request& request) const         // Request ya N
                 std::string abs  = Utils::mapUriToPath(_absRoot, uri);      // A
                 std::string safe = Utils::validateFilesystemEntry(abs);          // B + index.html
                 request.setPhysicalPath(safe);
+                return it->second->createHandler();
             }
             catch (const std::exception& e) {
                     std::cerr << "[ERROR] Sanitización fallida: " << e.what() << std::endl;
@@ -66,7 +67,6 @@ IRequestHandler* Router::resolve(Request& request) const         // Request ya N
                     return NULL;
                 }
             // 2. Devuelve el handler apropiado
-            return it->second->createHandler();
         }
     }
     return NULL;

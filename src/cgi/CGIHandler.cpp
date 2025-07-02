@@ -240,47 +240,47 @@ int CGIHandler::checkHandler(const Request &req, std::map<std::string, std::stri
 	
 	bool success = true;
 
-	// // 1. Obtener ruta y nombre del script desde URI
-	// std::string uri = req.getURI(); // Ej: /cgi-bin/shellGET.sh?id=123
-	// std::string scriptName  = getName(uri, &success);
-	// if (!success)
-	// 	return (std::cerr << "[ERROR] CGI couldn't getName()" << std::endl, handleError(404), 1);
-    //     // return (std::cout << "[DEBUG][CGI] CGIHandler::checkHandler() scriptName: " << scriptName << std::endl, 0);
-	// if (!scriptName.empty() && scriptName[0] == '/')
-	// 	scriptName = scriptName.substr(1); // Quitar el slash inicial
+	// 1. Obtener ruta y nombre del script desde URI
+	std::string uri = req.getURI(); // Ej: /cgi-bin/shellGET.sh?id=123
+	std::string scriptName  = getName(uri, &success);
+	if (!success)
+		return (std::cerr << "[ERROR] CGI couldn't getName()" << std::endl, handleError(404), 1);
+        // return (std::cout << "[DEBUG][CGI] CGIHandler::checkHandler() scriptName: " << scriptName << std::endl, 0);
+	if (!scriptName.empty() && scriptName[0] == '/')
+		scriptName = scriptName.substr(1); // Quitar el slash inicial
 
-	// // 2. Construir el mapa m
-	// std::string cgiRoot = _cgiRoot; // Raíz física de /cgi-bin (inyectada por la factory)
-	// m["dir"] = cgiRoot;
-	// m["name"] = scriptName; // sin slash
-	// m["name_without_slash"] = scriptName;
-	// m["path"] = m["dir"] + m["name"];
+	// 2. Construir el mapa m
+	std::string cgiRoot = _cgiRoot; // Raíz física de /cgi-bin (inyectada por la factory)
+	m["dir"] = cgiRoot;
+	m["name"] = scriptName; // sin slash
+	m["name_without_slash"] = scriptName;
+	m["path"] = m["dir"] + m["name"];
 	m["queryString"] = getQueryString(req.getURI());
 
     // / 	bool success = true;
-	m["dir"] = req.getPath() + getDir(req.getURI(), &success);
+	// m["dir"] = req.getPath() + getDir(req.getURI(), &success);
     m["dir"] = _cgiBin       ;              // ya apunta a /abs/path/to/cgi-bin
 	m["name"] = getName(req.getURI(), &success);
 	m["name_without_slash"] = m["name"].substr(1);
 	m["path"] = m["name"];
 	m["queryString"] = getQueryString(req.getURI());
-
-	std::cout << "\n[CGI  CGIHandler::checkHandler ]-----------------------------\n";
+    std::cout << "[DEBUG][CGI] CGIHandler:: _cgiBin: " << _cgiBin << std::endl;
+	for (std::map<std::string, std::string>::iterator it = m.begin(); it != m.end(); ++it)
+    std::cout << it->first << " = " << it->second << std::endl;
+	std::cout << "------------------------------------------\n";
+    std::cout << "\n[CGI  CGIHandler::checkHandler ]-----------------------------\n";
     std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"dir\"]: " << m["dir"] << std::endl;
     std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"path\"]: " << m["path"] << std::endl;
     std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"name\"]: " << m["name"] << std::endl;
     std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"name_without_slash\"]: " << m["name_without_slash"] << std::endl;
     std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"path\"]: " << m["path"] << std::endl;
     std::cout << "[DEBUG]CGIHandler::checkHandler() m[\"queryString\"]: " << m["queryString"] << std::endl;
-	for (std::map<std::string, std::string>::iterator it = m.begin(); it != m.end(); ++it)
-		std::cout << it->first << " = " << it->second << std::endl;
-	std::cout << "------------------------------------------\n";
-
+    
 	// 3. Validaciones
 	if (!checkLocation(m["dir"], m["name_without_slash"]))
-		return (std::cerr << "[ERROR] CGI couldn't checkLocation()" << std::endl, handleError(404), 1);
+    return (std::cerr << "[ERROR] CGI couldn't checkLocation()" << std::endl, handleError(404), 1);
 	if (!checkExePermission(m["path"]))
-		return (std::cerr << "[ERROR] CGI couldn't checkExePermission()" << std::endl, handleError(500), 1);
+    return (std::cerr << "[ERROR] CGI couldn't checkExePermission()" << std::endl, handleError(500), 1);
 
 	return 0;
 }

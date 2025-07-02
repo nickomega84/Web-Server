@@ -115,15 +115,15 @@ Response StaticFileHandler::handleRequest(const Request& request)
     // // const std::string& fullPath = request.getPhysicalPath();   // ⇦ ya es absoluta
     // // std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
 
-    // if (!fileExists(path)) {
-    //     std::cout << "[DEBUG][StaticFileHandler] File not found, file: " << path << std::endl;
-    //     ErrorPageHandler errorHandler(_rootPath);
-    //     payload.status = 404;
-    //     payload.reason = "Not Found";
-    //     payload.mime = "text/html";
-    //     payload.body = errorHandler.render(404, "Archivo no encontrado");
-    //     return _builder->build(payload);
-    // }
+    if (!fileExists(fullPath)) {
+        std::cout << "[DEBUG][StaticFileHandler] File not found, file: " << path << std::endl;
+        ErrorPageHandler errorHandler(_rootPath);
+        payload.status = 404;
+        payload.reason = "Not Found";
+        payload.mime = "text/html";
+        payload.body = errorHandler.render(404, "Archivo no encontrado");
+        return _builder->build(payload);
+    }
 
 	if (method == "DELETE")
 	{
@@ -164,8 +164,8 @@ Response StaticFileHandler::handleRequest(const Request& request)
     // ✅ Archivo encontrado
     payload.status = 200;
     payload.reason = "OK";
-    payload.mime = MimeTypes::getContentType(path); // o un tipo por defecto si no se puede adivinar
-    payload.body = readFile(path);
+    payload.mime = MimeTypes::getContentType(fullPath); // o un tipo por defecto si no se puede adivinar
+    payload.body = readFile(fullPath);
     return _builder->build(payload);
 }
 
