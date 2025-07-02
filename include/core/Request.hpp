@@ -14,12 +14,15 @@ class Request
         std::string _path;
         std::string _queryString;
         bool _keepAlive;
+        std::string _physPath;           // NUEVO
+
 		
     public:
         Request();
         Request(const Request& other);
         Request& operator=(const Request& other);
         ~Request();
+        // Request(const std::string& raw); // Constructor que recibe el raw request
         
         const std::string& getPath() const;
         const std::string& getQueryString() const;
@@ -32,6 +35,9 @@ class Request
         const std::string& getVersion() const;
         const std::string& getHeader(const std::string& key) const;
         const std::string& getBody() const;
+
+        void        setPhysicalPath(const std::string &p) ;
+        const std::string &getPhysicalPath() const;
 };
 
 #endif

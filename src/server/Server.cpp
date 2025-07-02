@@ -3,11 +3,31 @@
 #include "../../include/core/Response.hpp"
 #include "../../include/server/ClientBuffer.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
+#include "../include/router/Router.hpp"
+#include "../include/factory/StaticHandlerFactory.hpp"
+#include "../include/factory/UploadHandlerFactory.hpp"
+#include "../include/factory/CGIHandlerFactory.hpp"
+#include "../include/response/DefaultResponseBuilder.hpp"
 
-Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath(root)
+
+
+// Server::Server(ConfigParser& cfg, const std::string& root): _cfg(cfg), _rootPath(root)
+// {
+    // }
+Server::Server(ConfigParser& cfg,  const std::string& absRoot, const std::string& uploadsAbs, const std::string& cgiBinAbs,IResponseBuilder* builder)
+        : _cfg(cfg)
+        , _rootPath(absRoot)
+        , _router(absRoot)
+        , _builder(builder)
 {
-	addListeningSocket();
+ 
+    addListeningSocket();
+            // _router.registerFactory("/",          new StaticHandlerFactory(_builder, _rootPath));
+    _router.registerFactory("/",  new StaticHandlerFactory(_rootPath, _builder));   // root primero, builder después
+    _router.registerFactory("/upload",    new UploadHandlerFactory(uploadsAbs, _builder));
+    _router.registerFactory("/cgi-bin",   new CGIHandlerFactory(cgiBinAbs,   _builder));
 }
+
 
 Server::~Server()
 {

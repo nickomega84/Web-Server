@@ -1,4 +1,6 @@
 #include "handler/UploadHandler.hpp"
+#include "../../include/utils/MimeTypes.hpp"
+
 #include "../../include/utils/Utils.hpp"
 #include <fstream>
 #include <sys/stat.h>
