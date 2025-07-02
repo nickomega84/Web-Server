@@ -36,11 +36,11 @@ bool Request::parse(const std::string& raw)
     /* ── 1. START-LINE ───────────────────────────── */
 
     if (!std::getline(stream, line))
-        return false;
+        return (std::cout << "[DEBUG][Request::parse] getline" << std::endl, false);
         
     std::istringstream firstLine(line);
     if (!(firstLine >> _method >> _uri >> _version))
-        return false;
+        return (std::cout << "[DEBUG][Request::parse] firstLine" << std::endl, false);
         
     // ▶ Separar path y query-string
     size_t q = _uri.find('?');

@@ -58,18 +58,23 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
+
     // 4. Parsear bloques específicos
-    RootConfig rootCfg;
-    rootCfg.parse(cfg);
-    
-    UploadsConfig upCfg;
-    upCfg.parse(cfg);
-    
-    CgiConfig cgiCfg;
-    cgiCfg.parse(cfg);
-    
-    PortConfig portCfg;
-    portCfg.parse(cfg);
+	RootConfig rootCfg;
+	UploadsConfig upCfg;
+	CgiConfig cgiCfg;
+	PortConfig portCfg;
+	try 
+	{
+		rootCfg.parse(cfg);
+		upCfg.parse(cfg);
+		cgiCfg.parse(cfg);
+		portCfg.parse(cfg);
+	}
+	catch (const std::runtime_error &e)
+	{
+		return EXIT_FAILURE;
+	}
 
     // 5. Usa los datos parseados
     std::cout << "[DEBUG][Main] Server root: " << rootCfg.getRootPath() << std::endl;

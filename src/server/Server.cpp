@@ -231,8 +231,8 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	}
 	catch (const std::runtime_error &e)
 	{
-		std::cerr << "[ERROR][[   [CATCH]   ]]" << std::endl;
-		std::cerr << e.what() << std::endl;
+		std::cout << "[ERROR][[   [CATCH]   ]]" << std::endl;
+		std::cout << e.what() << std::endl;
 		additive_bff.setFinishedReading(true);
 		return (requestParseError(client_fd, pending_writes), 0);
 	}
