@@ -1,0 +1,91 @@
+[DEBUG][main] cgiDir = ./www/cgi-bin
+Router constructor called
+[DEBUG][Router] absRoot: /home/dangonz3/WEBSERVgitNiko/www
+[DEBUG][StaticHandlerFactory] created with rootsDir: /home/dangonz3/WEBSERVgitNiko/www
+[DEBUG] UploadHandlerFactory created with uploads path: /home/dangonz3/WEBSERVgitNiko/uploads
+[DEBUG][CGIHandlerFactory] created with uploads path: ./www/cgi-bin
+[DEBUG][addListeningSocket] HOST = 127.0.0.1
+[DEBUG][addListeningSocket] PORT = 8081
+[DEBUG][addListeningSocket] New listenSocket fd = 3
+
+ ✅ [INFO] Webserv arrancado. Escuchando conexiones...
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: POST /cgi-bin/pythonPOST.py HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonPOST.py
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[DEBUG][Request] Header found: Content-Type =  text/plain
+[DEBUG][Request] Header found: Content-Length =  41
+[Request] POST method body may be to big to print
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonPOST.py
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][checkBodyLimits] START
+[DEBUG][checkIsChunked] START
+[DEBUG][checkIsContentLength] START
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  [FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: POST /cgi-bin/pythonPOST.py HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonPOST.py
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[DEBUG][Request] Header found: Content-Type =  text/plain
+[DEBUG][Request] Header found: Content-Length =  41
+[Request] POST method body may be to big to print
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonPOST.py
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG] [ROUTER] IRequestHandler* Router::resolve(Request& request) const
+[DEBUG] [Utils::mapUriToPath] /home/dangonz3/WEBSERVgitNiko/www
+[DEBUG] Utils::mapUriToPath norm: /home/dangonz3/WEBSERVgitNiko/www
+[DEBUG] [ROUTER] 
+/home/dangonz3/WEBSERVgitNiko/www/index.html
+[DEBUG][[  CGIHandler Constructor  ]]: cgiRoot = ./www/cgi-bin
+[DEBUG][CGI][handleRequest] START
+[DEBUG][CGI][handleCGI] START
+[DEBUG][CGI][identifyScriptType] START
+[DEBUG][CGI][identifyMethod] START
+[DEBUG][CGI][handlePOST] START
+[DEBUG][CGI][getScript] START
+[DEBUG][CGI][getScriptName] START
+[DEBUG][CGI][checkScriptAccess] START
+[DEBUG][CGI][checkScriptAccess] fullPath = ./www/cgi-bin/pythonPOST.py
+[DEBUG][CGI][getScriptQuery] START
+[DEBUG][CGI][getScript] path = ./www/cgi-bin/pythonPOST.py
+[DEBUG][CGI][getScript] query
+[DEBUG][CGI][enviromentGET] START
+[DEBUG][CGI][createResponse] START
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+
+[!] Signal received, shutting down…
+[DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = 4
+[DEBUG] Servidor cerrado correctamente.
+[DEBUG] Router destructor called

@@ -26,7 +26,7 @@ volatile sig_atomic_t g_signal_received = 0;
 static void sigHandler(int sig)
 {
     if (sig == SIGINT || sig == SIGTERM) g_signal_received = 1;
-    std::cout << "\n[!] Signal received, shutting down…\n";
+    std::cout << "\n❎ Signal received, shutting down…\n";
 }
 
 static std::string getDirectiveValue(const IConfig* node, const std::string& key, std::string defaultValue) 
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
         // Esto coincide con la firma de tu constructor: Server(ConfigParser&, string, string, string, IResponseBuilder*)
         Server& server = Server::getInstance(parser, cgiDir, rootPath, uploadPath, responseBuilder);
     
-        std::cout << "\n ✅ [INFO] Webserv arrancado. Escuchando conexiones..." << std::endl;
+        std::cout << "\n✅ [INFO] Webserv arrancado. Escuchando conexiones..." << std::endl;
 
         // --- 5. Bucle Principal ---
         server.startEpoll();

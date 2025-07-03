@@ -46,7 +46,7 @@ class CGIHandler : public IRequestHandler
 		int			getScript(const Request &req, std::map<std::string, std::string> &map);
 		std::string	getScriptName(const std::string &uri);
 		int			checkScriptAccess(std::string &directory, std::string &name);
-        char**		getEnviroment(std::string method, std::string path, std::string queryString, const Request &req);
+		bool		getEnviroment(std::vector<std::string> &env, std::string method, std::string path, std::string queryString, const Request &req);
     
         std::string	getScriptQuery(const std::string &uri);            
         int			createResponse(std::string output, Response &res);

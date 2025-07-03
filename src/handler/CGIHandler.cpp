@@ -93,9 +93,14 @@ int CGIHandler::handleGET(const Request &req, Response &res, std::string interpr
 		return (1);
 	char *argv[] = {(char *)map["interpreter"].c_str(), (char *)map["name"].c_str(), NULL};
 
-	char** envp = getEnviroment("GET", map["path"], map["queryString"], req);
-	if (envp == NULL)
-		return (1);
+	std::vector<std::string> env;
+	if (!getEnviroment(env, "POST", map["path"], map["queryString"], req))
+		return (CGIerror(404, "Bad Request", "text/html"), 1);
+
+	char** envp = new char*[env.size() + 1];
+	for (size_t i = 0; i < env.size(); ++i)
+		envp[i] = const_cast<char*>(env[i].c_str());
+	envp[env.size()] = NULL;
 
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
@@ -153,9 +158,14 @@ int CGIHandler::handlePOST(const Request &req, Response &res, std::string interp
 		return (1);
 	char *argv[] = {(char *)map["interpreter"].c_str(), (char *)map["name"].c_str(), NULL};
 
-	char** envp = getEnviroment("POST", map["path"], map["queryString"], req);
-	if (envp == NULL)
-		return (1);
+	std::vector<std::string> env;
+	if (!getEnviroment(env, "POST", map["path"], map["queryString"], req))
+		return (CGIerror(404, "Bad Request", "text/html"), 1);
+
+	char** envp = new char*[env.size() + 1];
+	for (size_t i = 0; i < env.size(); ++i)
+		envp[i] = const_cast<char*>(env[i].c_str());
+	envp[env.size()] = NULL;
 
 	int pipeInput[2];
 	if (pipe(pipeInput) < 0)
@@ -295,40 +305,34 @@ int CGIHandler::checkScriptAccess(std::string &dir, std::string &scriptName)
     return (0);
 }
 
-char** CGIHandler::getEnviroment(std::string method, std::string path, std::string queryString, const Request &req)
+bool CGIHandler::getEnviroment(std::vector<std::string> &env, std::string method, std::string path, std::string queryString, const Request &req)
 {
 	std::cout << "[DEBUG][CGI][enviromentGET] START" << std::endl;
 	
-	std::vector<std::string> envp;
-	envp.push_back("PATH_INFO=" + path);
-	envp.push_back("QUERY_STRING=" + queryString);
-	envp.push_back("SCRIPT_NAME=" + path);
-	envp.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	env.push_back("PATH_INFO=" + path);
+	env.push_back("QUERY_STRING=" + queryString);
+	env.push_back("SCRIPT_NAME=" + path);
+	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
+
 	if (method == "GET")
 	{
-		envp.push_back("REQUEST_METHOD=GET");
-		envp.push_back("CONTENT_LENGTH=0"); //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del reques)t
+		env.push_back("REQUEST_METHOD=GET");
+		env.push_back("CONTENT_LENGTH=0"); //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del request
 	}
 	else if (method == "POST")
 	{
-		envp.push_back("REQUEST_METHOD=POST");
+		env.push_back("REQUEST_METHOD=POST");
 		std::stringstream body_lenght;
 		body_lenght << req.getBody().length();
-		envp.push_back("CONTENT_LENGTH=" + body_lenght.str());
-		envp.push_back("CONTENT_TYPE=" + req.getHeader("Content-Type"));
+		env.push_back("CONTENT_LENGTH=" + body_lenght.str());
+		env.push_back("CONTENT_TYPE=" + req.getHeader("Content-Type"));
 	}
 	else
 	{
 		std::cerr << "[ERROR][CGI][getEnviroment] invalid method: " << method << std::endl;
-		CGIerror(404, "Bad Request", "text/html");
-		return (NULL);
+		return (false);
 	}
-
-	char** envStr = new char*[envp.size() + 1];
-	for (size_t i = 0; i < envp.size(); ++i)
-		envStr[i] = const_cast<char*>(envp[i].c_str());
-	envStr[envp.size()] = NULL;
-	return (envStr);
+	return (true);
 }
 
 int CGIHandler::createResponse(std::string output, Response &res)
