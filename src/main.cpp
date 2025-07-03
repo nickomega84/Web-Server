@@ -19,6 +19,7 @@
 #include "../include/factory/UploadHandlerFactory.hpp"
 #include "../include/factory/CGIHandlerFactory.hpp"
 #include "../include/response/DefaultResponseBuilder.hpp"
+#include "../include/config/validateRoot.hpp"
 
 volatile sig_atomic_t g_signal_received = 0;
 static void sigHandler(int sig)
@@ -62,6 +63,8 @@ int main(int argc, char** argv) {
     const IConfig* serverNode = rootConfig->getChildren()[0];
 
     try {
+        validateRoot validator(argv[1]);
+        validator.validationRoot();
         // --- Reemplazo de la lógica de RootConfig, CgiConfig, etc. ---
         std::string rootPathConf = getDirectiveValue(serverNode, "root", "./www");
         
