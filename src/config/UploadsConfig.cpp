@@ -6,9 +6,9 @@
 
 void UploadsConfig::parse(const ConfigParser& config) 
 {
-    uploadPath = config.getLocation("/uploads", "upload_path");
+    uploadPath = config.getLocation("/uploads", "root");
     if (uploadPath.empty())
-        uploadPath = config.getGlobal("upload_path");
+        uploadPath = config.getGlobal("root");
 
     std::string postFlag = config.getLocation("/uploads", "postOn");
     std::string delFlag = config.getLocation("/uploads", "deleteOn");

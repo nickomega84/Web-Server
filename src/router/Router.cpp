@@ -40,8 +40,8 @@ IRequestHandler* Router::resolve(Request& request) const         // Request ya N
 {
     Response res;
     const std::string& uri = request.getURI();
-    std::cout << "[DEBUG] [ROUTER] IRequestHandler* Router::resolve(Request& request) const\n"
-              << "[DEBUG] [ROUTER] Request URI: " << uri << std::endl;
+    std::cout << "[DEBUG] [ROUTER] IRequestHandler* Router::resolve(Request& request) const\n";
+            //   << "[DEBUG] [ROUTER] Request URI: " << uri << std::endl;
     for (std::map<std::string,IHandlerFactory*>::const_reverse_iterator it = _routes.rbegin();
          it != _routes.rend(); ++it)
     {

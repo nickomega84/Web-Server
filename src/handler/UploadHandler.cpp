@@ -57,7 +57,7 @@ Response UploadHandler::handleRequest(const Request& request)
 	outputFile.write(fileContent.data(), fileContent.size());
 	outputFile.close();
 
-	return (std::cout << "[DEBUG][UploadHandler] UPLOADED file: " << destinationPath << std::endl, \
+	return (std::cerr << "[DEBUG][UploadHandler] UPLOADED file: " << destinationPath << std::endl, \
 	uploadResponse(200, "OK", "text/plain", "File received and uploaded"));
 }
 

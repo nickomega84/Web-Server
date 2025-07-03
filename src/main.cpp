@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 
 
 	std::cout << "OOLAOLAOLAOLA " << cgiCfg.getCgiDir() << std::endl;
-
+	
     // 5. Usa los datos parseados
     std::cout << "[DEBUG][Main] Server root: " << rootCfg.getRootPath() << std::endl;
     std::cout << "[DEBUG][Main] Uploads dir: " << upCfg.getUploadPath() << std::endl;

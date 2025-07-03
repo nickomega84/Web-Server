@@ -42,9 +42,9 @@ int CGIHandler::identifyScriptType(const Request &req)
 	else
 		path_part = uri;
 	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".py")
-		return (std::cout << "[DEBUG][CGI][identifyScriptType]: python" << std::endl, 1);
+		return (std::cerr << "[DEBUG][CGI][identifyScriptType]: python" << std::endl, 1);
 	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".sh")
-		return (std::cout << "[DEBUG][CGI][identifyScriptType]: shell" << std::endl, 2);
+		return (std::cerr << "[DEBUG][CGI][identifyScriptType]: shell" << std::endl, 2);
 	return (std::cerr << "[ERROR][CGI][identifyScriptType] unsupported CGI type" << std::endl, 0);
 }
 
@@ -54,9 +54,9 @@ int CGIHandler::identifyMethod(const Request &req)
 
 	std::string method = req.getMethod();
 	if (method == "GET")
-		return (std::cout << "[DEBUG][CGI][identifyMethod]: GET" << std::endl, 2);
+		return (std::cerr << "[DEBUG][CGI][identifyMethod]: GET" << std::endl, 2);
 	if (method == "POST")
-		return (std::cout << "[DEBUG][CGI][identifyMethod]: POST" << std::endl, 4);
+		return (std::cerr << "[DEBUG][CGI][identifyMethod]: POST" << std::endl, 4);
 	return (0);
 }
 

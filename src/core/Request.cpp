@@ -36,11 +36,11 @@ bool Request::parse(const std::string& raw)
     /* ── 1. START-LINE ───────────────────────────── */
 
     if (!std::getline(stream, line))
-        return (std::cout << "[DEBUG][Request::parse] getline" << std::endl, false);
+        return (std::cerr << "[DEBUG][Request::parse] getline" << std::endl, false);
         
     std::istringstream firstLine(line);
     if (!(firstLine >> _method >> _uri >> _version))
-        return (std::cout << "[DEBUG][Request::parse] firstLine" << std::endl, false);
+        return (std::cerr << "[DEBUG][Request::parse] firstLine" << std::endl, false);
         
     // ▶ Separar path y query-string
     size_t q = _uri.find('?');
@@ -95,10 +95,10 @@ bool Request::parse(const std::string& raw)
         _keepAlive = (getHeader("Connection") == "keep-alive");
     }
    
-    std::cout << "[DEBUG][Request] Request parsed successfully:\n"
+/*     std::cout << "[DEBUG][Request] Request parsed successfully:\n"
               << "[Request] Method: " << _method << "\n"
               << "[Request] URI: " << _uri << "\n"
-              << "[Request] Version: " << _version << std::endl;
+              << "[Request] Version: " << _version << std::endl; */
     // std::cout << "Headers:\n";
 	if (_method != "POST")
 	    std::cout << "[Request] Body: " << _body << std::endl;

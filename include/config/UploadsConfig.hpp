@@ -3,7 +3,7 @@
 
 class UploadsConfig : public ConfigFactory {
     private:
-        std::string uploadPath;
+        std::string root;
         bool postAllowed;
         bool deleteAllowed;
     public: 

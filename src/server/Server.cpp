@@ -34,6 +34,9 @@ int Server::addListeningSocket()
 	std::string port;	
 	getHostAndPort(host, port);
 
+	std::cout << "OLAOLAOLA host = " << host << std::endl;
+	std::cout << "OLAOLAOLA port = " << port << std::endl;
+
 	struct addrinfo input;
 	::bzero(&input, sizeof(input));
 	input.ai_flags = AI_PASSIVE;
@@ -43,11 +46,16 @@ int Server::addListeningSocket()
 
 	if (getaddrinfo(host.empty() ? NULL : host.c_str(), port.c_str(), &input, &output))
 		return (std::cerr << "[ERROR][addListeningSocket] calling getaddrinfo()" << std::endl, 500);
+
 	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, output->ai_protocol)) < 0)
 		return (std::cerr << "[ERROR][addListeningSocket] creating server socket" << std::endl, freeaddrinfo(output), 500);
 	int opt = 1;
 	if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
 		return (std::cerr << "[ERROR][addListeningSocket] calling setsockopt()" << std::endl, freeaddrinfo(output), close(listen_socket), 500);
+	
+	std::cout << "OLAOLAOLA output->ai_addr = " << output->ai_addr << std::endl;
+	std::cout << "OLAOLAOLA output->ai_addrlen = " << output->ai_addrlen << std::endl;
+	
 	if (bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0)
 		return (std::cerr << "[ERROR][addListeningSocket] binding listen_socket" << std::endl, freeaddrinfo(output), close(listen_socket), 500);
 	if (listen(listen_socket, SOMAXCONN) < 0)
@@ -91,7 +99,7 @@ void Server::startEpoll()
 	int 						client_fd;
 
 	if ((epollfd = init_epoll()) < 0)
-		return;
+		return ;
 
 	struct epoll_event events[MAX_EVENTS];
 	while (g_signal_received == 0)
@@ -218,7 +226,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	char     str_buffer[BUFFER_SIZE];
     ssize_t  n = recv(client_fd, str_buffer, sizeof(str_buffer) - 1, 0);
     if (n == 0) 
-		return (std::cout << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl, 1);
+		return (/* std::cerr << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl,  */1);
 	if (n < 0)
 		return (0);
 
