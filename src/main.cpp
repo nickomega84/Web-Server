@@ -108,7 +108,6 @@ int main(int argc, char** argv)
         // --- 5. Bucle Principal ---
         server.startEpoll();
 
-		server.cleanInstance();
     } catch (const std::exception& e) {
         std::cerr << "[ERROR][main] fatal durante la inicialización: " << e.what() << std::endl;
         return EXIT_FAILURE;
@@ -222,3 +221,5 @@ int main(int argc, char** argv)
 
 //     return EXIT_SUCCESS;
 // }
+
+

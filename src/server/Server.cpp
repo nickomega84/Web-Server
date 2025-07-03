@@ -4,8 +4,6 @@
 #include "../../include/server/ClientBuffer.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 
-Server* Server::_instance = NULL;
-
 Server::Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder):
 _cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _responseBuilder(builder), _router(Router(_rootPath))
 {
@@ -20,16 +18,8 @@ _cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _res
 
 Server& Server::getInstance(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder)
 {
-	if (_instance == NULL)
-		_instance = new Server(cfg, cgiPath, rootPath, uploadPath, builder);
-	return (*_instance);
-}
-
-void Server::cleanInstance()
-{
-	if (_instance != NULL)
-		delete _instance;
-	_instance = NULL;
+	static Server server(cfg, cgiPath, rootPath, uploadPath, builder);
+	return (server);
 }
 
 Server::~Server()
@@ -316,3 +306,5 @@ void Server::requestParseError(int client_fd, std::map<int, Response> &pending_w
 	res400.setBody(err.render(400, "Bad Request"));
 	pending_writes[client_fd] = res400;
 }
+
+

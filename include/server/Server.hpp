@@ -34,8 +34,6 @@ class IResponseBuilder;
 class Server
 {
 	private:
-		static Server* _instance;
-	
 		ConfigParser& _cfg;
 		std::string _cgiPath;
 		std::string _rootPath;
@@ -79,6 +77,4 @@ class Server
 		void	setRouter(const Router &router);
 		int		addListeningSocket();
         void	startEpoll();
-
-		void	cleanInstance();
 };
