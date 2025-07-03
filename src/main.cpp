@@ -87,6 +87,9 @@ int main(int argc, char** argv)
         }
 
         std::string cgiDir = getDirectiveValue(cgiLocationNode, "root", "./www/cgi-bin");
+
+		std::cout << "[DEBUG][main] cgiDir = " << cgiDir << std::endl;
+
         std::string cgiPath = getDirectiveValue(cgiLocationNode, "cgi_path", "/usr/bin/python");
         std::string uploadPathConf = getDirectiveValue(uploadLocationNode, "upload_path", "./uploads");
         
@@ -101,9 +104,9 @@ int main(int argc, char** argv)
         
         // Se le pasa `parser` como referencia y los strings extraídos del árbol.
         // Esto coincide con la firma de tu constructor: Server(ConfigParser&, string, string, string, IResponseBuilder*)
-        Server& server = Server::getInstance(parser, cgiPath, rootPath, uploadPath, responseBuilder);
+        Server& server = Server::getInstance(parser, cgiDir, rootPath, uploadPath, responseBuilder);
     
-        std::cout << "\n[INFO] Webserv arrancado. Escuchando conexiones..." << std::endl;
+        std::cout << "\n ✅ [INFO] Webserv arrancado. Escuchando conexiones..." << std::endl;
 
         // --- 5. Bucle Principal ---
         server.startEpoll();
@@ -203,7 +206,7 @@ int main(int argc, char** argv)
 //     // 9. Configurar router con fábricas (Factory Pattern)
 // /* 	IHandlerFactory* staticFactory = new StaticHandlerFactory(rootPath, responseBuilder);
 //     router.registerFactory("/", staticFactory);
-// 	IHandlerFactory* uploadFactory = new UploadHandlerFactory(uploadPath, responseBuilder);
+// 	IHandlerFactory* uploadFactory = new UploadHandlerFactory(uploadPath, responseBuiWebserv arrancado. Escuchando conexioneslder);
 //     router.registerFactory("/upload", uploadFactory);
 // 	IHandlerFactory* cgiFactory = new CGIHandlerFactory(cgiPath, responseBuilder);
 //     router.registerFactory("/www/cgi-bin", cgiFactory); */

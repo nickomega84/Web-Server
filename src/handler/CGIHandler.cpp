@@ -283,6 +283,8 @@ int CGIHandler::checkScriptAccess(std::string &dir, std::string &scriptName)
 
     std::string fullPath = dir + "/" + scriptName;
 
+	std::cout << "[DEBUG][CGI][checkScriptAccess] fullPath = " << fullPath << std::endl;
+
     if (access(fullPath.c_str(), F_OK) == -1) 
         return (std::cerr << "[ERROR][CGI][checkScriptAccess] couldn't find script: " << \
 		fullPath << " — " << strerror(errno) << std::endl, 1);
