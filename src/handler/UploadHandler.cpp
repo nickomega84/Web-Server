@@ -18,6 +18,23 @@ Response UploadHandler::handleRequest(const Request& request)
 	std::cout << "[DEBUG][UploadHandler][handleRequest] START" << std::endl;
 
 	std::string method = request.getMethod();
+    if (method == "GET" || method == "HEAD" || method == "DELETE")
+    {
+        std::string uploadsPrefix = "/uploads";
+        std::string relativePath = request.getPath();
+
+        if (relativePath.find(uploadsPrefix) == 0)
+            relativePath = relativePath.substr(uploadsPrefix.size());
+
+        if (relativePath.empty() || relativePath[0] != '/')
+            relativePath = "/" + relativePath;
+
+        Request modifiedRequest = request;
+        modifiedRequest.setPath(relativePath);
+
+        StaticFileHandler staticHandler(_uploadsPath, _builder);
+        return staticHandler.handleRequest(modifiedRequest);
+    }
     if (method != "POST") 
 		return (std::cout << "[ERROR][UploadHandler] 405 not a POST method" << std::endl, \
 		uploadResponse(405, "Method Not Allowed", "text/plain", "405 - Method Not Allowed"));

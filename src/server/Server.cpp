@@ -10,7 +10,7 @@ _cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _res
 	IHandlerFactory* staticFactory = new StaticHandlerFactory(_rootPath, _responseBuilder);
     _router.registerFactory("/", staticFactory);
 	IHandlerFactory* uploadFactory = new UploadHandlerFactory(_uploadPath, _responseBuilder);
-    _router.registerFactory("/upload", uploadFactory);
+    _router.registerFactory("/uploads", uploadFactory);
 	IHandlerFactory* cgiFactory = new CGIHandlerFactory(_cgiPath, _responseBuilder);
     _router.registerFactory("/cgi-bin", cgiFactory);
 	addListeningSocket();
@@ -266,19 +266,35 @@ int Server::createResponse(const int client_fd, std::map<int, Response> &pending
 {
 	std::cout << "[DEBUG][createResponse] START" << std::endl;
 	
+	
 	Request  req;
     if (!req.parse(additive_bff.get_buffer()))
 		return (requestParseError(client_fd, pending_writes), 0);
 
 	IRequestHandler* handler = _router.resolve(req);
+    Response res;
+
     if (handler) 
 	{
-		Response res;
         res = handler->handleRequest(req);
-		pending_writes[client_fd] = res;
-		return (delete handler, 0);
+		delete handler;
     } 
 	else
+	{
+		Payload payload;
+		payload.keepAlive = true;
+		payload.status = 404;
+		payload.reason = "Not Found";
+		payload.mime = "text/html";
+
+		ErrorPageHandler errorHandler(_rootPath);
+		payload.body = errorHandler.render(404, "Recurso no encontrado");
+
+		res = _responseBuilder->build(payload);
+	}
+
+	pending_writes[client_fd] = res;
+	return 0;
 		return (requestParseError(client_fd, pending_writes), 0);    
 }
 

@@ -172,3 +172,8 @@ const std::string &Request::getPhysicalPath()
 {
 	return (_physicalPath);
 }
+
+void Request::setPath(const std::string& path)
+{
+    _path = path;
+} 

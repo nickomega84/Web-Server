@@ -29,10 +29,10 @@ static void sigHandler(int sig)
     std::cout << "\n❎ Signal received, shutting down…\n";
 }
 
-static std::string getDirectiveValue(const IConfig* node, const std::string& key, std::string defaultValue) 
+static std::string getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) 
 {
-	if (!node) 
-		return defaultValue;
+    if (!node) 
+        return defaultValue;
 
     const IConfig* child = node->getChild(key);
     if (child && !child->getValues().empty())
@@ -44,7 +44,7 @@ static std::string getDirectiveValue(const IConfig* node, const std::string& key
 int main(int argc, char** argv) 
 {
     if (argc != 2) 
-	{
+    {
         std::cerr << "Usage: " << argv[0] << " <file.conf>" << std::endl;
         return EXIT_FAILURE;
     }
@@ -53,32 +53,32 @@ int main(int argc, char** argv)
     std::signal(SIGTERM, sigHandler);
     std::signal(SIGPIPE, SIG_IGN);
 
-    // --- 1. Cargar Configuración ---
     ConfigParser& parser = ConfigParser::getInst();
     if (!parser.load(argv[1])) 
-	{
+    {
         std::cerr << "[ERROR][main] fatal: Cannot load config file." << std::endl;
         return EXIT_FAILURE;
     }
 
     const IConfig* rootConfig = parser.getConfig();
     if (!rootConfig || rootConfig->getChildren().empty()) 
-	{
-        std::cerr << "[ERROR][main] fatal: config file doens't contain 'server' blocks." << std::endl;
+    {
+        std::cerr << "[ERROR][main] fatal: config file doesn't contain 'server' blocks." << std::endl;
         return EXIT_FAILURE;
     }
 
-    // --- 2. Extraer Configuración para el Primer Servidor ---
     const IConfig* serverNode = rootConfig->getChildren()[0];
 
     try {
         validateRoot validator(argv[1]);
         validator.validationRoot();
-        // --- Reemplazo de la lógica de RootConfig, CgiConfig, etc. ---
+
         std::string rootPathConf = getDirectiveValue(serverNode, "root", "./www");
-        
+        std::string rootPath = Utils::resolveAndValidateDir(rootPathConf);
+
         const IConfig* cgiLocationNode = NULL;
         const IConfig* uploadLocationNode = NULL;
+
         const std::vector<IConfig*>& locations = serverNode->getChildren();
         for (size_t i = 0; i < locations.size(); ++i) {
             const std::string& path = locations[i]->getValues()[0];
@@ -86,29 +86,24 @@ int main(int argc, char** argv)
             if (path == "/uploads") uploadLocationNode = locations[i];
         }
 
-        std::string cgiDir = getDirectiveValue(cgiLocationNode, "root", "./www/cgi-bin");
-
-		std::cout << "[DEBUG][main] cgiDir = " << cgiDir << std::endl;
+        std::string cgiDirRaw = getDirectiveValue(cgiLocationNode, "root", "cgi-bin");
+        std::cout << "[DEBUG] CGI diffffffffffffffffffffffectory raw: " << cgiDirRaw << std::endl;
+        std::string cgiDir = Utils::resolveAndValidateDir(rootPath + "/" + cgiDirRaw);
+        std::cout << "[DEBUG] CGI directory: " << cgiDir << std::endl;
 
         std::string cgiPath = getDirectiveValue(cgiLocationNode, "cgi_path", "/usr/bin/python");
-        std::string uploadPathConf = getDirectiveValue(uploadLocationNode, "upload_path", "./uploads");
-        
-        // --- 3. Validar Rutas ---
-        std::string rootPath = Utils::resolveAndValidateDir(rootPathConf);
-        std::string uploadPath = Utils::resolveAndValidateDir(uploadPathConf);
-        if (rootPath.empty() || uploadPath.empty())
-            throw std::runtime_error("La ruta 'root' o 'upload_path' no es válida.");
 
-        // --- 4. Instanciar el Servidor (Compatible con tu constructor actual) ---
+        std::string uploadPathRaw = getDirectiveValue(uploadLocationNode, "upload_path", "uploads");
+        std::string uploadPath = Utils::resolveAndValidateDir(rootPath + "/" + uploadPathRaw);
+
+        if (rootPath.empty() || uploadPath.empty() || cgiDir.empty())
+            throw std::runtime_error("Alguna de las rutas 'root', 'upload_path' o 'cgiDir' no es válida.");
+
         IResponseBuilder* responseBuilder = new DefaultResponseBuilder();
-        
-        // Se le pasa `parser` como referencia y los strings extraídos del árbol.
-        // Esto coincide con la firma de tu constructor: Server(ConfigParser&, string, string, string, IResponseBuilder*)
         Server& server = Server::getInstance(parser, cgiDir, rootPath, uploadPath, responseBuilder);
-    
-        std::cout << "\n✅ [INFO] Webserv arrancado. Escuchando conexiones..." << std::endl;
 
-        // --- 5. Bucle Principal ---
+        std::cout << "\n ✅ [INFO] Webserv arrancado. Escuchando conexiones..." << std::endl;
+
         server.startEpoll();
 
     } catch (const std::exception& e) {

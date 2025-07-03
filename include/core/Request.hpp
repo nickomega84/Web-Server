@@ -35,6 +35,8 @@ class Request
         const std::string& getBody() const;
 		void setPhysicalPath(const std::string &p);
 		const std::string& getPhysicalPath();
+        void setPath(const std::string& path);
+
 };
 
 #endif
