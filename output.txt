@@ -1,67 +1,20 @@
-[DEBUG] Root path: ./www
-[DEBUG] Index file: index.html
-[DEBUG] Autoindex: disabled
-[DEBUG] ConfigParser::getLocation - location:  / 
-[DEBUG] ConfigParser::getLocation - name: /
-[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
-[DEBUG] ConfigParser::getLocation - name: /cgi-bin
-[DEBUG] ConfigParser::getLocation - location:  /error_pages 
-[DEBUG] ConfigParser::getLocation - name: /error_pages
-[DEBUG] ConfigParser::getLocation - location:  /uploads 
-[DEBUG] ConfigParser::getLocation - name: /uploads
-[DEBUG] ConfigParser::getLocation - key: root
-[DEBUG] ConfigParser::getLocation - it: found
-[DEBUG] ConfigParser::getLocation - location:  / 
-[DEBUG] ConfigParser::getLocation - name: /
-[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
-[DEBUG] ConfigParser::getLocation - name: /cgi-bin
-[DEBUG] ConfigParser::getLocation - location:  /error_pages 
-[DEBUG] ConfigParser::getLocation - name: /error_pages
-[DEBUG] ConfigParser::getLocation - location:  /uploads 
-[DEBUG] ConfigParser::getLocation - name: /uploads
-[DEBUG] ConfigParser::getLocation - key: postOn
-[DEBUG] ConfigParser::getLocation - it: end
-[DEBUG] ConfigParser::getLocation - location:  / 
-[DEBUG] ConfigParser::getLocation - name: /
-[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
-[DEBUG] ConfigParser::getLocation - name: /cgi-bin
-[DEBUG] ConfigParser::getLocation - location:  /error_pages 
-[DEBUG] ConfigParser::getLocation - name: /error_pages
-[DEBUG] ConfigParser::getLocation - location:  /uploads 
-[DEBUG] ConfigParser::getLocation - name: /uploads
-[DEBUG] ConfigParser::getLocation - key: deleteOn
-[DEBUG] ConfigParser::getLocation - it: end
-[DEBUG] ConfigParser::getLocation - location:  / 
-[DEBUG] ConfigParser::getLocation - name: /
-[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
-[DEBUG] ConfigParser::getLocation - name: /cgi-bin
-[DEBUG] ConfigParser::getLocation - key: cgi_path
-[DEBUG] ConfigParser::getLocation - it: found
-[DEBUG] ConfigParser::getLocation - location:  / 
-[DEBUG] ConfigParser::getLocation - name: /
-[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
-[DEBUG] ConfigParser::getLocation - name: /cgi-bin
-[DEBUG] ConfigParser::getLocation - key: root
-[DEBUG] ConfigParser::getLocation - it: found
-[DEBUG] CgiConfig::cgiPath = /usr/bin/python3.10
-[DEBUG] ConfigParser::getLocation - location:  / 
-[DEBUG] ConfigParser::getLocation - name: /
-[DEBUG] ConfigParser::getLocation - location:  /cgi-bin 
-[DEBUG] ConfigParser::getLocation - name: /cgi-bin
-[DEBUG] ConfigParser::getLocation - key: cgi_ext
-[DEBUG] ConfigParser::getLocation - it: found
-[DEBUG] CgiConfig::exts raw: '.sh .py'
-[DEBUG] CgiConfig::ext[0] = .sh
-[DEBUG] CgiConfig::ext[1] = .py
-OOLAOLAOLAOLA ./www/cgi-bin
-[DEBUG][Main] Server root: ./www
-[DEBUG][Main] Uploads dir: ./uploads
-[DEBUG][Main] CGI dir: /usr/bin/python3.10
-[DEBUG][Main] Port: 8082
-[DEBUG][Main] CGI extensions: 
-[DEBUG] CgiConfig::getCgiExtensions called
-[DEBUG] CgiConfig::getCgiExtensions size: 2
-.sh 
-[DEBUG][Main] Registrando CGI handler para extensión: .sh
-.py 
-[DEBUG][Main] Registrando CGI handler para extensión: .py
+
+
+Router constructor called
+[DEBUG] Router absRoot: /site_root
+OLAOLAOLA host = 127.0.0.1
+OLAOLAOLA port = 8080
+OLAOLAOLA output->ai_addr = 0x1ad521f0
+OLAOLAOLA output->ai_addrlen = 16
+[DEBUG][addListeningSocket] New listenSocket fd = 3
+[DEBUG][StaticHandlerFactory] created with rootsDir: /site_root
+[DEBUG] UploadHandlerFactory created with uploads path: /home/dangonz3/WEBSERVgitNiko/uploads
+[DEBUG][CGIHandlerFactory] created with uploads path: /usr/bin/python
+
+[INFO] Webserv arrancado. Escuchando conexiones...
+
+[!] Signal received, shutting down…
+[DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = 4
+[DEBUG] Router destructor called
+
+[INFO] Servidor cerrado correctamente.

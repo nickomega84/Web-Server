@@ -1,168 +1,147 @@
-
 #include "../../include/config/ConfigParser.hpp"
-#include <algorithm>
-#include <map>
-#include <string.h>
-#include "../../include/libraries.hpp"
-#include "../../include/utils/Utils.hpp"
+#include "../../include/config/ConfigNode.hpp"
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
 
-ConfigParser::ConfigParser () {}
-
-ConfigParser& ConfigParser::getInst() {
-    static ConfigParser inst;
-    return inst;
-}
+// --- Lógica del Singleton ---
+ConfigParser::ConfigParser() : _configRoot(NULL) {}
 
 ConfigParser::~ConfigParser() {
-    std::cout << "Destructor del parseo del archivo de configuración creado" << std::endl;
+    delete _configRoot;
 }
 
-bool ConfigParser::load(std::string const &file) {
-    filename = file;
-    std::ifstream fileStream(filename.c_str(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ));
-    if (!fileStream.is_open()) {
-        std::cerr << "Error: No se pudo abrir el archivo de configuración " << filename << std::endl;
-        return (false);
-    }
+ConfigParser& ConfigParser::getInst() {
+    static ConfigParser instance;
+    return instance;
+}
 
+// --- Lógica de Carga y Parseo ---
+bool ConfigParser::load(const std::string& filePath) {
+    delete _configRoot;
+    _configRoot = new ConfigNode();
+    static_cast<ConfigNode*>(_configRoot)->setType("root");
+
+    std::ifstream file(filePath.c_str());
+    if (!file.is_open()) {
+        std::cerr << "Error: No se pudo abrir " << filePath << std::endl;
+        return false;
+    }
+    try {
+        std::vector<std::string> tokens = tokenize(file);
+        size_t index = 0;
+        while (index < tokens.size()) {
+            parse(_configRoot, tokens, index);
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error de parseo en " << filePath << ": " << e.what() << std::endl;
+        delete _configRoot;
+        _configRoot = NULL;
+        return false;
+    }
+    return true;
+}
+
+// --- Métodos de la Interfaz Antigua (Reimplementados) ---
+
+std::string ConfigParser::getGlobal(const std::string& key) const {
+    if (!_configRoot) return "";
+    // Asume que la configuración global se toma del primer bloque 'server'
+    const std::vector<IConfig*>& servers = _configRoot->getChildren();
+    if (servers.empty() || servers[0]->getType() != "server") return "";
+
+    const IConfig* serverNode = servers[0];
+    const IConfig* directiveNode = serverNode->getChild(key);
+
+    if (directiveNode && !directiveNode->getValues().empty()) {
+        return directiveNode->getValues()[0];
+    }
+    
+    // Caso especial para 'listen' que puede no estar como directiva directa
+    if (key == "listen") {
+        const IConfig* listenNode = serverNode->getChild("listen");
+        if(listenNode && !listenNode->getValues().empty()) return listenNode->getValues()[0];
+    }
+    
+    return "";
+}
+
+std::string ConfigParser::getLocation(const std::string& locationPath, const std::string& key) const {
+    if (!_configRoot) return "";
+    const std::vector<IConfig*>& servers = _configRoot->getChildren();
+    if (servers.empty() || servers[0]->getType() != "server") return "";
+
+    const IConfig* serverNode = servers[0];
+    const std::vector<IConfig*>& locations = serverNode->getChildren();
+
+    for (size_t i = 0; i < locations.size(); ++i) {
+        if (locations[i]->getType() == "location" && !locations[i]->getValues().empty() && locations[i]->getValues()[0] == locationPath) {
+            const IConfig* directiveNode = locations[i]->getChild(key);
+            if (directiveNode && !directiveNode->getValues().empty()) {
+                return directiveNode->getValues()[0];
+            }
+            break; 
+        }
+    }
+    return "";
+}
+
+const IConfig* ConfigParser::getConfig() const {
+    return _configRoot;
+}
+
+// --- Tokenizer y Parser Recursivo ---
+std::vector<std::string> ConfigParser::tokenize(std::ifstream& file) {
+    std::vector<std::string> tokens;
     std::string line;
-    std::string currentLocation;
-    while (std::getline(fileStream, line))
-    {
-        line = Utils::trim(line);
-
-        if (line.empty() || line[0] == '#')
-            continue;
-        if (line.find("location") != std::string::npos)
-        {
-            size_t start = line.find("location") + 8;
-            size_t end = line.find("{");
-            currentLocation = line.substr(start, end - start);
-            Utils::trim(currentLocation);
-        }
-        else if (line.find("}") != std::string::npos)
-            currentLocation.clear();
-        if (!currentLocation.empty()) {
-            size_t separator = line.find(";");
-            if (separator != std::string::npos) {
-                size_t keyEnd = line.find_first_of(" \t");
-                std::string key = line.substr(0, keyEnd);
-
-                size_t firstVal = line.find_first_not_of(" \t", keyEnd);
-                std::string value = line.substr(firstVal, separator - firstVal);
-
-                Utils::trim(key);
-                Utils::trim(value);
-
-                if (!value.empty() && value[value.size() - 1] == ';')
-                    value.erase(value.size() - 1);
-
-                Utils::trim(value);
-
-                locations[currentLocation][key] = value;
+    const std::string delimiters = " \t\r\n";
+    const std::string special_chars = "{};";
+    while (std::getline(file, line)) {
+        size_t comment_pos = line.find('#');
+        if (comment_pos != std::string::npos) line.erase(comment_pos);
+        size_t current_pos = 0;
+        while (current_pos < line.length()) {
+            size_t start = line.find_first_not_of(delimiters, current_pos);
+            if (start == std::string::npos) break;
+            if (special_chars.find(line[start]) != std::string::npos) {
+                tokens.push_back(line.substr(start, 1));
+                current_pos = start + 1;
+                continue;
+            }
+            size_t end = line.find_first_of(delimiters + special_chars, start);
+            if (end == std::string::npos) {
+                tokens.push_back(line.substr(start));
+                break;
+            } else {
+                tokens.push_back(line.substr(start, end - start));
+                current_pos = end;
             }
         }
-
-        else {
-            size_t separator = line.find(";");
-            if (separator != std::string::npos) {
-                size_t keyEnd = line.find_first_of(" \t");
-                std::string key = line.substr(0, keyEnd);
-
-                size_t firstVal = line.find_first_not_of(" \t", keyEnd);
-                std::string value = line.substr(firstVal, separator - firstVal);
-
-                Utils::trim(key);
-                Utils::trim(value);
-
-                if (!value.empty() && value[value.size() - 1] == ';')
-                    value.erase(value.size() - 1);
-
-                Utils::trim(value);
-                if (key == "listen") {
-                    globalConfig["listen"] = value;
-                    size_t colon = value.find(':');
-                    globalConfig["port"] = (colon == std::string::npos)
-                                        ? value
-                                        : value.substr(colon + 1);
-                    return true;
-                }
-
-            globalConfig[key] = value;
-        }
     }
-
-    }
-    fileStream.close();
-    return (true);
+    return tokens;
 }
 
-std::string ConfigParser::getGlobal(std::string const &key) const 
-{
-	std::map<std::string, std::string>::const_iterator it = globalConfig.find(key);
-	return (it != globalConfig.end()) ? it->second : "";
-}
-
-int ConfigParser::getGlobalInt(std::string const &key) const {
-	std::string value = getGlobal(key);
-	return value.empty() ? 0 : atoi(value.c_str());
-}
-
-std::string ConfigParser::getLocation(const std::string& rawLoc, const std::string& key) const 
-{
-    std::string loc = Utils::trim(rawLoc);
-    if (loc.compare(0, 2, "./") == 0)            // quita prefix "./"
-        loc.erase(0, 2);
-    std::transform(loc.begin(), loc.end(), loc.begin(), ::tolower);
-    if (loc.size() > 1 && loc[loc.size() - 1] == '/') {
-        loc.erase(loc.size() - 1);
+void ConfigParser::parse(IConfig* parent, std::vector<std::string>& tokens, size_t& index) {
+    if (index >= tokens.size()) return;
+    ConfigNode* node = new ConfigNode();
+    node->setType(tokens[index++]);
+    while (index < tokens.size() && tokens[index] != "{" && tokens[index] != ";") {
+        node->addValue(tokens[index++]);
     }
-
-    for (std::map<std::string, std::map<std::string, std::string> >::const_iterator locIt = locations.begin();
-         locIt != locations.end(); ++locIt) {
-        std::cout << "[DEBUG] ConfigParser::getLocation - location: " << locIt->first << std::endl;
-        std::string name = Utils::trim(locIt->first);
-        if (name.compare(0, 2, "./") == 0)
-            name.erase(0, 2);
-        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-        std::cout << "[DEBUG] ConfigParser::getLocation - name: " << name << std::endl;
-
-        if (name.size() > 1 && name[name.size() - 1] == '/') {
-            name.erase(name.size() - 1);
-        }
-        if (name == loc) {
-            const std::map<std::string, std::string>& directives = locIt->second;
-            std::map<std::string, std::string>::const_iterator it = directives.find(key);
-            std::cout << "[DEBUG] ConfigParser::getLocation - key: " << key << std::endl;
-            std::cout << "[DEBUG] ConfigParser::getLocation - it: " << (it == directives.end() ? "end" : "found") << std::endl;
-            //
-            if (it != directives.end()) {
-                return Utils::trim(it->second);
+    if (index < tokens.size()) {
+        if (tokens[index] == "{") {
+            index++;
+            while (index < tokens.size() && tokens[index] != "}") {
+                parse(node, tokens, index);
             }
-            break;
+            if (index >= tokens.size() || tokens[index] != "}") {
+                delete node;
+                throw std::runtime_error("Se esperaba '}' de cierre.");
+            }
+            index++;
+        } else if (tokens[index] == ";") {
+            index++;
         }
     }
-    return std::string();
-}
-
-void ConfigParser::setGlobal(std::string const &key, std::string const &value) {
-	globalConfig[key] = value;
-}
-
-void ConfigParser::setLocation(std::string const &location, std::string const &key, std::string const &value) {
-	locations[location][key] = value;
-}
-
-void ConfigParser::print() const {
-	std::cout << "Global Configuration: " << std::endl;
-	for (std::map<std::string, std::string>::const_iterator it = globalConfig.begin(); it != globalConfig.end(); it++) {
-		std::cout << it->first << " = " << it->second << std::endl;
-	}
-	std::cout << "Locations: " << std::endl;
-	for (std::map<std::string, std::map<std::string, std::string > >::const_iterator locIt = locations.begin(); locIt != locations.end(); ++locIt) {
-		std::cout << "[" << locIt->first << "]" << std::endl;
-		for (std::map<std::string, std::string>::const_iterator it = locIt->second.begin(); it != locIt->second.end(); ++it) {
-			std::cout << " " << it->first << " = " << it->second << std::endl;
-		}
-	}
+    static_cast<ConfigNode*>(parent)->addChild(node);
 }
