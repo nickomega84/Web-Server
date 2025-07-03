@@ -72,11 +72,11 @@ int Server::addListeningSocket()
 
 void Server::closeAddListeningSocket(std::string str, struct addrinfo *output, int listen_socket)
 {
-	std::cerr << "[ERROR][addListeningSocket] " << str << std::endl;
 	if (output != NULL)
 		freeaddrinfo(output);
 	if (listen_socket != -1)
 		close(listen_socket);
+	throw (std::runtime_error("[ERROR][addListeningSocket] " + str));
 }
 
 void Server::getHostAndPort(std::string &host, std::string &port)
