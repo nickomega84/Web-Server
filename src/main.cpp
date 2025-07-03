@@ -21,22 +21,30 @@
 #include "../include/response/DefaultResponseBuilder.hpp"
 
 volatile sig_atomic_t g_signal_received = 0;
+
 static void sigHandler(int sig)
 {
     if (sig == SIGINT || sig == SIGTERM) g_signal_received = 1;
     std::cout << "\n[!] Signal received, shutting down…\n";
 }
-static std::string getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue = "") {
-    if (!node) return defaultValue;
+
+static std::string getDirectiveValue(const IConfig* node, const std::string& key, std::string defaultValue) 
+{
+	if (!node) 
+		return defaultValue;
+
     const IConfig* child = node->getChild(key);
-    if (child && !child->getValues().empty()) {
+    if (child && !child->getValues().empty())
         return child->getValues()[0];
-    }
+
     return defaultValue;
 }
-int main(int argc, char** argv) {
-    if (argc != 2) {
-        std::cerr << "Uso: " << argv[0] << " <archivo.conf>" << std::endl;
+
+int main(int argc, char** argv) 
+{
+    if (argc != 2) 
+	{
+        std::cerr << "Usage: " << argv[0] << " <file.conf>" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -45,20 +53,21 @@ int main(int argc, char** argv) {
     std::signal(SIGPIPE, SIG_IGN);
 
     // --- 1. Cargar Configuración ---
-    ConfigParser parser; // Se crea una instancia normal
-    if (!parser.load(argv[1])) {
-        std::cerr << "Error fatal: No se pudo cargar el archivo de configuración." << std::endl;
+    ConfigParser& parser = ConfigParser::getInst();
+    if (!parser.load(argv[1])) 
+	{
+        std::cerr << "[ERROR][main] fatal: Cannot load config file." << std::endl;
         return EXIT_FAILURE;
     }
 
     const IConfig* rootConfig = parser.getConfig();
-    if (!rootConfig || rootConfig->getChildren().empty()) {
-        std::cerr << "Error fatal: El archivo de configuración no contiene bloques 'server'." << std::endl;
+    if (!rootConfig || rootConfig->getChildren().empty()) 
+	{
+        std::cerr << "[ERROR][main] fatal: config file doens't contain 'server' blocks." << std::endl;
         return EXIT_FAILURE;
     }
 
     // --- 2. Extraer Configuración para el Primer Servidor ---
-    // Tu lógica actual solo maneja un servidor, así que nos enfocamos en el primero.
     const IConfig* serverNode = rootConfig->getChildren()[0];
 
     try {
@@ -81,28 +90,28 @@ int main(int argc, char** argv) {
         // --- 3. Validar Rutas ---
         std::string rootPath = Utils::resolveAndValidateDir(rootPathConf);
         std::string uploadPath = Utils::resolveAndValidateDir(uploadPathConf);
-        if (rootPath.empty() || uploadPath.empty()) {
+        if (rootPath.empty() || uploadPath.empty())
             throw std::runtime_error("La ruta 'root' o 'upload_path' no es válida.");
-        }
 
         // --- 4. Instanciar el Servidor (Compatible con tu constructor actual) ---
         IResponseBuilder* responseBuilder = new DefaultResponseBuilder();
         
         // Se le pasa `parser` como referencia y los strings extraídos del árbol.
         // Esto coincide con la firma de tu constructor: Server(ConfigParser&, string, string, string, IResponseBuilder*)
-        Server server(parser, cgiPath, rootPath, uploadPath, responseBuilder);
+        Server& server = Server::getInstance(parser, cgiPath, rootPath, uploadPath, responseBuilder);
     
         std::cout << "\n[INFO] Webserv arrancado. Escuchando conexiones..." << std::endl;
 
         // --- 5. Bucle Principal ---
         server.startEpoll();
 
+		server.cleanInstance();
     } catch (const std::exception& e) {
-        std::cerr << "Error fatal durante la inicialización: " << e.what() << std::endl;
+        std::cerr << "[ERROR][main] fatal durante la inicialización: " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
 
-    std::cout << "\n[INFO] Servidor cerrado correctamente." << std::endl;
+    std::cout << "[DEBUG] Servidor cerrado correctamente." << std::endl;
     return EXIT_SUCCESS;
 }
 

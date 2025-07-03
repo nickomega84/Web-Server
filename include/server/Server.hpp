@@ -28,11 +28,14 @@
 
 
 extern volatile sig_atomic_t g_signal_received;
+
 class IResponseBuilder;
 
 class Server
 {
 	private:
+		static Server* _instance;
+	
 		ConfigParser& _cfg;
 		std::string _cgiPath;
 		std::string _rootPath;
@@ -41,7 +44,8 @@ class Server
 		Router _router;
 		std::vector<int> listen_sockets;   
         
-        Server(const Server& other);
+        Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
+		Server(const Server& other);
         Server& operator=(const Server& other);
 
 		//addListeningSocket
@@ -69,11 +73,12 @@ class Server
 		void	validateChunkedBody(ClientBuffer &additive_bff);
 
 	public:
-/*         Server(ConfigParser& cfg, const std::string& rootPath); */
-		Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
+		static Server&	getInstance(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
         ~Server();
 
 		void	setRouter(const Router &router);
 		int		addListeningSocket();
         void	startEpoll();
+
+		void	cleanInstance();
 };

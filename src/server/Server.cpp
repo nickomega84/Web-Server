@@ -4,15 +4,32 @@
 #include "../../include/server/ClientBuffer.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 
-Server::Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder): _cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _responseBuilder(builder), _router(Router(_rootPath))
+Server* Server::_instance = NULL;
+
+Server::Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder):
+_cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _responseBuilder(builder), _router(Router(_rootPath))
 {
-	addListeningSocket();
 	IHandlerFactory* staticFactory = new StaticHandlerFactory(_rootPath, _responseBuilder);
     _router.registerFactory("/", staticFactory);
 	IHandlerFactory* uploadFactory = new UploadHandlerFactory(_uploadPath, _responseBuilder);
     _router.registerFactory("/upload", uploadFactory);
 	IHandlerFactory* cgiFactory = new CGIHandlerFactory(_cgiPath, _responseBuilder);
     _router.registerFactory("/cgi-bin", cgiFactory);
+	addListeningSocket();
+}
+
+Server& Server::getInstance(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder)
+{
+	if (_instance == NULL)
+		_instance = new Server(cfg, cgiPath, rootPath, uploadPath, builder);
+	return (*_instance);
+}
+
+void Server::cleanInstance()
+{
+	if (_instance != NULL)
+		delete _instance;
+	_instance = NULL;
 }
 
 Server::~Server()
@@ -34,8 +51,8 @@ int Server::addListeningSocket()
 	std::string port;	
 	getHostAndPort(host, port);
 
-	std::cout << "[addListeningSocket] HOST = " << host << std::endl;
-	std::cout << "[addListeningSocket] PORT = " << port << std::endl;
+	std::cout << "[DEBUG][addListeningSocket] HOST = " << host << std::endl;
+	std::cout << "[DEBUG][addListeningSocket] PORT = " << port << std::endl;
 
 	struct addrinfo input;
 	::bzero(&input, sizeof(input));
@@ -230,7 +247,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	char     str_buffer[BUFFER_SIZE];
     ssize_t  n = recv(client_fd, str_buffer, sizeof(str_buffer) - 1, 0);
     if (n == 0) 
-		return (/* std::cerr << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl,  */1);
+		return (std::cerr << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl, 1);
 	if (n < 0)
 		return (0);
 
