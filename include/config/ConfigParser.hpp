@@ -16,11 +16,11 @@ private:
     void parse(IConfig* parent, std::vector<std::string>& tokens, size_t& index);
 
     // Constructor y destructor privados para el patrón Singleton
-    ConfigParser(const ConfigParser&);
+    ConfigParser();
+	ConfigParser(const ConfigParser&);
     ConfigParser& operator=(const ConfigParser&);
 	
 	public:
-    ConfigParser();
     // --- Interfaz Pública (Compatible con tu código actual) ---
     static ConfigParser& getInst(); // Método estático para el Singleton
     ~ConfigParser();
