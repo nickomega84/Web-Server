@@ -28,14 +28,14 @@ void Server::setRouter(const Router& router) {
 
 int Server::addListeningSocket()
 {
-    int listen_socket;
+    int listen_socket = -1;
 
 	std::string host;
 	std::string port;	
 	getHostAndPort(host, port);
 
-	std::cout << "OLAOLAOLA host = " << host << std::endl;
-	std::cout << "OLAOLAOLA port = " << port << std::endl;
+	std::cout << "[addListeningSocket] HOST = " << host << std::endl;
+	std::cout << "[addListeningSocket] PORT = " << port << std::endl;
 
 	struct addrinfo input;
 	::bzero(&input, sizeof(input));
@@ -45,27 +45,31 @@ int Server::addListeningSocket()
 	struct addrinfo *output = NULL;
 
 	if (getaddrinfo(host.empty() ? NULL : host.c_str(), port.c_str(), &input, &output))
-		return (std::cerr << "[ERROR][addListeningSocket] calling getaddrinfo()" << std::endl, 500);
-
+		return (closeAddListeningSocket("calling getaddrinfo()", output, listen_socket))
 	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, output->ai_protocol)) < 0)
-		return (std::cerr << "[ERROR][addListeningSocket] creating server socket" << std::endl, freeaddrinfo(output), 500);
+		return (closeAddListeningSocket("creating server socket", output, listen_socket))
 	int opt = 1;
 	if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
-		return (std::cerr << "[ERROR][addListeningSocket] calling setsockopt()" << std::endl, freeaddrinfo(output), close(listen_socket), 500);
-	
-	std::cout << "OLAOLAOLA output->ai_addr = " << output->ai_addr << std::endl;
-	std::cout << "OLAOLAOLA output->ai_addrlen = " << output->ai_addrlen << std::endl;
-	
+		return (closeAddListeningSocket("calling setsockopt()", output, listen_socket))
 	if (bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0)
-		return (std::cerr << "[ERROR][addListeningSocket] binding listen_socket" << std::endl, freeaddrinfo(output), close(listen_socket), 500);
+		return (closeAddListeningSocket("binding listen_socket", output, listen_socket))
 	if (listen(listen_socket, SOMAXCONN) < 0)
-		return (std::cerr << "[ERROR][addListeningSocket] on listen()" << std::endl, freeaddrinfo(output), close(listen_socket), 500);
+		return (closeAddListeningSocket("on listen()", output, listen_socket))
 	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
 	listen_sockets.push_back(listen_socket);
 	freeaddrinfo(output);
 
 	std::cout << "[DEBUG][addListeningSocket] New listenSocket fd = " << listen_socket << std::endl;
 	return (0);
+}
+
+int closeAddListeningSocket(std::string str, struct addrinfo *output, int listen_socket)
+{
+	std::cerr << "[ERROR][addListeningSocket] " << str << std::endl;
+	if (output != NULL)
+		freeaddrinfo(output);
+	if (listen_socket != -1)
+		close(listen_socket);
 }
 
 void Server::getHostAndPort(std::string &host, std::string &port)

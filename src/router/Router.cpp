@@ -11,8 +11,8 @@
 
 Router::Router(const std::string& absRoot) : _absRoot(absRoot)
 {
-    std::cout << "\n\nRouter constructor called\n"
-              << "[DEBUG] Router absRoot: " << _absRoot << std::endl;
+    std::cout << "Router constructor called\n"
+              << "[DEBUG][Router] absRoot: " << _absRoot << std::endl;
 }
 Router::Router(const Router& other) 
 {
