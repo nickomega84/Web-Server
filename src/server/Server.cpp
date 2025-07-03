@@ -45,16 +45,16 @@ int Server::addListeningSocket()
 	struct addrinfo *output = NULL;
 
 	if (getaddrinfo(host.empty() ? NULL : host.c_str(), port.c_str(), &input, &output))
-		return (closeAddListeningSocket("calling getaddrinfo()", output, listen_socket))
+		return (closeAddListeningSocket("calling getaddrinfo()", output, listen_socket), 1);
 	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, output->ai_protocol)) < 0)
-		return (closeAddListeningSocket("creating server socket", output, listen_socket))
+		return (closeAddListeningSocket("creating server socket", output, listen_socket), 1);
 	int opt = 1;
 	if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
-		return (closeAddListeningSocket("calling setsockopt()", output, listen_socket))
+		return (closeAddListeningSocket("calling setsockopt()", output, listen_socket), 1);
 	if (bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0)
-		return (closeAddListeningSocket("binding listen_socket", output, listen_socket))
+		return (closeAddListeningSocket("binding listen_socket", output, listen_socket), 1);
 	if (listen(listen_socket, SOMAXCONN) < 0)
-		return (closeAddListeningSocket("on listen()", output, listen_socket))
+		return (closeAddListeningSocket("on listen()", output, listen_socket), 1);
 	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
 	listen_sockets.push_back(listen_socket);
 	freeaddrinfo(output);
@@ -63,7 +63,7 @@ int Server::addListeningSocket()
 	return (0);
 }
 
-int closeAddListeningSocket(std::string str, struct addrinfo *output, int listen_socket)
+void Server::closeAddListeningSocket(std::string str, struct addrinfo *output, int listen_socket)
 {
 	std::cerr << "[ERROR][addListeningSocket] " << str << std::endl;
 	if (output != NULL)

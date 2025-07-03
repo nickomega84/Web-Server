@@ -46,6 +46,7 @@ class Server
 
 		//addListeningSocket
         void	getHostAndPort(std::string &host, std::string &port);
+		void	closeAddListeningSocket(std::string str, struct addrinfo *output, int listen_socket);
 
 		//startEpoll
 		int		init_epoll();
