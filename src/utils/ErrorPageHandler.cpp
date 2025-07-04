@@ -14,7 +14,7 @@ const ErrorPageHandler::ErrorPageEntry ErrorPageHandler::errorPages[] = {
 };
 
 ErrorPageHandler::ErrorPageHandler(const std::string& rootPath) : _rootPath(rootPath) {
-    std::cout << "ErrorPageHandler initialized with root path: " << _rootPath << std::endl;
+    std::cout << "[DEBUG][ErrorPageHandler] initialized with root path: " << _rootPath << std::endl;
     // ErrorPageHandler initialized with root path: 0x43f508/sgoinfre/students/dbonilla/webServer/www
 }
 
@@ -59,7 +59,7 @@ std::string ErrorPageHandler::render(int code, const std::string& fallbackText) 
     try 
     {
         if (relPath == NULL) {
-            std::cout << "No error page found for code: " << code << std::endl;
+            std::cerr << "No error page found for code: " << code << std::endl;
             relPath = getErrorPagePath(500); // Fallback to 500 error page
         }
     } catch (const std::exception& e) 
@@ -75,9 +75,9 @@ std::string ErrorPageHandler::render(int code, const std::string& fallbackText) 
     {
         std::cout << "Checking if file exists: " << fullPath << std::endl;
         if (fileExists(fullPath)) {
-            std::cout << "File exists: " << fullPath << std::endl;
+            std::cerr << "File exists: " << fullPath << std::endl;
             std::string content = readFile(fullPath);
-            std::cout << "File content content length: " << content << std::endl;
+            std::cerr << "File content content length: " << content << std::endl;
             if (!content.empty())
                 return content;
         }

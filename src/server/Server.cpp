@@ -237,7 +237,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	char     str_buffer[BUFFER_SIZE];
     ssize_t  n = recv(client_fd, str_buffer, sizeof(str_buffer) - 1, 0);
     if (n == 0) 
-		return (std::cerr << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl, 1);
+		return (std::cout << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl, 1);
 	if (n < 0)
 		return (0);
 
@@ -250,12 +250,12 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	}
 	catch (const std::runtime_error &e)
 	{
-		std::cout << "[ERROR][[   [CATCH]   ]]" << std::endl;
-		std::cout << e.what() << std::endl;
+		std::cerr << "[ERROR][[   [CATCH]   ]]" << std::endl;
+		std::cerr << e.what() << std::endl;
 		additive_bff.setFinishedReading(true);
 		return (requestParseError(client_fd, pending_writes), 0);
 	}
-	std::cout << "[DEBUG] [[  [FINISHED READING REQUEST  ]]" << std::endl;
+	std::cout << "[DEBUG] [[  FINISHED READING REQUEST  ]]" << std::endl;
 
 	createResponse(client_fd, pending_writes, additive_bff);
 
@@ -265,7 +265,6 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 int Server::createResponse(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff)
 {
 	std::cout << "[DEBUG][createResponse] START" << std::endl;
-	
 	
 	Request  req;
     if (!req.parse(additive_bff.get_buffer()))
@@ -322,5 +321,3 @@ void Server::requestParseError(int client_fd, std::map<int, Response> &pending_w
 	res400.setBody(err.render(400, "Bad Request"));
 	pending_writes[client_fd] = res400;
 }
-
-

@@ -100,7 +100,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
     std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: " << fullPath << std::endl;
 
     if (!fileExists(fullPath)) {
-        std::cout << "[DEBUG][StaticFileHandler] File not found, file: " << fullPath << std::endl;
+        std::cerr << "[ERROR][StaticFileHandler] File not found, file: " << fullPath << std::endl;
         ErrorPageHandler errorHandler(_rootPath);
         payload.status = 404;
         payload.reason = "Not Found";
@@ -135,7 +135,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
 		}
 		else
 		{
-			std::cout << "[DEBUG][StaticFileHandler] DELETE failed" << std::endl;
+			std::cerr << "[ERROR][StaticFileHandler] DELETE failed" << std::endl;
 			ErrorPageHandler errorHandler(_rootPath);
 			payload.status = 404;
 			payload.reason = "Not Found";
@@ -248,7 +248,7 @@ Response StaticFileHandler::doGET(Response& res, std::string uri)
     if (extPos != std::string::npos) {
         size_t slashAfterExt = uri.find('/', extPos);
         if (slashAfterExt != std::string::npos) {
-            std::cout << "[ERROR] URI malformada detectada: " << uri << std::endl;
+            std::cerr << "[ERROR] URI malformada detectada: " << uri << std::endl;
             std::string body = ErrorPageHandler(_rootPath).render(404, "Ruta inválida");
             _builder->setStatus(res, 404, "Not Found");
             _builder->setBody(res, body);
@@ -259,7 +259,7 @@ Response StaticFileHandler::doGET(Response& res, std::string uri)
     }
 
     if (!fileExists(fullPath)) {
-        std::cout << "[DEBUG] Archivo no encontrado: " << fullPath << std::endl;
+        std::cerr << "[ERROR] Archivo no encontrado: " << fullPath << std::endl;
         std::string body = ErrorPageHandler(_rootPath).render(404, "Archivo no encontrado");
         _builder->setStatus(res, 404, "Not Found");
         _builder->setBody(res, body);

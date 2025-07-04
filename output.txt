@@ -1,20 +1,101 @@
-
-
-Router constructor called
-[DEBUG] Router absRoot: /site_root
-OLAOLAOLA host = 127.0.0.1
-OLAOLAOLA port = 8080
-OLAOLAOLA output->ai_addr = 0x1ad521f0
-OLAOLAOLA output->ai_addrlen = 16
+[DEBUG] CGI factory raw: ./cgi-bin
+[DEBUG] CGI directory: /home/dangonz3/WEBSERVgitNiko/www/cgi-bin
+[DEBUG][Router] absRoot: /home/dangonz3/WEBSERVgitNiko/www
+[DEBUG][StaticHandlerFactory] created with rootsDir: /home/dangonz3/WEBSERVgitNiko/www
+[DEBUG][UploadHandlerFactory] created with uploads path: /home/dangonz3/WEBSERVgitNiko/www/uploads
+[DEBUG][CGIHandlerFactory] created with uploads path: /home/dangonz3/WEBSERVgitNiko/www/cgi-bin
+[DEBUG][addListeningSocket] HOST = 127.0.0.1
+[DEBUG][addListeningSocket] PORT = 8081
 [DEBUG][addListeningSocket] New listenSocket fd = 3
-[DEBUG][StaticHandlerFactory] created with rootsDir: /site_root
-[DEBUG] UploadHandlerFactory created with uploads path: /home/dangonz3/WEBSERVgitNiko/uploads
-[DEBUG][CGIHandlerFactory] created with uploads path: /usr/bin/python
 
-[INFO] Webserv arrancado. Escuchando conexiones...
+ ✅ [INFO] Webserv arrancado. Escuchando conexiones...
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
 
-[!] Signal received, shutting down…
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py?producto=libro&cantidad=5 HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonGET.py
+[DEBUG][Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Priority =  u=0, i
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonGET.py
+[Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py?producto=libro&cantidad=5 HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonGET.py
+[DEBUG][Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Priority =  u=0, i
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonGET.py
+[Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG] [ROUTER] IRequestHandler* Router::resolve(Request& request) const
+[DEBUG] [Utils::mapUriToPath] absRoot: /home/dangonz3/WEBSERVgitNiko/www
+[DEBUG] [Utils::mapUriToPath] uri: /cgi-bin/pythonGET.py?producto=libro&cantidad=5
+[DEBUG] [Utils::mapUriToPath] joined: /home/dangonz3/WEBSERVgitNiko/www/cgi-bin/pythonGET.py?producto=libro&cantidad=5
+[DEBUG] [Utils::mapUriToPath] norm: /home/dangonz3/WEBSERVgitNiko/www/cgi-bin/pythonGET.py?producto=libro&cantidad=5
+ErrorPageHandler initialized with root path: /home/dangonz3/WEBSERVgitNiko/www
+Rendering error page for code: 404
+Relative path: AQUIIIIIIIIII 
+ 
+ /error_pages/404.html
+ErrorPageHandler: relPath: /error_pages/404.html
+
+Page_Handler: /home/dangonz3/WEBSERVgitNiko/www/error_pages/404.html
+Checking if file exists: /home/dangonz3/WEBSERVgitNiko/www/error_pages/404.html
+[DEBUG][DefaultResponseBuilder] Setting response status: 404 Not Found
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 214
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+
+❎ Signal received, shutting down…
 [DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = 4
+[DEBUG] Servidor cerrado correctamente.
 [DEBUG] Router destructor called
-
-[INFO] Servidor cerrado correctamente.

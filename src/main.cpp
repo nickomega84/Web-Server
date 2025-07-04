@@ -87,7 +87,7 @@ int main(int argc, char** argv)
         }
 
         std::string cgiDirRaw = getDirectiveValue(cgiLocationNode, "root", "cgi-bin");
-        std::cout << "[DEBUG] CGI diffffffffffffffffffffffectory raw: " << cgiDirRaw << std::endl;
+        std::cout << "[DEBUG] CGI factory raw: " << cgiDirRaw << std::endl;
         std::string cgiDir = Utils::resolveAndValidateDir(rootPath + "/" + cgiDirRaw);
         std::cout << "[DEBUG] CGI directory: " << cgiDir << std::endl;
 

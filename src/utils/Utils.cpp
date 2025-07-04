@@ -64,8 +64,8 @@ std::string Utils::normalisePath(std::string p)
 /* ---- A ------------------------------------------------------------ */
 std::string Utils::mapUriToPath(const std::string& absRoot, const std::string& uri)
 {
-    std::cout << "[DEBUG] [Utils::mapUriToPath] absRoot: " << absRoot << std::endl;
-    std::cout << "[DEBUG] [Utils::mapUriToPath] uri: " << uri << std::endl;
+    std::cout << "[DEBUG][Utils::mapUriToPath] absRoot: " << absRoot << std::endl;
+    std::cout << "[DEBUG][Utils::mapUriToPath] uri: " << uri << std::endl;
 
     std::string joined = absRoot;
 
@@ -77,10 +77,10 @@ std::string Utils::mapUriToPath(const std::string& absRoot, const std::string& u
     else
         joined += uri;
 
-    std::cout << "[DEBUG] [Utils::mapUriToPath] joined: " << joined << std::endl;
+    std::cout << "[DEBUG][Utils::mapUriToPath] joined: " << joined << std::endl;
 
     std::string norm = normalisePath(joined);
-    std::cout << "[DEBUG] [Utils::mapUriToPath] norm: " << norm << std::endl;
+    std::cout << "[DEBUG][Utils::mapUriToPath] norm: " << norm << std::endl;
 
     if (norm.compare(0, absRoot.size(), absRoot) != 0)
         throw std::runtime_error("Path-traversal: " + uri);

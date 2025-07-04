@@ -28,7 +28,7 @@ bool Server::getCompleteHeader(ClientBuffer &additive_bff)
 	
 	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
 	if (pos == std::string::npos)
-		return (std::cerr << "[DEBUG][getCompleteHeader] we didn't read all the header" << std::endl, false);
+		return (std::cout << "[DEBUG][getCompleteHeader] we didn't read all the header" << std::endl, false);
 	additive_bff.setHeaderEnd(pos + 4);
 
 	Request  reqGetHeader;
@@ -68,7 +68,7 @@ bool Server::checkIsChunked(ClientBuffer &additive_bff, Request &reqGetHeader)
 	if (transferEncoding != "chunked")
 		return (false);
 	additive_bff.setChunked(true);
-	return (std::cerr << "[DEBUG][checkIsChunked] is chunked" << std::endl, true);
+	return (std::cout << "[DEBUG][checkIsChunked] is chunked" << std::endl, true);
 }
 
 bool Server::checkIsContentLength(ClientBuffer &additive_bff, Request &reqGetHeader)
@@ -80,7 +80,7 @@ bool Server::checkIsContentLength(ClientBuffer &additive_bff, Request &reqGetHea
 		return (false);
 	if (additive_bff.setContentLenght(contentLenght))
 		throw (std::runtime_error("[ERROR][checkIsContentLength] Content-Length is not a number"));
-	return (std::cerr << "[DEBUG][checkIsContentLength] is content lenght = " << additive_bff.getContentLenght() << std::endl, true);
+	return (std::cout << "[DEBUG][checkIsContentLength] is content lenght = " << additive_bff.getContentLenght() << std::endl, true);
 }
 
 bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
@@ -91,16 +91,16 @@ bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
 	{
 		if (additive_bff.get_buffer().find("0\r\n\r\n") != std::string::npos)
 			return (validateChunkedBody(additive_bff), \
-			std::cerr << "[DEBUG][areWeFinishedReading] (Chunked) finished reading" << std::endl, true);
+			std::cout << "[DEBUG][areWeFinishedReading] (Chunked) finished reading" << std::endl, true);
 		else
-			return (std::cerr << "[DEBUG][areWeFinishedReading] (Chunked) we still need to read" << std::endl, false);
+			return (std::cout << "[DEBUG][areWeFinishedReading] (Chunked) we still need to read" << std::endl, false);
 	}
 	else if (additive_bff.getContentLenght() > 0)
 	{
 		if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getContentLenght())
-			return (std::cerr << "[DEBUG][areWeFinishedReading] (ContentLenght) we still need to read" << std::endl, false);
+			return (std::cout << "[DEBUG][areWeFinishedReading] (ContentLenght) we still need to read" << std::endl, false);
 		else
-			return (std::cerr << "[DEBUG][areWeFinishedReading] (ContentLenght) finished reading" << std::endl, true);
+			return (std::cout << "[DEBUG][areWeFinishedReading] (ContentLenght) finished reading" << std::endl, true);
 	}
 	return (true);
 }

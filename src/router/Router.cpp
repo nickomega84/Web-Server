@@ -2,17 +2,9 @@
 #include "../../include/utils/Utils.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 
-// Router::Router() 
-// {
-//     std::cout
-//     std::cout << "[DEBUG] Router constructor called" << std::endl;
-// }
-
-
 Router::Router(const std::string& absRoot) : _absRoot(absRoot)
 {
-    std::cout << "Router constructor called\n"
-              << "[DEBUG][Router] absRoot: " << _absRoot << std::endl;
+    std::cout << "[DEBUG][Router] absRoot: " << _absRoot << std::endl;
 }
 Router::Router(const Router& other) 
 {
@@ -40,7 +32,7 @@ IRequestHandler* Router::resolve(Request& request) const         // Request ya N
 {
     Response res;
     const std::string& uri = request.getURI();
-    std::cout << "[DEBUG] [ROUTER] IRequestHandler* Router::resolve(Request& request) const\n";
+    std::cout << "[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const\n";
             //   << "[DEBUG] [ROUTER] Request URI: " << uri << std::endl;
     for (std::map<std::string,IHandlerFactory*>::const_reverse_iterator it = _routes.rbegin();
          it != _routes.rend(); ++it)
@@ -52,10 +44,10 @@ IRequestHandler* Router::resolve(Request& request) const         // Request ya N
                 std::string abs  = Utils::mapUriToPath(_absRoot, uri);      // A
                 std::string safe = Utils::validateFilesystemEntry(abs);          // B + index.html
                 request.setPhysicalPath(safe);
-				std::cout << "[DEBUG] [ROUTER] \n" << safe << std::endl;
+				std::cout << "[DEBUG][Router] \n" << safe << std::endl;
             }
             catch (const std::exception& e) {
-                    std::cerr << "[ERROR] Sanitización fallida: " << e.what() << std::endl;
+                    std::cerr << "[ERROR][Router][Resolve] Sanitización fallida: " << e.what() << std::endl;
     
                     // ErrorPageHandler errorHandler(_absRoot);
                     // std::string body = errorHandler.render(404, "Acceso no permitido");

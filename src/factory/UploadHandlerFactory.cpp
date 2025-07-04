@@ -3,12 +3,12 @@
 
 UploadHandlerFactory::UploadHandlerFactory(const std::string& path, IResponseBuilder* builder) : _uploadsPath(path), _builder(builder) 
 {
-    std::cout << "[DEBUG] UploadHandlerFactory created with uploads path: " << _uploadsPath << "\n";
+    std::cout << "[DEBUG][UploadHandlerFactory] created with uploads path: " << _uploadsPath << std::endl;
 }
 
 UploadHandlerFactory::~UploadHandlerFactory() 
 {
-    std::cout << "[DEBUG] UploadHandlerFactory destroyed\n";
+    std::cout << "[DEBUG][UploadHandlerFactory] destroyed" << std::endl;
 }
 
 IRequestHandler* UploadHandlerFactory::createHandler() const {
