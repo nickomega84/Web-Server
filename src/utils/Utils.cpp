@@ -84,7 +84,7 @@ std::string Utils::mapUriToPath(const std::string& absRoot, const std::string& u
 
     if (norm.compare(0, absRoot.size(), absRoot) != 0)
         throw std::runtime_error("Path-traversal: " + uri);
-
+	
     return norm;
 }
 
@@ -114,23 +114,28 @@ std::string Utils::validateFilesystemEntry(const std::string& absPath)
 {
     struct stat sb;
 
-    if (::lstat(absPath.c_str(), &sb) == -1)
-    throw std::runtime_error("Not found: " + absPath);
+    std::cout << "[DEBUG][Utils::validateFilesystemEntry] absPath: " << absPath << std::endl;
+
+	if (::lstat(absPath.c_str(), &sb) == -1)
+		throw std::runtime_error("Not found: " + absPath);
 
     std::string finalPath = absPath;
 
-    if (S_ISDIR(sb.st_mode)) {
-    if (finalPath[finalPath.size()-1] != '/') finalPath += "/";
-    finalPath += "index.html";
+    if (S_ISDIR(sb.st_mode)) 
+	{
+		if (finalPath[finalPath.size()-1] != '/')
+			finalPath += "/";
+		finalPath += "index.html";
 
-    if (::lstat(finalPath.c_str(), &sb) == -1 || !S_ISREG(sb.st_mode))
-    throw std::runtime_error("Directory listing forbidden: " + absPath);
+		if (::lstat(finalPath.c_str(), &sb) == -1 || !S_ISREG(sb.st_mode))
+			throw std::runtime_error("Directory listing forbidden: " + absPath);
     }
     else if (!S_ISREG(sb.st_mode) || S_ISLNK(sb.st_mode))
-    throw std::runtime_error("Forbidden type: " + absPath);
+    	throw std::runtime_error("Forbidden type: " + absPath);
 
     int fd = ::open(finalPath.c_str(), O_RDONLY | O_NOFOLLOW);
-    if (fd == -1)   throw std::runtime_error("Symlink or I/O error: " + finalPath);
+    if (fd == -1)
+		throw std::runtime_error("Symlink or I/O error: " + finalPath);
     ::close(fd);
 
     return finalPath;            // fichero listo para servir

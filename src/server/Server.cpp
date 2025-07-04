@@ -5,7 +5,7 @@
 #include "../../include/utils/ErrorPageHandler.hpp"
 
 Server::Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder):
-_cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _responseBuilder(builder), _router(Router(_rootPath))
+_cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _responseBuilder(builder), _router(Router(_rootPath)), _error(false)
 {
 	IHandlerFactory* staticFactory = new StaticHandlerFactory(_rootPath, _responseBuilder);
     _router.registerFactory("/", staticFactory);
@@ -290,11 +290,11 @@ int Server::createResponse(const int client_fd, std::map<int, Response> &pending
 		payload.body = errorHandler.render(404, "Recurso no encontrado");
 
 		res = _responseBuilder->build(payload);
+		_error = true;
 	}
 
 	pending_writes[client_fd] = res;
 	return 0;
-		return (requestParseError(client_fd, pending_writes), 0);    
 }
 
 int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes)
@@ -308,6 +308,8 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	if (bytes_sent < 0)
 		return (std::cerr << "[ERROR][handleClientResponse] Client disconnected: " << client_fd << std::endl, 1);
 	pending_writes.erase(client_fd);
+	if (_error == true)
+		return (_error = false, 1);
 	return (0);
 }
 
@@ -320,4 +322,5 @@ void Server::requestParseError(int client_fd, std::map<int, Response> &pending_w
 	res400.setStatus(400, "Bad Request");
 	res400.setBody(err.render(400, "Bad Request"));
 	pending_writes[client_fd] = res400;
+	_error = true;
 }

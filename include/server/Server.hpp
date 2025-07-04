@@ -39,8 +39,9 @@ class Server
 		std::string _rootPath;
 		std::string _uploadPath;
 		IResponseBuilder* _responseBuilder;
-		Router _router;
-		std::vector<int> listen_sockets;   
+		Router		_router;
+		std::vector<int> listen_sockets;
+		bool		_error;
         
         Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
 		Server(const Server& other);
