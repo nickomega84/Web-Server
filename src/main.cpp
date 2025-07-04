@@ -65,6 +65,10 @@ int main(int argc, char** argv) {
     try {
         validateRoot validator(argv[1]);
         validator.validationRoot();
+
+        std::string serverName = parser.getServerName(serverNode);
+        std::cout << "[INFO] Nombre del servidor: " << serverName << std::endl;
+        
         // --- Reemplazo de la lógica de RootConfig, CgiConfig, etc. ---
         std::string rootPathConf = getDirectiveValue(serverNode, "root", "./www");
         
