@@ -29,15 +29,18 @@ bool Server::getCompleteHeader(ClientBuffer &additive_bff)
 	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
 	if (pos == std::string::npos)
 		return (std::cout << "[DEBUG][getCompleteHeader] we didn't read all the header" << std::endl, false);
-	additive_bff.setHeaderEnd(pos + 4);
 
 	Request  reqGetHeader;
 	if (!reqGetHeader.parse(additive_bff.get_buffer().c_str())) 
 		throw (std::runtime_error("[ERROR][getCompleteHeader] HTTP request contains errors"));
 	
+	if (reqGetHeader.getBody().empty())
+		return (std::cout << "[DEBUG][getCompleteHeader] empty body, we need to keep reading" << std::endl, false);
+	
 	if (reqGetHeader.getMethod() == "POST")
 		checkBodyLimits(additive_bff, reqGetHeader);
 
+	additive_bff.setHeaderEnd(pos + 4);
 	std::cout << "[DEBUG][getCompleteHeader] finished reading header" << std::endl;
 	return (true);
 }
@@ -46,9 +49,6 @@ void Server::checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader)
 {
 	std::cout << "[DEBUG][checkBodyLimits] START" << std::endl;
 
-	if (reqGetHeader.getBody().empty())
-		throw (std::runtime_error("[ERROR][checkBodyLimits] empty body on POST request is not valid for this server"));
-	
 	bool chuncked = checkIsChunked(additive_bff, reqGetHeader);
 	bool contentLenght = checkIsContentLength(additive_bff, reqGetHeader);
 
