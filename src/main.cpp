@@ -69,7 +69,8 @@ int main(int argc, char** argv)
 
     const IConfig* serverNode = rootConfig->getChildren()[0];
 
-    try {
+    try 
+	{
         validateRoot validator(argv[1]);
         validator.validationRoot();
 
@@ -105,8 +106,9 @@ int main(int argc, char** argv)
         std::cout << "\n ✅ [INFO] Webserv arrancado. Escuchando conexiones..." << std::endl;
 
         server.startEpoll();
-
-    } catch (const std::exception& e) {
+    } 
+	catch (const std::exception& e) 
+	{
         std::cerr << "[ERROR][main] fatal durante la inicialización: " << e.what() << std::endl;
         return EXIT_FAILURE;
     }

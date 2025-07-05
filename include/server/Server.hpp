@@ -42,6 +42,7 @@ class Server
 		Router		_router;
 		std::vector<int> listen_sockets;
 		bool		_error;
+		std::vector<IHandlerFactory*> factory_ptr;
         
         Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
 		Server(const Server& other);

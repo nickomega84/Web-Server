@@ -138,6 +138,7 @@ int CGIHandler::handleGET(const Request &req, Response &res, std::string interpr
 		if (waitpid(pid, &status, 0) == -1)
 			return (std::cerr << "[ERROR] CGI on waitpid()" << std::endl, \
 			CGIerror(500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+
 		if (WIFSIGNALED(status))
 			return (std::cerr << "[ERROR] CGI child killed SIGTERM" << std::endl, \
 			CGIerror(500, "Internal Server Error", "text/plain"), delete[] envp, 1);
@@ -218,6 +219,7 @@ int CGIHandler::handlePOST(const Request &req, Response &res, std::string interp
 		if (waitpid(pid, &status, 0) == -1)
 			return (std::cerr << "[ERROR] CGI waitpid()" << std::endl, \
 			CGIerror(500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+
 		if (WIFSIGNALED(status))
 			return (std::cerr << "[ERROR] CGI child was killed SIGTERM" << std::endl, \
 			CGIerror(500, "Internal Server Error", "text/plain"), delete[] envp, 1);
@@ -344,12 +346,18 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	std::string cgi_headers_str;
 	std::string cgi_body_str;
 	std::string::size_type header_end_pos = output.find("\r\n\r\n");
+	size_t header_lenght = 4;
+
 	if (header_end_pos == std::string::npos)
+	{
 		header_end_pos = output.find("\n\n"); //algunos scripts no devuelven \r\n\r\n como dicta la convencción de HTTP, en su lugar devuelven \n\n
+		header_lenght = 2;
+	}
 	if (header_end_pos == std::string::npos)
 		return (1);
+
+	cgi_body_str = output.substr(header_end_pos + header_lenght);
 	cgi_headers_str = output.substr(0, header_end_pos);
-	cgi_body_str = output.substr(header_end_pos + 4); // +4 para saltar \r\n\r\n
 
 	res.setBody(cgi_body_str);
 
@@ -370,6 +378,12 @@ int CGIHandler::createResponse(std::string output, Response &res)
 			res.setHeader(header_name, header_value);
 		}
 	}
+	size_t bodySize = res.getBody().length();
+	std::stringstream ssBodySize;
+	ssBodySize << bodySize;
+	std::string bodySizeStr = ssBodySize.str();
+	if (res.getHeader("Content-Length").empty())
+		res.setHeader("Content-Length", bodySizeStr);
 	return (0);
 }
 

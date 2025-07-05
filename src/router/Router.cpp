@@ -44,7 +44,7 @@ IRequestHandler* Router::resolve(Request& request) const         // Request ya N
                 std::string abs  = Utils::mapUriToPath(_absRoot, uri);      // A
                 std::string safe = Utils::validateFilesystemEntry(abs);          // B + index.html
                 request.setPhysicalPath(safe);
-				std::cout << "[DEBUG][Router] \n" << safe << std::endl;
+				std::cout << "[DEBUG][Router] safe = " << safe << std::endl;
             }
             catch (const std::exception& e) {
                     std::cerr << "[ERROR][Router][Resolve] Sanitización fallida: " << e.what() << std::endl;

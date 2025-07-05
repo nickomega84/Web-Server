@@ -71,6 +71,15 @@ std::string Response::getHeaders()
 	return(headers);
 }
 
+std::string Response::getHeader(std::string key)
+{
+	static std::string empty;
+	std::map<std::string, std::string>::const_iterator it = _headers.find(key);
+	if (it != _headers.end())
+		return (it->second);
+	return(empty);
+}
+
 std::string Response::getBody()
 {
 	return(_body);

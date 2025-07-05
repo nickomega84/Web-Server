@@ -9,10 +9,13 @@ _cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _res
 {
 	IHandlerFactory* staticFactory = new StaticHandlerFactory(_rootPath, _responseBuilder);
     _router.registerFactory("/", staticFactory);
+	factory_ptr.push_back(staticFactory);
 	IHandlerFactory* uploadFactory = new UploadHandlerFactory(_uploadPath, _responseBuilder);
     _router.registerFactory("/uploads", uploadFactory);
+	factory_ptr.push_back(uploadFactory);
 	IHandlerFactory* cgiFactory = new CGIHandlerFactory(_cgiPath, _responseBuilder);
     _router.registerFactory("/cgi-bin", cgiFactory);
+	factory_ptr.push_back(cgiFactory);
 	addListeningSocket();
 }
 
@@ -27,6 +30,10 @@ Server::~Server()
 	for (std::vector<int>::iterator it = listen_sockets.begin(); it != listen_sockets.end(); ++it)
 		close(*it);
 	listen_sockets.clear();
+	for (std::vector<IHandlerFactory*>::iterator it = factory_ptr.begin(); it != factory_ptr.end(); ++it)
+		delete *it;
+	factory_ptr.clear();
+	delete _responseBuilder;
 }
 
 void Server::setRouter(const Router& router) {
@@ -125,6 +132,7 @@ void Server::startEpoll()
 		{
 			std::cout << "------------------------LOOP_EPOLL++------------------------" << std::endl;
 			client_fd = events[i].data.fd;
+			std::cout << "[DEBUG][LOOP_EPOLL INICIO] client_fd = " << client_fd << std::endl;			
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), client_fd) != listen_sockets.end())
 			{
 				std::cout << "[DEBUG][LOOP_EPOLL] accept_connection" << std::endl;
@@ -138,7 +146,8 @@ void Server::startEpoll()
 			else
 			{
 				if (events[i].events & EPOLLIN)
-				{					
+				{
+					std::cout << "[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN" << client_fd << std::endl;			
 					if (handleClientRead(client_fd, pending_writes, client_buffers[client_fd]))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					if (client_buffers[client_fd].getFinishedReading() == true && ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
@@ -154,6 +163,7 @@ void Server::startEpoll()
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					client_buffers[client_fd].reset();
 					std::cout << "[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT" << std::endl;
+					std::cout << "[DEBUG][LOOP_EPOLL] client_fd = " << client_fd << std::endl;
 				}
 			}
 		}
@@ -189,7 +199,7 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &
 
 	clientFdList.push_back(client_fd);
 	ClientBuffer newClientBuffer;
-	client_buffers[listen_socket] = newClientBuffer;
+	client_buffers[client_fd] = newClientBuffer;
 	std::cout << "[DEBUG][accept_connection] New connection accepted() fd = " << client_fd << std::endl;
 	return (0);
 }
@@ -310,7 +320,7 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	pending_writes.erase(client_fd);
 	if (_error == true)
 		return (_error = false, 1);
-	return (0);
+	return (std::cout << "[DEBUG][handleClientResponse] END" << std::endl, 0);
 }
 
 void Server::requestParseError(int client_fd, std::map<int, Response> &pending_writes)

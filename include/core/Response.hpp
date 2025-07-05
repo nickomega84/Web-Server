@@ -25,6 +25,7 @@ class Response
 		const std::string&  getBody() const;
 		int                 getStatus();
 		std::string         getHeaders();
+		std::string			getHeader(std::string key);
 		std::string         getBody();
 
 		std::string toString() const;

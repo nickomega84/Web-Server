@@ -34,7 +34,7 @@ bool Server::getCompleteHeader(ClientBuffer &additive_bff)
 	if (!reqGetHeader.parse(additive_bff.get_buffer().c_str())) 
 		throw (std::runtime_error("[ERROR][getCompleteHeader] HTTP request contains errors"));
 	
-	if (reqGetHeader.getBody().empty())
+	if (reqGetHeader.getMethod() == "POST" && reqGetHeader.getBody().empty())
 		return (std::cout << "[DEBUG][getCompleteHeader] empty body, we need to keep reading" << std::endl, false);
 	
 	if (reqGetHeader.getMethod() == "POST")
