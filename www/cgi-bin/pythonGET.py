@@ -27,5 +27,3 @@ else:
 print("</body>")
 print("</html>")
 
-#curl "http://localhost:8081/cgi-bin/pythonGET.py?nombre=Juan&ciudad=Madrid"
-#http://localhost:8081/cgi-bin/pythonGET.py?producto=libro&cantidad=5

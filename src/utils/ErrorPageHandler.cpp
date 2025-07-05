@@ -67,7 +67,7 @@ std::string ErrorPageHandler::render(int code, const std::string& fallbackText) 
         std::cerr << "Error retrieving error page path: " << e.what() << std::endl;
         relPath = NULL; // Fallback to NULL if an error occurs
     }
-    std::cout << "Relative path: AQUIIIIIIIIII \n \n " << (relPath ? relPath : "NULL") << std::endl;
+    std::cout << "Relative path: " << (relPath ? relPath : "NULL") << std::endl;
     std::string fullPath = _rootPath + relPath;
     std::cout << "ErrorPageHandler: relPath: " << relPath << std::endl;
     std::cout << "\nPage_Handler: " << fullPath  << std::endl;

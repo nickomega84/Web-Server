@@ -378,12 +378,14 @@ int CGIHandler::createResponse(std::string output, Response &res)
 			res.setHeader(header_name, header_value);
 		}
 	}
+
 	size_t bodySize = res.getBody().length();
 	std::stringstream ssBodySize;
 	ssBodySize << bodySize;
 	std::string bodySizeStr = ssBodySize.str();
 	if (res.getHeader("Content-Length").empty())
 		res.setHeader("Content-Length", bodySizeStr);
+	
 	return (0);
 }
 
