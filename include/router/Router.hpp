@@ -20,6 +20,7 @@ class Router
 
 		void registerFactory(const std::string& pathPrefix, IHandlerFactory* factory);
 		IRequestHandler* resolve(Request& request) const;
+		std::string getUriWithoutQuery(std::string uriWithString) const;
 
 
 };

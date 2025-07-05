@@ -10,32 +10,26 @@
 
  ✅ [INFO] Webserv arrancado. Escuchando conexiones...
 ------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
 [DEBUG][LOOP_EPOLL] accept_connection
 [DEBUG][accept_connection] New connection accepted() fd = 5
 ------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
 [DEBUG][readRequest] START
 [DEBUG][getCompleteHeader] START
 
 [DEBUG]-------------------[REQUEST] START-------------------
-[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py?producto=libro&cantidad=5 HTTP/1.1
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py?nombre=Juan&ciudad=Madrid HTTP/1.1
 [DEBUG][Request] Path: /cgi-bin/pythonGET.py
-[DEBUG][Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Query String: nombre=Juan&ciudad=Madrid
 [DEBUG][Request] Header found: Host =  localhost:8081
-[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
-[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
-[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Connection =  keep-alive
-[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
-[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
-[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
-[DEBUG][Request] Header found: Sec-Fetch-Site =  none
-[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
-[DEBUG][Request] Header found: Priority =  u=0, i
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
 [Request] Body: 
 [Request] Keep-Alive: true
 [Request] Path: /cgi-bin/pythonGET.py
-[Request] Query String: producto=libro&cantidad=5
+[Request] Query String: nombre=Juan&ciudad=Madrid
 [DEBUG][Request] Request parsing completed successfully.
 [DEBUG]-------------------[REQUEST] END-------------------
 
@@ -45,38 +39,29 @@
 [DEBUG][createResponse] START
 
 [DEBUG]-------------------[REQUEST] START-------------------
-[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py?producto=libro&cantidad=5 HTTP/1.1
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py?nombre=Juan&ciudad=Madrid HTTP/1.1
 [DEBUG][Request] Path: /cgi-bin/pythonGET.py
-[DEBUG][Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Query String: nombre=Juan&ciudad=Madrid
 [DEBUG][Request] Header found: Host =  localhost:8081
-[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
-[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
-[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Connection =  keep-alive
-[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
-[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
-[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
-[DEBUG][Request] Header found: Sec-Fetch-Site =  none
-[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
-[DEBUG][Request] Header found: Priority =  u=0, i
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
 [Request] Body: 
 [Request] Keep-Alive: true
 [Request] Path: /cgi-bin/pythonGET.py
-[Request] Query String: producto=libro&cantidad=5
+[Request] Query String: nombre=Juan&ciudad=Madrid
 [DEBUG][Request] Request parsing completed successfully.
 [DEBUG]-------------------[REQUEST] END-------------------
 
-[DEBUG] [ROUTER] IRequestHandler* Router::resolve(Request& request) const
-[DEBUG] [Utils::mapUriToPath] absRoot: /home/dangonz3/WEBSERVgitNiko/www
-[DEBUG] [Utils::mapUriToPath] uri: /cgi-bin/pythonGET.py?producto=libro&cantidad=5
-[DEBUG] [Utils::mapUriToPath] joined: /home/dangonz3/WEBSERVgitNiko/www/cgi-bin/pythonGET.py?producto=libro&cantidad=5
-[DEBUG] [Utils::mapUriToPath] norm: /home/dangonz3/WEBSERVgitNiko/www/cgi-bin/pythonGET.py?producto=libro&cantidad=5
-ErrorPageHandler initialized with root path: /home/dangonz3/WEBSERVgitNiko/www
+[DEBUG][Router] uri = /cgi-bin/pythonGET.py?nombre=Juan&ciudad=Madrid
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /home/dangonz3/WEBSERVgitNiko/www
+[DEBUG][Utils::mapUriToPath] uri: /cgi-bin/pythonGET.py?nombre=Juan&ciudad=Madrid
+[DEBUG][Utils::mapUriToPath] joined: /home/dangonz3/WEBSERVgitNiko/www/cgi-bin/pythonGET.py?nombre=Juan&ciudad=Madrid
+[DEBUG][Utils::mapUriToPath] norm: /home/dangonz3/WEBSERVgitNiko/www/cgi-bin/pythonGET.py?nombre=Juan&ciudad=Madrid
+[DEBUG][Utils::validateFilesystemEntry] absPath: /home/dangonz3/WEBSERVgitNiko/www/cgi-bin/pythonGET.py?nombre=Juan&ciudad=Madrid
+[DEBUG][ErrorPageHandler] initialized with root path: /home/dangonz3/WEBSERVgitNiko/www
 Rendering error page for code: 404
-Relative path: AQUIIIIIIIIII 
- 
- /error_pages/404.html
+Relative path: /error_pages/404.html
 ErrorPageHandler: relPath: /error_pages/404.html
 
 Page_Handler: /home/dangonz3/WEBSERVgitNiko/www/error_pages/404.html
@@ -87,15 +72,17 @@ Checking if file exists: /home/dangonz3/WEBSERVgitNiko/www/error_pages/404.html
 [DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
 [DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
 ------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
 [DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
 [DEBUG][handleClientResponse] START
-[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
-------------------------LOOP_EPOLL++------------------------
-[DEBUG][handleClientRead] Client fd = 5 closed connection
 [DEBUG][close_fd] client_fd: 5 closed
-[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
 
 ❎ Signal received, shutting down…
 [DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = 4
 [DEBUG] Servidor cerrado correctamente.
+[DEBUG][StaticHandlerFactory] destroyed
+[DEBUG][UploadHandlerFactory] destroyed
+[DEBUG][CGIHandlerFactory] destroyed
 [DEBUG] Router destructor called

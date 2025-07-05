@@ -31,11 +31,15 @@ void Router::registerFactory(const std::string& pathPrefix, IHandlerFactory* fac
 IRequestHandler* Router::resolve(Request& request) const         // Request ya NO es const
 {
     Response res;
-    const std::string& uri = request.getURI();
-    std::cout << "[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const\n";
+    const std::string& uriWithQueryMaybe = request.getURI();
+
+	std::string uri = getUriWithoutQuery(uriWithQueryMaybe);
+
+	std::cout << "[DEBUG][Router] uri = " << uri << std::endl;
+    std::cout << "[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const " << std::endl;
             //   << "[DEBUG] [ROUTER] Request URI: " << uri << std::endl;
     for (std::map<std::string,IHandlerFactory*>::const_reverse_iterator it = _routes.rbegin();
-         it != _routes.rend(); ++it)
+        it != _routes.rend(); ++it)
     {
         if (uri == it->first || uri.find(it->first) == 0)
         {
@@ -63,4 +67,14 @@ IRequestHandler* Router::resolve(Request& request) const         // Request ya N
         }
     }
     return NULL;
+}
+
+std::string Router::getUriWithoutQuery(std::string uriWithString) const
+{
+	size_t pos;
+	pos = uriWithString.find("?");
+	if (pos == std::string::npos)
+		return (uriWithString);
+	std::string uri = uriWithString.substr(0, pos);
+	return (uri);
 }
