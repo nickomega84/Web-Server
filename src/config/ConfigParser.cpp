@@ -145,3 +145,25 @@ void ConfigParser::parse(IConfig* parent, std::vector<std::string>& tokens, size
     }
     static_cast<ConfigNode*>(parent)->addChild(node);
 }
+
+std::string ConfigParser::getDirectiveValue(const IConfig* configNode, const std::string& directive, const std::string& defaultValue) {
+    if (!configNode) return defaultValue;
+
+    const std::vector<std::string>& values = configNode->getValues();
+    for (size_t i = 0; i < values.size(); ++i) {
+        if (values[i] == directive && i + 1 < values.size()) {
+            return values[i + 1]; // Devuelve el valor asociado a la directiva
+        }
+    }
+    return defaultValue;
+}
+
+std::string ConfigParser::getServerName(const IConfig* serverNode) {
+    std::cout << "[DEBUG] Verificando nombre del servidor..." << std::endl;
+    const std::vector<std::string>& values = serverNode->getValues();
+    for (size_t i = 0; i < values.size(); ++i) {
+        std::cout << values[i] << std::endl; 
+    }
+    std::cout << std::endl;
+    return getDirectiveValue(serverNode, "server_name", "default_server");
+}
