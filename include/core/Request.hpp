@@ -37,7 +37,7 @@ class Request
         const std::string& getHeader(const std::string& key) const;
         const std::string& getBody() const;
 		void setPhysicalPath(const std::string &p);
-		const std::string& getPhysicalPath();
+		const std::string& getPhysicalPath() const ;
         void setPath(const std::string& path);
 
 		void setCfg(ConfigParser &parser);

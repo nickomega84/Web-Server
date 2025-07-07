@@ -18,17 +18,17 @@ StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* 
 }
 StaticFileHandler::~StaticFileHandler() {}
 
-static bool fileExists(const std::string& path) 
-{
-    std::cout << "[DEBUG][StaticFileHandler] Verifying file existence, file: " << path << std::endl;
-    std::ifstream file(path.c_str());
-    if (!file) {
-        return false;
-    }
-    file.close();
-	struct stat buffer;
-	return (stat(path.c_str(), &buffer) == 0);
-}
+// static bool fileExists(const std::string& path) 
+// {
+//     std::cout << "[DEBUG][StaticFileHandler] Verifying file existence, file: " << path << std::endl;
+//     std::ifstream file(path.c_str());
+//     if (!file) {
+//         return false;
+//     }
+//     file.close();
+// 	struct stat buffer;
+// 	return (stat(path.c_str(), &buffer) == 0);
+// }
 
 static std::string readFile(const std::string& path) 
 {
@@ -38,30 +38,19 @@ static std::string readFile(const std::string& path)
 	return (ss.str());
 }
 
+
 Response StaticFileHandler::handleRequest(const Request& request)
 {
     std::cout << "[DEBUG][StaticFileHandler][handleRequest] START" << std::endl;
-	
-	std::string uri    = request.getPath();
-    std::string qs     = request.getQueryString();
-    std::string method = request.getMethod();
 
-    if (uri == "/") uri = "/index.html";
+    std::string uri = request.getPath();
+    std::string qs = request.getQueryString();
+    std::string method = request.getMethod();
+    std::string fullPath = request.getPhysicalPath();
 
     Payload payload;
-    payload.keepAlive = true; // o hazlo condicional al header del request
-    
-    if (method != "GET" && method != "HEAD" && method 
-        != "POST" && method != "DELETE" && method != "PUT" && 
-        method != "TRACE" && method != "CONNECT")
-    {
-        payload.status = 501; // Not Implemented
-        payload.reason = "Method Not Allowed";
-        payload.mime = "text/plain";
-        payload.body = "501 - Method Not Allowed";
-        return _builder->build(payload);
-    }
-    // 🚫 Bloqueo de métodos no permitidos
+    payload.keepAlive = true;
+
     if (method != "GET" && method != "DELETE") {
         payload.status = 405;
         payload.reason = "Method Not Allowed";
@@ -69,31 +58,73 @@ Response StaticFileHandler::handleRequest(const Request& request)
         payload.body = "405 - Method Not Allowed";
         return _builder->build(payload);
     }
-    
-    // 🚫 Prevención XSS muy básica
-    if (qs.find("<script") != std::string::npos) {
+
+    if (qs.find("<script") != std::string::npos || uri.find("..") != std::string::npos) {
         payload.status = 400;
         payload.reason = "Bad Request";
         payload.mime = "text/plain";
-        payload.body = "400 - Bad Request (XSS)";
+        payload.body = "400 - Bad Request";
         return _builder->build(payload);
     }
 
-    // 🚫 Path traversal
-    if (uri.find("..") != std::string::npos) {
-        payload.status = 403;
-        payload.reason = "Forbidden";
-        payload.mime = "text/plain";
-        payload.body = "403 - Path traversal";
-        return _builder->build(payload);
-    }
-    if (uri.length() > 1 && uri[uri.length() - 1] == '/')
-        uri.erase(uri.length() - 1);
-    std::string fullPath = _rootPath + uri;
-    std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: " << fullPath << std::endl;
+    struct stat s;
+    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
 
-    if (!fileExists(fullPath)) {
-        std::cerr << "[ERROR][StaticFileHandler] File not found, file: " << fullPath << std::endl;
+        // std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "false");
+        
+        // Aseguramos que el URI termine en "/" visualmente
+        if (uri[uri.size() - 1] != '/')
+        uri += "/";
+        
+        ConfigParser* cfg = request.getCfg();
+        std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "true");
+        std::cout << "[DEBUG][StaticFileHandler] Autoindex value: " << autoindex << std::endl;
+        // std::string indexPath = fullPath + "/index.html";
+
+        if (autoindex == "true") {
+            std::string html;
+            DIR* dir = opendir(fullPath.c_str());
+            if (!dir) {
+                payload.status = 500;
+                payload.reason = "Internal Server Error";
+                payload.mime = "text/plain";
+                payload.body = "500 - Error opening directory";
+                return _builder->build(payload);
+            }
+
+            html = "<html><body><h1>Index of " + uri + "</h1><ul>";
+
+            struct dirent* ent;
+            while ((ent = readdir(dir)) != NULL) {
+                std::string name = ent->d_name;
+                if (name == "." || name == "..")
+                    continue;
+
+                html += "<li><a href=\"" + uri + name + "\">" + name + "</a></li>";
+            }
+
+            html += "</ul></body></html>";
+            closedir(dir);
+
+            payload.status = 200;
+            payload.reason = "OK";
+            payload.mime = "text/html";
+            payload.body = html;
+            return _builder->build(payload);
+        }
+        // else if (access(indexPath.c_str(), F_OK) == 0) {
+        //     fullPath = indexPath;
+        // }
+        else {
+            payload.status = 403;
+            payload.reason = "Forbidden";
+            payload.mime = "text/plain";
+            payload.body = "403 - Directory listing forbidden";
+            return _builder->build(payload);
+        }
+    }
+
+    if (access(fullPath.c_str(), F_OK) != 0) {
         ErrorPageHandler errorHandler(_rootPath);
         payload.status = 404;
         payload.reason = "Not Found";
@@ -102,11 +133,105 @@ Response StaticFileHandler::handleRequest(const Request& request)
         return _builder->build(payload);
     }
 
-	if (method == "DELETE")
-		return (doDELETE(fullPath, payload, request));
+    if (method == "DELETE")
+        return doDELETE(fullPath, payload, request);
 
-	return (doGET(fullPath, payload, request));
+    return doGET(fullPath, payload, request);
 }
+
+
+// Response StaticFileHandler::handleRequest(const Request& request)
+// {
+//     std::string uri = request.getPath();
+//     std::string qs = request.getQueryString();
+//     std::string method = request.getMethod();
+//     Payload payload;
+//     payload.keepAlive = true;
+    
+//     if (method != "GET" && method != "DELETE") {
+//         payload.status = 405;
+//         payload.reason = "Method Not Allowed";
+//         payload.mime = "text/plain";
+//         payload.body = "405 - Method Not Allowed";
+//         return _builder->build(payload);
+//     }
+    
+//     if (qs.find("<script") != std::string::npos || uri.find("..") != std::string::npos) {
+//         payload.status = 400;
+//         payload.reason = "Bad Request";
+//         payload.mime = "text/plain";
+//         payload.body = "400 - Bad Request";
+//         return _builder->build(payload);
+//     }
+    
+//     std::string fullPath = _rootPath + uri;
+//     struct stat s;
+//     if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
+//         // Si termina sin "/" se lo agregamos para consistencia visual
+//         if (uri[uri.size() - 1] != '/')
+//             uri += "/";
+    
+//         ConfigParser* cfg = request.getCfg();
+//         std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "false");
+    
+//         std::string indexPath = fullPath + "/index.html";
+    
+//         if (autoindex == "true") {
+//             std::string html;
+//             DIR* dir = opendir(fullPath.c_str());
+//             if (!dir) {
+//                 payload.status = 500;
+//                 payload.reason = "Internal Server Error";
+//                 payload.mime = "text/plain";
+//                 payload.body = "500 - Error opening directory";
+//                 return _builder->build(payload);
+//             }
+    
+//             html = "<html><body><h1>Index of " + uri + "</h1><ul>";
+    
+//             struct dirent* ent;
+//             while ((ent = readdir(dir)) != NULL) {
+//                 std::string name = ent->d_name;
+//                 if (name == "." || name == "..")
+//                     continue;
+    
+//                 html += "<li><a href=\"" + uri + name + "\">" + name + "</a></li>";
+//             }
+    
+//             html += "</ul></body></html>";
+//             closedir(dir);
+    
+//             payload.status = 200;
+//             payload.reason = "OK";
+//             payload.mime = "text/html";
+//             payload.body = html;
+//             return _builder->build(payload);
+//         } else if (fileExists(indexPath)) {
+//             fullPath = indexPath;
+//         } else {
+//             payload.status = 403;
+//             payload.reason = "Forbidden";
+//             payload.mime = "text/plain";
+//             payload.body = "403 - Directory listing forbidden";
+//             return _builder->build(payload);
+//         }
+//     }
+    
+//     if (!fileExists(fullPath)) {
+//         ErrorPageHandler errorHandler(_rootPath);
+//         payload.status = 404;
+//         payload.reason = "Not Found";
+//         payload.mime = "text/html";
+//         payload.body = errorHandler.render(404, "Archivo no encontrado");
+//         return _builder->build(payload);
+//     }
+    
+//     if (method == "DELETE")
+//         return doDELETE(fullPath, payload, request);
+    
+//     return doGET(fullPath, payload, request);
+    
+// }
 
 Response StaticFileHandler::doGET(std::string fullPath,  Payload& payload, const Request& req)
 {
