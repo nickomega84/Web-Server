@@ -292,7 +292,6 @@ int Server::createResponse(const int client_fd, std::map<int, Response> &pending
     } 
 	else
 	{
-        
 		Payload payload;
 		payload.keepAlive = true;
 		payload.status = 404;

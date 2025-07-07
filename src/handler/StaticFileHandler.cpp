@@ -38,7 +38,6 @@ static std::string readFile(const std::string& path)
 	return (ss.str());
 }
 
-
 Response StaticFileHandler::handleRequest(const Request& request)
 {
     std::cout << "[DEBUG][StaticFileHandler][handleRequest] START" << std::endl;
@@ -139,105 +138,11 @@ Response StaticFileHandler::handleRequest(const Request& request)
     return doGET(fullPath, payload, request);
 }
 
-
-// Response StaticFileHandler::handleRequest(const Request& request)
-// {
-//     std::string uri = request.getPath();
-//     std::string qs = request.getQueryString();
-//     std::string method = request.getMethod();
-//     Payload payload;
-//     payload.keepAlive = true;
-    
-//     if (method != "GET" && method != "DELETE") {
-//         payload.status = 405;
-//         payload.reason = "Method Not Allowed";
-//         payload.mime = "text/plain";
-//         payload.body = "405 - Method Not Allowed";
-//         return _builder->build(payload);
-//     }
-    
-//     if (qs.find("<script") != std::string::npos || uri.find("..") != std::string::npos) {
-//         payload.status = 400;
-//         payload.reason = "Bad Request";
-//         payload.mime = "text/plain";
-//         payload.body = "400 - Bad Request";
-//         return _builder->build(payload);
-//     }
-    
-//     std::string fullPath = _rootPath + uri;
-//     struct stat s;
-//     if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
-//         // Si termina sin "/" se lo agregamos para consistencia visual
-//         if (uri[uri.size() - 1] != '/')
-//             uri += "/";
-    
-//         ConfigParser* cfg = request.getCfg();
-//         std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "false");
-    
-//         std::string indexPath = fullPath + "/index.html";
-    
-//         if (autoindex == "true") {
-//             std::string html;
-//             DIR* dir = opendir(fullPath.c_str());
-//             if (!dir) {
-//                 payload.status = 500;
-//                 payload.reason = "Internal Server Error";
-//                 payload.mime = "text/plain";
-//                 payload.body = "500 - Error opening directory";
-//                 return _builder->build(payload);
-//             }
-    
-//             html = "<html><body><h1>Index of " + uri + "</h1><ul>";
-    
-//             struct dirent* ent;
-//             while ((ent = readdir(dir)) != NULL) {
-//                 std::string name = ent->d_name;
-//                 if (name == "." || name == "..")
-//                     continue;
-    
-//                 html += "<li><a href=\"" + uri + name + "\">" + name + "</a></li>";
-//             }
-    
-//             html += "</ul></body></html>";
-//             closedir(dir);
-    
-//             payload.status = 200;
-//             payload.reason = "OK";
-//             payload.mime = "text/html";
-//             payload.body = html;
-//             return _builder->build(payload);
-//         } else if (fileExists(indexPath)) {
-//             fullPath = indexPath;
-//         } else {
-//             payload.status = 403;
-//             payload.reason = "Forbidden";
-//             payload.mime = "text/plain";
-//             payload.body = "403 - Directory listing forbidden";
-//             return _builder->build(payload);
-//         }
-//     }
-    
-//     if (!fileExists(fullPath)) {
-//         ErrorPageHandler errorHandler(_rootPath);
-//         payload.status = 404;
-//         payload.reason = "Not Found";
-//         payload.mime = "text/html";
-//         payload.body = errorHandler.render(404, "Archivo no encontrado");
-//         return _builder->build(payload);
-//     }
-    
-//     if (method == "DELETE")
-//         return doDELETE(fullPath, payload, request);
-    
-//     return doGET(fullPath, payload, request);
-    
-// }
-
 Response StaticFileHandler::doGET(std::string fullPath,  Payload& payload, const Request& req)
 {
 	std::cout << "[DEBUG][StaticFileHandler][doGET] method called for file: " << fullPath << std::endl;
 	
-	if (!checkCfgPermission(req, "get_allowed"))
+	if (!checkCfgPermission(req, "GET"))
 	{
 		ErrorPageHandler errorHandler(_rootPath);
 		payload.status = 403;
@@ -259,7 +164,7 @@ Response StaticFileHandler::doDELETE(std::string fullPath, Payload& payload, con
 {
 	std::cout << "[DEBUG][StaticFileHandler][doDELETE] method called for file: " << fullPath << std::endl;
 		
-	if (!checkCfgPermission(req, "delete_allowed"))
+	if (!checkCfgPermission(req, "DELETE"))
 	{
 		ErrorPageHandler errorHandler(_rootPath);
 		payload.status = 403;
@@ -302,18 +207,7 @@ bool StaticFileHandler::checkCfgPermission(const Request &req, std::string metho
 	if (serverNodes.empty())
 		return (std::cerr << "[ERROR][static][checkCfgPermission] error ocheckCfgPermissionn  getServerBlocks", false);
 
-	std::string defaultDirective = cfg->getDirectiveValue(serverNodes[0], method, "true");
+	const std::string path = req.getPath();
 
-	//queda pendiente identificar el servidor virtual correcto
-	
-	std::string getAllowedValue = cfg->getDirectiveValue(serverNodes[0], method, defaultDirective);
-
-	std::cout << "[DEBUG][static][checkCfgPermission] " << method << " getAllowedValue = " << getAllowedValue << std::endl;
-
-	if (getAllowedValue == "true")
-		return (true);
-	else if (getAllowedValue == "false")
-		return (std::cerr << "[ERROR][static][checkCfgPermission] " + method + " -> " + getAllowedValue, false);
-	else
-		return (std::cerr << "[ERROR][static][checkCfgPermission] Invalid " + method + "value", false);
+    return (cfg->isMethodAllowed(serverNodes[0], path, method));
 }

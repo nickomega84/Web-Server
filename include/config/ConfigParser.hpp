@@ -34,6 +34,9 @@ class ConfigParser {
         std::string getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) ;
         std::string getErrorPages(const IConfig* serverNode, const std::string& errorType);
 		const std::vector<IConfig*>& getServerBlocks() const;
-};
+
+		const IConfig* findLocationBlock(const IConfig* serverNode, const std::string& path) const;
+		bool isMethodAllowed(const IConfig* serverNode, const std::string& path, const std::string& method) const;
+	};
 
 #endif

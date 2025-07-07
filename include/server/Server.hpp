@@ -65,12 +65,12 @@ class Server
 		int     requestParseError(int client_fd, std::map<int, Response> &pending_writes);
 		
 		//readRequest
-		bool	getCompleteHeader(ClientBuffer &additive_bff);
-		void	checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader);
-		bool	checkIsChunked(ClientBuffer &additive_bff, Request &reqGetHeader);
-		bool	checkIsContentLength(ClientBuffer &additive_bff, Request &reqGetHeader);
-		void	checkMaxContentLength(std::string contentLenght, ssize_t chunkedReadBytes);
-		bool	areWeFinishedReading(ClientBuffer &additive_bff);
+		bool	getCompleteHeader(ClientBuffer &additive_bff, Request &req);
+		void	checkBodyLimits(ClientBuffer &additive_bff, Request &req);
+		bool	checkIsChunked(ClientBuffer &additive_bff, Request &req);
+		bool	checkIsContentLength(ClientBuffer &additive_bff, Request &req);
+		void	checkMaxContentLength(std::string contentLenght, ssize_t chunkedReadBytes, Request &req);
+		bool	areWeFinishedReading(ClientBuffer &additive_bff, Request &req);
 		void	validateChunkedBody(ClientBuffer &additive_bff);
 
 	public:
