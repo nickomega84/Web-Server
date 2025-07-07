@@ -62,7 +62,7 @@ class Server
         int		readRequest(int client_fd, ClientBuffer &additive_bff);
 		void	close_fd(const int socket, int epollfd, std::vector<int> &container, std::map<int, Response> &pending_writes, std::map<int, ClientBuffer> &client_buffers);
         void	freeEpoll(int epollfd, std::vector<int> &client_fds);
-		void	requestParseError(int client_fd, std::map<int, Response> &pending_writes);
+		int     requestParseError(int client_fd, std::map<int, Response> &pending_writes);
 		
 		//readRequest
 		bool	getCompleteHeader(ClientBuffer &additive_bff);

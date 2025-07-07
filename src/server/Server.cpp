@@ -3,17 +3,18 @@
 #include "../../include/core/Response.hpp"
 #include "../../include/server/ClientBuffer.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
+#include "../../include/config/ConfigParser.hpp"
 
 Server::Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder):
 _cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _responseBuilder(builder), _router(Router(_rootPath)), _error(false)
 {
-	IHandlerFactory* staticFactory = new StaticHandlerFactory(_rootPath, _responseBuilder);
+	IHandlerFactory* staticFactory = new StaticHandlerFactory(_rootPath, _responseBuilder, _cfg);
     _router.registerFactory("/", staticFactory);
 	factory_ptr.push_back(staticFactory);
-	IHandlerFactory* uploadFactory = new UploadHandlerFactory(_uploadPath, _responseBuilder);
+	IHandlerFactory* uploadFactory = new UploadHandlerFactory(_uploadPath, _responseBuilder, _cfg);
     _router.registerFactory("/uploads", uploadFactory);
 	factory_ptr.push_back(uploadFactory);
-	IHandlerFactory* cgiFactory = new CGIHandlerFactory(_cgiPath, _responseBuilder);
+	IHandlerFactory* cgiFactory = new CGIHandlerFactory(_cgiPath, _responseBuilder, _cfg);
     _router.registerFactory("/cgi-bin", cgiFactory);
 	factory_ptr.push_back(cgiFactory);
 	addListeningSocket();
@@ -292,6 +293,7 @@ int Server::createResponse(const int client_fd, std::map<int, Response> &pending
     } 
 	else
 	{
+        
 		Payload payload;
 		payload.keepAlive = true;
 		payload.status = 404;
@@ -325,14 +327,15 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	return (std::cout << "[DEBUG][handleClientResponse] END" << std::endl, 0);
 }
 
-void Server::requestParseError(int client_fd, std::map<int, Response> &pending_writes)
+int Server::requestParseError(int client_fd, std::map<int, Response> &pending_writes)
 {
 	std::cout << "[DEBUG][requestParseError] START" << std::endl;
-	
+   
 	ErrorPageHandler err(_rootPath);
 	Response res400;
 	res400.setStatus(400, "Bad Request");
 	res400.setBody(err.render(400, "Bad Request"));
 	pending_writes[client_fd] = res400;
 	_error = true;
+    return (0);
 }

@@ -2,8 +2,9 @@
 #include "../../include/handler/StaticFileHandler.hpp"
 #include "../../include/response/IResponseBuilder.hpp"
 
-StaticHandlerFactory::StaticHandlerFactory(const std::string& rootDir, IResponseBuilder*  builder): _rootDir(rootDir), _builder(builder)
+StaticHandlerFactory::StaticHandlerFactory(const std::string& rootDir, IResponseBuilder*  builder, const ConfigParser& cfg): _rootDir(rootDir), _builder(builder), _cfg(cfg)
 {
+    (void) _cfg; // Assuming _cfg is not used in this constructor
 	std::cout << "[DEBUG][StaticHandlerFactory] created with rootsDir: " << rootDir << "\n";
 }
 
@@ -14,5 +15,5 @@ StaticHandlerFactory::~StaticHandlerFactory()
 
 IRequestHandler* StaticHandlerFactory::createHandler() const
 {
-    return new StaticFileHandler(_rootDir, _builder);
+    return new StaticFileHandler(_rootDir, _builder, _cfg);
 }

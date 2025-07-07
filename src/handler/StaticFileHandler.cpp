@@ -3,15 +3,17 @@
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/MimeTypes.hpp"
 #include "../../include/response/IResponseBuilder.hpp"
+#include "../../include/config/ConfigParser.hpp"
 #include <iostream>
 
-StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root) 
-{
-    std::cout << "[DEBUG][StaticFileHandler] initialized with root path: " << _rootPath << std::endl;
-}
+// StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root)
+// {
+//     std::cout << "[DEBUG][StaticFileHandler] initialized with root path: " << _rootPath << std::endl;
+// }
 
-StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* b): _rootPath(root), _builder(b)
+StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* b, const ConfigParser& cfg): _rootPath(root), _builder(b), _cfg(cfg)
 {
+    (void) _cfg; // Assuming _cfg is not used in this constructor
     std::cout << "[DEBUG][StaticFileHandler] initialized with root and builder\n";
 }
 StaticFileHandler::~StaticFileHandler() {}

@@ -5,11 +5,18 @@
 #include "../../include/core/Request.hpp"
 
 
-CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder): _cgiRoot(cgiRoot), _builder(builder)
-{
-    std::cout << "[DEBUG][[  CGIHandler Constructor  ]]: cgiRoot = " << _cgiRoot << std::endl;
-}
+// CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder): _cgiRoot(cgiRoot), _builder(builder)
+// {
+//     std::cout << "[DEBUG][[  CGIHandler Constructor  ]]: cgiRoot = " << _cgiRoot << std::endl;
+// }
 
+
+CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg)
+    : _cgiRoot(cgiRoot), _builder(builder), _cfg(cfg)
+{
+    (void )_cfg; // Assuming _cfg is not used in this constructor
+    std::cout << "[DEBUG][CGIHandler Constructor]: cgiRoot = " << _cgiRoot << std::endl;
+}
 CGIHandler::~CGIHandler()
 {}
 
@@ -20,15 +27,7 @@ Response CGIHandler::handleRequest(const Request& req)
     return (handleCGI(req, _res));
 }
 
-void CGIHandler::CGIerror(int status, std::string reason, std::string mime) 
-{
-	Payload payload;
-	payload.status = status;
-	payload.reason = reason;
-	payload.mime = mime;
-	payload.keepAlive = true;
-	_res = _builder->build(payload);
-}
+
 
 int CGIHandler::identifyScriptType(const Request &req)
 {
@@ -132,6 +131,7 @@ int CGIHandler::handleGET(const Request &req, Response &res, std::string interpr
 {
 	std::cout << "[DEBUG][CGI][handleGET] START" << std::endl;
 	
+    
 	std::map<std::string, std::string> map;
 	if (getScript(req, map))
 		return (1);
@@ -385,7 +385,8 @@ int CGIHandler::createResponse(std::string output, Response &res)
 {
 	std::cout << "[DEBUG][CGI][createResponse] START" << std::endl;
 	
-	res.setStatus(200, "OK");
+	// res.setStatus(200, "OK");
+    _builder->setStatus(res, 200, "OK");
 
 	std::string cgi_headers_str;
 	std::string cgi_body_str;
@@ -403,7 +404,8 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	cgi_body_str = output.substr(header_end_pos + header_lenght);
 	cgi_headers_str = output.substr(0, header_end_pos);
 
-	res.setBody(cgi_body_str);
+    _builder->setBody(res, cgi_body_str);
+	// res.setBody(cgi_body_str);
 
 	std::stringstream ss(cgi_headers_str);
 	std::string line;
@@ -419,7 +421,8 @@ int CGIHandler::createResponse(std::string output, Response &res)
 				header_value = header_value.substr(first_char_pos);
 			else
 				header_value = ""; // Valor vacío si solo hay espacios
-			res.setHeader(header_name, header_value);
+            _builder->setHeader(res, header_name, header_value);
+			// res.setHeader(header_name, header_value);
 		}
 	}
 
@@ -428,7 +431,21 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	ssBodySize << bodySize;
 	std::string bodySizeStr = ssBodySize.str();
 	if (res.getHeader("Content-Length").empty())
-		res.setHeader("Content-Length", bodySizeStr);
+        _builder->setHeader(res, "Content-Length", bodySizeStr);
+    // res.setHeader("Content-Length", bodySizeStr);
 	
 	return (0);
+}
+
+Response CGIHandler::CGIerror(int status, std::string reason, std::string mime) 
+{
+    ErrorPageHandler  errorHandler(_cgiRoot);
+    std::cerr << "[ERROR][CGI][CGIerror] status: " << status << std::endl;
+	Payload payload;
+	payload.status = status;
+	payload.reason = reason;
+	payload.mime = mime;
+	payload.keepAlive = true;
+    payload.body = errorHandler.render(status, reason);
+	return (_builder->build(payload));
 }

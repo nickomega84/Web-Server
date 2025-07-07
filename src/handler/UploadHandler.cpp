@@ -8,8 +8,11 @@
 #include "../../include/response/IResponseBuilder.hpp"
 #include <iostream>
 
-UploadHandler::UploadHandler(const std::string& uploadsPath, IResponseBuilder* builder)
-    : _uploadsPath(uploadsPath), _builder(builder) {}
+UploadHandler::UploadHandler(const std::string& uploadsPath, IResponseBuilder* builder, const ConfigParser& cfg)
+    : _uploadsPath(uploadsPath), _builder(builder), _cfg(cfg)
+{
+
+}
 
 UploadHandler::~UploadHandler() {}
 
@@ -32,7 +35,7 @@ Response UploadHandler::handleRequest(const Request& request)
         Request modifiedRequest = request;
         modifiedRequest.setPath(relativePath);
 
-        StaticFileHandler staticHandler(_uploadsPath, _builder);
+        StaticFileHandler staticHandler(_uploadsPath, _builder, _cfg);
         return staticHandler.handleRequest(modifiedRequest);
     }
     if (method != "POST") 
@@ -54,17 +57,17 @@ Response UploadHandler::handleRequest(const Request& request)
 	std::string body = request.getBody();
 	std::string boundary = getBoundary(contentType);
 	if (boundary.empty())
-		return (std::cerr << "[ERROR][UploadHandler] Cannot get boundary" << std::endl, \
+		return (std::cout << "[ERROR][UploadHandler] Cannot get boundary" << std::endl, \
 		uploadResponse(400, "Bad Request", "text/html", ""));
 
 	std::string fileName;
 	std::string fileContent;
 	if (!parseMultipartBody(body, boundary, fileName, fileContent))
-		return (std::cerr << "[ERROR][UploadHandler] Cannot parse body" << std::endl, \
+		return (std::cout << "[ERROR][UploadHandler] Cannot parse body" << std::endl, \
 		uploadResponse(400, "Bad Request", "text/html", ""));
 
 	if (fileName.empty() || fileContent.empty())
-		return (std::cerr << "[ERROR][UploadHandler] Empty fileName or content" << std::endl, \
+		return (std::cout << "[ERROR][UploadHandler] Empty fileName or content" << std::endl, \
 		uploadResponse(400, "Bad Request", "text/html", ""));
 	
 	std::string destinationPath = _uploadsPath + "/" + fileName;
@@ -72,7 +75,7 @@ Response UploadHandler::handleRequest(const Request& request)
 
 	std::ofstream outputFile(destinationPath.c_str(), std::ios::out | std::ios::binary); //abrimos en modo binario (std::ios::binary) para poder leer archivos de todos los tipos
 	if (!outputFile.is_open()) 
-		return (std::cerr << "[ERROR][UploadHandler] 500 Cannot open file: " << destinationPath << std::endl, \
+		return (std::cout << "[ERROR][UploadHandler] 500 Cannot open file: " << destinationPath << std::endl, \
 		uploadResponse(500, "Internal Server Error", "text/plain", "500 - Cannot save file"));
 
 	outputFile.write(fileContent.data(), fileContent.size());
