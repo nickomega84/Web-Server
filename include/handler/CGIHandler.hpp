@@ -40,6 +40,7 @@ class CGIHandler : public IRequestHandler
 		void		CGIerror(int status, std::string reason, std::string mime);
 		int			identifyScriptType(const Request &req);
 		int			identifyMethod(const Request &req);
+		void		checkCfgPermission(const Request &req, std::string method);
 
 		int			handleGET(const Request &req, Response &res, std::string interpreter);
         int			handlePOST(const Request &req, Response &res, std::string interpreter);

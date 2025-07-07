@@ -12,11 +12,9 @@ class StaticFileHandler : public IRequestHandler
 		std::string _rootPath;
 		IResponseBuilder* _builder;
 
-		Response	doGET(Response& res, std::string uri);
-		int			createPOSTfile(const Request& req, std::string& relative_path);
-		std::string	createPOSTbody(std::string full_path);
-		Response	doDELETE(Response res, std::string uri);
-		std::string	get_date();
+		Response doGET(std::string fullPath, Payload& payload, const Request& req);
+		Response doDELETE(std::string fullPath, Payload& payload, const Request& req);
+		bool checkCfgPermission(const Request &req, std::string method);
     
     public:
 		StaticFileHandler(const std::string& root, IResponseBuilder* b);

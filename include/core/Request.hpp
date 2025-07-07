@@ -2,6 +2,7 @@
 #define REQUEST_HPP
 
 #include "../include/libraries.hpp"
+#include "../include/config/ConfigParser.hpp"
 
 class Request 
 {
@@ -15,6 +16,8 @@ class Request
         std::string _queryString;
         bool _keepAlive;
 		std::string _physicalPath;
+
+		ConfigParser* _cfg;
 		
     public:
         Request();
@@ -37,6 +40,10 @@ class Request
 		const std::string& getPhysicalPath();
         void setPath(const std::string& path);
 
+		void setCfg(ConfigParser &parser);
+		ConfigParser* getCfg() const;
+		
 };
 
 #endif
+

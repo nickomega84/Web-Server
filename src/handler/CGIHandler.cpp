@@ -53,11 +53,55 @@ int CGIHandler::identifyMethod(const Request &req)
 	std::cout << "[DEBUG][CGI][identifyMethod] START" << std::endl;
 
 	std::string method = req.getMethod();
-	if (method == "GET")
-		return (std::cout << "[DEBUG][CGI][identifyMethod]: GET" << std::endl, 2);
-	if (method == "POST")
-		return (std::cout << "[DEBUG][CGI][identifyMethod]: POST" << std::endl, 4);
+	try
+	{
+		if (method == "GET")
+		{
+			std::cout << "[DEBUG][CGI][identifyMethod]: GET" << std::endl;
+			checkCfgPermission(req, "get_allowed");
+			return (2);
+		}
+		if (method == "POST")
+		{
+			std::cout << "[DEBUG][CGI][identifyMethod]: POST" << std::endl;
+			checkCfgPermission(req, "post_allowed");
+			return (4);
+		}
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "[ERROR][CGI][checkCfgPermission]: " <<e.what() << std::endl;
+		return (0);
+	}
 	return (0);
+}
+
+void CGIHandler::checkCfgPermission(const Request &req, std::string method)
+{
+	std::cout << "[DEBUG][CGI][checkCfgPermission] START" << std::endl;
+	
+	ConfigParser *cfg = req.getCfg();
+	if (cfg == NULL)
+		throw (std::runtime_error("cannot get ConfigParser*"));
+	
+	const std::vector<IConfig*>& serverNodes = cfg->getServerBlocks();
+	if (serverNodes.empty())
+		throw (std::runtime_error("error on getServerBlocks"));
+
+	std::string defaultDirective = cfg->getDirectiveValue(serverNodes[0], method, "true");
+
+	//queda pendiente identificar el servidor virtual correcto
+	
+	std::string getAllowedValue = cfg->getDirectiveValue(serverNodes[0], method, defaultDirective);
+
+	std::cout << "[DEBUG][CGI][checkCfgPermission] " << method << " getAllowedValue = " << getAllowedValue << std::endl;
+
+	if (getAllowedValue == "true")
+		return;
+	else if (getAllowedValue == "false")
+		throw (std::runtime_error(method + " -> " + getAllowedValue));
+	else
+		throw (std::runtime_error("Invalid " + method + "value"));
 }
 
 Response CGIHandler::handleCGI(const Request &req, Response &res)

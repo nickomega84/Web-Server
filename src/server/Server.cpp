@@ -280,6 +280,8 @@ int Server::createResponse(const int client_fd, std::map<int, Response> &pending
     if (!req.parse(additive_bff.get_buffer()))
 		return (requestParseError(client_fd, pending_writes), 0);
 
+	req.setCfg(_cfg);
+
 	IRequestHandler* handler = _router.resolve(req);
     Response res;
 

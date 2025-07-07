@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 
-Request::Request()
+Request::Request(): _cfg(NULL)
 {}
 
 Request::Request(const Request& other)
@@ -19,7 +19,7 @@ Request& Request::operator=(const Request& other)
 		_version = other._version;
 		_headers = other._headers;
 		_body = other._body;
-        // _qp
+        _cfg = other._cfg;
 	}
 	return *this;
 }
@@ -176,4 +176,14 @@ const std::string &Request::getPhysicalPath()
 void Request::setPath(const std::string& path)
 {
     _path = path;
+}
+
+void Request::setCfg(ConfigParser &parser)
+{
+    _cfg = &parser;
+}
+
+ConfigParser* Request::getCfg() const
+{
+    return (_cfg);
 } 

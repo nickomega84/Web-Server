@@ -21,7 +21,7 @@ volatile sig_atomic_t g_signal_received = 0;
 static void sigHandler(int sig)
 {
     if (sig == SIGINT || sig == SIGTERM) g_signal_received = 1;
-    std::cout << "\n❎ Signal received, shutting down…" << std::endl;
+    std::cout << "\n❎ [DEBUG] Signal received, shutting down…" << std::endl;
 }
 
 static std::string getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) 
@@ -74,15 +74,6 @@ int main(int argc, char** argv)
         std::string bodySize = getDirectiveValue(serverNode, "body_size", "1000000");
         std::cout << "[INFO] Max body size: " << bodySize << std::endl;
 
-        std::string autoindexValue = getDirectiveValue(serverNode, "autoindex", "false");
-        bool autoindexEnabled = (autoindexValue == "true");
-        std::cout << "[INFO] Autoindex: "  << (autoindexEnabled ? "true" : "false") << std::endl;
-
-        if (autoindexEnabled)
-            std::cout << "[INFO] Directory listing is enabled." << std::endl;
-        else
-            std::cout << "[INFO] Directory listing is disabled" << std::endl;
-
         std::string getAllowedValue = parser.getDirectiveValue(serverNode, "get_allowed", "true");
         bool getAllowed = (getAllowedValue == "true");
         std::cout << "[INFO] GET method allowed: " << (getAllowed ? "true" : "false") << std::endl;
@@ -125,7 +116,7 @@ int main(int argc, char** argv)
         IResponseBuilder* responseBuilder = new DefaultResponseBuilder();
         Server& server = Server::getInstance(parser, cgiDir, rootPath, uploadPath, responseBuilder);
 
-        std::cout << "\n ✅ [INFO] Webserv setup. Listening for connections" << std::endl;
+        std::cout << "\n✅ [DEBUG] Webserv setup. Listening for connections" << std::endl;
 
         server.startEpoll();
     }
