@@ -13,6 +13,7 @@
 #include "../../include/response/IResponseBuilder.hpp"
 #include <iostream>
 #include "../../include/response/IResponseBuilder.hpp"
+#include "../../include/config/ConfigParser.hpp"
 
 #define PYTHON_INTERPRETER "/usr/bin/python3"
 #define SH_INTERPRETER "/usr/bin/sh"
@@ -35,6 +36,7 @@ class CGIHandler : public IRequestHandler
 		std::string			_cgiDir;
 		IResponseBuilder*	_builder;
 		Response			_res;
+        const ConfigParser& _cfg; // ConfigParser para acceder a la configuración del servidor
        
 		Response	handleCGI( const Request &req, Response &res);
 		Response	CGIerror(int status, std::string reason, std::string mime);
@@ -53,7 +55,8 @@ class CGIHandler : public IRequestHandler
 
     
 	public:        
-        CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder);   // ctor ligero
+        // CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder);   // ctor ligero
+        CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg); // ctor con ConfigParser
         virtual ~CGIHandler();    
         virtual Response handleRequest(const Request& req);
 };

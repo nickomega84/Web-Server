@@ -101,9 +101,13 @@ std::vector<std::string> ConfigParser::tokenize(std::ifstream& file) {
         if (comment_pos != std::string::npos) line.erase(comment_pos);
         size_t current_pos = 0;
         while (current_pos < line.length()) {
+            // std::cout << "[DEBUG] Tokenizando línea: " << line << std::endl;
             size_t start = line.find_first_not_of(delimiters, current_pos);
-            if (start == std::string::npos) break;
+            if (start == std::string::npos) 
+                    break;
             if (special_chars.find(line[start]) != std::string::npos) {
+                
+                // std::cout << "[DEBUG] Token especial encontrado: " << line[start] << std::endl;
                 tokens.push_back(line.substr(start, 1));
                 current_pos = start + 1;
                 continue;
@@ -113,6 +117,7 @@ std::vector<std::string> ConfigParser::tokenize(std::ifstream& file) {
                 tokens.push_back(line.substr(start));
                 break;
             } else {
+                std::cout << "[DEBUG] Token encontrado: " << line.substr(start, end - start) << std::endl;
                 tokens.push_back(line.substr(start, end - start));
                 current_pos = end;
             }
@@ -166,4 +171,16 @@ std::string ConfigParser::getServerName(const IConfig* serverNode) {
     }
     std::cout << std::endl;
     return getDirectiveValue(serverNode, "server_name", "default_server");
+}
+
+std::string ConfigParser::getErrorPages(const IConfig* serverNode, const std::string& errorType) {
+    if (!serverNode) return "";
+    const IConfig* errorNode = serverNode->getChild("error_pages");
+    if (!errorNode) return "";
+
+    const IConfig* directiveNode = errorNode->getChild(errorType);
+    if (directiveNode && !directiveNode->getValues().empty()) {
+        return directiveNode->getValues()[0];
+    }
+    return "";
 }

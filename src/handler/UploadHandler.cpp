@@ -8,8 +8,11 @@
 #include "../../include/response/IResponseBuilder.hpp"
 #include <iostream>
 
-UploadHandler::UploadHandler(const std::string& uploadsPath, IResponseBuilder* builder)
-    : _uploadsPath(uploadsPath), _builder(builder) {}
+UploadHandler::UploadHandler(const std::string& uploadsPath, IResponseBuilder* builder, const ConfigParser& cfg)
+    : _uploadsPath(uploadsPath), _builder(builder), _cfg(cfg)
+{
+
+}
 
 UploadHandler::~UploadHandler() {}
 
@@ -32,7 +35,7 @@ Response UploadHandler::handleRequest(const Request& request)
         Request modifiedRequest = request;
         modifiedRequest.setPath(relativePath);
 
-        StaticFileHandler staticHandler(_uploadsPath, _builder);
+        StaticFileHandler staticHandler(_uploadsPath, _builder, _cfg);
         return staticHandler.handleRequest(modifiedRequest);
     }
     if (method != "POST") 

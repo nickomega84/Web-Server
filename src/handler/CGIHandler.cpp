@@ -5,11 +5,18 @@
 #include "../../include/core/Request.hpp"
 
 
-CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder): _cgiRoot(cgiRoot), _builder(builder)
-{
-    std::cout << "[DEBUG][[  CGIHandler Constructor  ]]: cgiRoot = " << _cgiRoot << std::endl;
-}
+// CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder): _cgiRoot(cgiRoot), _builder(builder)
+// {
+//     std::cout << "[DEBUG][[  CGIHandler Constructor  ]]: cgiRoot = " << _cgiRoot << std::endl;
+// }
 
+
+CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg)
+    : _cgiRoot(cgiRoot), _builder(builder), _cfg(cfg)
+{
+    (void )_cfg; // Assuming _cfg is not used in this constructor
+    std::cout << "[DEBUG][CGIHandler Constructor]: cgiRoot = " << _cgiRoot << std::endl;
+}
 CGIHandler::~CGIHandler()
 {}
 
@@ -80,6 +87,7 @@ int CGIHandler::handleGET(const Request &req, Response &res, std::string interpr
 {
 	std::cout << "[DEBUG][CGI][handleGET] START" << std::endl;
 	
+    
 	std::map<std::string, std::string> map;
 	if (getScript(req, map))
 		return (1);
