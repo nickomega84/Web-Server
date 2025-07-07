@@ -33,7 +33,7 @@ class ConfigParser {
         std::string getServerName(const IConfig* serverNode);
         std::string getDirectiveValue(const IConfig* configNode, const std::string& directive, const std::string& defaultValue);
         std::string getErrorPages(const IConfig* serverNode, const std::string& errorType);
-
+		const std::vector<IConfig*>& getServerBlocks() const;
 };
 
 #endif

@@ -104,6 +104,9 @@ void Server::checkMaxContentLength(std::string &contentLenght)
 	size_t MaxLenNmb;
 	lenght >> lenNmb;
 	MaxLenght >> MaxLenNmb;
+
+	std::cout << "OLAOLAOLA " << MaxLenNmb << " > " << lenNmb << std::endl;
+
 	if (MaxLenght.fail())
 		throw (std::runtime_error("[ERROR][checkMaxContentLength] error on getDirectiveValue"));
 	if (MaxLenNmb > lenNmb)

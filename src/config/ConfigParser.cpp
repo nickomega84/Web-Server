@@ -172,9 +172,9 @@ std::string ConfigParser::getServerName(const IConfig* serverNode) {
     return getDirectiveValue(serverNode, "server_name", "default_server");
 }
 
-const std::vector<IConfig*>& ConfigParser::getServerBlocks() const {
+const std::vector<IConfig*>& ConfigParser::getServerBlocks() const 
+{
     if (!_configRoot) {
-        // Devuelve una referencia a un vector estático vacío si la configuración no está cargada.
         static const std::vector<IConfig*> empty_vector;
         return empty_vector;
     }
