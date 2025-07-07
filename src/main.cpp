@@ -26,7 +26,7 @@ volatile sig_atomic_t g_signal_received = 0;
 static void sigHandler(int sig)
 {
     if (sig == SIGINT || sig == SIGTERM) g_signal_received = 1;
-    std::cout << "\n❎ Signal received, shutting down…\n";
+    std::cout << "\n❎ Signal received, shutting down…" << std::endl;
 }
 
 static std::string getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) 
@@ -72,35 +72,35 @@ int main(int argc, char** argv)
     try {
         validateRoot validator(argv[1]);
         validator.validationRoot();
-
+//---
         std::string serverName = parser.getServerName(serverNode);
-        std::cout << "[INFO] Nombre del servidor: " << serverName << std::endl;
+        std::cout << "[INFO] Server name: " << serverName << std::endl;
         
         std::string bodySize = getDirectiveValue(serverNode, "body_size", "1000000");
-        std::cout << "[DEBUG] Tamaño máximo del cuerpo: " << bodySize << std::endl;
+        std::cout << "[INFO] Max body size: " << bodySize << std::endl;
 
         std::string autoindexValue = getDirectiveValue(serverNode, "autoindex", "false");
         bool autoindexEnabled = (autoindexValue == "true");
-        std::cout << "[DEBUG] Autoindex: "  << (autoindexEnabled ? "true" : "false") << std::endl;
+        std::cout << "[INFO] Autoindex: "  << (autoindexEnabled ? "true" : "false") << std::endl;
 
         if (autoindexEnabled) {
             std::cout << "[INFO] Directory listing is enabled." << std::endl;
         } else {
-            std::cout << "[INFO] Directory listing is disabled." << std::endl;
+            std::cout << "[INFO] Directory listing is disabled" << std::endl;
         }
 
         std::string getAllowedValue = parser.getDirectiveValue(serverNode, "get_allowed", "true");
         bool getAllowed = (getAllowedValue == "true");
-        std::cout << "[INFO] Método GET permitido: " << (getAllowed ? "true" : "false") << std::endl;
+        std::cout << "[INFO] GET method allowed: " << (getAllowed ? "true" : "false") << std::endl;
 
         std::string postAllowedValue = parser.getDirectiveValue(serverNode, "post_allowed", "true");
         bool postAllowed = (postAllowedValue == "true");
-        std::cout << "[INFO] Método POST permitido: " << (postAllowed ? "true" : "false") << std::endl;
+        std::cout << "[INFO] POST method allowed: " << (postAllowed ? "true" : "false") << std::endl;
 
         std::string deleteAllowedValue = parser.getDirectiveValue(serverNode, "delete_allowed", "false");
         bool deleteAllowed = (deleteAllowedValue == "true");
-        std::cout << "[INFO] Método DELETE permitido: " << (deleteAllowed ? "true" : "false") << std::endl;
-
+        std::cout << "[INFO] DELETE method allowed: " << (deleteAllowed ? "true" : "false") << std::endl;
+//---
         // --- Reemplazo de la lógica de RootConfig, CgiConfig, etc. ---
         std::string rootPathConf = getDirectiveValue(serverNode, "root", "./www");
         std::string rootPath = Utils::resolveAndValidateDir(rootPathConf);
@@ -131,17 +131,17 @@ int main(int argc, char** argv)
         IResponseBuilder* responseBuilder = new DefaultResponseBuilder();
         Server& server = Server::getInstance(parser, cgiDir, rootPath, uploadPath, responseBuilder);
 
-        std::cout << "\n ✅ [INFO] Webserv arrancado. Escuchando conexiones..." << std::endl;
+        std::cout << "\n ✅ [INFO] Webserv setup. Listening for connections" << std::endl;
 
         server.startEpoll();
     } 
 	catch (const std::exception& e) 
 	{
-        std::cerr << "[ERROR][main] fatal durante la inicialización: " << e.what() << std::endl;
+        std::cerr << "[ERROR][main] fatal error during set up: " << e.what() << " closing..." << std::endl;
         return EXIT_FAILURE;
     }
 
-    std::cout << "[DEBUG] Servidor cerrado correctamente." << std::endl;
+    std::cout << "[DEBUG] Server closed" << std::endl;
     return EXIT_SUCCESS;
 }
 

@@ -159,11 +159,10 @@ std::string ConfigParser::getDirectiveValue(const IConfig* configNode, const std
 }
 
 std::string ConfigParser::getServerName(const IConfig* serverNode) {
-    std::cout << "[DEBUG] Verificando nombre del servidor..." << std::endl;
+    std::cout << "[DEBUG] Verifying server name..." << std::endl;
     const std::vector<std::string>& values = serverNode->getValues();
     for (size_t i = 0; i < values.size(); ++i) {
         std::cout << values[i] << std::endl; 
     }
-    std::cout << std::endl;
     return getDirectiveValue(serverNode, "server_name", "default_server");
 }
