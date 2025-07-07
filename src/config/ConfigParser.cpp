@@ -151,7 +151,7 @@ void ConfigParser::parse(IConfig* parent, std::vector<std::string>& tokens, size
     static_cast<ConfigNode*>(parent)->addChild(node);
 }
 
-std::string ConfigParser::getDirectiveValue(const IConfig* configNode, const std::string& directive, const std::string& defaultValue) {
+/* std::string ConfigParser::getDirectiveValue(const IConfig* configNode, const std::string& directive, const std::string& defaultValue) {
     if (!configNode) return defaultValue;
 
     const std::vector<std::string>& values = configNode->getValues();
@@ -160,6 +160,18 @@ std::string ConfigParser::getDirectiveValue(const IConfig* configNode, const std
             return values[i + 1]; // Devuelve el valor asociado a la directiva
         }
     }
+    return defaultValue;
+} */
+
+std::string ConfigParser::getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) 
+{
+    if (!node) 
+        return defaultValue;
+
+    const IConfig* child = node->getChild(key);
+    if (child && !child->getValues().empty())
+        return child->getValues()[0];
+
     return defaultValue;
 }
 
@@ -191,4 +203,62 @@ std::string ConfigParser::getErrorPages(const IConfig* serverNode, const std::st
         return directiveNode->getValues()[0];
     }
     return "";
+}
+
+// En ConfigParser.cpp
+
+const IConfig* ConfigParser::findLocationBlock(const IConfig* serverNode, const std::string& path) const
+{
+    if (!serverNode || serverNode->getType() != "server")
+        return NULL;
+
+    const std::vector<IConfig*>& children = serverNode->getChildren();
+    const IConfig* bestMatch = NULL;
+    size_t longestMatchLength = 0;
+
+    for (size_t i = 0; i < children.size(); ++i) 
+	{
+        if (children[i]->getType() == "location") 
+		{
+            // Asumimos que el valor de la location es el primer valor
+            const std::string& locationPath = children[i]->getValues()[0];
+            // Comprueba si la ruta de la solicitud comienza con la ruta de la location
+            if (path.rfind(locationPath, 0) == 0) 
+			{
+                // Si es una coincidencia y es más larga que la anterior, la guardamos
+                if (locationPath.length() > longestMatchLength) 
+				{
+                    longestMatchLength = locationPath.length();
+                    bestMatch = children[i];
+                }
+            }
+        }
+    }
+    return bestMatch;
+}
+
+bool ConfigParser::isMethodAllowed(const IConfig* serverNode, const std::string& path, const std::string& method) const 
+{
+    if (!serverNode) 
+		return false;
+
+    const IConfig* locationNode = findLocationBlock(serverNode, path);
+    const IConfig* permissionSourceNode = NULL;
+
+    if (locationNode)
+        permissionSourceNode = locationNode->getChild("allow_methods");
+
+    if (!permissionSourceNode)
+        permissionSourceNode = serverNode->getChild("allow_methods");
+
+    if (!permissionSourceNode)
+        return true;
+
+    const std::vector<std::string>& allowedMethods = permissionSourceNode->getValues();
+    for (size_t i = 0; i < allowedMethods.size(); ++i) 
+	{
+        if (allowedMethods[i] == method)
+            return true;
+    }
+    return false;
 }

@@ -80,39 +80,9 @@ bool Server::checkIsContentLength(ClientBuffer &additive_bff, Request &reqGetHea
 		return (false);
 	if (additive_bff.setContentLenght(contentLenght))
 		throw (std::runtime_error("[ERROR][checkIsContentLength] Content-Length is not a number"));
-	checkMaxContentLength(contentLenght);
+	checkMaxContentLength(contentLenght, 0);
 	return (std::cout << "[DEBUG][checkIsContentLength] is content lenght = " << additive_bff.getContentLenght() << std::endl, true);
 }
-
-void Server::checkMaxContentLength(std::string &contentLenght)
-{
-	std::cout << "[DEBUG][checkMaxContentLength] START" << std::endl;
-	
-	const std::vector<IConfig*>& serverNodes = _cfg.getServerBlocks();
-	if (serverNodes.empty())
-		throw (std::runtime_error("[ERROR][checkMaxContentLength] error on getServerBlocks"));
-
-//queda pendiente identificar el servidor virtual correcto
-
-	std::string CfgBodySize = _cfg.getDirectiveValue(serverNodes[0], "body_size", "1000000");
-	if (!CfgBodySize.empty())
-		return;
-	
-	std::stringstream lenght(contentLenght);
-	std::stringstream MaxLenght(CfgBodySize);
-	size_t lenNmb;
-	size_t MaxLenNmb;
-	lenght >> lenNmb;
-	MaxLenght >> MaxLenNmb;
-
-	std::cout << "OLAOLAOLA " << MaxLenNmb << " > " << lenNmb << std::endl;
-
-	if (MaxLenght.fail())
-		throw (std::runtime_error("[ERROR][checkMaxContentLength] error on getDirectiveValue"));
-	if (MaxLenNmb > lenNmb)
-		throw (std::runtime_error("[ERROR][checkMaxContentLength] Content-Length is too big"));
-}
-
 
 bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
 {
@@ -120,6 +90,9 @@ bool Server::areWeFinishedReading(ClientBuffer &additive_bff)
 
 	if (additive_bff.getChunked())
 	{
+		ssize_t alreadyRead = additive_bff.get_buffer().length() - additive_bff.getHeaderEnd();
+		checkMaxContentLength("", alreadyRead);
+		
 		if (additive_bff.get_buffer().find("0\r\n\r\n") != std::string::npos)
 			return (validateChunkedBody(additive_bff), \
 			std::cout << "[DEBUG][areWeFinishedReading] (Chunked) finished reading" << std::endl, true);
@@ -168,4 +141,39 @@ void Server::validateChunkedBody(ClientBuffer &additive_bff)
 		sizeSS.str("");
 		sizeSS.clear();
 	}
+}
+
+void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedReadBytes)
+{
+	std::cout << "[DEBUG][checkMaxContentLength] START" << std::endl;
+	
+	const std::vector<IConfig*>& serverNodes = _cfg.getServerBlocks();
+	if (serverNodes.empty())
+		throw (std::runtime_error("[ERROR][checkMaxContentLength] error on getServerBlocks"));
+
+//queda pendiente identificar el servidor virtual correcto
+
+	std::string CfgBodySize = _cfg.getDirectiveValue(serverNodes[0], "body_size", "1000000");
+	if (CfgBodySize.empty())
+	{
+		std::cout << "[DEBUG][checkMaxContentLength] no body_size on dcf" << std::endl;
+		return;
+	}
+	
+	ssize_t lenNmb;
+	ssize_t MaxLenNmb;
+	if (chunkedReadBytes)
+		lenNmb = chunkedReadBytes;
+	else
+	{
+		std::stringstream lenght(contentLenght);
+		lenght >> lenNmb;
+	}
+	std::stringstream MaxLenght(CfgBodySize);
+	MaxLenght >> MaxLenNmb;
+
+	if (MaxLenght.fail())
+		throw (std::runtime_error("[ERROR][checkMaxContentLength] error on getDirectiveValue"));
+	if (lenNmb > MaxLenNmb)
+		throw (std::runtime_error("[ERROR][checkMaxContentLength] Request Entity Too Large"));
 }

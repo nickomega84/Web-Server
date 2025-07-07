@@ -69,7 +69,7 @@ class Server
 		void	checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader);
 		bool	checkIsChunked(ClientBuffer &additive_bff, Request &reqGetHeader);
 		bool	checkIsContentLength(ClientBuffer &additive_bff, Request &reqGetHeader);
-		void	checkMaxContentLength(std::string &contentLenght);
+		void	checkMaxContentLength(std::string contentLenght, ssize_t chunkedReadBytes);
 		bool	areWeFinishedReading(ClientBuffer &additive_bff);
 		void	validateChunkedBody(ClientBuffer &additive_bff);
 
