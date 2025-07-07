@@ -388,15 +388,3 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	
 	return (0);
 }
-
-/* std::string CGIHandler::joinPath(const std::string& a, const std::string& b)
-{
-	std::cout << "[DEBUG][CGI][joinPath] START" << std::endl;
-	
-	if (a.empty()) return b;
-    if (b.empty()) return a;
-    if (a[a.size()-1] == '/' && b[0] == '/') return a + b.substr(1);
-    if (a[a.size()-1] != '/' && b[0] != '/') return a + "/" + b;
-    return a + b;
-} */
-

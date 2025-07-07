@@ -23,16 +23,7 @@ static bool fileExists(const std::string& path)
     if (!file) {
         return false;
     }
-    // std::cout << "[DEBUG] Archivo no encontrado: " << path << std::endl;
     file.close();
-    // Verificar si el archivo es accesible
-    // struct stat buffer;
-    // return (stat(path.c_str(), &buffer) == 0 && S_ISREG(buffer.st_mode));
-    // Verificar si el archivo existe y es un archivo regular
-    // Nota: S_ISREG(buffer.st_mode) comprueba si es un archivo regular
-    // Nota: stat() devuelve 0 si el archivo existe y se puede acceder
-    // Nota: Si quieres comprobar si es un directorio, puedes usar S_ISDIR(buffer.st_mode)
-    // Nota: Si quieres comprobar si es un enlace simbólico, puedes usar S_ISLNK(buffer.st_mode)        
 	struct stat buffer;
 	return (stat(path.c_str(), &buffer) == 0);
 }
