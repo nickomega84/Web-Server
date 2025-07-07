@@ -28,18 +28,6 @@ std::string Utils::trim(const std::string& str) {
     return str.substr(start, end - start + 1);
 }
 
-// void Utils::createDirectoriesIfNotExist(const std::string& path) {
-//     struct stat st;
-//     if (stat(path.c_str(), &st) != 0) {
-//         if (mkdir(path.c_str(), 0777) != 0) {
-//             std::cerr << "[ERROR] No se pudo crear directorio: " << path << ": " << strerror(errno) << std::endl;
-//         } else {
-//             std::cout << "[DEBUG] Directorio creado: " << path << std::endl;
-//         }
-//     } else {
-//         std::cout << "[DEBUG] Directorio ya existe: " << path << std::endl;
-//     }
-// }
 std::string Utils::normalisePath(std::string p)
 {
     std::vector<std::string> stk;
@@ -89,27 +77,9 @@ std::string Utils::mapUriToPath(const std::string& absRoot, const std::string& u
 }
 
 
-// std::string Utils::mapUriToPath(const std::string& absRoot,
-//     const std::string& uri)
-// {
-// 	std::cout << "[DEBUG] [Utils::mapUriToPath] " << absRoot << std::endl;
-// std::string joined = absRoot;
-// if (joined[joined.size()-1] != '/' && uri[0] != '/')
-// {
-//     joined += "/";
-//     joined += (uri[0] == '/') ? uri.substr(1) : uri;
-//     std::cout << "[DEBUG] Utils::mapUriToPath joined: " << joined << std::endl;
-// }
-
-// std::string norm = normalisePath(joined);
-// std::cout << "[DEBUG] Utils::mapUriToPath norm: " << norm << std::endl;
-// if (norm.compare(0, absRoot.size(), absRoot) != 0)
-// throw std::runtime_error("Path-traversal: " + uri);
-
-// return norm;                 // puede ser dir, file, etc.
-// }
 
 /* ---- B ------------------------------------------------------------ */
+
 std::string Utils::validateFilesystemEntry(const std::string& absPath)
 {
     struct stat sb;
@@ -119,27 +89,52 @@ std::string Utils::validateFilesystemEntry(const std::string& absPath)
 	if (::lstat(absPath.c_str(), &sb) == -1)
 		throw std::runtime_error("Not found: " + absPath);
 
-    std::string finalPath = absPath;
-
-    if (S_ISDIR(sb.st_mode)) 
-	{
-		if (finalPath[finalPath.size()-1] != '/')
-			finalPath += "/";
-		finalPath += "index.html";
-
-		if (::lstat(finalPath.c_str(), &sb) == -1 || !S_ISREG(sb.st_mode))
-			throw std::runtime_error("Directory listing forbidden: " + absPath);
-    }
-    else if (!S_ISREG(sb.st_mode) || S_ISLNK(sb.st_mode))
+    if (!S_ISREG(sb.st_mode) && !S_ISDIR(sb.st_mode))
     	throw std::runtime_error("Forbidden type: " + absPath);
 
-    int fd = ::open(finalPath.c_str(), O_RDONLY | O_NOFOLLOW);
-    if (fd == -1)
-		throw std::runtime_error("Symlink or I/O error: " + finalPath);
-    ::close(fd);
+    // Si es un fichero regular, comprobamos que no sea symlink
+    if (S_ISREG(sb.st_mode)) {
+        int fd = ::open(absPath.c_str(), O_RDONLY | O_NOFOLLOW);
+        if (fd == -1)
+		    throw std::runtime_error("Symlink or I/O error: " + absPath);
+        ::close(fd);
+    }
 
-    return finalPath;            // fichero listo para servir
+    return absPath;
 }
+
+
+
+// std::string Utils::validateFilesystemEntry(const std::string& absPath)
+// {
+//     struct stat sb;
+
+//     std::cout << "[DEBUG][Utils::validateFilesystemEntry] absPath: " << absPath << std::endl;
+
+// 	if (::lstat(absPath.c_str(), &sb) == -1)
+// 		throw std::runtime_error("Not found: " + absPath);
+
+//     std::string finalPath = absPath;
+
+//     if (S_ISDIR(sb.st_mode)) 
+// 	{
+// 		if (finalPath[finalPath.size()-1] != '/')
+// 			finalPath += "/";
+// 		finalPath += "index.html";
+
+// 		if (::lstat(finalPath.c_str(), &sb) == -1 || !S_ISREG(sb.st_mode))
+// 			throw std::runtime_error("Directory listing forbidden: " + absPath);
+//     }
+//     else if (!S_ISREG(sb.st_mode) || S_ISLNK(sb.st_mode))
+//     	throw std::runtime_error("Forbidden type: " + absPath);
+
+//     int fd = ::open(finalPath.c_str(), O_RDONLY | O_NOFOLLOW);
+//     if (fd == -1)
+// 		throw std::runtime_error("Symlink or I/O error: " + finalPath);
+//     ::close(fd);
+
+//     return finalPath;            // fichero listo para servir
+// }
 
 /* -------------------------------------------------------------------------- */
 /* 2. Directorio válido – devuelve ABSOLUTO y normalizado                      */
@@ -166,75 +161,6 @@ std::string Utils::resolveAndValidateDir(const std::string& raw)
     ::closedir(d);
     return norm;
 }
-
-// std::string Utils::resolveAndValidateDir(const std::string& path) {
-//     std::string p = path;
-//     std::cout << "[DEBUG] Utils::resolveAndValidateDir Resolviendo ruta absoluta: " << p << std::endl;
-//     // realpath(p.c_str(), &p[0]); // Resuelve la ruta absoluta
-//     // pathconf(p.c_str(), _PC_PATH_MAX); // Verifica el tamaño máximo de la ruta
-
-//     if (p.size() > 1 && p[p.size() - 1] == '/') {
-//         p.erase(p.size() - 1);
-//     }
-//     struct stat sb;
-//     if (stat(p.c_str(), &sb) != 0 || !S_ISDIR(sb.st_mode)) {
-//         std::cerr << "[ERROR] la ruta no es un directorio válido " << p
-//                   << ": " << strerror(errno) << std::endl;
-//         // std::exit(EXIT_FAILURE);
-//         return ("\0");
-//     }
-
-//     return std::string(p);
-// }
-
-
-// std::string Utils::resolveAndValidateFile(const std::string& absRoot,
-//     const std::string& uri)
-// {
-// /* ------------------------------------------------------------------ */
-// /* 1. Concatenar root + uri (mantenemos una sola ‘/’)                 */
-// /* ------------------------------------------------------------------ */
-// std::string joined = absRoot;
-// if (joined[joined.size()-1] != '/' && uri[0] != '/')
-// joined += "/";
-// joined += (uri[0] == '/') ? uri.substr(1) : uri;
-
-// /* ------------------------------------------------------------------ */
-// /* 2. Normalizar texto: quita "."  ".."  "//"                         */
-// /* ------------------------------------------------------------------ */
-// std::string abs = normalisePath(joined);
-
-// /* ------------------------------------------------------------------ */
-// /* 3. Path-traversal → la ruta final DEBE empezar por absRoot         */
-// /* ------------------------------------------------------------------ */
-// if (abs.compare(0, absRoot.size(), absRoot) != 0)
-// throw std::runtime_error("Path-traversal detected: " + uri);
-
-// /* ------------------------------------------------------------------ */
-// /* 4. Comprobar metadatos con lstat()                                 */
-// /* ------------------------------------------------------------------ */
-// struct stat sb;
-// if (::lstat(abs.c_str(), &sb) == -1)
-// throw std::runtime_error("File not found: " + uri);      // 404
-
-// /* symlink final → prohibido                                          */
-// if (S_ISLNK(sb.st_mode))
-// throw std::runtime_error("Symlink not allowed: " + uri); // 403
-
-// /* Sólo ficheros regulares (dir se trata en autoindex)                */
-// if (!S_ISREG(sb.st_mode))
-// throw std::runtime_error("Unsupported type: " + uri);    // 403
-
-// /* ------------------------------------------------------------------ */
-// /* 5. Abrir con O_NOFOLLOW para proteger TOCTOU                       */
-// /* ------------------------------------------------------------------ */
-// int fd = ::open(abs.c_str(), O_RDONLY | O_NOFOLLOW);
-// if (fd == -1)                                // error I/O inesperado
-// throw std::runtime_error("Open failed: " + uri);         // 500
-// ::close(fd);
-
-// return abs;          // ruta absoluta, validada y lista para el handler
-// }
 
 
 std::string Utils::resolveAndValidateFile(const std::string& absRoot,
@@ -268,26 +194,6 @@ if (fd == -1)
 return abs;
 }
 
-
-
-// std::string Utils::resolveAndValidateFile(const std::string& path) {
-//     std::string p = path;
-//     execve(p.c_str(), NULL, NULL); // Resuelve la ruta absoluta
-//     getw
-//     std::string resolvedPath = execve("
-//         ", NULL, NULL);
-//     if (resolvedPath.empty()) {
-//         std::cerr << "[ERROR] No se pudo resolver la ruta: " << p << std::endl;
-//         return ("\0");
-//     }
-//     struct stat sb;
-//     if (stat(p.c_str(), &sb) != 0 || !S_ISREG(sb.st_mode)) {
-//         std::cerr << "[ERROR] la ruta no es un archivo válido " << p << std::endl;
-//         // std::exit(EXIT_FAILURE);
-//         return ("\0");
-//     }
-//     return std::string(p);
-// }
 
 size_t Utils::strToSizeT(const std::string& str)
 {

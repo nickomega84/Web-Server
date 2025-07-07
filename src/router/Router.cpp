@@ -52,14 +52,6 @@ IRequestHandler* Router::resolve(Request& request) const         // Request ya N
             }
             catch (const std::exception& e) {
                     std::cerr << "[ERROR][Router][Resolve] Sanitización fallida: " << e.what() << std::endl;
-    
-                    // ErrorPageHandler errorHandler(_absRoot);
-                    // std::string body = errorHandler.render(404, "Acceso no permitido");
-    
-                    // res.setStatus(404, "Not-Found");
-                    // res.setBody(body);
-                    // res.setHeader("Content-Type", "text/html");
-                    // res.setHeader("Content-Length", Utils::intToString(body.length()));
                     return NULL;
                 }
             // 2. Devuelve el handler apropiado
