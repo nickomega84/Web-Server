@@ -3,6 +3,7 @@
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/MimeTypes.hpp"
 #include "../../include/response/IResponseBuilder.hpp"
+#include "../../include/config/ConfigParser.hpp"
 #include <iostream>
 
 StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root) 
@@ -153,90 +154,6 @@ Response StaticFileHandler::handleRequest(const Request& request)
     return _builder->build(payload);
 }
 
-
-// static std::string renderErrorPage(const std::string& root, int code, const std::string& fallbackText) {
-// 	const char* path = getErrorPagePath(code);
-// 	std::string filePath = root;
-
-// 	if (path != NULL)
-// 		filePath += path;
-
-// 	if (path != NULL && fileExists(filePath))
-// 		return (readFile(filePath));
-
-	// fallback simple en HTML
-// 	std::ostringstream oss;
-// 	oss << "<html><head><title>" << code << "</title></head>"
-// 	    << "<body><h1>" << code << "</h1><p>" << fallbackText << "</p></body></html>";
-// 	return (oss.str());
-// }
-// Response StaticFileHandler::handleRequest(const Request& request)
-// {
-//     std::string uri   = request.getPath();          // ya sin query
-//     std::string qs    = request.getQueryString();
-//     std::string method = request.getMethod();
-    
-//     if (uri == "/") 
-//     uri = "/index.html";
-    
-//     Response res;
-    
-//     // Bloquear métodos distintos de GET/HEAD
-//     if (method != "GET" && method != "HEAD" && method != "POST" && method != "DELETE") {
-//         res.setStatus(405, "Method Not Allowed");
-//         res.setBody("405 - Method Not Allowed");
-//         res.setHeader("Content-Type", "text/plain");
-//         res.setHeader("Content-Length", Utils::intToString(res.getBody().length()));
-//         return res;
-//     }
-    
-//     // XSS muy básica
-//     if (qs.find("<script") != std::string::npos) {
-//         res.setStatus(400, "Bad Request");
-//         res.setBody("400 - Bad Request (XSS)");
-//         res.setHeader("Content-Type", "text/plain");
-//         res.setHeader("Content-Length", Utils::intToString(res.getBody().length()));
-//         return res;
-//     }
-    
-//     // Path traversal
-//     if (uri.find("..") != std::string::npos) {
-//         res.setStatus(403, "Forbidden");
-//         res.setBody("403 - Path traversal");
-//         res.setHeader("Content-Type", "text/plain");
-//         res.setHeader("Content-Length", Utils::intToString(res.getBody().length()));
-//         return res;
-//     }
-    
-//     std::string fullPath = _rootPath + uri;
-//     std::cout << "[DEBUG] Sirviendo archivo fullPath: " << fullPath << std::endl;
-    
-//     if (!fileExists(fullPath) ) {
-//         std::cout << "[DEBUG] Archivo no encontrado: " << fullPath << std::endl;
-//         // Archivo no existe, devolver página 404 personalizada
-//         ErrorPageHandler errorHandler(_rootPath);
-//         std::string body = errorHandler.render(404, "Archivo no encontrado");
-
-//         // std::string body = ErrorPageHandler.render(404, "Archivo no encontrado");
-//         res.setStatus(404, "Not Found");
-//         res.setBody(body);
-//         res.setHeader("Content-Type", "text/html");
-//         res.setHeader("Content-Length", Utils::intToString(body.length()));
-//         return res;
-//     }
-    
-//     // if (request.isKeepAlive())
-//     //     res.setHeader("Connection", "keep-alive");
-//     // else
-//     //     res.setHeader("Connection", "close");
-//     std::string body = readFile(fullPath);
-//     res.setStatus(200, "OK");
-//     res.setBody(body);
-//     res.setHeader("Content-Type", guessMimeType(fullPath));
-//     res.setHeader("Content-Length", Utils::intToString(body.length()));
-//     res.setHeader("Connection", "close");
-//     return res;
-// }
 
 Response StaticFileHandler::doGET(Response& res, std::string uri) 
 {

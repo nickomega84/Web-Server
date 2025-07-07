@@ -1,0 +1,1122 @@
+[DEBUG] Verificando nombre del servidor...
+
+[INFO] Nombre del servidor: default_server
+[DEBUG] Tamaño máximo del cuerpo: 1000000
+[DEBUG] Autoindex: false
+[INFO] Directory listing is disabled.
+[INFO] Método GET permitido: true
+[INFO] Método POST permitido: true
+[INFO] Método DELETE permitido: false
+[DEBUG] CGI factory raw: ./cgi-bin
+[DEBUG] CGI directory: /sgoinfre/students/dbonilla/webServer/www/cgi-bin
+[DEBUG][Router] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][StaticHandlerFactory] created with rootsDir: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][UploadHandlerFactory] created with uploads path: /sgoinfre/students/dbonilla/webServer/www/uploads
+[DEBUG][CGIHandlerFactory] created with uploads path: /sgoinfre/students/dbonilla/webServer/www/cgi-bin
+[DEBUG][addListeningSocket] HOST = 127.0.0.1
+[DEBUG][addListeningSocket] PORT = 8081
+[DEBUG][addListeningSocket] New listenSocket fd = 3
+
+ ✅ [INFO] Webserv arrancado. Escuchando conexiones...
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Router] safe = /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][StaticFileHandler] Serving file fullPath: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG][StaticFileHandler] Verifying file existence, file: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] MimeTypes::getContentType() called with extension: .html
+
+[DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 240
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /style.css HTTP/1.1
+[DEBUG][Request] Path: /style.css
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /style.css
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /style.css HTTP/1.1
+[DEBUG][Request] Path: /style.css
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /style.css
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /style.css
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /style.css
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/style.css
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/style.css
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/style.css
+[DEBUG][Router] safe = /sgoinfre/students/dbonilla/webServer/www/style.css
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][StaticFileHandler] Serving file fullPath: /sgoinfre/students/dbonilla/webServer/www/style.css
+[DEBUG][StaticFileHandler] Verifying file existence, file: /sgoinfre/students/dbonilla/webServer/www/style.css
+[DEBUG] MimeTypes::getContentType() called with extension: .css
+
+[DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/css
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 0
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonGET.py
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonGET.py
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonGET.py
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonGET.py
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /cgi-bin/pythonGET.py
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /cgi-bin/pythonGET.py
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][Router] safe = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][[  CGIHandler Constructor  ]]: cgiRoot = /sgoinfre/students/dbonilla/webServer/www/cgi-bin
+[DEBUG][CGI][handleRequest] START
+[DEBUG][CGI][handleCGI] START
+[DEBUG][CGI][identifyScriptType] START
+[DEBUG][CGI][identifyScriptType]: python
+[DEBUG][CGI][identifyMethod] START
+[DEBUG][CGI][identifyMethod]: GET
+[DEBUG][CGI][handleGET] START
+[DEBUG][CGI][getScript] START
+[DEBUG][CGI][getScriptName] START
+[DEBUG][CGI][checkScriptAccess] START
+[DEBUG][CGI][checkScriptAccess] fullPath = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][CGI][getScriptQuery] START
+[DEBUG][CGI][getScript] path = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][CGI][getScript] query
+[DEBUG][CGI][enviromentGET] START
+[DEBUG][CGI][createResponse] START
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: POST /cgi-bin/pythonPOST.py HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonPOST.py
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[DEBUG][Request] Header found: Content-Length =  7
+[DEBUG][Request] Header found: Content-Type =  application/x-www-form-urlencoded
+[Request] POST method body may be to big to print
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonPOST.py
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][checkBodyLimits] START
+[DEBUG][checkIsChunked] START
+[DEBUG][checkIsContentLength] START
+[DEBUG][checkIsContentLength] is content lenght = 7
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG][areWeFinishedReading] (ContentLenght) finished reading
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: POST /cgi-bin/pythonPOST.py HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonPOST.py
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[DEBUG][Request] Header found: Content-Length =  7
+[DEBUG][Request] Header found: Content-Type =  application/x-www-form-urlencoded
+[Request] POST method body may be to big to print
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonPOST.py
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /cgi-bin/pythonPOST.py
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /cgi-bin/pythonPOST.py
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonPOST.py
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonPOST.py
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonPOST.py
+[DEBUG][Router] safe = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonPOST.py
+[DEBUG][[  CGIHandler Constructor  ]]: cgiRoot = /sgoinfre/students/dbonilla/webServer/www/cgi-bin
+[DEBUG][CGI][handleRequest] START
+[DEBUG][CGI][handleCGI] START
+[DEBUG][CGI][identifyScriptType] START
+[DEBUG][CGI][identifyScriptType]: python
+[DEBUG][CGI][identifyMethod] START
+[DEBUG][CGI][identifyMethod]: POST
+[DEBUG][CGI][handlePOST] START
+[DEBUG][CGI][getScript] START
+[DEBUG][CGI][getScriptName] START
+[DEBUG][CGI][checkScriptAccess] START
+[DEBUG][CGI][checkScriptAccess] fullPath = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonPOST.py
+[DEBUG][CGI][getScriptQuery] START
+[DEBUG][CGI][getScript] path = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonPOST.py
+[DEBUG][CGI][getScript] query
+[DEBUG][CGI][enviromentGET] START
+[DEBUG][CGI][createResponse] START
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: FOO / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: FOO / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Router] safe = /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][DefaultResponseBuilder] Setting response status: 501 Method Not Allowed
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/plain
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 24
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Router] safe = /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][StaticFileHandler] Serving file fullPath: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG][StaticFileHandler] Verifying file existence, file: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] MimeTypes::getContentType() called with extension: .html
+
+[DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 240
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Router] safe = /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][StaticFileHandler] Serving file fullPath: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG][StaticFileHandler] Verifying file existence, file: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] MimeTypes::getContentType() called with extension: .html
+
+[DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 240
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 6
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonGET.py
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonGET.py
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonGET.py
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonGET.py
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /cgi-bin/pythonGET.py
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /cgi-bin/pythonGET.py
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][Router] safe = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][[  CGIHandler Constructor  ]]: cgiRoot = /sgoinfre/students/dbonilla/webServer/www/cgi-bin
+[DEBUG][CGI][handleRequest] START
+[DEBUG][CGI][handleCGI] START
+[DEBUG][CGI][identifyScriptType] START
+[DEBUG][CGI][identifyScriptType]: python
+[DEBUG][CGI][identifyMethod] START
+[DEBUG][CGI][identifyMethod]: GET
+[DEBUG][CGI][handleGET] START
+[DEBUG][CGI][getScript] START
+[DEBUG][CGI][getScriptName] START
+[DEBUG][CGI][checkScriptAccess] START
+[DEBUG][CGI][checkScriptAccess] fullPath = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][CGI][getScriptQuery] START
+[DEBUG][CGI][getScript] path = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][CGI][getScript] query
+[DEBUG][CGI][enviromentGET] START
+[DEBUG][CGI][createResponse] START
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythongggGET.py HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythongggGET.py
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythongggGET.py
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythongggGET.py HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythongggGET.py
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythongggGET.py
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /cgi-bin/pythongggGET.py
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /cgi-bin/pythongggGET.py
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythongggGET.py
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythongggGET.py
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythongggGET.py
+[DEBUG][ErrorPageHandler] initialized with root path: /sgoinfre/students/dbonilla/webServer/www
+Rendering error page for code: 404
+Relative path: /error_pages/404.html
+ErrorPageHandler: relPath: /error_pages/404.html
+
+Page_Handler: /sgoinfre/students/dbonilla/webServer/www/error_pages/404.html
+Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/error_pages/404.html
+[DEBUG][DefaultResponseBuilder] Setting response status: 404 Not Found
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 214
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 6
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN6
+[DEBUG][handleClientRead] Client fd = 6 closed connection
+[DEBUG][close_fd] client_fd: 6 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Priority =  u=0, i
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Priority =  u=0, i
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Router] safe = /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][StaticFileHandler] Serving file fullPath: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG][StaticFileHandler] Verifying file existence, file: /sgoinfre/students/dbonilla/webServer/www/index.html
+[DEBUG] MimeTypes::getContentType() called with extension: .html
+
+[DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 240
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /favicon.ico HTTP/1.1
+[DEBUG][Request] Path: /favicon.ico
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+[DEBUG][Request] Header found: Accept =  image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5
+[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Referer =  http://localhost:8081/
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  image
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  no-cors
+[DEBUG][Request] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG][Request] Header found: Priority =  u=6
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /favicon.ico
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /favicon.ico HTTP/1.1
+[DEBUG][Request] Path: /favicon.ico
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+[DEBUG][Request] Header found: Accept =  image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5
+[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Referer =  http://localhost:8081/
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  image
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  no-cors
+[DEBUG][Request] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG][Request] Header found: Priority =  u=6
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /favicon.ico
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /favicon.ico
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /favicon.ico
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/favicon.ico
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/favicon.ico
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/favicon.ico
+[DEBUG][ErrorPageHandler] initialized with root path: /sgoinfre/students/dbonilla/webServer/www
+Rendering error page for code: 404
+Relative path: /error_pages/404.html
+ErrorPageHandler: relPath: /error_pages/404.html
+
+Page_Handler: /sgoinfre/students/dbonilla/webServer/www/error_pages/404.html
+Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/error_pages/404.html
+[DEBUG][DefaultResponseBuilder] Setting response status: 404 Not Found
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 214
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py?producto=libro&cantidad=5 HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonGET.py
+[DEBUG][Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Priority =  u=0, i
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonGET.py
+[Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py?producto=libro&cantidad=5 HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonGET.py
+[DEBUG][Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Priority =  u=0, i
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonGET.py
+[Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /cgi-bin/pythonGET.py
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /cgi-bin/pythonGET.py
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][Router] safe = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][[  CGIHandler Constructor  ]]: cgiRoot = /sgoinfre/students/dbonilla/webServer/www/cgi-bin
+[DEBUG][CGI][handleRequest] START
+[DEBUG][CGI][handleCGI] START
+[DEBUG][CGI][identifyScriptType] START
+[DEBUG][CGI][identifyScriptType]: python
+[DEBUG][CGI][identifyMethod] START
+[DEBUG][CGI][identifyMethod]: GET
+[DEBUG][CGI][handleGET] START
+[DEBUG][CGI][getScript] START
+[DEBUG][CGI][getScriptName] START
+[DEBUG][CGI][checkScriptAccess] START
+[DEBUG][CGI][checkScriptAccess] fullPath = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][CGI][getScriptQuery] START
+[DEBUG][CGI][getScript] path = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
+[DEBUG][CGI][getScript] queryproducto=libro&cantidad=5
+[DEBUG][CGI][enviromentGET] START
+[DEBUG][CGI][createResponse] START
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.pyffff?producto=libro&cantidad=5 HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonGET.pyffff
+[DEBUG][Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Priority =  u=0, i
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonGET.pyffff
+[Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.pyffff?producto=libro&cantidad=5 HTTP/1.1
+[DEBUG][Request] Path: /cgi-bin/pythonGET.pyffff
+[DEBUG][Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+[DEBUG][Request] Header found: Accept-Language =  en-US,en;q=0.5
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Priority =  u=0, i
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /cgi-bin/pythonGET.pyffff
+[Request] Query String: producto=libro&cantidad=5
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][Router] uri = /cgi-bin/pythonGET.pyffff
+[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const 
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /cgi-bin/pythonGET.pyffff
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.pyffff
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.pyffff
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.pyffff
+[DEBUG][ErrorPageHandler] initialized with root path: /sgoinfre/students/dbonilla/webServer/www
+Rendering error page for code: 404
+Relative path: /error_pages/404.html
+ErrorPageHandler: relPath: /error_pages/404.html
+
+Page_Handler: /sgoinfre/students/dbonilla/webServer/www/error_pages/404.html
+Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/error_pages/404.html
+[DEBUG][DefaultResponseBuilder] Setting response status: 404 Not Found
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 214
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+
+❎ Signal received, shutting down…
+[DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = 4
+[DEBUG] Servidor cerrado correctamente.
+[DEBUG][StaticHandlerFactory] destroyed
+[DEBUG][UploadHandlerFactory] destroyed
+[DEBUG][CGIHandlerFactory] destroyed
+[DEBUG] Router destructor called

@@ -20,15 +20,7 @@ Response CGIHandler::handleRequest(const Request& req)
     return (handleCGI(req, _res));
 }
 
-void CGIHandler::CGIerror(int status, std::string reason, std::string mime) 
-{
-	Payload payload;
-	payload.status = status;
-	payload.reason = reason;
-	payload.mime = mime;
-	payload.keepAlive = true;
-	_res = _builder->build(payload);
-}
+
 
 int CGIHandler::identifyScriptType(const Request &req)
 {
@@ -341,7 +333,8 @@ int CGIHandler::createResponse(std::string output, Response &res)
 {
 	std::cout << "[DEBUG][CGI][createResponse] START" << std::endl;
 	
-	res.setStatus(200, "OK");
+	// res.setStatus(200, "OK");
+    _builder->setStatus(res, 200, "OK");
 
 	std::string cgi_headers_str;
 	std::string cgi_body_str;
@@ -359,7 +352,8 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	cgi_body_str = output.substr(header_end_pos + header_lenght);
 	cgi_headers_str = output.substr(0, header_end_pos);
 
-	res.setBody(cgi_body_str);
+    _builder->setBody(res, cgi_body_str);
+	// res.setBody(cgi_body_str);
 
 	std::stringstream ss(cgi_headers_str);
 	std::string line;
@@ -375,7 +369,8 @@ int CGIHandler::createResponse(std::string output, Response &res)
 				header_value = header_value.substr(first_char_pos);
 			else
 				header_value = ""; // Valor vacío si solo hay espacios
-			res.setHeader(header_name, header_value);
+            _builder->setHeader(res, header_name, header_value);
+			// res.setHeader(header_name, header_value);
 		}
 	}
 
@@ -384,19 +379,23 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	ssBodySize << bodySize;
 	std::string bodySizeStr = ssBodySize.str();
 	if (res.getHeader("Content-Length").empty())
-		res.setHeader("Content-Length", bodySizeStr);
+        _builder->setHeader(res, "Content-Length", bodySizeStr);
+    // res.setHeader("Content-Length", bodySizeStr);
 	
 	return (0);
 }
 
-/* std::string CGIHandler::joinPath(const std::string& a, const std::string& b)
+Response CGIHandler::CGIerror(int status, std::string reason, std::string mime) 
 {
-	std::cout << "[DEBUG][CGI][joinPath] START" << std::endl;
-	
-	if (a.empty()) return b;
-    if (b.empty()) return a;
-    if (a[a.size()-1] == '/' && b[0] == '/') return a + b.substr(1);
-    if (a[a.size()-1] != '/' && b[0] != '/') return a + "/" + b;
-    return a + b;
-} */
+    ErrorPageHandler  errorHandler(_cgiRoot);
+    std::cerr << "[ERROR][CGI][CGIerror] status: " << status << std::endl;
+	Payload payload;
+	payload.status = status;
+	payload.reason = reason;
+	payload.mime = mime;
+	payload.keepAlive = true;
+    payload.body = errorHandler.render(status, reason);
+	return (_builder->build(payload));
+}
+
 

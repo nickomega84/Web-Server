@@ -37,7 +37,7 @@ class CGIHandler : public IRequestHandler
 		Response			_res;
        
 		Response	handleCGI( const Request &req, Response &res);
-		void		CGIerror(int status, std::string reason, std::string mime);
+		Response	CGIerror(int status, std::string reason, std::string mime);
 		int			identifyScriptType(const Request &req);
 		int			identifyMethod(const Request &req);
 

@@ -69,11 +69,39 @@ int main(int argc, char** argv)
 
     const IConfig* serverNode = rootConfig->getChildren()[0];
 
-    try 
-	{
+    try {
         validateRoot validator(argv[1]);
         validator.validationRoot();
 
+        std::string serverName = parser.getServerName(serverNode);
+        std::cout << "[INFO] Nombre del servidor: " << serverName << std::endl;
+        
+        std::string bodySize = getDirectiveValue(serverNode, "body_size", "1000000");
+        std::cout << "[DEBUG] Tamaño máximo del cuerpo: " << bodySize << std::endl;
+
+        std::string autoindexValue = getDirectiveValue(serverNode, "autoindex", "false");
+        bool autoindexEnabled = (autoindexValue == "true");
+        std::cout << "[DEBUG] Autoindex: "  << (autoindexEnabled ? "true" : "false") << std::endl;
+
+        if (autoindexEnabled) {
+            std::cout << "[INFO] Directory listing is enabled." << std::endl;
+        } else {
+            std::cout << "[INFO] Directory listing is disabled." << std::endl;
+        }
+
+        std::string getAllowedValue = parser.getDirectiveValue(serverNode, "get_allowed", "true");
+        bool getAllowed = (getAllowedValue == "true");
+        std::cout << "[INFO] Método GET permitido: " << (getAllowed ? "true" : "false") << std::endl;
+
+        std::string postAllowedValue = parser.getDirectiveValue(serverNode, "post_allowed", "true");
+        bool postAllowed = (postAllowedValue == "true");
+        std::cout << "[INFO] Método POST permitido: " << (postAllowed ? "true" : "false") << std::endl;
+
+        std::string deleteAllowedValue = parser.getDirectiveValue(serverNode, "delete_allowed", "false");
+        bool deleteAllowed = (deleteAllowedValue == "true");
+        std::cout << "[INFO] Método DELETE permitido: " << (deleteAllowed ? "true" : "false") << std::endl;
+
+        // --- Reemplazo de la lógica de RootConfig, CgiConfig, etc. ---
         std::string rootPathConf = getDirectiveValue(serverNode, "root", "./www");
         std::string rootPath = Utils::resolveAndValidateDir(rootPathConf);
 
