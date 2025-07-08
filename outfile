@@ -18,7 +18,7 @@
 [DEBUG] Token encontrado: delete_allowed
 [DEBUG] Token encontrado: false
 [DEBUG] Token encontrado: autoindex
-[DEBUG] Token encontrado: true
+[DEBUG] Token encontrado: false
 [DEBUG] Token encontrado: location
 [DEBUG] Token encontrado: /
 [DEBUG] Token encontrado: root
@@ -32,7 +32,7 @@
 [DEBUG] Token encontrado: root
 [DEBUG] Token encontrado: ./uploads
 [DEBUG] Token encontrado: autoindex
-[DEBUG] Token encontrado: on
+[DEBUG] Token encontrado: false
 [DEBUG] Token encontrado: allow_methods
 [DEBUG] Token encontrado: GET
 [DEBUG] Token encontrado: POST
@@ -156,18 +156,14 @@
 [DEBUG][LOOP_EPOLL] accept_connection
 [DEBUG][accept_connection] New connection accepted() fd = 5
 ------------------------LOOP_EPOLL++------------------------
-[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
-[DEBUG][LOOP_EPOLL] accept_connection
-[DEBUG][accept_connection] New connection accepted() fd = 6
-------------------------LOOP_EPOLL++------------------------
 [DEBUG][LOOP_EPOLL INICIO] client_fd = 5
 [DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
 [DEBUG][readRequest] START
 [DEBUG][getCompleteHeader] START
 
 [DEBUG]-------------------[REQUEST] START-------------------
-[DEBUG][Request] Start line parsed: GET /cgi-bin HTTP/1.1
-[DEBUG][Request] Path: /cgi-bin
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
 [DEBUG][Request] Query String: 
 [DEBUG][Request] Header found: Host =  localhost:8081
 [DEBUG][Request] Header found: Connection =  keep-alive
@@ -176,17 +172,18 @@
 [DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
 [DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
 [DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Sec-Purpose =  prefetch;prerender
+[DEBUG][Request] Header found: Purpose =  prefetch
 [DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-[DEBUG][Request] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
 [DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
 [DEBUG][Request] Header found: Sec-Fetch-User =  ?1
 [DEBUG][Request] Header found: Sec-Fetch-Dest =  document
-[DEBUG][Request] Header found: Referer =  http://localhost:8081/
 [DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
 [Request] Body: 
 [Request] Keep-Alive: true
-[Request] Path: /cgi-bin
+[Request] Path: /
 [Request] Query String: 
 [DEBUG][Request] Request parsing completed successfully.
 [DEBUG]-------------------[REQUEST] END-------------------
@@ -197,8 +194,8 @@
 [DEBUG][createResponse] START
 
 [DEBUG]-------------------[REQUEST] START-------------------
-[DEBUG][Request] Start line parsed: GET /cgi-bin HTTP/1.1
-[DEBUG][Request] Path: /cgi-bin
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
 [DEBUG][Request] Query String: 
 [DEBUG][Request] Header found: Host =  localhost:8081
 [DEBUG][Request] Header found: Connection =  keep-alive
@@ -207,43 +204,37 @@
 [DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
 [DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
 [DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Sec-Purpose =  prefetch;prerender
+[DEBUG][Request] Header found: Purpose =  prefetch
 [DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-[DEBUG][Request] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
 [DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
 [DEBUG][Request] Header found: Sec-Fetch-User =  ?1
 [DEBUG][Request] Header found: Sec-Fetch-Dest =  document
-[DEBUG][Request] Header found: Referer =  http://localhost:8081/
 [DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
 [Request] Body: 
 [Request] Keep-Alive: true
-[Request] Path: /cgi-bin
+[Request] Path: /
 [Request] Query String: 
 [DEBUG][Request] Request parsing completed successfully.
 [DEBUG]-------------------[REQUEST] END-------------------
 
 [DEBUG] IRequestHandler* Router::resolve(Request& request) const
-[DEBUG] Request URI: /cgi-bin
+[DEBUG] Request URI: /
 [DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
-[DEBUG][Utils::mapUriToPath] uri: /cgi-bin
-[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/cgi-bin
-[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/cgi-bin
-[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin
-[DEBUG][CGIHandler Constructor]: cgiRoot = /sgoinfre/students/dbonilla/webServer/www/cgi-bin
-[DEBUG][CGI][handleRequest] START
-[DEBUG][CGI][handleCGI] START
-[DEBUG][CGI][identifyScriptType] START
-[DEBUG][ErrorPageHandler] initialized with root path: /sgoinfre/students/dbonilla/webServer/www/cgi-bin
-Rendering error page for code: 404
-Relative path: /error_pages/404.html
-ErrorPageHandler: relPath: /error_pages/404.html
-
-Page_Handler: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error_pages/404.html
-Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error_pages/404.html
-[DEBUG][DefaultResponseBuilder] Setting response status: 404 Bad Request
+[DEBUG][Utils::mapUriToPath] uri: /
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][StaticFileHandler] Request URI: /
+[DEBUG][StaticFileHandler] Autoindex value: true
+[DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
 [DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
-[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 87
-[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 326
+[DEBUG][DefaultResponseBuilder] Setting response Connection: close
 [DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
 ------------------------LOOP_EPOLL++------------------------
 [DEBUG][LOOP_EPOLL INICIO] client_fd = 5
@@ -263,103 +254,8 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][LOOP_EPOLL] accept_connection
 [DEBUG][accept_connection] New connection accepted() fd = 5
 ------------------------LOOP_EPOLL++------------------------
-[DEBUG][LOOP_EPOLL INICIO] client_fd = 6
-[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN6
-[DEBUG][readRequest] START
-[DEBUG][getCompleteHeader] START
-
-[DEBUG]-------------------[REQUEST] START-------------------
-[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py HTTP/1.1
-[DEBUG][Request] Path: /cgi-bin/pythonGET.py
-[DEBUG][Request] Query String: 
-[DEBUG][Request] Header found: Host =  localhost:8081
-[DEBUG][Request] Header found: Connection =  keep-alive
-[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
-[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
-[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
-[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
-[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-[DEBUG][Request] Header found: Sec-Fetch-Site =  none
-[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
-[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
-[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
-[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
-[Request] Body: 
-[Request] Keep-Alive: true
-[Request] Path: /cgi-bin/pythonGET.py
-[Request] Query String: 
-[DEBUG][Request] Request parsing completed successfully.
-[DEBUG]-------------------[REQUEST] END-------------------
-
-[DEBUG][getCompleteHeader] finished reading header
-[DEBUG][areWeFinishedReading] START
-[DEBUG] [[  FINISHED READING REQUEST  ]]
-[DEBUG][createResponse] START
-
-[DEBUG]-------------------[REQUEST] START-------------------
-[DEBUG][Request] Start line parsed: GET /cgi-bin/pythonGET.py HTTP/1.1
-[DEBUG][Request] Path: /cgi-bin/pythonGET.py
-[DEBUG][Request] Query String: 
-[DEBUG][Request] Header found: Host =  localhost:8081
-[DEBUG][Request] Header found: Connection =  keep-alive
-[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
-[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
-[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
-[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
-[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
-[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-[DEBUG][Request] Header found: Sec-Fetch-Site =  none
-[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
-[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
-[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
-[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
-[Request] Body: 
-[Request] Keep-Alive: true
-[Request] Path: /cgi-bin/pythonGET.py
-[Request] Query String: 
-[DEBUG][Request] Request parsing completed successfully.
-[DEBUG]-------------------[REQUEST] END-------------------
-
-[DEBUG] IRequestHandler* Router::resolve(Request& request) const
-[DEBUG] Request URI: /cgi-bin/pythonGET.py
-[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
-[DEBUG][Utils::mapUriToPath] uri: /cgi-bin/pythonGET.py
-[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
-[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
-[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
-[DEBUG][CGIHandler Constructor]: cgiRoot = /sgoinfre/students/dbonilla/webServer/www/cgi-bin
-[DEBUG][CGI][handleRequest] START
-[DEBUG][CGI][handleCGI] START
-[DEBUG][CGI][identifyScriptType] START
-[DEBUG][CGI][identifyScriptType]: python
-[DEBUG][CGI][identifyMethod] START
-[DEBUG][CGI][identifyMethod]: GET
-[DEBUG][CGI][checkCfgPermission] START
-[DEBUG][CGI][checkCfgPermission] get_allowed getAllowedValue = true
-[DEBUG][CGI][handleGET] START
-[DEBUG][CGI][getScript] START
-[DEBUG][CGI][getScriptName] START
-[DEBUG][CGI][checkScriptAccess] START
-[DEBUG][CGI][checkScriptAccess] fullPath = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
-[DEBUG][CGI][getScriptQuery] START
-[DEBUG][CGI][getScript] path = /sgoinfre/students/dbonilla/webServer/www/cgi-bin/pythonGET.py
-[DEBUG][CGI][getScript] query
-[DEBUG][CGI][enviromentGET] START
-[DEBUG][CGI][createResponse] START
-[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
-------------------------LOOP_EPOLL++------------------------
-[DEBUG][LOOP_EPOLL INICIO] client_fd = 6
-[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
-[DEBUG][handleClientResponse] START
-[DEBUG][handleClientResponse] END
-[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
-[DEBUG][LOOP_EPOLL] client_fd = 6
-------------------------LOOP_EPOLL++------------------------
-[DEBUG][LOOP_EPOLL INICIO] client_fd = 6
-[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN6
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
 [DEBUG][readRequest] START
 [DEBUG][getCompleteHeader] START
 
@@ -381,7 +277,7 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][Request] Header found: Sec-Fetch-Dest =  document
 [DEBUG][Request] Header found: Referer =  http://localhost:8081/
 [DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
 [Request] Body: 
 [Request] Keep-Alive: true
 [Request] Path: /uploads
@@ -412,7 +308,7 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][Request] Header found: Sec-Fetch-Dest =  document
 [DEBUG][Request] Header found: Referer =  http://localhost:8081/
 [DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
 [Request] Body: 
 [Request] Keep-Alive: true
 [Request] Path: /uploads
@@ -438,22 +334,22 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][DefaultResponseBuilder] Setting response Connection: close
 [DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
 ------------------------LOOP_EPOLL++------------------------
-[DEBUG][LOOP_EPOLL INICIO] client_fd = 6
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
 [DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
 [DEBUG][handleClientResponse] START
 [DEBUG][handleClientResponse] END
 [DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
-[DEBUG][LOOP_EPOLL] client_fd = 6
+[DEBUG][LOOP_EPOLL] client_fd = 5
 ------------------------LOOP_EPOLL++------------------------
-[DEBUG][LOOP_EPOLL INICIO] client_fd = 6
-[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN6
-[DEBUG][handleClientRead] Client fd = 6 closed connection
-[DEBUG][close_fd] client_fd: 6 closed
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
 [DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
 ------------------------LOOP_EPOLL++------------------------
 [DEBUG][LOOP_EPOLL INICIO] client_fd = 3
 [DEBUG][LOOP_EPOLL] accept_connection
-[DEBUG][accept_connection] New connection accepted() fd = 6
+[DEBUG][accept_connection] New connection accepted() fd = 5
 ------------------------LOOP_EPOLL++------------------------
 [DEBUG][LOOP_EPOLL INICIO] client_fd = 5
 [DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
@@ -461,8 +357,8 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][getCompleteHeader] START
 
 [DEBUG]-------------------[REQUEST] START-------------------
-[DEBUG][Request] Start line parsed: GET /uploads/index.html HTTP/1.1
-[DEBUG][Request] Path: /uploads/index.html
+[DEBUG][Request] Start line parsed: GET /uploads/logo2.png HTTP/1.1
+[DEBUG][Request] Path: /uploads/logo2.png
 [DEBUG][Request] Query String: 
 [DEBUG][Request] Header found: Host =  localhost:8081
 [DEBUG][Request] Header found: Connection =  keep-alive
@@ -478,10 +374,10 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][Request] Header found: Sec-Fetch-Dest =  document
 [DEBUG][Request] Header found: Referer =  http://localhost:8081/uploads
 [DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
 [Request] Body: 
 [Request] Keep-Alive: true
-[Request] Path: /uploads/index.html
+[Request] Path: /uploads/logo2.png
 [Request] Query String: 
 [DEBUG][Request] Request parsing completed successfully.
 [DEBUG]-------------------[REQUEST] END-------------------
@@ -492,8 +388,8 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][createResponse] START
 
 [DEBUG]-------------------[REQUEST] START-------------------
-[DEBUG][Request] Start line parsed: GET /uploads/index.html HTTP/1.1
-[DEBUG][Request] Path: /uploads/index.html
+[DEBUG][Request] Start line parsed: GET /uploads/logo2.png HTTP/1.1
+[DEBUG][Request] Path: /uploads/logo2.png
 [DEBUG][Request] Query String: 
 [DEBUG][Request] Header found: Host =  localhost:8081
 [DEBUG][Request] Header found: Connection =  keep-alive
@@ -509,35 +405,35 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][Request] Header found: Sec-Fetch-Dest =  document
 [DEBUG][Request] Header found: Referer =  http://localhost:8081/uploads
 [DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
 [Request] Body: 
 [Request] Keep-Alive: true
-[Request] Path: /uploads/index.html
+[Request] Path: /uploads/logo2.png
 [Request] Query String: 
 [DEBUG][Request] Request parsing completed successfully.
 [DEBUG]-------------------[REQUEST] END-------------------
 
 [DEBUG] IRequestHandler* Router::resolve(Request& request) const
-[DEBUG] Request URI: /uploads/index.html
+[DEBUG] Request URI: /uploads/logo2.png
 [DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
-[DEBUG][Utils::mapUriToPath] uri: /uploads/index.html
-[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/uploads/index.html
-[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/uploads/index.html
-[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/uploads/index.html
+[DEBUG][Utils::mapUriToPath] uri: /uploads/logo2.png
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
 [DEBUG][UploadHandler][handleRequest] START
 [DEBUG][StaticFileHandler] initialized with root and builder
 [DEBUG][StaticFileHandler][handleRequest] START
-[DEBUG][StaticFileHandler] Request URI: /index.html
-[DEBUG][StaticFileHandler] Serving file fullPath: AQUIIIIIIIIIIIIIIIIII /sgoinfre/students/dbonilla/webServer/www/uploads/index.html
-[DEBUG][StaticFileHandler] Verifying file existence, file: /sgoinfre/students/dbonilla/webServer/www/uploads/index.html
-[DEBUG][StaticFileHandler][doGET] method called for file: /sgoinfre/students/dbonilla/webServer/www/uploads/index.html
+[DEBUG][StaticFileHandler] Request URI: /logo2.png
+[DEBUG][StaticFileHandler] Serving file fullPath: AQUIIIIIIIIIIIIIIIIII /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
+[DEBUG][StaticFileHandler] Verifying file existence, file: /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
+[DEBUG][StaticFileHandler][doGET] method called for file: /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
 [DEBUG][static][checkCfgPermission] START
 [DEBUG][static][checkCfgPermission] get_allowed getAllowedValue = true
-[DEBUG] MimeTypes::getContentType() called with extension: .html
+[DEBUG] MimeTypes::getContentType() called with extension: .png
 
 [DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
-[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
-[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 207
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: image/png
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 50704
 [DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
 [DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
 ------------------------LOOP_EPOLL++------------------------
@@ -571,7 +467,7 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][Request] Header found: Sec-Fetch-Dest =  document
 [DEBUG][Request] Header found: Referer =  http://localhost:8081/uploads
 [DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
 [Request] Body: 
 [Request] Keep-Alive: true
 [Request] Path: /uploads/Wow-gif.gif
@@ -602,7 +498,7 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][Request] Header found: Sec-Fetch-Dest =  document
 [DEBUG][Request] Header found: Referer =  http://localhost:8081/uploads
 [DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
-[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
 [Request] Body: 
 [Request] Keep-Alive: true
 [Request] Path: /uploads/Wow-gif.gif
@@ -640,12 +536,6 @@ Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/cgi-bin/error
 [DEBUG][handleClientResponse] END
 [DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
 [DEBUG][LOOP_EPOLL] client_fd = 5
-------------------------LOOP_EPOLL++------------------------
-[DEBUG][LOOP_EPOLL INICIO] client_fd = 6
-[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN6
-[DEBUG][handleClientRead] Client fd = 6 closed connection
-[DEBUG][close_fd] client_fd: 6 closed
-[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
 
 ❎ [DEBUG] Signal received, shutting down…
 [DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = 4
