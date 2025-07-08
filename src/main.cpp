@@ -7,10 +7,6 @@
 #include <csignal>
 
 #include "../include/config/ConfigParser.hpp"
-// #include "../include/config/RootConfig.hpp"
-// #include "../include/config/UploadsConfig.hpp"
-// #include "../include/config/CgiConfig.hpp"
-// #include "../include/config/PortConfig.hpp"
 #include "../include/server/Server.hpp"
 #include "../include/utils/Utils.hpp"
 
@@ -93,6 +89,96 @@ int main(int argc, char** argv) {
         std::string deleteAllowedValue = parser.getDirectiveValue(serverNode, "delete_allowed", "false");
         bool deleteAllowed = (deleteAllowedValue == "true");
         std::cout << "[INFO] Método DELETE permitido: " << (deleteAllowed ? "true" : "false") << std::endl;
+
+        // --- Verificar si existe location /error_pages ---
+        if (parser.hasErrorPagesLocation(serverNode)) {
+            std::cout << "[INFO] Location /error_pages encontrado en la configuración" << std::endl;
+            std::cout << "[INFO] Validando páginas de error configuradas..." << std::endl;
+            
+            // Mostrar las páginas de error configuradas
+            std::string errorPage404 = parser.getErrorPage(404, serverNode);
+            if (!errorPage404.empty()) {
+                std::cout << "[INFO] ✓ Página de error 404 válida: " << errorPage404 << std::endl;
+            } else {
+                std::cout << "[INFO] ✗ Página de error 404 no válida o no configurada, usando página por defecto" << std::endl;
+            }
+            
+            std::string errorPage403 = parser.getErrorPage(403, serverNode);
+            if (!errorPage403.empty()) {
+                std::cout << "[INFO] ✓ Página de error 403 válida: " << errorPage403 << std::endl;
+            } else {
+                std::cout << "[INFO] ✗ Página de error 403 no válida o no configurada, usando página por defecto" << std::endl;
+            }
+            
+            std::string errorPage400 = parser.getErrorPage(400, serverNode);
+            if (!errorPage400.empty()) {
+                std::cout << "[INFO] ✓ Página de error 400 válida: " << errorPage400 << std::endl;
+            } else {
+                std::cout << "[INFO] ✗ Página de error 400 no válida o no configurada, usando página por defecto" << std::endl;
+            }
+            
+            std::string errorPage502 = parser.getErrorPage(502, serverNode);
+            if (!errorPage502.empty()) {
+                std::cout << "[INFO] ✓ Página de error 502 válida: " << errorPage502 << std::endl;
+            } else {
+                std::cout << "[INFO] ✗ Página de error 502 no válida o no configurada, usando página por defecto" << std::endl;
+            }
+            
+            std::string errorPage500 = parser.getErrorPage(500, serverNode);
+            if (!errorPage500.empty()) {
+                std::cout << "[INFO] ✓ Página de error 500 válida: " << errorPage500 << std::endl;
+            } else {
+                std::cout << "[INFO] ✗ Página de error 500 no válida o no configurada, usando página por defecto" << std::endl;
+            }
+            
+            // Probar un código de error no válido
+            std::cout << "[INFO] Probando código de error inválido (999):" << std::endl;
+            std::string errorPage999 = parser.getErrorPage(999, serverNode);
+            if (errorPage999.empty()) {
+                std::cout << "[INFO] ✓ Código de error 999 rechazado correctamente" << std::endl;
+            }
+            
+        } else {
+            std::cout << "[INFO] No se encontró location /error_pages en la configuración" << std::endl;
+        }
+
+        // --- Verificar permisos de métodos HTTP ---
+        std::cout << "\n[INFO] === Verificando permisos de métodos HTTP ===" << std::endl;
+        
+        // Verificar permisos globales
+        bool getGlobalAllowed = parser.isMethodAllowed("GET", serverNode);
+        bool postGlobalAllowed = parser.isMethodAllowed("POST", serverNode);
+        bool deleteGlobalAllowed = parser.isMethodAllowed("DELETE", serverNode);
+        
+        std::cout << "[INFO] Permisos globales:" << std::endl;
+        std::cout << "[INFO] - GET: " << (getGlobalAllowed ? "✓ Permitido" : "✗ Bloqueado") << std::endl;
+        std::cout << "[INFO] - POST: " << (postGlobalAllowed ? "✓ Permitido" : "✗ Bloqueado") << std::endl;
+        std::cout << "[INFO] - DELETE: " << (deleteGlobalAllowed ? "✓ Permitido" : "✗ Bloqueado") << std::endl;
+        
+        // Verificar permisos en locations específicos
+        std::cout << "\n[INFO] Permisos en location /cgi-bin:" << std::endl;
+        bool getCgiAllowed = parser.isMethodAllowedInLocation("GET", "/cgi-bin", serverNode);
+        bool postCgiAllowed = parser.isMethodAllowedInLocation("POST", "/cgi-bin", serverNode);
+        bool deleteCgiAllowed = parser.isMethodAllowedInLocation("DELETE", "/cgi-bin", serverNode);
+        
+        std::cout << "[INFO] - GET: " << (getCgiAllowed ? "✓ Permitido" : "✗ Bloqueado") << std::endl;
+        std::cout << "[INFO] - POST: " << (postCgiAllowed ? "✓ Permitido" : "✗ Bloqueado") << std::endl;
+        std::cout << "[INFO] - DELETE: " << (deleteCgiAllowed ? "✓ Permitido" : "✗ Bloqueado") << std::endl;
+        
+        // Probar DELETE en archivos específicos
+        std::cout << "\n[INFO] Probando DELETE en archivos específicos:" << std::endl;
+        
+        bool deleteScript = parser.isDeleteAllowedForFile("/cgi-bin/script.py", serverNode);
+        std::cout << "[INFO] - DELETE script.py: " << (deleteScript ? "✓ Permitido" : "✗ Bloqueado (correcto)") << std::endl;
+        
+        bool deleteShell = parser.isDeleteAllowedForFile("/cgi-bin/script.sh", serverNode);
+        std::cout << "[INFO] - DELETE script.sh: " << (deleteShell ? "✓ Permitido" : "✗ Bloqueado (correcto)") << std::endl;
+        
+        bool deleteHtml = parser.isDeleteAllowedForFile("/uploads/file.html", serverNode);
+        std::cout << "[INFO] - DELETE file.html: " << (deleteHtml ? "✓ Permitido" : "✗ Bloqueado") << std::endl;
+        
+        bool deleteTxt = parser.isDeleteAllowedForFile("/uploads/document.txt", serverNode);
+        std::cout << "[INFO] - DELETE document.txt: " << (deleteTxt ? "✓ Permitido" : "✗ Bloqueado") << std::endl;
 
         // --- Reemplazo de la lógica de RootConfig, CgiConfig, etc. ---
         std::string rootPathConf = getDirectiveValue(serverNode, "root", "./www");
