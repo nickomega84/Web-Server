@@ -19,6 +19,41 @@ Response UploadHandler::handleRequest(const Request& request)
 	std::cout << "[DEBUG][UploadHandler][handleRequest] START" << std::endl;
 
 	std::string method = request.getMethod();
+    std::string uri = request.getPath();
+    std::string fullPath = _uploadsPath + uri;
+    Payload payload;
+    payload.keepAlive = true;
+    struct stat s;
+    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
+        // Asegura que termine en /
+        if (uri[uri.size() - 1] != '/')
+            uri += "/";
+
+        ConfigParser* cfg = request.getCfg();
+        std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "false");
+
+        if (autoindex == "true") {
+            payload.status = 200;
+            payload.reason = "OK";
+            payload.mime = "text/html";
+            // payload.body = Utils::renderAutoindex(uri, fullPath);
+            // payload.body = Utils::renderAutoindex("/uploads", "/sgoinfre/students/dbonilla/webServer/www/uploads");
+
+            return _builder->build(payload);
+        }
+
+        std::string indexPath = fullPath + "/index.html";
+        if (access(indexPath.c_str(), F_OK) == 0) {
+            fullPath = indexPath;
+        } else {
+            payload.status = 403;
+            payload.reason = "Forbidden";
+            payload.mime = "text/plain";
+            payload.body = "403 - Directory listing forbidden";
+            return _builder->build(payload);
+        }
+    }
+
     if (method == "GET" || method == "HEAD" || method == "DELETE")
     {
         std::string uploadsPrefix = "/uploads";
