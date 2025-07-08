@@ -18,6 +18,7 @@ class Request
 		std::string _physicalPath;
 
 		ConfigParser* _cfg;
+		size_t _serverIndex;
 		
     public:
         Request();
@@ -42,6 +43,8 @@ class Request
 
 		void setCfg(ConfigParser &parser);
 		ConfigParser* getCfg() const;
+		void setServerIndex(size_t serverIndex);
+		size_t getServerIndex() const;
 		
 };
 

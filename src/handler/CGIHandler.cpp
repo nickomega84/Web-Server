@@ -11,12 +11,13 @@
 // }
 
 
-CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg)
-    : _cgiRoot(cgiRoot), _builder(builder), _cfg(cfg)
+CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg): 
+_cgiRoot(cgiRoot), _builder(builder), _cfg(cfg)
 {
-    (void )_cfg; // Assuming _cfg is not used in this constructor
-    std::cout << "[DEBUG][CGIHandler Constructor]: cgiRoot = " << _cgiRoot << std::endl;
+	(void )_cfg; // Assuming _cfg is not used in this constructor
+	std::cout << "[DEBUG][CGIHandler Constructor]: cgiRoot = " << _cgiRoot << std::endl;
 }
+
 CGIHandler::~CGIHandler()
 {}
 
@@ -26,8 +27,6 @@ Response CGIHandler::handleRequest(const Request& req)
 	
     return (handleCGI(req, _res));
 }
-
-
 
 int CGIHandler::identifyScriptType(const Request &req)
 {
@@ -57,13 +56,13 @@ int CGIHandler::identifyMethod(const Request &req)
 		if (method == "GET")
 		{
 			std::cout << "[DEBUG][CGI][identifyMethod]: GET" << std::endl;
-			checkCfgPermission(req, "get_allowed");
+			checkCfgPermission(req, "GET");
 			return (2);
 		}
 		if (method == "POST")
 		{
 			std::cout << "[DEBUG][CGI][identifyMethod]: POST" << std::endl;
-			checkCfgPermission(req, "post_allowed");
+			checkCfgPermission(req, "POST");
 			return (4);
 		}
 	}
@@ -87,20 +86,15 @@ void CGIHandler::checkCfgPermission(const Request &req, std::string method)
 	if (serverNodes.empty())
 		throw (std::runtime_error("error on getServerBlocks"));
 
-	std::string defaultDirective = cfg->getDirectiveValue(serverNodes[0], method, "true");
+	const std::string path = req.getPath();
 
-	//queda pendiente identificar el servidor virtual correcto
-	
-	std::string getAllowedValue = cfg->getDirectiveValue(serverNodes[0], method, defaultDirective);
+	size_t serverIndex = req.getServerIndex();
+	std::cout << "[DEBUG][CGI][checkCfgPermission] serverIndex = " << serverIndex << std::endl;
 
-	std::cout << "[DEBUG][CGI][checkCfgPermission] " << method << " getAllowedValue = " << getAllowedValue << std::endl;
-
-	if (getAllowedValue == "true")
-		return;
-	else if (getAllowedValue == "false")
-		throw (std::runtime_error(method + " -> " + getAllowedValue));
-	else
-		throw (std::runtime_error("Invalid " + method + "value"));
+	bool allowed = cfg->isMethodAllowed(serverNodes[serverIndex], path, method);
+	if (!allowed)
+		throw (std::runtime_error(method + " not allowed"));
+	return;
 }
 
 Response CGIHandler::handleCGI(const Request &req, Response &res)

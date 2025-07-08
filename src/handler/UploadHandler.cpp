@@ -8,11 +8,9 @@
 #include "../../include/response/IResponseBuilder.hpp"
 #include <iostream>
 
-UploadHandler::UploadHandler(const std::string& uploadsPath, IResponseBuilder* builder, const ConfigParser& cfg)
-    : _uploadsPath(uploadsPath), _builder(builder), _cfg(cfg)
-{
-
-}
+UploadHandler::UploadHandler(const std::string& uploadsPath, IResponseBuilder* builder, const ConfigParser& cfg): 
+_uploadsPath(uploadsPath), _builder(builder), _cfg(cfg)
+{}
 
 UploadHandler::~UploadHandler() {}
 
@@ -42,8 +40,8 @@ Response UploadHandler::handleRequest(const Request& request)
 		return (std::cerr << "[ERROR][UploadHandler] 405 not a POST method" << std::endl, \
 		uploadResponse(405, "Method Not Allowed", "text/plain", "405 - Method Not Allowed"));
 
-	if (!checkCfgPermission(request, "post_allowed"))
-		return (std::cerr << "[ERROR][UploadHandler] 403 foorbidden method" << std::endl, \
+	if (!checkCfgPermission(request, "POST"))
+		return (std::cerr << "[ERROR][UploadHandler] 403 forbidden method" << std::endl, \
 		uploadResponse(400, "Bad Request", "text/html", ""));
 
 	std::string contentType = request.getHeader("content-type");
@@ -168,18 +166,9 @@ bool UploadHandler::checkCfgPermission(const Request &req, std::string method)
 	if (serverNodes.empty())
 		return (std::cerr << "[ERROR][post][checkCfgPermission] error ocheckCfgPermissionn  getServerBlocks", false);
 
-	std::string defaultDirective = cfg->getDirectiveValue(serverNodes[0], method, "true");
+	const std::string path = req.getPath();
+	size_t serverIndex = req.getServerIndex();
+	std::cout << "[DEBUG][post][checkCfgPermission] serverIndex = " << serverIndex << std::endl;
 
-	//queda pendiente identificar el servidor virtual correcto
-	
-	std::string getAllowedValue = cfg->getDirectiveValue(serverNodes[0], method, defaultDirective);
-
-	std::cout << "[DEBUG][post][checkCfgPermission] " << method << " getAllowedValue = " << getAllowedValue << std::endl;
-
-	if (getAllowedValue == "true")
-		return (true);
-	else if (getAllowedValue == "false")
-		return (std::cerr << "[ERROR][post][checkCfgPermission] " + method + " -> " + getAllowedValue, false);
-	else
-		return (std::cerr << "[ERROR][post][checkCfgPermission] Invalid " + method + "value", false);
+	return (cfg->isMethodAllowed(serverNodes[serverIndex], path, method));
 }

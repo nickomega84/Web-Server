@@ -43,41 +43,43 @@ class Server
 		std::vector<int> listen_sockets;
 		bool		_error;
 		std::vector<IHandlerFactory*> factory_ptr;
+		std::vector<IConfig*> _serverList;
         
         Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
 		Server(const Server& other);
         Server& operator=(const Server& other);
 
 		//addListeningSocket
-        void	getHostAndPort(std::string &host, std::string &port);
+		void	setUpServers();
+		int		addListeningSocket(IConfig* server);
+        void	getHostAndPort(IConfig* server, std::string &host, std::string &port);
 		void	closeAddListeningSocket(std::string str, struct addrinfo *output, int listen_socket);
 
 		//startEpoll
 		int		init_epoll();
-        int		ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events);
         int		accept_connection(int listen_socket, int epollfd, std::vector<int> &client_fds, std::map<int, ClientBuffer> &client_buffers);
-		int		handleClientRead(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
-        int		createResponse(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
-		int		handleClientResponse(const int client_fd, std::map<int, Response> &pending_writes);
-        int		readRequest(int client_fd, ClientBuffer &additive_bff);
+		int		ft_epoll_ctl(int fd, int epollfd, int mod, uint32_t events);
 		void	close_fd(const int socket, int epollfd, std::vector<int> &container, std::map<int, Response> &pending_writes, std::map<int, ClientBuffer> &client_buffers);
         void	freeEpoll(int epollfd, std::vector<int> &client_fds);
+		int		handleClientRead(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
+		int		createResponse(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
+		int		handleClientResponse(const int client_fd, std::map<int, Response> &pending_writes);
 		int     requestParseError(int client_fd, std::map<int, Response> &pending_writes);
+		size_t	findServerIndex(Request &req);
 		
 		//readRequest
-		bool	getCompleteHeader(ClientBuffer &additive_bff);
-		void	checkBodyLimits(ClientBuffer &additive_bff, Request &reqGetHeader);
-		bool	checkIsChunked(ClientBuffer &additive_bff, Request &reqGetHeader);
-		bool	checkIsContentLength(ClientBuffer &additive_bff, Request &reqGetHeader);
-		void	checkMaxContentLength(std::string &contentLenght);
-		bool	areWeFinishedReading(ClientBuffer &additive_bff);
+		int		readRequest(int client_fd, ClientBuffer &additive_bff);
+		bool	getCompleteHeader(ClientBuffer &additive_bff, Request &req);
+		void	checkBodyLimits(ClientBuffer &additive_bff, Request &req);
+		bool	checkIsChunked(ClientBuffer &additive_bff, Request &req);
+		bool	checkIsContentLength(ClientBuffer &additive_bff, Request &req);
+		void	checkMaxContentLength(std::string contentLenght, ssize_t chunkedReadBytes, Request &req);
+		bool	areWeFinishedReading(ClientBuffer &additive_bff, Request &req);
 		void	validateChunkedBody(ClientBuffer &additive_bff);
 
 	public:
 		static Server&	getInstance(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
         ~Server();
-
-		void	setRouter(const Router &router);
-		int		addListeningSocket();
-        void	startEpoll();
+		void			setRouter(const Router &router);
+        void			startEpoll();
 };

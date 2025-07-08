@@ -44,13 +44,37 @@ bool ConfigParser::load(const std::string& filePath) {
 
 // --- Métodos de la Interfaz Antigua (Reimplementados) ---
 
-std::string ConfigParser::getGlobal(const std::string& key) const {
-    if (!_configRoot) return "";
-    // Asume que la configuración global se toma del primer bloque 'server'
+std::string ConfigParser::getGlobal(const std::string& key) const 
+{
+    if (!_configRoot) 
+		return "";
+
     const std::vector<IConfig*>& servers = _configRoot->getChildren();
-    if (servers.empty() || servers[0]->getType() != "server") return "";
+    if (servers.empty() || servers[0]->getType() != "server") 
+		return "";
 
     const IConfig* serverNode = servers[0];
+    const IConfig* directiveNode = serverNode->getChild(key);
+
+    if (directiveNode && !directiveNode->getValues().empty()) {
+        return directiveNode->getValues()[0];
+    }
+    
+    // Caso especial para 'listen' que puede no estar como directiva directa
+    if (key == "listen") {
+        const IConfig* listenNode = serverNode->getChild("listen");
+        if(listenNode && !listenNode->getValues().empty()) return listenNode->getValues()[0];
+    }
+    
+    return "";
+}
+
+std::string ConfigParser::getGlobalAlt(IConfig* server, const std::string& key) const 
+{
+    if (!_configRoot || !server)
+		return "";
+
+    const IConfig* serverNode = server;
     const IConfig* directiveNode = serverNode->getChild(key);
 
     if (directiveNode && !directiveNode->getValues().empty()) {
@@ -151,7 +175,7 @@ void ConfigParser::parse(IConfig* parent, std::vector<std::string>& tokens, size
     static_cast<ConfigNode*>(parent)->addChild(node);
 }
 
-std::string ConfigParser::getDirectiveValue(const IConfig* configNode, const std::string& directive, const std::string& defaultValue) {
+/* std::string ConfigParser::getDirectiveValue(const IConfig* configNode, const std::string& directive, const std::string& defaultValue) {
     if (!configNode) return defaultValue;
 
     const std::vector<std::string>& values = configNode->getValues();
@@ -161,10 +185,23 @@ std::string ConfigParser::getDirectiveValue(const IConfig* configNode, const std
         }
     }
     return defaultValue;
+} */
+
+std::string ConfigParser::getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) 
+{
+    if (!node) 
+        return defaultValue;
+
+    const IConfig* child = node->getChild(key);
+    if (child && !child->getValues().empty())
+        return child->getValues()[0];
+
+    return defaultValue;
 }
 
-std::string ConfigParser::getServerName(const IConfig* serverNode) {
-    std::cout << "[DEBUG] Verifying server name..." << std::endl;
+std::string ConfigParser::getServerName(const IConfig* serverNode) 
+{
+    std::cout << "[DEBUG][getServerName] START" << std::endl;
     const std::vector<std::string>& values = serverNode->getValues();
     for (size_t i = 0; i < values.size(); ++i) {
         std::cout << values[i] << std::endl; 
@@ -191,4 +228,62 @@ std::string ConfigParser::getErrorPages(const IConfig* serverNode, const std::st
         return directiveNode->getValues()[0];
     }
     return "";
+}
+
+// En ConfigParser.cpp
+
+bool ConfigParser::isMethodAllowed(const IConfig* serverNode, const std::string& path, const std::string& method) const 
+{
+    if (!serverNode) 
+		return false;
+
+    const IConfig* locationNode = findLocationBlock(serverNode, path);
+    const IConfig* permissionSourceNode = NULL;
+
+    if (locationNode)
+        permissionSourceNode = locationNode->getChild("allow_methods");
+
+    if (!permissionSourceNode)
+        permissionSourceNode = serverNode->getChild("allow_methods");
+
+    if (!permissionSourceNode)
+        return true;
+
+    const std::vector<std::string>& allowedMethods = permissionSourceNode->getValues();
+    for (size_t i = 0; i < allowedMethods.size(); ++i) 
+	{
+        if (allowedMethods[i] == method)
+            return true;
+    }
+    return false;
+}
+
+const IConfig* ConfigParser::findLocationBlock(const IConfig* serverNode, const std::string& path) const
+{
+    if (!serverNode || serverNode->getType() != "server")
+        return NULL;
+
+    const std::vector<IConfig*>& children = serverNode->getChildren();
+    const IConfig* bestMatch = NULL;
+    size_t longestMatchLength = 0;
+
+    for (size_t i = 0; i < children.size(); ++i) 
+	{
+        if (children[i]->getType() == "location") 
+		{
+            // Asumimos que el valor de la location es el primer valor
+            const std::string& locationPath = children[i]->getValues()[0];
+            // Comprueba si la ruta de la solicitud comienza con la ruta de la location
+            if (path.rfind(locationPath, 0) == 0) 
+			{
+                // Si es una coincidencia y es más larga que la anterior, la guardamos
+                if (locationPath.length() > longestMatchLength) 
+				{
+                    longestMatchLength = locationPath.length();
+                    bestMatch = children[i];
+                }
+            }
+        }
+    }
+    return bestMatch;
 }

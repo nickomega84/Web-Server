@@ -74,17 +74,14 @@ int main(int argc, char** argv)
         std::string bodySize = getDirectiveValue(serverNode, "body_size", "1000000");
         std::cout << "[INFO] Max body size: " << bodySize << std::endl;
 
-        std::string getAllowedValue = parser.getDirectiveValue(serverNode, "get_allowed", "true");
-        bool getAllowed = (getAllowedValue == "true");
-        std::cout << "[INFO] GET method allowed: " << (getAllowed ? "true" : "false") << std::endl;
+        std::string getAllowedValue = getDirectiveValue(serverNode, "get_allowed", "true");
+        std::cout << "[INFO] GET method allowed: " << getAllowedValue << std::endl;
 
-        std::string postAllowedValue = parser.getDirectiveValue(serverNode, "post_allowed", "true");
-        bool postAllowed = (postAllowedValue == "true");
-        std::cout << "[INFO] POST method allowed: " << (postAllowed ? "true" : "false") << std::endl;
+        std::string postAllowedValue = getDirectiveValue(serverNode, "post_allowed", "true");
+        std::cout << "[INFO] POST method allowed: " << postAllowedValue << std::endl;
 
-        std::string deleteAllowedValue = parser.getDirectiveValue(serverNode, "delete_allowed", "false");
-        bool deleteAllowed = (deleteAllowedValue == "true");
-        std::cout << "[INFO] DELETE method allowed: " << (deleteAllowed ? "true" : "false") << std::endl;
+        std::string deleteAllowedValue = getDirectiveValue(serverNode, "delete_allowed", "false");
+        std::cout << "[INFO] DELETE method allowed: " << deleteAllowedValue << std::endl;
 //---
         // --- Reemplazo de la lógica de RootConfig, CgiConfig, etc. ---
         std::string rootPathConf = getDirectiveValue(serverNode, "root", "./www");
@@ -122,7 +119,7 @@ int main(int argc, char** argv)
     }
 	catch (const std::exception& e)
 	{
-        std::cerr << "[ERROR][main] fatal error during set up: " << e.what() << " closing..." << std::endl;
+        std::cerr << "[ERROR][main] fatal error during set up: " << e.what() << "\n❎Closing..." << std::endl;
         return EXIT_FAILURE;
     }
 

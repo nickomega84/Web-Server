@@ -29,11 +29,15 @@ class ConfigParser {
         const IConfig* getConfig() const;
         // Métodos que tu Server.cpp necesita
         std::string getGlobal(const std::string& key) const;
+		std::string	getGlobalAlt(IConfig* server, const std::string& key) const;
         std::string getLocation(const std::string& locationPath, const std::string& key) const;
         std::string getServerName(const IConfig* serverNode);
-        std::string getDirectiveValue(const IConfig* configNode, const std::string& directive, const std::string& defaultValue);
+        std::string getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) ;
         std::string getErrorPages(const IConfig* serverNode, const std::string& errorType);
 		const std::vector<IConfig*>& getServerBlocks() const;
-};
+
+		const IConfig* findLocationBlock(const IConfig* serverNode, const std::string& path) const;
+		bool isMethodAllowed(const IConfig* serverNode, const std::string& path, const std::string& method) const;
+	};
 
 #endif
