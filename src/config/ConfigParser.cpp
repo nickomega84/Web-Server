@@ -207,6 +207,32 @@ std::string ConfigParser::getErrorPages(const IConfig* serverNode, const std::st
 
 // En ConfigParser.cpp
 
+bool ConfigParser::isMethodAllowed(const IConfig* serverNode, const std::string& path, const std::string& method) const 
+{
+    if (!serverNode) 
+		return false;
+
+    const IConfig* locationNode = findLocationBlock(serverNode, path);
+    const IConfig* permissionSourceNode = NULL;
+
+    if (locationNode)
+        permissionSourceNode = locationNode->getChild("allow_methods");
+
+    if (!permissionSourceNode)
+        permissionSourceNode = serverNode->getChild("allow_methods");
+
+    if (!permissionSourceNode)
+        return true;
+
+    const std::vector<std::string>& allowedMethods = permissionSourceNode->getValues();
+    for (size_t i = 0; i < allowedMethods.size(); ++i) 
+	{
+        if (allowedMethods[i] == method)
+            return true;
+    }
+    return false;
+}
+
 const IConfig* ConfigParser::findLocationBlock(const IConfig* serverNode, const std::string& path) const
 {
     if (!serverNode || serverNode->getType() != "server")
@@ -235,30 +261,4 @@ const IConfig* ConfigParser::findLocationBlock(const IConfig* serverNode, const 
         }
     }
     return bestMatch;
-}
-
-bool ConfigParser::isMethodAllowed(const IConfig* serverNode, const std::string& path, const std::string& method) const 
-{
-    if (!serverNode) 
-		return false;
-
-    const IConfig* locationNode = findLocationBlock(serverNode, path);
-    const IConfig* permissionSourceNode = NULL;
-
-    if (locationNode)
-        permissionSourceNode = locationNode->getChild("allow_methods");
-
-    if (!permissionSourceNode)
-        permissionSourceNode = serverNode->getChild("allow_methods");
-
-    if (!permissionSourceNode)
-        return true;
-
-    const std::vector<std::string>& allowedMethods = permissionSourceNode->getValues();
-    for (size_t i = 0; i < allowedMethods.size(); ++i) 
-	{
-        if (allowedMethods[i] == method)
-            return true;
-    }
-    return false;
 }

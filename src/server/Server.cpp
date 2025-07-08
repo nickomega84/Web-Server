@@ -148,7 +148,7 @@ void Server::startEpoll()
 			{
 				if (events[i].events & EPOLLIN)
 				{
-					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN START: client_fd" << client_fd << std::endl;			
+					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN START: client_fd = " << client_fd << std::endl;			
 					if (handleClientRead(client_fd, pending_writes, client_buffers[client_fd]))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					if (client_buffers[client_fd].getFinishedReading() == true && ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
@@ -157,14 +157,13 @@ void Server::startEpoll()
 				}
 				if (events[i].events & EPOLLOUT)
 				{
-					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLOUT START" << std::endl;
+					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLOUT START: client_fd = " << client_fd << std::endl;
 					if (handleClientResponse(client_fd, pending_writes))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					else if (ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					client_buffers[client_fd].reset();
 					std::cout << "[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT" << std::endl;
-					std::cout << "[DEBUG][LOOP_EPOLL] client_fd = " << client_fd << std::endl;
 				}
 			}
 		}
