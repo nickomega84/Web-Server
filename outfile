@@ -30,7 +30,7 @@
 [DEBUG] Token encontrado: location
 [DEBUG] Token encontrado: /uploads
 [DEBUG] Token encontrado: root
-[DEBUG] Token encontrado: ./www/uploads
+[DEBUG] Token encontrado: ./uploads
 [DEBUG] Token encontrado: autoindex
 [DEBUG] Token encontrado: false
 [DEBUG] Token encontrado: allow_methods
@@ -149,6 +149,391 @@
 [DEBUG][addListeningSocket] New listenSocket fd = 3
 
 ✅ [DEBUG] Webserv setup. Listening for connections
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Sec-Purpose =  prefetch;prerender
+[DEBUG][Request] Header found: Purpose =  prefetch
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET / HTTP/1.1
+[DEBUG][Request] Path: /
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Sec-Purpose =  prefetch;prerender
+[DEBUG][Request] Header found: Purpose =  prefetch
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG] IRequestHandler* Router::resolve(Request& request) const
+[DEBUG] Request URI: /
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][StaticFileHandler] Request URI: /
+[DEBUG][StaticFileHandler] Autoindex value: true
+[DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 326
+[DEBUG][DefaultResponseBuilder] Setting response Connection: close
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /uploads HTTP/1.1
+[DEBUG][Request] Path: /uploads
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Referer =  http://localhost:8081/
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /uploads
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /uploads HTTP/1.1
+[DEBUG][Request] Path: /uploads
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Referer =  http://localhost:8081/
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /uploads
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG] IRequestHandler* Router::resolve(Request& request) const
+[DEBUG] Request URI: /uploads
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /uploads
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/uploads
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/uploads
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/uploads
+[DEBUG][UploadHandler][handleRequest] START
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][StaticFileHandler] Request URI: /
+[DEBUG][StaticFileHandler] Autoindex value: true
+[DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 262
+[DEBUG][DefaultResponseBuilder] Setting response Connection: close
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][close_fd] client_fd: 5 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 3
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /uploads/logo2.png HTTP/1.1
+[DEBUG][Request] Path: /uploads/logo2.png
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Referer =  http://localhost:8081/uploads
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /uploads/logo2.png
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /uploads/logo2.png HTTP/1.1
+[DEBUG][Request] Path: /uploads/logo2.png
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Referer =  http://localhost:8081/uploads
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /uploads/logo2.png
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG] IRequestHandler* Router::resolve(Request& request) const
+[DEBUG] Request URI: /uploads/logo2.png
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /uploads/logo2.png
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
+[DEBUG][UploadHandler][handleRequest] START
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][StaticFileHandler] Request URI: /logo2.png
+[DEBUG][StaticFileHandler] Serving file fullPath: AQUIIIIIIIIIIIIIIIIII /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
+[DEBUG][StaticFileHandler] Verifying file existence, file: /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
+[DEBUG][StaticFileHandler][doGET] method called for file: /sgoinfre/students/dbonilla/webServer/www/uploads/logo2.png
+[DEBUG][static][checkCfgPermission] START
+[DEBUG][static][checkCfgPermission] get_allowed getAllowedValue = true
+[DEBUG] MimeTypes::getContentType() called with extension: .png
+
+[DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: image/png
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 50704
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLIN] empezamos bucle EPOLLIN5
+[DEBUG][readRequest] START
+[DEBUG][getCompleteHeader] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /uploads/Wow-gif.gif HTTP/1.1
+[DEBUG][Request] Path: /uploads/Wow-gif.gif
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Referer =  http://localhost:8081/uploads
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /uploads/Wow-gif.gif
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] finished reading header
+[DEBUG][areWeFinishedReading] START
+[DEBUG] [[  FINISHED READING REQUEST  ]]
+[DEBUG][createResponse] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: GET /uploads/Wow-gif.gif HTTP/1.1
+[DEBUG][Request] Path: /uploads/Wow-gif.gif
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  same-origin
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Referer =  http://localhost:8081/uploads
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /uploads/Wow-gif.gif
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG] IRequestHandler* Router::resolve(Request& request) const
+[DEBUG] Request URI: /uploads/Wow-gif.gif
+[DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][Utils::mapUriToPath] uri: /uploads/Wow-gif.gif
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/uploads/Wow-gif.gif
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/uploads/Wow-gif.gif
+[DEBUG][Utils::validateFilesystemEntry] absPath: /sgoinfre/students/dbonilla/webServer/www/uploads/Wow-gif.gif
+[DEBUG][UploadHandler][handleRequest] START
+[DEBUG][StaticFileHandler] initialized with root and builder
+[DEBUG][StaticFileHandler][handleRequest] START
+[DEBUG][StaticFileHandler] Request URI: /Wow-gif.gif
+[DEBUG][StaticFileHandler] Serving file fullPath: AQUIIIIIIIIIIIIIIIIII /sgoinfre/students/dbonilla/webServer/www/uploads/Wow-gif.gif
+[DEBUG][StaticFileHandler] Verifying file existence, file: /sgoinfre/students/dbonilla/webServer/www/uploads/Wow-gif.gif
+[DEBUG][StaticFileHandler][doGET] method called for file: /sgoinfre/students/dbonilla/webServer/www/uploads/Wow-gif.gif
+[DEBUG][static][checkCfgPermission] START
+[DEBUG][static][checkCfgPermission] get_allowed getAllowedValue = true
+[DEBUG] MimeTypes::getContentType() called with extension: .gif
+
+[DEBUG][DefaultResponseBuilder] Setting response status: 200 OK
+[DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/plain
+[DEBUG][DefaultResponseBuilder] Setting response Content-Length: 870128
+[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL INICIO] client_fd = 5
+[DEBUG][LOOP_EPOLL EPOLLOUT] empezamos bucle EPOLLOUT
+[DEBUG][handleClientResponse] START
+[DEBUG][handleClientResponse] END
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+[DEBUG][LOOP_EPOLL] client_fd = 5
 
 ❎ [DEBUG] Signal received, shutting down…
 [DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = 4

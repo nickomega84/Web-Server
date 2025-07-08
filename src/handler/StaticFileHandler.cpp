@@ -18,17 +18,17 @@ StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* 
 }
 StaticFileHandler::~StaticFileHandler() {}
 
-// static bool fileExists(const std::string& path) 
-// {
-//     std::cout << "[DEBUG][StaticFileHandler] Verifying file existence, file: " << path << std::endl;
-//     std::ifstream file(path.c_str());
-//     if (!file) {
-//         return false;
-//     }
-//     file.close();
-// 	struct stat buffer;
-// 	return (stat(path.c_str(), &buffer) == 0);
-// }
+static bool fileExists(const std::string& path) 
+{
+    std::cout << "[DEBUG][StaticFileHandler] Verifying file existence, file: " << path << std::endl;
+    std::ifstream file(path.c_str());
+    if (!file) {
+        return false;
+    }
+    file.close();
+	struct stat buffer;
+	return (stat(path.c_str(), &buffer) == 0);
+}
 
 static std::string readFile(const std::string& path) 
 {
@@ -43,9 +43,10 @@ Response StaticFileHandler::handleRequest(const Request& request)
     std::cout << "[DEBUG][StaticFileHandler][handleRequest] START" << std::endl;
 
     std::string uri = request.getPath();
+    std::cout << "[DEBUG][StaticFileHandler] Request URI: " << uri << std::endl;
     std::string qs = request.getQueryString();
     std::string method = request.getMethod();
-    std::string fullPath = request.getPhysicalPath();
+    std::string fullPath = _rootPath + uri;
 
     Payload payload;
     payload.keepAlive = true;
@@ -65,56 +66,55 @@ Response StaticFileHandler::handleRequest(const Request& request)
         payload.body = "400 - Bad Request";
         return _builder->build(payload);
     }
-
     struct stat s;
     if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
-
-        // std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "false");
-        
-        // Aseguramos que el URI termine en "/" visualmente
         if (uri[uri.size() - 1] != '/')
-        uri += "/";
-        
+            uri += "/";
+    
         ConfigParser* cfg = request.getCfg();
         std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "true");
         std::cout << "[DEBUG][StaticFileHandler] Autoindex value: " << autoindex << std::endl;
-        // std::string indexPath = fullPath + "/index.html";
-
+    
+        std::string indexPath = fullPath + "/index.html";
+    
         if (autoindex == "true") {
-            std::string html;
+            std::string basePath = request.getBasePath();
+            std::string currentPath = request.getURI();
+            
+            // Asegurarse de que el path termine con /
+            if (!currentPath.empty() && currentPath[currentPath.length() - 1] != '/')
+                currentPath += '/';
+                
+            // Generar el HTML del autoindex con el path completo
+            std::string html = "<html><head><title>Index of " + currentPath + "</title></head>";
+            html += "<body><h1>Index of " + currentPath + "</h1><hr><pre>";
+            
             DIR* dir = opendir(fullPath.c_str());
-            if (!dir) {
-                payload.status = 500;
-                payload.reason = "Internal Server Error";
-                payload.mime = "text/plain";
-                payload.body = "500 - Error opening directory";
-                return _builder->build(payload);
+            if (dir) {
+                struct dirent* entry;
+                while ((entry = readdir(dir))) {
+                    if (std::string(entry->d_name) != "." && std::string(entry->d_name) != "..") {
+                        // Usar el path completo para los enlaces
+                        std::string href = currentPath + entry->d_name;
+                        html += "<a href=\"" + href + "\">" + entry->d_name + "</a><br>";
+                    }
+                }
+                closedir(dir);
             }
-
-            html = "<html><body><h1>Index of " + uri + "</h1><ul>";
-
-            struct dirent* ent;
-            while ((ent = readdir(dir)) != NULL) {
-                std::string name = ent->d_name;
-                if (name == "." || name == "..")
-                    continue;
-
-                html += "<li><a href=\"" + uri + name + "\">" + name + "</a></li>";
-            }
-
-            html += "</ul></body></html>";
-            closedir(dir);
-
+            
+            html += "</pre><hr></body></html>";
+            
+            Payload payload;
             payload.status = 200;
             payload.reason = "OK";
             payload.mime = "text/html";
             payload.body = html;
+            
             return _builder->build(payload);
         }
-        // else if (access(indexPath.c_str(), F_OK) == 0) {
-        //     fullPath = indexPath;
-        // }
-        else {
+        else if (access(indexPath.c_str(), F_OK) == 0) {
+            fullPath = indexPath;
+        } else {
             payload.status = 403;
             payload.reason = "Forbidden";
             payload.mime = "text/plain";
@@ -122,8 +122,9 @@ Response StaticFileHandler::handleRequest(const Request& request)
             return _builder->build(payload);
         }
     }
-
-    if (access(fullPath.c_str(), F_OK) != 0) {
+    
+    std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: AQUIIIIIIIIIIIIIIIIII " << fullPath << std::endl;
+    if (!fileExists(fullPath)) {
         ErrorPageHandler errorHandler(_rootPath);
         payload.status = 404;
         payload.reason = "Not Found";
