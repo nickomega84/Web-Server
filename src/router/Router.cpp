@@ -28,34 +28,49 @@ void Router::registerFactory(const std::string& pathPrefix, IHandlerFactory* fac
 	_routes[pathPrefix] = factory;
 }
 // src/router/Router.cpp
-IRequestHandler* Router::resolve(Request& request) const         // Request ya NO es const
+IRequestHandler* Router::resolve(Request& request) const
 {
     Response res;
-    const std::string& uriWithQueryMaybe = request.getURI();
-
-	std::string uri = getUriWithoutQuery(uriWithQueryMaybe);
-
-	std::cout << "[DEBUG][Router] uri = " << uri << std::endl;
-    std::cout << "[DEBUG][Router] IRequestHandler* Router::resolve(Request& request) const " << std::endl;
-            //   << "[DEBUG] [ROUTER] Request URI: " << uri << std::endl;
+    const std::string& uri = request.getURI();
+    std::cout << "[DEBUG] IRequestHandler* Router::resolve(Request& request) const\n"
+              << "[DEBUG] Request URI: " << uri << std::endl;
+    
     for (std::map<std::string,IHandlerFactory*>::const_reverse_iterator it = _routes.rbegin();
-        it != _routes.rend(); ++it)
+         it != _routes.rend(); ++it)
     {
         if (uri == it->first || uri.find(it->first) == 0)
         {
-            // 1. Sanitiza la ruta física
             try {
-                std::string abs  = Utils::mapUriToPath(_absRoot, uri);      // A
-                std::string safe = Utils::validateFilesystemEntry(abs);          // B + index.html
+                // Preservar el path base (ejemplo: /uploads)
+                std::string basePath = it->first;
+                
+                // Obtener el path relativo después del path base
+                std::string relativePath = uri.substr(basePath.length());
+                if (relativePath.empty() || relativePath[0] != '/')
+                    relativePath = "/" + relativePath;
+                
+                // Guardar tanto el path base como el path completo en la request
+                request.setBasePath(basePath);
+                
+                std::string abs = Utils::mapUriToPath(_absRoot, uri);
+                std::string safe = Utils::validateFilesystemEntry(abs);
                 request.setPhysicalPath(safe);
-				std::cout << "[DEBUG][Router] safe = " << safe << std::endl;
+                
+                return it->second->createHandler();
             }
             catch (const std::exception& e) {
-                    std::cerr << "[ERROR][Router][Resolve] Sanitización fallida: " << e.what() << std::endl;
+                    std::cerr << "[ERROR] Sanitización fallida: " << e.what() << std::endl;
+    
+                    ErrorPageHandler errorHandler(_absRoot);
+                    std::string body = errorHandler.render(403, "Acceso no permitido");
+    
+                    res.setStatus(403, "Forbidden");
+                    res.setBody(body);
+                    res.setHeader("Content-Type", "text/html");
+                    res.setHeader("Content-Length", Utils::intToString(body.length()));
                     return NULL;
                 }
             // 2. Devuelve el handler apropiado
-			return (it->second->createHandler());
         }
     }
     return NULL;

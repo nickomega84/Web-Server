@@ -40,9 +40,11 @@ bool Request::parse(const std::string& raw)
         
     std::istringstream firstLine(line);
     if (!(firstLine >> _method >> _uri >> _version))
-        return (std::cerr << "[DEBUG][Request::parse] firstLine" << std::endl, false);
+        return false;
         
-    // ▶ Separar path y query-string
+    _originalUri = _uri;  // Guarda la URI original antes de modificarla
+    
+    // Separar path y query-string
     size_t q = _uri.find('?');
     if (q != std::string::npos) {
         _path        = _uri.substr(0, q);
