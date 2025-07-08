@@ -72,7 +72,7 @@ std::string Utils::mapUriToPath(const std::string& absRoot, const std::string& u
 
     if (norm.compare(0, absRoot.size(), absRoot) != 0)
         throw std::runtime_error("Path-traversal: " + uri);
-	
+
     return norm;
 }
 
@@ -116,7 +116,7 @@ std::string Utils::validateFilesystemEntry(const std::string& absPath)
 
 //     std::string finalPath = absPath;
 
-//     if (S_ISDIR(sb.st_mode)) 
+//     if (S_ISDIR(sb.st_mode))
 // 	{
 // 		if (finalPath[finalPath.size()-1] != '/')
 // 			finalPath += "/";
@@ -168,8 +168,8 @@ std::string Utils::resolveAndValidateFile(const std::string& absRoot,
 {
 /* 3.1 unir root + uri */
 std::string joined = absRoot;
-if (joined[joined.size()-1] != '/' && uri[0] != '/'){	
-	
+if (joined[joined.size()-1] != '/' && uri[0] != '/'){
+
 	joined += "/";
 	joined += (uri[0] == '/') ? uri.substr(1) : uri;
 }
@@ -185,7 +185,7 @@ if (abs.compare(0, absRoot.size(), absRoot) != 0)
 int fd = ::open(abs.c_str(), O_RDONLY | O_NOFOLLOW);
 if (fd == -1)
 {
-	if (errno == ELOOP)  
+	if (errno == ELOOP)
 		throw std::runtime_error("Symlink no permitido: " + abs);
 	throw std::runtime_error("No se puede abrir archivo: " + abs + " (" + strerror(errno) + ")");
 }
@@ -199,10 +199,35 @@ size_t Utils::strToSizeT(const std::string& str)
 {
 	std::stringstream ss(str);
 	size_t nmb;
-	
+
 	ss >> nmb;
 	if (ss.fail())
 		return (-1);
 	else
 		return (nmb);
 }
+
+// std::string Utils::renderAutoindex(const Request& request, const std::string& dirPath)
+std::string Utils::renderAutoindex(const std::string& uri, const std::string& dirPath) {
+    std::string baseUri = uri;
+    if (!baseUri.empty() && baseUri[baseUri.size() - 1] != '/')
+        baseUri += '/';
+        
+    std::string html = "<html><body><h1>Index of " + baseUri + "</h1><ul>";
+    
+    DIR* dir = opendir(dirPath.c_str());
+    if (!dir) return "<html><body><h1>500 - Error opening directory</h1></body></html>";
+    
+    struct dirent* ent;
+    while ((ent = readdir(dir)) != NULL) {
+        std::string name = ent->d_name;
+        if (name != "." && name != "..") {
+            // Usa el baseUri para construir links correctos
+            html += "<li><a href=\"" + baseUri + name + "\">" + name + "</a></li>";
+        }
+    }
+    closedir(dir);
+    html += "</ul></body></html>";
+    return html;
+}
+

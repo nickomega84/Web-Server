@@ -16,6 +16,9 @@ class Request
         std::string _queryString;
         bool _keepAlive;
 		std::string _physicalPath;
+        std::string _originalUri;  // Nueva variable para guardar la URI completa original
+        std::string _basePath;    // Nuevo campo para almacenar el path base
+
 
 		ConfigParser* _cfg;
 		
@@ -39,6 +42,10 @@ class Request
 		void setPhysicalPath(const std::string &p);
 		const std::string& getPhysicalPath() const ;
         void setPath(const std::string& path);
+        const std::string& getOriginalUri() const { return _originalUri; }
+        void setBasePath(const std::string& basePath) { _basePath = basePath; }
+        const std::string& getBasePath() const { return _basePath; }
+
 
 		void setCfg(ConfigParser &parser);
 		ConfigParser* getCfg() const;
