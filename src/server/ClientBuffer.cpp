@@ -29,7 +29,7 @@ ClientBuffer::~ClientBuffer()
 
 void ClientBuffer::add_buffer(std::string buffer)
 {
-	persistent_buffer = persistent_buffer + buffer;
+	persistent_buffer.append(buffer);
 }
 
 std::string& ClientBuffer::get_buffer() {return (persistent_buffer);}
@@ -70,6 +70,10 @@ ssize_t ClientBuffer::getHeaderEnd() const {return (headerEnd);}
 void ClientBuffer::setFinishedReading(bool bol) {finishedReading = bol;}
 
 bool ClientBuffer::getFinishedReading() const {return (finishedReading);}
+
+void ClientBuffer::setRequest(Request& req) {_req = req;}
+
+Request& ClientBuffer::getRequest() {return (_req);}
 
 void ClientBuffer::reset()
 {

@@ -12,6 +12,7 @@ class ClientBuffer
 		ssize_t contentLenght;
 		ssize_t headerEnd;
 		bool finishedReading;
+		Request _req;
 
 	public:
 		ClientBuffer();
@@ -42,6 +43,9 @@ class ClientBuffer
 
 		void setFinishedReading(bool bol);
 		bool getFinishedReading() const;
+
+		void setRequest(Request& req);
+		Request& getRequest();
 
 		void reset();
 };

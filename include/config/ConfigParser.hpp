@@ -29,6 +29,7 @@ class ConfigParser {
         const IConfig* getConfig() const;
         // Métodos que tu Server.cpp necesita
         std::string getGlobal(const std::string& key) const;
+		std::string	getGlobalAlt(IConfig* server, const std::string& key) const;
         std::string getLocation(const std::string& locationPath, const std::string& key) const;
         std::string getServerName(const IConfig* serverNode);
         std::string getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) ;

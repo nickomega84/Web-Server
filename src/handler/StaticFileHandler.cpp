@@ -208,6 +208,8 @@ bool StaticFileHandler::checkCfgPermission(const Request &req, std::string metho
 		return (std::cerr << "[ERROR][static][checkCfgPermission] error ocheckCfgPermissionn  getServerBlocks", false);
 
 	const std::string path = req.getPath();
+	size_t serverIndex = req.getServerIndex();
+	std::cout << "[DEBUG][static][checkCfgPermission] serverIndex = " << serverIndex << std::endl;
 
-    return (cfg->isMethodAllowed(serverNodes[0], path, method));
+    return (cfg->isMethodAllowed(serverNodes[serverIndex], path, method));
 }

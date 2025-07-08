@@ -11,12 +11,13 @@
 // }
 
 
-CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg)
-    : _cgiRoot(cgiRoot), _builder(builder), _cfg(cfg)
+CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg): 
+_cgiRoot(cgiRoot), _builder(builder), _cfg(cfg)
 {
-    (void )_cfg; // Assuming _cfg is not used in this constructor
-    std::cout << "[DEBUG][CGIHandler Constructor]: cgiRoot = " << _cgiRoot << std::endl;
+	(void )_cfg; // Assuming _cfg is not used in this constructor
+	std::cout << "[DEBUG][CGIHandler Constructor]: cgiRoot = " << _cgiRoot << std::endl;
 }
+
 CGIHandler::~CGIHandler()
 {}
 
@@ -26,8 +27,6 @@ Response CGIHandler::handleRequest(const Request& req)
 	
     return (handleCGI(req, _res));
 }
-
-
 
 int CGIHandler::identifyScriptType(const Request &req)
 {
@@ -89,7 +88,10 @@ void CGIHandler::checkCfgPermission(const Request &req, std::string method)
 
 	const std::string path = req.getPath();
 
-	bool allowed = cfg->isMethodAllowed(serverNodes[0], path, method);
+	size_t serverIndex = req.getServerIndex();
+	std::cout << "[DEBUG][CGI][checkCfgPermission] serverIndex = " << serverIndex << std::endl;
+
+	bool allowed = cfg->isMethodAllowed(serverNodes[serverIndex], path, method);
 	if (!allowed)
 		throw (std::runtime_error(method + " not allowed"));
 	return;

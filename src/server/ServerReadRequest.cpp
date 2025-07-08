@@ -12,14 +12,15 @@ int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
 		additive_bff.setClientFd(client_fd);
 
 	Request  req;
-	if (!req.parse(additive_bff.get_buffer().c_str())) 
-		throw (std::runtime_error("[ERROR][readRequest] HTTP request contains errors"));
-
 	if (additive_bff.getHeaderEnd() < 0)
+	{
+		if (!req.parse(additive_bff.get_buffer().c_str())) 
+			throw (std::runtime_error("[ERROR][readRequest] HTTP request contains errors"));
+		additive_bff.setRequest(req);	
 		if (!getCompleteHeader(additive_bff, req))
 			return (0);
-
-	if (!areWeFinishedReading(additive_bff, req))
+	}
+	if (!areWeFinishedReading(additive_bff, additive_bff.getRequest()))
 		return (0);
 
 	additive_bff.setFinishedReading(true);
@@ -151,8 +152,13 @@ void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedRea
 	if (serverNodes.empty())
 		throw (std::runtime_error("[ERROR][checkMaxContentLength] error on getServerBlocks"));
 
-	const std::string path = req.getPath();	
-	const IConfig* locationNode = _cfg.findLocationBlock(serverNodes[0], path);
+	const std::string path = req.getPath();
+
+	size_t serverIndex = findServerIndex(req);
+	req.setServerIndex(serverIndex);
+	std::cout << "[DEBUG][checkMaxContentLength] req.getServerIndex()" << req.getServerIndex() << std::endl;
+
+	const IConfig* locationNode = _cfg.findLocationBlock(serverNodes[serverIndex], path);
 
 	std::string CfgBodySize = _cfg.getDirectiveValue(locationNode, "body_size", "1000000");
 	if (CfgBodySize.empty())

@@ -44,13 +44,37 @@ bool ConfigParser::load(const std::string& filePath) {
 
 // --- Métodos de la Interfaz Antigua (Reimplementados) ---
 
-std::string ConfigParser::getGlobal(const std::string& key) const {
-    if (!_configRoot) return "";
-    // Asume que la configuración global se toma del primer bloque 'server'
+std::string ConfigParser::getGlobal(const std::string& key) const 
+{
+    if (!_configRoot) 
+		return "";
+
     const std::vector<IConfig*>& servers = _configRoot->getChildren();
-    if (servers.empty() || servers[0]->getType() != "server") return "";
+    if (servers.empty() || servers[0]->getType() != "server") 
+		return "";
 
     const IConfig* serverNode = servers[0];
+    const IConfig* directiveNode = serverNode->getChild(key);
+
+    if (directiveNode && !directiveNode->getValues().empty()) {
+        return directiveNode->getValues()[0];
+    }
+    
+    // Caso especial para 'listen' que puede no estar como directiva directa
+    if (key == "listen") {
+        const IConfig* listenNode = serverNode->getChild("listen");
+        if(listenNode && !listenNode->getValues().empty()) return listenNode->getValues()[0];
+    }
+    
+    return "";
+}
+
+std::string ConfigParser::getGlobalAlt(IConfig* server, const std::string& key) const 
+{
+    if (!_configRoot || !server)
+		return "";
+
+    const IConfig* serverNode = server;
     const IConfig* directiveNode = serverNode->getChild(key);
 
     if (directiveNode && !directiveNode->getValues().empty()) {
@@ -175,8 +199,9 @@ std::string ConfigParser::getDirectiveValue(const IConfig* node, const std::stri
     return defaultValue;
 }
 
-std::string ConfigParser::getServerName(const IConfig* serverNode) {
-    std::cout << "[DEBUG] Verifying server name..." << std::endl;
+std::string ConfigParser::getServerName(const IConfig* serverNode) 
+{
+    std::cout << "[DEBUG][getServerName] START" << std::endl;
     const std::vector<std::string>& values = serverNode->getValues();
     for (size_t i = 0; i < values.size(); ++i) {
         std::cout << values[i] << std::endl; 

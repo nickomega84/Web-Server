@@ -119,7 +119,7 @@ int main(int argc, char** argv)
     }
 	catch (const std::exception& e)
 	{
-        std::cerr << "[ERROR][main] fatal error during set up: " << e.what() << " closing..." << std::endl;
+        std::cerr << "[ERROR][main] fatal error during set up: " << e.what() << "\n❎Closing..." << std::endl;
         return EXIT_FAILURE;
     }
 

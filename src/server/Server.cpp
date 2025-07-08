@@ -17,7 +17,7 @@ _cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _res
 	IHandlerFactory* cgiFactory = new CGIHandlerFactory(_cgiPath, _responseBuilder, _cfg);
     _router.registerFactory("/cgi-bin", cgiFactory);
 	factory_ptr.push_back(cgiFactory);
-	addListeningSocket();
+	setUpServers();
 }
 
 Server& Server::getInstance(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder)
@@ -39,74 +39,6 @@ Server::~Server()
 
 void Server::setRouter(const Router& router) {
 	this->_router = router;
-}
-
-int Server::addListeningSocket()
-{
-    int listen_socket = -1;
-
-	std::string host;
-	std::string port;	
-	getHostAndPort(host, port);
-
-	std::cout << "[DEBUG][addListeningSocket] HOST = " << host << std::endl;
-	std::cout << "[DEBUG][addListeningSocket] PORT = " << port << std::endl;
-
-	struct addrinfo input;
-	::bzero(&input, sizeof(input));
-	input.ai_flags = AI_PASSIVE;
-	input.ai_family = AF_INET;
-	input.ai_socktype = SOCK_STREAM;
-	struct addrinfo *output = NULL;
-
-	if (getaddrinfo(host.empty() ? NULL : host.c_str(), port.c_str(), &input, &output))
-		return (closeAddListeningSocket("calling getaddrinfo()", output, listen_socket), 1);
-	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, output->ai_protocol)) < 0)
-		return (closeAddListeningSocket("creating server socket", output, listen_socket), 1);
-	int opt = 1;
-	if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
-		return (closeAddListeningSocket("calling setsockopt()", output, listen_socket), 1);
-	if (bind(listen_socket, output->ai_addr, output->ai_addrlen) < 0)
-		return (closeAddListeningSocket("binding listen_socket", output, listen_socket), 1);
-	if (listen(listen_socket, SOMAXCONN) < 0)
-		return (closeAddListeningSocket("on listen()", output, listen_socket), 1);
-	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
-	listen_sockets.push_back(listen_socket);
-	freeaddrinfo(output);
-
-	std::cout << "[DEBUG][addListeningSocket] New listenSocket fd = " << listen_socket << std::endl;
-	return (0);
-}
-
-void Server::closeAddListeningSocket(std::string str, struct addrinfo *output, int listen_socket)
-{
-	if (output != NULL)
-		freeaddrinfo(output);
-	if (listen_socket != -1)
-		close(listen_socket);
-	throw (std::runtime_error("[ERROR][addListeningSocket] " + str));
-}
-
-void Server::getHostAndPort(std::string &host, std::string &port)
-{
-	std::string listenDirective = _cfg.getGlobal("listen");
-
-	if (!listenDirective.empty()) 
-	{
-		size_t p = listenDirective.find(':');
-		if (p != std::string::npos)
-		{
-			host = listenDirective.substr(0, p);
-			port = listenDirective.substr(p + 1);
-		}
-		else
-			port = listenDirective;
-	}
-	else
-	{
-		host = _cfg.getGlobal("host");
-		port = _cfg.getGlobal("port");
-	}
 }
 
 void Server::startEpoll()
@@ -133,7 +65,6 @@ void Server::startEpoll()
 		{
 			std::cout << "------------------------LOOP_EPOLL++------------------------" << std::endl;
 			client_fd = events[i].data.fd;
-			std::cout << "[DEBUG][LOOP_EPOLL] START client_fd = " << client_fd << std::endl;			
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), client_fd) != listen_sockets.end())
 			{
 				std::cout << "[DEBUG][LOOP_EPOLL] accept_connection" << std::endl;
@@ -281,6 +212,9 @@ int Server::createResponse(const int client_fd, std::map<int, Response> &pending
 
 	req.setCfg(_cfg);
 
+	size_t serverIndex = findServerIndex(req);
+	req.setServerIndex(serverIndex);
+
 	IRequestHandler* handler = _router.resolve(req);
     Response res;
 
@@ -335,4 +269,42 @@ int Server::requestParseError(int client_fd, std::map<int, Response> &pending_wr
 	pending_writes[client_fd] = res400;
 	_error = true;
     return (0);
+}
+
+size_t Server::findServerIndex(Request& req)
+{
+	std::cout << "[DEBUG][findServerIndex] START" << std::endl;
+	
+	std::string requestHost = req.getHeader("host");
+	if (requestHost.empty())
+		return (std::cout << "[DEBUG][findServerIndex] serverIndex = 0" << std::endl, 0);
+
+	std::string serverHost;
+	std::string serverPort;
+	std::string serverName;
+	std::string::size_type pos = (requestHost.find(":"));
+	std::string requestIP;
+	std::string requestPort;
+
+	std::cout << "[DEBUG][findServerIndex] (pos != std::string::npos) = " << (pos != std::string::npos) << std::endl;
+
+	for (size_t i = 0; i < _serverList.size(); ++i)
+	{
+		serverName = _cfg.getServerName(_serverList[i]);
+
+		if (serverName == requestHost)
+			return (std::cout << "[DEBUG][findServerIndex] serverIndex = " << i << std::endl, i);
+		else if (pos != std::string::npos)
+		{
+			getHostAndPort(_serverList[i], serverHost, serverPort);
+
+			requestIP = requestHost.substr(0, pos);
+			requestPort = requestHost.substr(pos + 1);
+
+			if ((requestIP == serverHost || (requestIP == "localhost" && serverHost == "127.0.0.1")) \
+			&& requestPort ==  serverPort)
+				return (std::cout << "[DEBUG][findServerIndex] serverIndex = " << i << std::endl, i);
+		}
+	}
+	return (std::cout << "[DEBUG][findServerIndex] serverIndex = 0" << std::endl, 0);
 }

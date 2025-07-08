@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 
-Request::Request(): _cfg(NULL)
+Request::Request(): _cfg(NULL), _serverIndex(-1)
 {}
 
 Request::Request(const Request& other)
@@ -186,4 +186,15 @@ void Request::setCfg(ConfigParser &parser)
 ConfigParser* Request::getCfg() const
 {
     return (_cfg);
-} 
+}
+
+void Request::setServerIndex(size_t serverIndex)
+{
+	_serverIndex = serverIndex;
+}
+
+size_t Request::getServerIndex() const
+{
+	return (_serverIndex);
+}
+
