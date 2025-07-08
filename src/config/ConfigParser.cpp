@@ -2,7 +2,10 @@
 #include "../../include/config/ConfigNode.hpp"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cstdlib>
+#include <algorithm>
+#include <cctype>
 
 // --- Lógica del Singleton ---
 ConfigParser::ConfigParser() : _configRoot(NULL) {}
@@ -166,4 +169,190 @@ std::string ConfigParser::getServerName(const IConfig* serverNode) {
     }
     std::cout << std::endl;
     return getDirectiveValue(serverNode, "server_name", "default_server");
+}
+
+// Nuevos métodos para gestión de páginas de error
+std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode) const {
+    if (!_configRoot) return "";
+    
+    // Solo códigos de error válidos
+    if (errorCode != 404 && errorCode != 403 && errorCode != 400 && errorCode != 500 && errorCode != 502) {
+        std::cout << "[WARNING] Código de error no válido: " << errorCode << ". Usando página por defecto." << std::endl;
+        return "";
+    }
+    
+    // Si no se proporciona un servidor específico, usa el primero
+    if (!serverNode) {
+        const std::vector<IConfig*>& servers = _configRoot->getChildren();
+        if (servers.empty() || servers[0]->getType() != "server") return "";
+        serverNode = servers[0];
+    }
+    
+    // Buscar el location /error_pages
+    const std::vector<IConfig*>& locations = serverNode->getChildren();
+    for (size_t i = 0; i < locations.size(); ++i) {
+        if (locations[i]->getType() == "location" && 
+            !locations[i]->getValues().empty() && 
+            locations[i]->getValues()[0] == "/error_pages") {
+            
+            // Buscar la directiva correspondiente al código de error
+            const std::vector<IConfig*>& directives = locations[i]->getChildren();
+            for (size_t j = 0; j < directives.size(); ++j) {
+                const std::string& directiveType = directives[j]->getType();
+                
+                // Mapear códigos de error a directivas
+                if ((errorCode == 404 && directiveType == "not_found") ||
+                    (errorCode == 403 && directiveType == "forbidden") ||
+                    (errorCode == 400 && directiveType == "bad_request") ||
+                    (errorCode == 502 && directiveType == "bad_getaway") ||
+                    (errorCode == 500 && directiveType == "internal_error")) {
+                    
+                    const std::vector<std::string>& values = directives[j]->getValues();
+                    if (!values.empty()) {
+                        std::string filePath = values[0];
+                        
+                        // Validar que el archivo tenga el formato correcto
+                        if (validateErrorPagePath(filePath, errorCode)) {
+                            std::cout << "[INFO] Página de error " << errorCode << " configurada: " << filePath << std::endl;
+                            return filePath;
+                        } else {
+                            std::cout << "[WARNING] Página de error " << errorCode << " no sigue el formato correcto (" << errorCode << ".html). Usando página por defecto." << std::endl;
+                            return "";
+                        }
+                    }
+                }
+            }
+            break;
+        }
+    }
+    return "";
+}
+
+bool ConfigParser::validateErrorPagePath(const std::string& filePath, int errorCode) const {
+    // Obtener el nombre del archivo sin la ruta
+    size_t lastSlash = filePath.find_last_of('/');
+    std::string fileName = (lastSlash != std::string::npos) ? filePath.substr(lastSlash + 1) : filePath;
+    
+    // Construir el nombre esperado
+    std::ostringstream expectedName;
+    expectedName << errorCode << ".html";
+    std::string expected = expectedName.str();
+    
+    // Verificar que el nombre del archivo sea exactamente lo esperado
+    if (fileName == expected) {
+        return true;
+    }
+    
+    std::cout << "[DEBUG] Archivo esperado: " << expected << ", encontrado: " << fileName << std::endl;
+    return false;
+}
+
+bool ConfigParser::hasErrorPagesLocation(const IConfig* serverNode) const {
+    if (!_configRoot) return false;
+    
+    // Si no se proporciona un servidor específico, usa el primero
+    if (!serverNode) {
+        const std::vector<IConfig*>& servers = _configRoot->getChildren();
+        if (servers.empty() || servers[0]->getType() != "server") return false;
+        serverNode = servers[0];
+    }
+    
+    // Buscar el location /error_pages
+    const std::vector<IConfig*>& locations = serverNode->getChildren();
+    for (size_t i = 0; i < locations.size(); ++i) {
+        if (locations[i]->getType() == "location" && 
+            !locations[i]->getValues().empty() && 
+            locations[i]->getValues()[0] == "/error_pages") {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Nuevos métodos para gestión de métodos HTTP
+bool ConfigParser::isMethodAllowed(const std::string& method, const IConfig* serverNode) const {
+    if (!_configRoot) return false;
+    
+    // Si no se proporciona un servidor específico, usa el primero
+    if (!serverNode) {
+        const std::vector<IConfig*>& servers = _configRoot->getChildren();
+        if (servers.empty() || servers[0]->getType() != "server") return false;
+        serverNode = servers[0];
+    }
+    
+    // Verificar permisos globales del servidor
+    std::string methodKey = method;
+    std::transform(methodKey.begin(), methodKey.end(), methodKey.begin(), ::tolower);
+    methodKey += "_allowed";
+    
+    const IConfig* methodNode = serverNode->getChild(methodKey);
+    if (methodNode && !methodNode->getValues().empty()) {
+        return methodNode->getValues()[0] == "true";
+    }
+    
+    // Valores por defecto: GET y POST permitidos, DELETE no
+    if (method == "GET" || method == "POST") return true;
+    if (method == "DELETE") return false;
+    
+    return false;
+}
+
+bool ConfigParser::isMethodAllowedInLocation(const std::string& method, const std::string& locationPath, const IConfig* serverNode) const {
+    if (!_configRoot) return false;
+    
+    // Si no se proporciona un servidor específico, usa el primero
+    if (!serverNode) {
+        const std::vector<IConfig*>& servers = _configRoot->getChildren();
+        if (servers.empty() || servers[0]->getType() != "server") return false;
+        serverNode = servers[0];
+    }
+    
+    // Buscar el location específico
+    const std::vector<IConfig*>& locations = serverNode->getChildren();
+    for (size_t i = 0; i < locations.size(); ++i) {
+        if (locations[i]->getType() == "location" && 
+            !locations[i]->getValues().empty() && 
+            locations[i]->getValues()[0] == locationPath) {
+            
+            // Verificar allow_methods en este location
+            const IConfig* allowMethodsNode = locations[i]->getChild("allow_methods");
+            if (allowMethodsNode && !allowMethodsNode->getValues().empty()) {
+                const std::vector<std::string>& allowedMethods = allowMethodsNode->getValues();
+                for (size_t j = 0; j < allowedMethods.size(); ++j) {
+                    if (allowedMethods[j] == method) {
+                        return true;
+                    }
+                }
+                return false; // Si hay allow_methods pero no incluye el método
+            }
+            break;
+        }
+    }
+    
+    // Si no se encuentra configuración específica del location, usar configuración global
+    return isMethodAllowed(method, serverNode);
+}
+
+bool ConfigParser::isDeleteAllowedForFile(const std::string& filePath, const IConfig* serverNode) const {
+    if (!_configRoot) return false;
+    
+    // Si no se proporciona un servidor específico, usa el primero
+    if (!serverNode) {
+        const std::vector<IConfig*>& servers = _configRoot->getChildren();
+        if (servers.empty() || servers[0]->getType() != "server") return false;
+        serverNode = servers[0];
+    }
+    
+    // Verificar si es un archivo de script (.py, .sh)
+    size_t dotPos = filePath.find_last_of('.');
+    if (dotPos != std::string::npos) {
+        std::string extension = filePath.substr(dotPos);
+        if (extension == ".py" || extension == ".sh") {
+            std::cout << "[DEBUG] DELETE bloqueado para archivo de script: " << filePath << std::endl;
+            return false; // Scripts no se pueden eliminar
+        }
+    }
+    
+    // Para archivos normales, verificar permisos de DELETE
+    return isMethodAllowed("DELETE", serverNode);
 }
