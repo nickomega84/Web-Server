@@ -32,6 +32,16 @@ class ConfigParser {
         std::string getLocation(const std::string& locationPath, const std::string& key) const;
         std::string getServerName(const IConfig* serverNode);
         std::string getDirectiveValue(const IConfig* configNode, const std::string& directive, const std::string& defaultValue);
+        
+        // Nuevos métodos para gestión de páginas de error
+        std::string getErrorPage(int errorCode, const IConfig* serverNode = NULL) const;
+        bool hasErrorPagesLocation(const IConfig* serverNode = NULL) const;
+        bool validateErrorPagePath(const std::string& filePath, int errorCode) const;
+        
+        // Nuevos métodos para gestión de métodos HTTP
+        bool isMethodAllowed(const std::string& method, const IConfig* serverNode = NULL) const;
+        bool isMethodAllowedInLocation(const std::string& method, const std::string& locationPath, const IConfig* serverNode = NULL) const;
+        bool isDeleteAllowedForFile(const std::string& filePath, const IConfig* serverNode = NULL) const;
 };
 
 #endif
