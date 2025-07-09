@@ -120,7 +120,9 @@ int CGIHandler::handleGET(const Request &req, Response &res, std::string interpr
 	std::map<std::string, std::string> map;
 	if (getScript(req, map))
 		return (1);
-	char *argv[] = {(char *)map["interpreter"].c_str(), (char *)map["name"].c_str(), NULL};
+	char *argv[] = {(char *)interpreter.c_str(), (char *)map["name"].c_str(), NULL};
+
+	std::cout << "[DEBUG][CGI][handleGET] (char *)interpreter.c_str() = " << (char *)interpreter.c_str() << std::endl;
 
 	std::vector<std::string> env;
 	if (!getEnviroment(env, "GET", map["path"], map["queryString"], req))
@@ -186,7 +188,10 @@ int CGIHandler::handlePOST(const Request &req, Response &res, std::string interp
 	std::map<std::string, std::string> map;
 	if (getScript(req, map))
 		return (1);
-	char *argv[] = {(char *)map["interpreter"].c_str(), (char *)map["name"].c_str(), NULL};
+
+	char *argv[] = {(char *)interpreter.c_str(), (char *)map["name"].c_str(), NULL};
+
+	std::cout << "[DEBUG][CGI][handleGET] (char *)interpreter.c_str() = " << (char *)interpreter.c_str() << std::endl;
 
 	std::vector<std::string> env;
 	if (!getEnviroment(env, "POST", map["path"], map["queryString"], req))

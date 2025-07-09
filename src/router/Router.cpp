@@ -28,7 +28,7 @@ void Router::registerFactory(const std::string& pathPrefix, IHandlerFactory* fac
 	_routes[pathPrefix] = factory;
 }
 
-IRequestHandler* Router::resolve(Request& request) const
+/* IRequestHandler* Router::resolve(Request& request) const
 {
     Response res;
     const std::string& uri = request.getURI();
@@ -48,7 +48,7 @@ IRequestHandler* Router::resolve(Request& request) const
                     relativePath = "/" + relativePath;
                 request.setBasePath(basePath);
 
-				request.setPath(relativePath); 
+				request.setPath(relativePath); //?
 
                 std::string abs = Utils::mapUriToPath(_absRoot, uri);
                 std::string safe = Utils::validateFilesystemEntry(abs);
@@ -69,6 +69,53 @@ IRequestHandler* Router::resolve(Request& request) const
                     res.setHeader("Content-Type", "text/html");
                     res.setHeader("Content-Length", Utils::intToString(body.length()));
                     return NULL;
+            }
+        }
+    }
+    return NULL;
+} */
+
+IRequestHandler* Router::resolve(Request& request) const
+{
+    Response res;
+
+    const std::string& uriWithQuery = request.getURI();
+    std::string uri = getUriWithoutQuery(uriWithQuery);
+
+    std::cout << "[DEBUG][Router] URI sin query: " << uri << std::endl;
+
+    for (std::map<std::string,IHandlerFactory*>::const_reverse_iterator it = _routes.rbegin(); it != _routes.rend(); ++it)
+    {
+        if (uri == it->first || uri.find(it->first) == 0)
+        {
+            try 
+			{
+                std::string basePath = it->first;
+                request.setBasePath(basePath);
+
+                std::string relativePath = uri.substr(basePath.length());
+                if (relativePath.empty() || relativePath[0] != '/')
+                    relativePath = "/" + relativePath;
+
+                std::string abs = Utils::mapUriToPath(_absRoot, uri);
+                std::string safe = Utils::validateFilesystemEntry(abs);
+                request.setPhysicalPath(safe);
+
+                return it->second->createHandler();
+            }
+            catch (const std::exception& e) 
+			{
+                std::cerr << "[ERROR][Router::resolve] Sanitización fallida: " << e.what() << std::endl;
+
+                ErrorPageHandler errorHandler(_absRoot);
+                std::string body = errorHandler.render(request, 403, "Acceso no permitido");
+
+                res.setStatus(403, "Forbidden");
+                res.setBody(body);
+                res.setHeader("Content-Type", "text/html");
+                res.setHeader("Content-Length", Utils::intToString(body.length()));
+
+                return NULL;
             }
         }
     }
