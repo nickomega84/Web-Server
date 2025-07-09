@@ -4,13 +4,6 @@
 #include "../../include/utils/Utils.hpp"
 #include "../../include/core/Request.hpp"
 
-
-// CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder): _cgiRoot(cgiRoot), _builder(builder)
-// {
-//     std::cout << "[DEBUG][[  CGIHandler Constructor  ]]: cgiRoot = " << _cgiRoot << std::endl;
-// }
-
-
 CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg): 
 _cgiRoot(cgiRoot), _builder(builder), _cfg(cfg)
 {

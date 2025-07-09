@@ -29,6 +29,8 @@ class Utils
         static  std::string resolveAndValidateDir(const std::string& raw);
         static std::string mapUriToPath(const std::string& absRoot, const std::string& uri);
         static std::string validateFilesystemEntry(const std::string& absPath);
+		
+		static std::string renderAutoindexPage(const std::string& displayPath, const std::string& physicalPath);
 
 		size_t	strToSizeT(const std::string& str);
 };

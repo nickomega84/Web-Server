@@ -10,6 +10,8 @@
 #include <cstring>
 #include <limits.h>
 #include <cstdlib>
+#include <dirent.h>
+#include <string>
 
 std::string Utils::intToString(int value) {
 	std::ostringstream oss;
@@ -49,7 +51,6 @@ std::string Utils::normalisePath(std::string p)
     return out;
 }
 
-/* ---- A ------------------------------------------------------------ */
 std::string Utils::mapUriToPath(const std::string& absRoot, const std::string& uri)
 {
     std::cout << "[DEBUG][Utils::mapUriToPath] absRoot: " << absRoot << std::endl;
@@ -76,10 +77,6 @@ std::string Utils::mapUriToPath(const std::string& absRoot, const std::string& u
     return norm;
 }
 
-
-
-/* ---- B ------------------------------------------------------------ */
-
 std::string Utils::validateFilesystemEntry(const std::string& absPath)
 {
     struct stat sb;
@@ -103,43 +100,6 @@ std::string Utils::validateFilesystemEntry(const std::string& absPath)
     return absPath;
 }
 
-
-
-// std::string Utils::validateFilesystemEntry(const std::string& absPath)
-// {
-//     struct stat sb;
-
-//     std::cout << "[DEBUG][Utils::validateFilesystemEntry] absPath: " << absPath << std::endl;
-
-// 	if (::lstat(absPath.c_str(), &sb) == -1)
-// 		throw std::runtime_error("Not found: " + absPath);
-
-//     std::string finalPath = absPath;
-
-//     if (S_ISDIR(sb.st_mode))
-// 	{
-// 		if (finalPath[finalPath.size()-1] != '/')
-// 			finalPath += "/";
-// 		finalPath += "index.html";
-
-// 		if (::lstat(finalPath.c_str(), &sb) == -1 || !S_ISREG(sb.st_mode))
-// 			throw std::runtime_error("Directory listing forbidden: " + absPath);
-//     }
-//     else if (!S_ISREG(sb.st_mode) || S_ISLNK(sb.st_mode))
-//     	throw std::runtime_error("Forbidden type: " + absPath);
-
-//     int fd = ::open(finalPath.c_str(), O_RDONLY | O_NOFOLLOW);
-//     if (fd == -1)
-// 		throw std::runtime_error("Symlink or I/O error: " + finalPath);
-//     ::close(fd);
-
-//     return finalPath;            // fichero listo para servir
-// }
-
-/* -------------------------------------------------------------------------- */
-/* 2. Directorio válido – devuelve ABSOLUTO y normalizado                      */
-/*    Nota: el caller ya debe haber hecho chdir(activeDirectory) una sola vez. */
-/* -------------------------------------------------------------------------- */
 std::string Utils::resolveAndValidateDir(const std::string& raw)
 {
     /* 1. Si es absoluta ya está bien */
@@ -161,7 +121,6 @@ std::string Utils::resolveAndValidateDir(const std::string& raw)
     ::closedir(d);
     return norm;
 }
-
 
 std::string Utils::resolveAndValidateFile(const std::string& absRoot,
     const std::string& uri)
@@ -194,7 +153,6 @@ if (fd == -1)
 return abs;
 }
 
-
 size_t Utils::strToSizeT(const std::string& str)
 {
 	std::stringstream ss(str);
@@ -207,27 +165,45 @@ size_t Utils::strToSizeT(const std::string& str)
 		return (nmb);
 }
 
-// std::string Utils::renderAutoindex(const Request& request, const std::string& dirPath)
-std::string Utils::renderAutoindex(const std::string& uri, const std::string& dirPath) {
-    std::string baseUri = uri;
-    if (!baseUri.empty() && baseUri[baseUri.size() - 1] != '/')
-        baseUri += '/';
-        
-    std::string html = "<html><body><h1>Index of " + baseUri + "</h1><ul>";
-    
-    DIR* dir = opendir(dirPath.c_str());
-    if (!dir) return "<html><body><h1>500 - Error opening directory</h1></body></html>";
-    
-    struct dirent* ent;
-    while ((ent = readdir(dir)) != NULL) {
-        std::string name = ent->d_name;
-        if (name != "." && name != "..") {
-            // Usa el baseUri para construir links correctos
-            html += "<li><a href=\"" + baseUri + name + "\">" + name + "</a></li>";
-        }
-    }
-    closedir(dir);
-    html += "</ul></body></html>";
-    return html;
-}
+std::string Utils::renderAutoindexPage(const std::string& displayPath, const std::string& physicalPath)
+{
+    // Asegurarse de que la ruta a mostrar termine con / para construir bien los enlaces
+    std::string currentPath = displayPath;
+    if (currentPath.empty() || currentPath[currentPath.length() - 1] != '/')
+        currentPath += '/';
 
+    // Generar el encabezado del HTML
+    std::string html = "<html><head><title>Index of " + currentPath + "</title></head>";
+    html += "<body><h1>Index of " + currentPath + "</h1><hr><pre>";
+
+    // Abrir el directorio físico
+    DIR* dir = opendir(physicalPath.c_str());
+    if (dir)
+    {
+        struct dirent* entry;
+        // Leer cada entrada del directorio
+        while ((entry = readdir(dir)))
+        {
+            std::string entryName = entry->d_name;
+            // Omitir los directorios "." y ".."
+            if (entryName != "." && entryName != "..")
+            {
+                // Construir el enlace completo usando la ruta de la URI
+                std::string href = currentPath + entryName;
+                html += "<a href=\"" + href + "\">" + entryName + "</a><br>";
+            }
+        }
+        closedir(dir);
+    }
+    else
+    {
+        // Opcional: manejar el caso en que el directorio no se pueda abrir
+        std::cerr << "[ERROR][renderAutoindexPage] No se pudo abrir el directorio: " << physicalPath << std::endl;
+        html += "Error: No se puede listar el contenido del directorio.";
+    }
+
+    // Cerrar las etiquetas HTML
+    html += "</pre><hr></body></html>";
+
+    return (html);
+}
