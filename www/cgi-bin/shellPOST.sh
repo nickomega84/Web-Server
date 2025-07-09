@@ -14,7 +14,7 @@ if [ "$CONTENT_LENGTH" -gt 0 ]; then
     TIMESTAMP=$(date +%Y%m%d%H%M%S)
     FILE_NAME="resource_${TIMESTAMP}.txt"
 
-	UPLOAD_DIR="../../uploads"
+	UPLOAD_DIR="../../www/uploads"
 
     if [ ! -d "$UPLOAD_DIR" ]; then
         mkdir -p "$UPLOAD_DIR"

@@ -1,8 +1,7 @@
-// include/response/Payload.hpp
 #ifndef PAYLOAD_HPP
 #define PAYLOAD_HPP
 
-#include <string>
+#include "../include/libraries.hpp"
 
 struct Payload 
 {

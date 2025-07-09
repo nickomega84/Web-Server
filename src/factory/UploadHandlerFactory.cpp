@@ -3,7 +3,7 @@
 
 UploadHandlerFactory::UploadHandlerFactory(const std::string& path, IResponseBuilder* builder, const ConfigParser& cfg) : _uploadsPath(path), _builder(builder), _cfg(cfg)
 {
-    (void) _cfg; // Assuming _cfg is not used in this constructor
+    (void) _cfg;
     std::cout << "[DEBUG][UploadHandlerFactory] created with uploads path: " << _uploadsPath << std::endl;
 }
 

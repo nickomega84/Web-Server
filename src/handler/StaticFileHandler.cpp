@@ -8,7 +8,7 @@
 
 StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* b, const ConfigParser& cfg): _rootPath(root), _builder(b), _cfg(cfg)
 {
-    (void) _cfg; // Assuming _cfg is not used in this constructor
+    (void) _cfg;
     std::cout << "[DEBUG][StaticFileHandler] initialized with root and builder\n";
 }
 StaticFileHandler::~StaticFileHandler() {}
@@ -99,7 +99,7 @@ Response StaticFileHandler::doGET(std::string fullPath,  Payload& payload, const
 
 	payload.status = 200;
     payload.reason = "OK";
-    payload.mime = MimeTypes::getContentType(fullPath); // o un tipo por defecto si no se puede adivinar
+    payload.mime = MimeTypes::getContentType(fullPath);
     payload.body = readFile(fullPath);
     return _builder->build(payload);
 
@@ -170,14 +170,13 @@ Response StaticFileHandler::staticAutoindex(bool &autoindexFlag, std::string &ur
         size_t serverIndex = request.getServerIndex();
         std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[serverIndex], "autoindex", "true");
 
-        std::string indexPath = fullPath + "index.html"; // Corregido: faltaba un "/"
+        std::string indexPath = fullPath + "index.html";
 
         if (autoindex == "true") {
             autoindexFlag = true;
             payload.status = 200;
             payload.reason = "OK";
             payload.mime = "text/html";
-            // La generación de HTML también se delega aquí.
             payload.body = Utils::renderAutoindexPage(request.getURI(), fullPath);
             return _builder->build(payload);
         }

@@ -1,7 +1,5 @@
 #include "../../include/config/ConfigNode.hpp"
 
-// --- Forma Canónica Ortodoxa ---
-
 ConfigNode::ConfigNode() {}
 
 ConfigNode::~ConfigNode() {
@@ -35,8 +33,6 @@ ConfigNode& ConfigNode::operator=(const ConfigNode& other) {
     return *this;
 }
 
-// --- Implementación de la Interfaz ---
-
 const std::string& ConfigNode::getType() const {
     return _type;
 }
@@ -57,8 +53,6 @@ const IConfig* ConfigNode::getChild(const std::string& key) const {
     }
     return NULL;
 }
-
-// --- Métodos para construir el árbol ---
 
 void ConfigNode::setType(const std::string& type) {
     _type = type;

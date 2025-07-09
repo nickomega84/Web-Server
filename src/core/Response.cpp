@@ -39,16 +39,15 @@ void Response::setBody(const std::string& body) {
 std::string Response::toString() const {
 	std::ostringstream res;
 
-	// Línea de estado
 	res << "HTTP/1.1 " << _statusCode << " " << _statusText << "\r\n";
-	// Cabeceras
+
 	std::map<std::string, std::string>::const_iterator it = _headers.begin();
 	while (it != _headers.end()) 
     {
 		res << it->first << ": " << it->second << "\r\n";
 		++it;
 	}
-	// Separador + cuerpo
+
 	res << "\r\n" << _body;
 	return res.str();
 }

@@ -3,7 +3,6 @@
 
 #include "../include/libraries.hpp"
 
-
 class Response 
 {
 	private:

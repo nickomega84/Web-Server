@@ -3,11 +3,10 @@
 #include <string>
 #include <stdexcept>
 #include <cstdlib> 
-#include <algorithm> // Para std::remove_if y std::isspace
-#include <cctype> // Para std::isspace
+#include <algorithm>
+#include <cctype>
 #include "../../include/config/validateRoot.hpp"
 
-// Función auxiliar para verificar si un carácter es un espacio
 bool isNotSpace(unsigned char ch) {
     return !std::isspace(ch);
 }
@@ -25,11 +24,9 @@ void validateRoot::validationRoot() {
     bool isValid = false;
 
     while (std::getline(configFile, line)) {
-        // Eliminar espacios adicionales al inicio y al final de la línea
         line.erase(line.begin(), std::find_if(line.begin(), line.end(), isNotSpace));
         line.erase(std::find_if(line.rbegin(), line.rend(), isNotSpace).base(), line.end());
 
-        // Comparar la línea normalizada con la cadena requerida
         if (line.find("root ") != std::string::npos && line == requiredRoot) {
             isValid = true;
             break;

@@ -4,6 +4,9 @@
 #include "../../include/server/ClientBuffer.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/config/ConfigParser.hpp"
+#include "../include/factory/IHandlerFactory.hpp"
+#include "../include/factory/UploadHandlerFactory.hpp"
+#include "../include/factory/CGIHandlerFactory.hpp"
 
 Server::Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder):
 _cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _responseBuilder(builder), _router(Router(_rootPath)), _error(false)
@@ -289,8 +292,6 @@ size_t Server::findServerIndex(Request& req)
 	std::string::size_type pos = (requestHost.find(":"));
 	std::string requestIP;
 	std::string requestPort;
-
-	std::cout << "[DEBUG][findServerIndex] (pos != std::string::npos) = " << (pos != std::string::npos) << std::endl;
 
 	for (size_t i = 0; i < _serverList.size(); ++i)
 	{

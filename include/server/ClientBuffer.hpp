@@ -1,5 +1,7 @@
 #pragma once
-#include "../../include/core/Request.hpp"
+
+#include "../include/libraries.hpp"
+#include "../include/core/Request.hpp"
 
 class ClientBuffer
 {

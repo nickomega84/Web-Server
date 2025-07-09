@@ -2,17 +2,16 @@
 #ifndef UPLOADHANDLER_HPP
 #define UPLOADHANDLER_HPP
 
-#include "handler/IRequestHandler.hpp"
-#include "response/IResponseBuilder.hpp"
-#include "../include/config/ConfigParser.hpp"
-
+#include "../include/libraries.hpp"
+#include "../include/response/IResponseBuilder.hpp"
+#include "../include/handler/IRequestHandler.hpp"
 
 class UploadHandler : public IRequestHandler 
 {
     private:
         std::string _uploadsPath;
         IResponseBuilder* _builder;
-        const ConfigParser& _cfg; // ConfigParser para acceder a la configuración del servidor
+        const ConfigParser& _cfg;
 
         std::string getBoundary(std::string& contentType);
         bool parseMultipartBody(const std::string& body, const std::string& boundary, std::string& out_filename, std::string& out_fileContent);
@@ -21,7 +20,6 @@ class UploadHandler : public IRequestHandler
 		Response uploadAutoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request& request);
 
 	public:
-		// UploadHandler(const std::string& uploadsPath, IResponseBuilder* builder);
         UploadHandler(const std::string& uploadsPath, IResponseBuilder* builder, const ConfigParser& cfg);
 		virtual ~UploadHandler();
 

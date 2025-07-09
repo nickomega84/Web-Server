@@ -23,11 +23,9 @@ Response UploadHandler::handleRequest(const Request& request)
 
     std::string uploadsPrefix = "/uploads";
     std::string relativePath = originalUri;
-    if (originalUri.rfind(uploadsPrefix, 0) == 0) // Chequea si la URI empieza con /uploads
+    if (originalUri.rfind(uploadsPrefix, 0) == 0)
         relativePath = originalUri.substr(uploadsPrefix.length());
 
-    // Si relativePath está vacío después de quitar el prefijo, significa que se accedió a /uploads/
-    // Por lo que debe ser "/" para que la concatenación sea correcta.
     if (relativePath.empty() || relativePath[0] != '/')
         relativePath = "/" + relativePath;
 
@@ -88,7 +86,7 @@ Response UploadHandler::handleRequest(const Request& request)
 	std::string destinationPath = _uploadsPath + "/" + fileName;
 	std::cout << "[DEBUG][UploadHandler] destinationPath = " << destinationPath << std::endl;
 
-	std::ofstream outputFile(destinationPath.c_str(), std::ios::out | std::ios::binary); //abrimos en modo binario (std::ios::binary) para poder leer archivos de todos los tipos
+	std::ofstream outputFile(destinationPath.c_str(), std::ios::out | std::ios::binary);
 	if (!outputFile.is_open()) 
 		return (std::cout << "[ERROR][UploadHandler] 500 Cannot open file: " << destinationPath << std::endl, \
 		uploadResponse(500, "Internal Server Error", "text/plain", "500 - Cannot save file"));
@@ -100,7 +98,7 @@ Response UploadHandler::handleRequest(const Request& request)
 	uploadResponse(200, "OK", "text/plain", "File received and uploaded"));
 }
 
-std::string UploadHandler::getBoundary(std::string& contentType) //el body multipart/form-data está delimitado por un boundary especificado en la linea content-type
+std::string UploadHandler::getBoundary(std::string& contentType)
 {
 	std::string boundaryMarker = "boundary=";
 	size_t pos = contentType.find(boundaryMarker);
@@ -115,7 +113,6 @@ bool UploadHandler::parseMultipartBody(const std::string& body, const std::strin
     std::string boundaryDelimiter = "--" + boundary;
     std::string finalBoundaryDelimiter = "--" + boundary + "--";
 
-    // Encontrar el inicio de la primera parte
     size_t startPos = body.find(boundaryDelimiter);
     if (startPos == std::string::npos)
         return false;
@@ -123,25 +120,21 @@ bool UploadHandler::parseMultipartBody(const std::string& body, const std::strin
     if (body.substr(startPos, 2) == "\r\n")
         startPos += 2;
 
-    // Encontrar el final de la primera parte
     size_t endPos = body.find(boundaryDelimiter, startPos);
     if (endPos == std::string::npos)
         return false;
     std::string firsPart = body.substr(startPos, endPos - startPos);
 
-    // Encontrar el separador entre cabecera y contenido
     size_t headerEndPos = firsPart.find("\r\n\r\n");
     if (headerEndPos == std::string::npos)
         return false;
     std::string headers = firsPart.substr(0, headerEndPos);
     fileContent = firsPart.substr(headerEndPos + 4);
 
-    // Quitar el \r\n final del contenido
     if (fileContent.length() >= 2 &&
     fileContent.substr(fileContent.length() - 2) == "\r\n")
         fileContent.erase(fileContent.length() - 2);
 
-    // Encontrar el filename en la cabecera
     size_t cdPos = headers.find("Content-Disposition:");
     if (cdPos == std::string::npos)
         return false;
@@ -211,12 +204,11 @@ Response UploadHandler::uploadAutoindex(bool &autoindexFlag, std::string &uri, s
             payload.status = 200;
             payload.reason = "OK";
             payload.mime = "text/html";
-            // La generación de HTML se delega a la función de utilidad.
             payload.body = Utils::renderAutoindexPage(uri, fullPath);
             return _builder->build(payload);
         }
 
-        std::string indexPath = fullPath + "index.html"; // Corregido: faltaba un "/"
+        std::string indexPath = fullPath + "index.html";
         if (access(indexPath.c_str(), F_OK) == 0) {
             fullPath = indexPath;
         } else {

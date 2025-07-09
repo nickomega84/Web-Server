@@ -81,32 +81,30 @@ std::string Utils::validateFilesystemEntry(const std::string& absPath)
 {
     struct stat sb;
 
-    std::cout << "[DEBUG][Utils::validateFilesystemEntry] absPath: " << absPath << std::endl;
+    std::cout << "[DEBUG][Utils::validateFilesystemEntry] START absPath: " << absPath << std::endl;
 
 	if (::lstat(absPath.c_str(), &sb) == -1)
-		throw std::runtime_error("Not found: " + absPath);
+		throw std::runtime_error("[ERROR][Utils::validateFilesystemEntry] Not found: " + absPath);
 
     if (!S_ISREG(sb.st_mode) && !S_ISDIR(sb.st_mode))
-    	throw std::runtime_error("Forbidden type: " + absPath);
+    	throw std::runtime_error("[ERROR][Utils::validateFilesystemEntry] Forbidden type: " + absPath);
 
-    // Si es un fichero regular, comprobamos que no sea symlink
     if (S_ISREG(sb.st_mode)) {
         int fd = ::open(absPath.c_str(), O_RDONLY | O_NOFOLLOW);
         if (fd == -1)
-		    throw std::runtime_error("Symlink or I/O error: " + absPath);
+		    throw std::runtime_error("[ERROR][Utils::validateFilesystemEntry] Symlink or I/O error: " + absPath);
         ::close(fd);
     }
 
+	std::cout << "[DEBUG][Utils::validateFilesystemEntry] END" << std::endl;
     return absPath;
 }
 
 std::string Utils::resolveAndValidateDir(const std::string& raw)
 {
-    /* 1. Si es absoluta ya está bien */
     if (!raw.empty() && raw[0] == '/')
         return normalisePath(raw);
 
-    /* 2. Obtener cwd y concatenar */
     char cwdBuf[PATH_MAX];
     if (!::getcwd(cwdBuf, sizeof(cwdBuf)))
         throw std::runtime_error("getcwd() failed");
@@ -114,7 +112,6 @@ std::string Utils::resolveAndValidateDir(const std::string& raw)
     std::string abs = std::string(cwdBuf) + "/" + raw;
     std::string norm = normalisePath(abs);
 
-    /* 3. Verificar directorio */
     DIR* d = ::opendir(norm.c_str());
     if (!d)
         throw std::runtime_error("Not a directory: " + norm);
@@ -122,73 +119,50 @@ std::string Utils::resolveAndValidateDir(const std::string& raw)
     return norm;
 }
 
-std::string Utils::resolveAndValidateFile(const std::string& absRoot,
-    const std::string& uri)
+std::string Utils::resolveAndValidateFile(const std::string& absRoot, const std::string& uri)
 {
-/* 3.1 unir root + uri */
-std::string joined = absRoot;
-if (joined[joined.size()-1] != '/' && uri[0] != '/'){
+	std::string joined = absRoot;
+	if (joined[joined.size()-1] != '/' && uri[0] != '/'){
 
-	joined += "/";
-	joined += (uri[0] == '/') ? uri.substr(1) : uri;
-}
+		joined += "/";
+		joined += (uri[0] == '/') ? uri.substr(1) : uri;
+	}
 
-/* 3.2 normalizar, eliminar .. */
-std::string abs = Utils::normalisePath(joined);
+	std::string abs = Utils::normalisePath(joined);
 
-/* 3.3 path-traversal: abs debe empezar por root */
-if (abs.compare(0, absRoot.size(), absRoot) != 0)
-	throw std::runtime_error("Path-traversal detectado: " + uri);
+	if (abs.compare(0, absRoot.size(), absRoot) != 0)
+		throw std::runtime_error("Path-traversal detectado: " + uri);
 
-/* 3.4 comprobar que el archivo existe y no es symlink (O_NOFOLLOW) */
-int fd = ::open(abs.c_str(), O_RDONLY | O_NOFOLLOW);
-if (fd == -1)
-{
-	if (errno == ELOOP)
-		throw std::runtime_error("Symlink no permitido: " + abs);
-	throw std::runtime_error("No se puede abrir archivo: " + abs + " (" + strerror(errno) + ")");
-}
+	int fd = ::open(abs.c_str(), O_RDONLY | O_NOFOLLOW);
+	if (fd == -1)
+	{
+		if (errno == ELOOP)
+			throw std::runtime_error("Symlink no permitido: " + abs);
+		throw std::runtime_error("No se puede abrir archivo: " + abs + " (" + strerror(errno) + ")");
+	}
 
-::close(fd);   // solo queríamos validar
-return abs;
-}
-
-size_t Utils::strToSizeT(const std::string& str)
-{
-	std::stringstream ss(str);
-	size_t nmb;
-
-	ss >> nmb;
-	if (ss.fail())
-		return (-1);
-	else
-		return (nmb);
+	::close(fd);
+	return abs;
 }
 
 std::string Utils::renderAutoindexPage(const std::string& displayPath, const std::string& physicalPath)
 {
-    // Asegurarse de que la ruta a mostrar termine con / para construir bien los enlaces
     std::string currentPath = displayPath;
     if (currentPath.empty() || currentPath[currentPath.length() - 1] != '/')
         currentPath += '/';
 
-    // Generar el encabezado del HTML
     std::string html = "<html><head><title>Index of " + currentPath + "</title></head>";
     html += "<body><h1>Index of " + currentPath + "</h1><hr><pre>";
 
-    // Abrir el directorio físico
     DIR* dir = opendir(physicalPath.c_str());
     if (dir)
     {
         struct dirent* entry;
-        // Leer cada entrada del directorio
         while ((entry = readdir(dir)))
         {
             std::string entryName = entry->d_name;
-            // Omitir los directorios "." y ".."
             if (entryName != "." && entryName != "..")
             {
-                // Construir el enlace completo usando la ruta de la URI
                 std::string href = currentPath + entryName;
                 html += "<a href=\"" + href + "\">" + entryName + "</a><br>";
             }
@@ -197,12 +171,10 @@ std::string Utils::renderAutoindexPage(const std::string& displayPath, const std
     }
     else
     {
-        // Opcional: manejar el caso en que el directorio no se pueda abrir
         std::cerr << "[ERROR][renderAutoindexPage] No se pudo abrir el directorio: " << physicalPath << std::endl;
         html += "Error: No se puede listar el contenido del directorio.";
     }
 
-    // Cerrar las etiquetas HTML
     html += "</pre><hr></body></html>";
 
     return (html);

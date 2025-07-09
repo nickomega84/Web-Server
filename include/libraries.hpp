@@ -1,25 +1,33 @@
+#pragma once 
+
+#include <algorithm>
 #include <cerrno>
+#include <csignal>
 #include <cstring>
+#include <ctime>
+#include <dirent.h>
 #include <fcntl.h>
 #include <fstream>
 #include <iostream>
-#include <iostream>
 #include <map>
+#include <netdb.h>
 #include <netinet/in.h>
+#include <signal.h>
 #include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
-#include <algorithm>
-#include <csignal>
-#include <ctime>
-#include <dirent.h>
-#include <netdb.h>
 
 #define UPLOAD_DIR "./uploads"
 #define PORT		8081
 #define MAX_EVENTS	64
 #define BUFFER_SIZE	1024
+
+#define PYTHON_INTERPRETER "/usr/bin/python3"
+#define SH_INTERPRETER "/usr/bin/sh"

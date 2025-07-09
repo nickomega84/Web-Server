@@ -1,8 +1,9 @@
 #ifndef I_RESPONSE_BUILDER_HPP
 #define I_RESPONSE_BUILDER_HPP
 
-#include "../../include/core/Response.hpp"
-#include "../../include/response/Payload.hpp"
+#include "../include/libraries.hpp"
+#include "../include/response/Payload.hpp"
+#include "../include/core/Response.hpp"
 
 class IResponseBuilder {
 public:

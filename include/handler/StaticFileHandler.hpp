@@ -1,9 +1,13 @@
 #ifndef STATICFILEHANDLER_HPP
 #define STATICFILEHANDLER_HPP
 
-#include "handler/IRequestHandler.hpp"
-#include "../../include/response/IResponseBuilder.hpp"
-#include "../../include/config/ConfigParser.hpp"
+#include "../include/libraries.hpp"
+#include "../include/response/Payload.hpp"
+#include "../include/config/ConfigParser.hpp"
+#include "../include/handler/StaticFileHandler.hpp"
+#include "../include/core/Response.hpp"
+#include "../include/core/Request.hpp"
+#include "../include/handler/IRequestHandler.hpp"
 
 class IResponseBuilder;
 
@@ -12,7 +16,7 @@ class StaticFileHandler : public IRequestHandler
     private:
 		std::string _rootPath;
 		IResponseBuilder* _builder;
-        const ConfigParser& _cfg; // ConfigParser para acceder a la configuración del servidor
+        const ConfigParser& _cfg;
 
 		Response doGET(std::string fullPath, Payload& payload, const Request& req);
 		Response doDELETE(std::string fullPath, Payload& payload, const Request& req);
@@ -20,11 +24,8 @@ class StaticFileHandler : public IRequestHandler
 		Response staticAutoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request &request, Payload &payload);
     
     public:
-		// StaticFileHandler(const std::string& root, IResponseBuilder* b);
         StaticFileHandler(const std::string& root, IResponseBuilder* b, const ConfigParser& cfg);
-		// StaticFileHandler(const std::string &root);
 		virtual ~StaticFileHandler();
-		
 		Response handleRequest(const Request &request);
 };
 

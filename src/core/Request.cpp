@@ -34,8 +34,6 @@ bool Request::parse(const std::string& raw)
 	std::istringstream stream(raw);
     std::string line;
 
-    /* ── 1. START-LINE ───────────────────────────── */
-
     if (!std::getline(stream, line))
         return (std::cerr << "[DEBUG][Request::parse] getline" << std::endl, false);
         
@@ -43,9 +41,8 @@ bool Request::parse(const std::string& raw)
     if (!(firstLine >> _method >> _uri >> _version))
         return false;
         
-    _originalUri = _uri;  // Guarda la URI original antes de modificarla
+    _originalUri = _uri;
     
-    // Separar path y query-string
     size_t q = _uri.find('?');
     if (q != std::string::npos) {
         _path        = _uri.substr(0, q);
@@ -59,7 +56,7 @@ bool Request::parse(const std::string& raw)
 
     std::cout << "[DEBUG][Request] Path: " << _path << std::endl;
     std::cout << "[DEBUG][Request] Query String: " << _queryString << std::endl;
-    /* ── 2. HEADERS ─────────────────────────────── */
+
     while (std::getline(stream, line) && line != "\r" && line != "\n") {
         size_t pos = line.find(':');
         if (pos == std::string::npos) continue;
@@ -68,14 +65,11 @@ bool Request::parse(const std::string& raw)
         std::string value = line.substr(pos + 1);
 
         std::cout << "[DEBUG][Request] Header found: " << key << " = " << value << "\n";
-        // Convertir a minúsculas
         for (size_t i = 0; i < key.size(); ++i) {
             key[i] = std::tolower(key[i]);
         }
 
-        // Trim whitespace inicial
         value.erase(0, value.find_first_not_of(" \t"));
-        // Trim CR/LF final
         while (!value.empty() && (value[value.size() - 1] == '\r' || value[value.size() - 1] == '\n'))
         {
             value.erase(value.size() - 1);
@@ -83,26 +77,18 @@ bool Request::parse(const std::string& raw)
         _headers[key] = value;
     }
 
-    /* ── 3. BODY ─────────────────────────────────── */
     if (_headers.count("content-length") > 0 || _headers.count("transfer-encoding")) {
         std::stringstream ss;
         ss << stream.rdbuf();
         _body = ss.str();
     }
 
-    /* ── 4. Mantener viva la conexión ───────────── */
-    // HTTP/1.1 es keep-alive por defecto; HTTP/1.0 no.
     if (_version == "HTTP/1.1") {
         _keepAlive = (getHeader("Connection") != "close");
-    } else { // HTTP/1.0
+    } else {
         _keepAlive = (getHeader("Connection") == "keep-alive");
     }
    
-/*     std::cout << "[DEBUG][Request] Request parsed successfully:\n"
-              << "[Request] Method: " << _method << "\n"
-              << "[Request] URI: " << _uri << "\n"
-              << "[Request] Version: " << _version << std::endl; */
-    // std::cout << "Headers:\n";
 	if (_method != "POST")
 	    std::cout << "[Request] Body: " << _body << std::endl;
 	else
@@ -112,7 +98,6 @@ bool Request::parse(const std::string& raw)
               << "[Request] Query String: " << _queryString << std::endl;
     std::cout << "[DEBUG][Request] Request parsing completed successfully." << std::endl;
     
-	// Si llegamos hasta aquí, todo ha ido bien
     std::cout << "[DEBUG]-------------------[REQUEST] END-------------------\n" << std::endl;
     return (true);
 }

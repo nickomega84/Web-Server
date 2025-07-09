@@ -1,19 +1,16 @@
 #ifndef ROUTER_HPP
 #define ROUTER_HPP
 
-#include "../core/Request.hpp"
-#include "../handler/IRequestHandler.hpp"
-#include "../factory/IHandlerFactory.hpp"
 #include "../include/libraries.hpp"
+#include "../include/factory/IHandlerFactory.hpp"
 
 class Router 
 {
     private:
         std::map<std::string, IHandlerFactory*> _routes;
-        std::string               _absRoot;      // NUEVO
+        std::string               _absRoot;
 	public:
         Router(const std::string& root);
-		// Router();
 		Router(const Router& other);
 		Router& operator=(const Router& other);
 		~Router();

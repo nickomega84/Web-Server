@@ -5,7 +5,6 @@
 #include <cstdlib>
 #include <stdexcept>
 
-// --- Lógica del Singleton ---
 ConfigParser::ConfigParser() : _configRoot(NULL) {}
 
 ConfigParser::~ConfigParser() {
@@ -17,7 +16,6 @@ ConfigParser& ConfigParser::getInst() {
     return instance;
 }
 
-// --- Lógica de Carga y Parseo ---
 bool ConfigParser::load(const std::string& filePath) {
     delete _configRoot;
     _configRoot = new ConfigNode();
@@ -43,8 +41,6 @@ bool ConfigParser::load(const std::string& filePath) {
     return true;
 }
 
-// --- Métodos de la Interfaz Antigua (Reimplementados) ---
-
 std::string ConfigParser::getGlobal(const std::string& key) const 
 {
     if (!_configRoot) 
@@ -61,7 +57,6 @@ std::string ConfigParser::getGlobal(const std::string& key) const
         return directiveNode->getValues()[0];
     }
     
-    // Caso especial para 'listen' que puede no estar como directiva directa
     if (key == "listen") {
         const IConfig* listenNode = serverNode->getChild("listen");
         if(listenNode && !listenNode->getValues().empty()) return listenNode->getValues()[0];
@@ -82,7 +77,6 @@ std::string ConfigParser::getGlobalAlt(IConfig* server, const std::string& key) 
         return directiveNode->getValues()[0];
     }
     
-    // Caso especial para 'listen' que puede no estar como directiva directa
     if (key == "listen") {
         const IConfig* listenNode = serverNode->getChild("listen");
         if(listenNode && !listenNode->getValues().empty()) return listenNode->getValues()[0];
@@ -115,7 +109,6 @@ const IConfig* ConfigParser::getConfig() const {
     return _configRoot;
 }
 
-// --- Tokenizer y Parser Recursivo ---
 std::vector<std::string> ConfigParser::tokenize(std::ifstream& file) {
     std::vector<std::string> tokens;
     std::string line;
@@ -126,13 +119,10 @@ std::vector<std::string> ConfigParser::tokenize(std::ifstream& file) {
         if (comment_pos != std::string::npos) line.erase(comment_pos);
         size_t current_pos = 0;
         while (current_pos < line.length()) {
-            // std::cout << "[DEBUG] Tokenizando línea: " << line << std::endl;
             size_t start = line.find_first_not_of(delimiters, current_pos);
             if (start == std::string::npos) 
                     break;
             if (special_chars.find(line[start]) != std::string::npos) {
-                
-                // std::cout << "[DEBUG] Token especial encontrado: " << line[start] << std::endl;
                 tokens.push_back(line.substr(start, 1));
                 current_pos = start + 1;
                 continue;
@@ -176,18 +166,6 @@ void ConfigParser::parse(IConfig* parent, std::vector<std::string>& tokens, size
     static_cast<ConfigNode*>(parent)->addChild(node);
 }
 
-/* std::string ConfigParser::getDirectiveValue(const IConfig* configNode, const std::string& directive, const std::string& defaultValue) {
-    if (!configNode) return defaultValue;
-
-    const std::vector<std::string>& values = configNode->getValues();
-    for (size_t i = 0; i < values.size(); ++i) {
-        if (values[i] == directive && i + 1 < values.size()) {
-            return values[i + 1]; // Devuelve el valor asociado a la directiva
-        }
-    }
-    return defaultValue;
-} */
-
 std::string ConfigParser::getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) 
 {
     if (!node) 
@@ -219,49 +197,24 @@ const std::vector<IConfig*>& ConfigParser::getServerBlocks() const
     return _configRoot->getChildren();
 }
 
-// std::string ConfigParser::getErrorPages(const IConfig* serverNode, const std::string& errorType) {
-//     if (!serverNode) return "";
-//     const IConfig* errorNode = serverNode->getChild("error_pages");
-//     if (!errorNode) return "";
-
-//     const IConfig* directiveNode = errorNode->getChild(errorType);
-//     if (directiveNode && !directiveNode->getValues().empty()) {
-//         return directiveNode->getValues()[0];
-//     }
-//     return "";
-// }
-
-
 std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode) const {
     if (!_configRoot) return "";
-    
-    // Solo códigos de error válidos
-    // if (errorCode != 404 && errorCode != 403 && errorCode != 400 && errorCode != 500 && errorCode != 502) {
-    //     std::cout << "[WARNING] Código de error no válido: " << errorCode << ". Usando página por defecto." << std::endl;
-    //     return "";
-    // }
-    
-    // Si no se proporciona un servidor específico, usa el primero
-    // size_t serverIndex = get
     if (!serverNode) {
         const std::vector<IConfig*>& servers = _configRoot->getChildren();
         if (servers.empty() || servers[0]->getType() != "server") return "";
         serverNode = servers[0];
     }
     
-    // Buscar el location /error_pages
     const std::vector<IConfig*>& locations = serverNode->getChildren();
     for (size_t i = 0; i < locations.size(); ++i) {
         if (locations[i]->getType() == "location" && 
             !locations[i]->getValues().empty() && 
             locations[i]->getValues()[0] == "/error_pages") {
             
-            // Buscar la directiva correspondiente al código de error
             const std::vector<IConfig*>& directives = locations[i]->getChildren();
             for (size_t j = 0; j < directives.size(); ++j) {
                 const std::string& directiveType = directives[j]->getType();
                 
-                // Mapear códigos de error a directivas
                 if ((errorCode == 404 && directiveType == "not_found") ||
                     (errorCode == 403 && directiveType == "forbidden") ||
                     (errorCode == 400 && directiveType == "bad_request") ||
@@ -272,7 +225,6 @@ std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode)
                     if (!values.empty()) {
                         std::string filePath = values[0];
                         
-                        // Validar que el archivo tenga el formato correcto
                         if (validateErrorPagePath(filePath)) {
                             std::cout << "[INFO] Página de error " << errorCode << " configurada: " << filePath << std::endl;
                             return filePath;
@@ -290,7 +242,6 @@ std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode)
 }
 
 bool ConfigParser::validateErrorPagePath(const std::string& filePath) const {
-    // Verifica si el archivo existe
     std::ifstream file(filePath.c_str());
     if (file.good()) {
         return true;
@@ -302,15 +253,13 @@ bool ConfigParser::validateErrorPagePath(const std::string& filePath) const {
 
 bool ConfigParser::hasErrorPagesLocation(const IConfig* serverNode) const {
     if (!_configRoot) return false;
-    
-    // Si no se proporciona un servidor específico, usa el primero
+
     if (!serverNode) {
         const std::vector<IConfig*>& servers = _configRoot->getChildren();
         if (servers.empty() || servers[0]->getType() != "server") return false;
         serverNode = servers[0];
     }
     
-    // Buscar el location /error_pages
     const std::vector<IConfig*>& locations = serverNode->getChildren();
     for (size_t i = 0; i < locations.size(); ++i) {
         if (locations[i]->getType() == "location" && 
@@ -321,8 +270,6 @@ bool ConfigParser::hasErrorPagesLocation(const IConfig* serverNode) const {
     }
     return false;
 }
-
-// En ConfigParser.cpp
 
 bool ConfigParser::isMethodAllowed(const IConfig* serverNode, const std::string& path, const std::string& method) const 
 {
@@ -363,12 +310,9 @@ const IConfig* ConfigParser::findLocationBlock(const IConfig* serverNode, const 
 	{
         if (children[i]->getType() == "location") 
 		{
-            // Asumimos que el valor de la location es el primer valor
             const std::string& locationPath = children[i]->getValues()[0];
-            // Comprueba si la ruta de la solicitud comienza con la ruta de la location
             if (path.rfind(locationPath, 0) == 0) 
 			{
-                // Si es una coincidencia y es más larga que la anterior, la guardamos
                 if (locationPath.length() > longestMatchLength) 
 				{
                     longestMatchLength = locationPath.length();

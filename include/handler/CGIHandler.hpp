@@ -1,23 +1,11 @@
 #pragma once
-#include "../../include/core/Request.hpp"
-#include "../../include/core/Response.hpp"
-#include "../../include/handler/IRequestHandler.hpp"
-#include <string>
-#include <dirent.h> //DIR
-#include <signal.h> //SIGTERM
-#include <csignal>
-#include <sys/wait.h>
-#include "../../include/utils/Utils.hpp"
-#include "../../include/utils/ErrorPageHandler.hpp"
-#include "../../include/utils/MimeTypes.hpp"
-#include "../../include/response/IResponseBuilder.hpp"
-#include <iostream>
-#include "../../include/response/IResponseBuilder.hpp"
-#include "../../include/config/ConfigParser.hpp"
 
-#define PYTHON_INTERPRETER "/usr/bin/python3"
-#define SH_INTERPRETER "/usr/bin/sh"
-#define BUFFER_SIZE	1024
+#include "../include/libraries.hpp"
+
+#include "../include/handler/IRequestHandler.hpp"
+#include "../include/core/Request.hpp"
+#include "../include/core/Response.hpp"
+#include "../include/response/IResponseBuilder.hpp"
 
 enum Type
 {
@@ -29,16 +17,16 @@ enum Type
 
 class IResponseBuilder;
 
-class CGIHandler : public IRequestHandler 
+class CGIHandler: public IRequestHandler
 {
 	private:
-        std::string			_cgiRoot; //Raíz física de /cgi-bin (inyectada por la factory)
+        std::string			_cgiRoot;
 		std::string			_cgiDir;
 		IResponseBuilder*	_builder;
 		Response			_res;
-        const ConfigParser& _cfg; // ConfigParser para acceder a la configuración del servidor
+        const ConfigParser& _cfg;
        
-		Response	handleCGI( const Request &req, Response &res);
+		Response	handleCGI(const Request &req, Response &res);
 		Response	CGIerror(const Request &req,int status, std::string reason, std::string mime);
 		int			identifyScriptType(const Request &req);
 		int			identifyMethod(const Request &req);
@@ -56,8 +44,7 @@ class CGIHandler : public IRequestHandler
 
     
 	public:        
-        // CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder);   // ctor ligero
-        CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg); // ctor con ConfigParser
+        CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg);
         virtual ~CGIHandler();    
         virtual Response handleRequest(const Request& req);
 };

@@ -38,7 +38,6 @@ Response DefaultResponseBuilder::build(const Payload& p)
     res.setHeader("Connection",     p.keepAlive ? "keep-alive" : "close");
     std::cout << "[DEBUG][DefaultResponseBuilder] Setting response Connection: " << (p.keepAlive ? "keep-alive" : "close") << "\n";
     res.setBody(p.body);
-    /* std::cout << p.body << "\n"; */
     return res;
 }
 

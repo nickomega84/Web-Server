@@ -1,6 +1,7 @@
 #ifndef MIMETYPES_HPP
 #define MIMETYPES_HPP
-#include <string>
+
+#include "../include/libraries.hpp"
 
 extern const char ext_html[];
 extern const char ext_css[];

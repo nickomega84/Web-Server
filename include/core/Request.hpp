@@ -2,7 +2,8 @@
 #define REQUEST_HPP
 
 #include "../include/libraries.hpp"
-#include "../include/config/ConfigParser.hpp"
+#include "../../include/config/ConfigParser.hpp"
+#include "../include/core/Request.hpp"
 
 class Request 
 {
@@ -16,8 +17,8 @@ class Request
         std::string _queryString;
         bool _keepAlive;
 		std::string _physicalPath;
-        std::string _originalUri;  // Nueva variable para guardar la URI completa original
-        std::string _basePath;    // Nuevo campo para almacenar el path base
+        std::string _originalUri;
+        std::string _basePath;  
 
 
 		ConfigParser* _cfg;

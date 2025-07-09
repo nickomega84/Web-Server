@@ -7,7 +7,7 @@
 CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg): 
 _cgiRoot(cgiRoot), _builder(builder), _cfg(cfg)
 {
-	(void )_cfg; // Assuming _cfg is not used in this constructor
+	(void )_cfg;
 	std::cout << "[DEBUG][CGIHandler Constructor]: cgiRoot = " << _cgiRoot << std::endl;
 }
 
@@ -113,19 +113,17 @@ Response CGIHandler::handleCGI(const Request &req, Response &res)
 	return (_res);
 }
 
-//ejemplo del header del request: GET /cgi-bin/hello.cgi?name=Juan HTTP/1.1
 int CGIHandler::handleGET(const Request &req, Response &res, std::string interpreter)
 {
 	std::cout << "[DEBUG][CGI][handleGET] START" << std::endl;
 	
-    
 	std::map<std::string, std::string> map;
 	if (getScript(req, map))
 		return (1);
 	char *argv[] = {(char *)map["interpreter"].c_str(), (char *)map["name"].c_str(), NULL};
 
 	std::vector<std::string> env;
-	if (!getEnviroment(env, "POST", map["path"], map["queryString"], req))
+	if (!getEnviroment(env, "GET", map["path"], map["queryString"], req))
 		return (CGIerror(req ,404, "Bad Request", "text/html"), 1);
 
 	char** envp = new char*[env.size() + 1];
@@ -138,7 +136,7 @@ int CGIHandler::handleGET(const Request &req, Response &res, std::string interpr
 		return (std::cerr << "[ERROR] CGI pipe() on handleGET" << std::endl, \
 		CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
 
-	pid_t pid = fork(); //fork() devuelve el PID del proceso hijo al proceso padre, y 0 al proceso hijo. No devuelve el PID del proceso actual.
+	pid_t pid = fork();
 	if (pid < 0)
 		return (std::cerr << "[ERROR] CGI pid on handleGET" << std::endl, \
 		CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
@@ -289,7 +287,6 @@ int CGIHandler::getScript(const Request &req, std::map<std::string, std::string>
 	return (0);
 }
 
-// Ej uri: /cgi-bin/shellGET.sh?id=123
 std::string CGIHandler::getScriptName(const std::string &uri)
 {
 	std::cout << "[DEBUG][CGI][getScriptName] START" << std::endl;
@@ -302,12 +299,12 @@ std::string CGIHandler::getScriptName(const std::string &uri)
 		path = uri;
 
 	std::string::size_type pos_name = path.rfind("/");
-	if (pos_name == std::string::npos) // la ruta entera es el nombre del script
+	if (pos_name == std::string::npos)
 		return (path);
-	else if (pos_name == path.length() - 1) // asegurarse de que no termina en barra (ej. "/cgi-bin/")
+	else if (pos_name == path.length() - 1)
 		return ("");
 
-	return (path.substr(pos_name + 1)); // quitamos el slash inicial
+	return (path.substr(pos_name + 1));
 }
 
 std::string CGIHandler::getScriptQuery(const std::string &uri)
@@ -350,7 +347,7 @@ bool CGIHandler::getEnviroment(std::vector<std::string> &env, std::string method
 	if (method == "GET")
 	{
 		env.push_back("REQUEST_METHOD=GET");
-		env.push_back("CONTENT_LENGTH=0"); //GET no tiene cuerpo, LENGHT se refiere al tamaño del cuerpo del request
+		env.push_back("CONTENT_LENGTH=0");
 	}
 	else if (method == "POST")
 	{
@@ -372,7 +369,6 @@ int CGIHandler::createResponse(std::string output, Response &res)
 {
 	std::cout << "[DEBUG][CGI][createResponse] START" << std::endl;
 	
-	// res.setStatus(200, "OK");
     _builder->setStatus(res, 200, "OK");
 
 	std::string cgi_headers_str;
@@ -382,7 +378,7 @@ int CGIHandler::createResponse(std::string output, Response &res)
 
 	if (header_end_pos == std::string::npos)
 	{
-		header_end_pos = output.find("\n\n"); //algunos scripts no devuelven \r\n\r\n como dicta la convencción de HTTP, en su lugar devuelven \n\n
+		header_end_pos = output.find("\n\n");
 		header_lenght = 2;
 	}
 	if (header_end_pos == std::string::npos)
@@ -392,7 +388,6 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	cgi_headers_str = output.substr(0, header_end_pos);
 
     _builder->setBody(res, cgi_body_str);
-	// res.setBody(cgi_body_str);
 
 	std::stringstream ss(cgi_headers_str);
 	std::string line;
@@ -403,13 +398,12 @@ int CGIHandler::createResponse(std::string output, Response &res)
 		{
 			std::string header_name = line.substr(0, colon_pos);
 			std::string header_value = line.substr(colon_pos + 1);
-			size_t first_char_pos = header_value.find_first_not_of(" \t"); // Quitar espacios en blanco al inicio del valor
+			size_t first_char_pos = header_value.find_first_not_of(" \t");
 			if (first_char_pos != std::string::npos)
 				header_value = header_value.substr(first_char_pos);
 			else
-				header_value = ""; // Valor vacío si solo hay espacios
+				header_value = "";
             _builder->setHeader(res, header_name, header_value);
-			// res.setHeader(header_name, header_value);
 		}
 	}
 
@@ -419,7 +413,6 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	std::string bodySizeStr = ssBodySize.str();
 	if (res.getHeader("Content-Length").empty())
         _builder->setHeader(res, "Content-Length", bodySizeStr);
-    // res.setHeader("Content-Length", bodySizeStr);
 	
 	return (0);
 }

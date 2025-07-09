@@ -6,6 +6,7 @@
 #include <fstream>
 #include <csignal>
 
+#include "../include/libraries.hpp"
 #include "../include/config/ConfigParser.hpp"
 #include "../include/server/Server.hpp"
 #include "../include/utils/Utils.hpp"
@@ -64,10 +65,11 @@ int main(int argc, char** argv)
 
     const IConfig* serverNode = rootConfig->getChildren()[0];
 
-    try {
+    try 
+	{
         validateRoot validator(argv[1]);
         validator.validationRoot();
-//---
+
         std::string serverName = parser.getServerName(serverNode);
         std::cout << "[INFO] Server name: " << serverName << std::endl;
         
@@ -82,63 +84,6 @@ int main(int argc, char** argv)
 
         std::string deleteAllowedValue = getDirectiveValue(serverNode, "delete_allowed", "false");
         std::cout << "[INFO] DELETE method allowed: " << deleteAllowedValue << std::endl;
-
-        //  ddd
-        
-        //   // --- Verificar si existe location /error_pages ---
-        //   if (parser.hasErrorPagesLocation(serverNode)) {
-        //     std::cout << "[INFO] Location /error_pages encontrado en la configuración" << std::endl;
-        //     std::cout << "[INFO] Validando páginas de error configuradas..." << std::endl;
-            
-        //     // Mostrar las páginas de error configuradas
-        //     std::string errorPage404 = parser.getErrorPage(404, serverNode);
-        //     if (!errorPage404.empty()) {
-        //         std::cout << "[INFO] ✓ Página de error 404 válida: " << errorPage404 << std::endl;
-        //     } else {
-        //         std::cout << "[INFO] ✗ Página de error 404 no válida o no configurada, usando página por defecto" << std::endl;
-        //     }
-            
-        //     std::string errorPage403 = parser.getErrorPage(403, serverNode);
-        //     if (!errorPage403.empty()) {
-        //         std::cout << "[INFO] ✓ Página de error 403 válida: " << errorPage403 << std::endl;
-        //     } else {
-        //         std::cout << "[INFO] ✗ Página de error 403 no válida o no configurada, usando página por defecto" << std::endl;
-        //     }
-            
-        //     std::string errorPage400 = parser.getErrorPage(400, serverNode);
-        //     if (!errorPage400.empty()) {
-        //         std::cout << "[INFO] ✓ Página de error 400 válida: " << errorPage400 << std::endl;
-        //     } else {
-        //         std::cout << "[INFO] ✗ Página de error 400 no válida o no configurada, usando página por defecto" << std::endl;
-        //     }
-            
-        //     std::string errorPage502 = parser.getErrorPage(502, serverNode);
-        //     if (!errorPage502.empty()) {
-        //         std::cout << "[INFO] ✓ Página de error 502 válida: " << errorPage502 << std::endl;
-        //     } else {
-        //         std::cout << "[INFO] ✗ Página de error 502 no válida o no configurada, usando página por defecto" << std::endl;
-        //     }
-            
-        //     std::string errorPage500 = parser.getErrorPage(500, serverNode);
-        //     if (!errorPage500.empty()) {
-        //         std::cout << "[INFO] ✓ Página de error 500 válida: " << errorPage500 << std::endl;
-        //     } else {
-        //         std::cout << "[INFO] ✗ Página de error 500 no válida o no configurada, usando página por defecto" << std::endl;
-        //     }
-            
-        //     // Probar un código de error no válido
-        //     std::cout << "[INFO] Probando código de error inválido (999):" << std::endl;
-        //     std::string errorPage999 = parser.getErrorPage(999, serverNode);
-        //     if (errorPage999.empty()) {
-        //         std::cout << "[INFO] ✓ Código de error 999 rechazado correctamente" << std::endl;
-        //     }
-            
-        // } else {
-        //     std::cout << "[INFO] No se encontró location /error_pages en la configuración" << std::endl;
-        // }
-        //---
-        // --- Reemplazo de la lógica de RootConfig, CgiConfig, etc. ---
-
 
         std::string rootPathConf = getDirectiveValue(serverNode, "root", "./www");
         std::string rootPath = Utils::resolveAndValidateDir(rootPathConf);

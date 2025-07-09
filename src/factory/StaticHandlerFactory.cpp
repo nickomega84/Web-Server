@@ -4,7 +4,7 @@
 
 StaticHandlerFactory::StaticHandlerFactory(const std::string& rootDir, IResponseBuilder*  builder, const ConfigParser& cfg): _rootDir(rootDir), _builder(builder), _cfg(cfg)
 {
-    (void) _cfg; // Assuming _cfg is not used in this constructor
+    (void) _cfg;
 	std::cout << "[DEBUG][StaticHandlerFactory] created with rootsDir: " << rootDir << "\n";
 }
 

@@ -1,8 +1,9 @@
 #ifndef IREQUESTHANDLER_HPP
 #define IREQUESTHANDLER_HPP
 
-#include "../core/Request.hpp"
-#include "../core/Response.hpp"
+#include "../include/libraries.hpp"
+#include "../include/core/Response.hpp"
+#include "../include/core/Request.hpp"
 
 class IRequestHandler 
 {
