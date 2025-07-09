@@ -17,6 +17,7 @@ class StaticFileHandler : public IRequestHandler
 		Response doGET(std::string fullPath, Payload& payload, const Request& req);
 		Response doDELETE(std::string fullPath, Payload& payload, const Request& req);
 		bool checkCfgPermission(const Request &req, std::string method);
+		Response staticAutoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request &request, Payload &payload);
     
     public:
 		// StaticFileHandler(const std::string& root, IResponseBuilder* b);

@@ -96,16 +96,16 @@ bool Server::areWeFinishedReading(ClientBuffer &additive_bff, Request &req)
 		
 		if (additive_bff.get_buffer().find("0\r\n\r\n") != std::string::npos)
 			return (validateChunkedBody(additive_bff), \
-			std::cout << "[DEBUG][areWeFinishedReading] (Chunked) finished reading" << std::endl, true);
+			std::cout << "[DEBUG][areWeFinishedReading](Chunked) finished reading" << std::endl, true);
 		else
-			return (std::cout << "[DEBUG][areWeFinishedReading] (Chunked) we still need to read" << std::endl, false);
+			return (std::cout << "[DEBUG][areWeFinishedReading](Chunked) we still need to read" << std::endl, false);
 	}
 	else if (additive_bff.getContentLenght() > 0)
 	{
 		if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getContentLenght())
-			return (std::cout << "[DEBUG][areWeFinishedReading] (ContentLenght) we still need to read" << std::endl, false);
+			return (std::cout << "[DEBUG][areWeFinishedReading](ContentLenght) we still need to read" << std::endl, false);
 		else
-			return (std::cout << "[DEBUG][areWeFinishedReading] (ContentLenght) finished reading" << std::endl, true);
+			return (std::cout << "[DEBUG][areWeFinishedReading](ContentLenght) finished reading" << std::endl, true);
 	}
 	return (true);
 }
@@ -163,7 +163,7 @@ void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedRea
 	std::string CfgBodySize = _cfg.getDirectiveValue(locationNode, "body_size", "1000000");
 	if (CfgBodySize.empty())
 	{
-		std::cout << "[DEBUG][checkMaxContentLength] no body_size on dcf" << std::endl;
+		std::cout << "[DEBUG][checkMaxContentLength] no body_size on cfg" << std::endl;
 		return;
 	}
 	

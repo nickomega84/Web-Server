@@ -6,11 +6,6 @@
 #include "../../include/config/ConfigParser.hpp"
 #include <iostream>
 
-// StaticFileHandler::StaticFileHandler(const std::string& root) : _rootPath(root)
-// {
-//     std::cout << "[DEBUG][StaticFileHandler] initialized with root path: " << _rootPath << std::endl;
-// }
-
 StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* b, const ConfigParser& cfg): _rootPath(root), _builder(b), _cfg(cfg)
 {
     (void) _cfg; // Assuming _cfg is not used in this constructor
@@ -66,63 +61,11 @@ Response StaticFileHandler::handleRequest(const Request& request)
         payload.body = "400 - Bad Request";
         return _builder->build(payload);
     }
-    struct stat s;
-    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
-        if (uri[uri.size() - 1] != '/')
-            uri += "/";
-    
-        ConfigParser* cfg = request.getCfg();
-        // size_t serverIndex = request.getServerIndex();
-        std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "true");
-        std::cout << "[DEBUG][StaticFileHandler] Autoindex value: " << autoindex << std::endl;
 
-        std::string indexPath = fullPath + "/index.html";
-    
-        if (autoindex == "true") {
-            std::string basePath = request.getBasePath();
-            std::string currentPath = request.getURI();
-            
-            // Asegurarse de que el path termine con /
-            if (!currentPath.empty() && currentPath[currentPath.length() - 1] != '/')
-                currentPath += '/';
-                
-            // Generar el HTML del autoindex con el path completo
-            std::string html = "<html><head><title>Index of " + currentPath + "</title></head>";
-            html += "<body><h1>Index of " + currentPath + "</h1><hr><pre>";
-            
-            DIR* dir = opendir(fullPath.c_str());
-            if (dir) {
-                struct dirent* entry;
-                while ((entry = readdir(dir))) {
-                    if (std::string(entry->d_name) != "." && std::string(entry->d_name) != "..") {
-                        // Usar el path completo para los enlaces
-                        std::string href = currentPath + entry->d_name;
-                        html += "<a href=\"" + href + "\">" + entry->d_name + "</a><br>";
-                    }
-                }
-                closedir(dir);
-            }
-            
-            html += "</pre><hr></body></html>";
-            
-            Payload payload;
-            payload.status = 200;
-            payload.reason = "OK";
-            payload.mime = "text/html";
-            payload.body = html;
-            
-            return _builder->build(payload);
-        }
-        else if (access(indexPath.c_str(), F_OK) == 0) {
-            fullPath = indexPath;
-        } else {
-            payload.status = 403;
-            payload.reason = "Forbidden";
-            payload.mime = "text/plain";
-            payload.body = "403 - Directory listing forbidden";
-            return _builder->build(payload);
-        }
-    }
+	bool autoindexFlag = false;
+	Response resAutoindex = staticAutoindex(autoindexFlag, uri, fullPath, request, payload);
+	if (autoindexFlag)
+		return (resAutoindex);
     
     std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: AQUIIIIIIIIIIIIIIIIII " << fullPath << std::endl;
     if (!fileExists(fullPath)) {
@@ -214,4 +157,40 @@ bool StaticFileHandler::checkCfgPermission(const Request &req, std::string metho
 	std::cout << "[DEBUG][static][checkCfgPermission] serverIndex = " << serverIndex << std::endl;
 
     return (cfg->isMethodAllowed(serverNodes[serverIndex], path, method));
+}
+
+Response StaticFileHandler::staticAutoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request &request, Payload &payload) 
+{
+    struct stat s;
+    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
+        if (uri[uri.size() - 1] != '/')
+            uri += "/";
+
+        ConfigParser* cfg = request.getCfg();
+        size_t serverIndex = request.getServerIndex();
+        std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[serverIndex], "autoindex", "true");
+
+        std::string indexPath = fullPath + "index.html"; // Corregido: faltaba un "/"
+
+        if (autoindex == "true") {
+            autoindexFlag = true;
+            payload.status = 200;
+            payload.reason = "OK";
+            payload.mime = "text/html";
+            // La generación de HTML también se delega aquí.
+            payload.body = Utils::renderAutoindexPage(request.getURI(), fullPath);
+            return _builder->build(payload);
+        }
+        else if (access(indexPath.c_str(), F_OK) == 0) {
+            fullPath = indexPath;
+        } else {
+            autoindexFlag = true;
+            payload.status = 403;
+            payload.reason = "Forbidden";
+            payload.mime = "text/plain";
+            payload.body = "403 - Directory listing forbidden";
+            return _builder->build(payload);
+        }
+    }
+    return Response();
 }

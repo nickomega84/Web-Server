@@ -1,1 +1,0 @@
-[DEBUG] COnfigParser::load() - Cargando archivo de configuración: config/configNiko.conf

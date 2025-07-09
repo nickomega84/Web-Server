@@ -20,6 +20,7 @@ Request& Request::operator=(const Request& other)
 		_headers = other._headers;
 		_body = other._body;
         _cfg = other._cfg;
+		_serverIndex = other._serverIndex;
 	}
 	return *this;
 }

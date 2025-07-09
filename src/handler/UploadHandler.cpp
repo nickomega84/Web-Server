@@ -19,58 +19,40 @@ Response UploadHandler::handleRequest(const Request& request)
 	std::cout << "[DEBUG][UploadHandler][handleRequest] START" << std::endl;
 
 	std::string method = request.getMethod();
-    std::string uri = request.getPath();
-    std::string fullPath = _uploadsPath + uri;
-    Payload payload;
-    payload.keepAlive = true;
+    std::string originalUri = request.getPath();
+
+    std::string uploadsPrefix = "/uploads";
+    std::string relativePath = originalUri;
+    if (originalUri.rfind(uploadsPrefix, 0) == 0) // Chequea si la URI empieza con /uploads
+        relativePath = originalUri.substr(uploadsPrefix.length());
+
+    // Si relativePath está vacío después de quitar el prefijo, significa que se accedió a /uploads/
+    // Por lo que debe ser "/" para que la concatenación sea correcta.
+    if (relativePath.empty() || relativePath[0] != '/')
+        relativePath = "/" + relativePath;
+
+    std::string fullPath = _uploadsPath + relativePath;
+
     struct stat s;
-    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
-        // Asegura que termine en /
-        if (uri[uri.size() - 1] != '/')
-            uri += "/";
-
-        ConfigParser* cfg = request.getCfg();
-        std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "false");
-
-        if (autoindex == "true") {
-            payload.status = 200;
-            payload.reason = "OK";
-            payload.mime = "text/html";
-            // payload.body = Utils::renderAutoindex(uri, fullPath);
-            // payload.body = Utils::renderAutoindex("/uploads", "/sgoinfre/students/dbonilla/webServer/www/uploads");
-
-            return _builder->build(payload);
-        }
-
-        std::string indexPath = fullPath + "/index.html";
-        if (access(indexPath.c_str(), F_OK) == 0) {
-            fullPath = indexPath;
-        } else {
-            payload.status = 403;
-            payload.reason = "Forbidden";
-            payload.mime = "text/plain";
-            payload.body = "403 - Directory listing forbidden";
-            return _builder->build(payload);
-        }
+    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) 
+	{
+        bool autoindexFlag = false;
+        Response resAutoindex = uploadAutoindex(autoindexFlag, originalUri, fullPath, request);
+        if (autoindexFlag)
+            return resAutoindex;
     }
 
     if (method == "GET" || method == "HEAD" || method == "DELETE")
     {
-        std::string uploadsPrefix = "/uploads";
-        std::string relativePath = request.getPath();
-
-        if (relativePath.find(uploadsPrefix) == 0)
-            relativePath = relativePath.substr(uploadsPrefix.size());
-
-        if (relativePath.empty() || relativePath[0] != '/')
-            relativePath = "/" + relativePath;
-
         Request modifiedRequest = request;
         modifiedRequest.setPath(relativePath);
 
+		std::cout << "[DEBUG][UploadHandler][handleRequest] OLAOLAOLAOLAOLAOLAOLAOLA modifiedRequest.setServerIndex = " << modifiedRequest.getServerIndex() << std::endl;
+
         StaticFileHandler staticHandler(_uploadsPath, _builder, _cfg);
-        return staticHandler.handleRequest(modifiedRequest);
+        return (staticHandler.handleRequest(modifiedRequest));
     }
+
     if (method != "POST") 
 		return (std::cerr << "[ERROR][UploadHandler] 405 not a POST method" << std::endl, \
 		uploadResponse(405, "Method Not Allowed", "text/plain", "405 - Method Not Allowed"));
@@ -206,4 +188,45 @@ bool UploadHandler::checkCfgPermission(const Request &req, std::string method)
 	std::cout << "[DEBUG][post][checkCfgPermission] serverIndex = " << serverIndex << std::endl;
 
 	return (cfg->isMethodAllowed(serverNodes[serverIndex], path, method));
+}
+
+Response UploadHandler::uploadAutoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request& request) 
+{
+    std::cout << "[DEBUG][UploadHandler][uploadAutoindex] START" << std::endl;
+	
+	Payload payload;
+    payload.keepAlive = true;
+
+    struct stat s;
+    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
+        if (uri[uri.size() - 1] != '/')
+            uri += "/";
+
+        ConfigParser* cfg = request.getCfg();
+        size_t serverIndex = request.getServerIndex();
+        std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[serverIndex], "autoindex", "false");
+
+        if (autoindex == "true") {
+            autoindexFlag = true;
+            payload.status = 200;
+            payload.reason = "OK";
+            payload.mime = "text/html";
+            // La generación de HTML se delega a la función de utilidad.
+            payload.body = Utils::renderAutoindexPage(uri, fullPath);
+            return _builder->build(payload);
+        }
+
+        std::string indexPath = fullPath + "index.html"; // Corregido: faltaba un "/"
+        if (access(indexPath.c_str(), F_OK) == 0) {
+            fullPath = indexPath;
+        } else {
+            autoindexFlag = true;
+            payload.status = 403;
+            payload.reason = "Forbidden";
+            payload.mime = "text/plain";
+            payload.body = "403 - Directory listing forbidden";
+            return _builder->build(payload);
+        }
+    }
+    return Response();
 }
