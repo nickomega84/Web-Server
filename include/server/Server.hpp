@@ -64,7 +64,8 @@ class Server
 		int		handleClientRead(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
 		int		createResponse(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
 		int		handleClientResponse(const int client_fd, std::map<int, Response> &pending_writes);
-		int     requestParseError(int client_fd, std::map<int, Response> &pending_writes);
+		/* int     requestParseError(int client_fd, std::map<int, Response> &pending_writes); */
+        int     requestParseError(ClientBuffer &additive_bff, int client_fd, std::map<int, Response> &pending_writes);
 		size_t	findServerIndex(Request &req);
 		
 		//readRequest

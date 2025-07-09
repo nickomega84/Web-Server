@@ -72,9 +72,10 @@ Response StaticFileHandler::handleRequest(const Request& request)
             uri += "/";
     
         ConfigParser* cfg = request.getCfg();
+        // size_t serverIndex = request.getServerIndex();
         std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "true");
         std::cout << "[DEBUG][StaticFileHandler] Autoindex value: " << autoindex << std::endl;
-    
+
         std::string indexPath = fullPath + "/index.html";
     
         if (autoindex == "true") {
@@ -129,7 +130,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
         payload.status = 404;
         payload.reason = "Not Found";
         payload.mime = "text/html";
-        payload.body = errorHandler.render(404, "Archivo no encontrado");
+        payload.body = errorHandler.render(request ,404, "Archivo no encontrado");
         return _builder->build(payload);
     }
 
@@ -149,7 +150,7 @@ Response StaticFileHandler::doGET(std::string fullPath,  Payload& payload, const
 		payload.status = 403;
 		payload.reason = "Forbidden";
 		payload.mime = "text/html";
-		payload.body = errorHandler.render(403, "Prohibido borrar el archivo");
+		payload.body = errorHandler.render(req,403, "Prohibido borrar el archivo");
 		return _builder->build(payload);
 	}
 
@@ -171,7 +172,7 @@ Response StaticFileHandler::doDELETE(std::string fullPath, Payload& payload, con
 		payload.status = 403;
 		payload.reason = "Forbidden";
 		payload.mime = "text/html";
-		payload.body = errorHandler.render(403, "Prohibido borrar el archivo");
+		payload.body = errorHandler.render(req,403, "Prohibido borrar el archivo");
 		return _builder->build(payload);
 	}
 
@@ -191,7 +192,7 @@ Response StaticFileHandler::doDELETE(std::string fullPath, Payload& payload, con
 		payload.status = 404;
 		payload.reason = "Not Found";
 		payload.mime = "text/html";
-		payload.body = errorHandler.render(404, "Archivo no encontrado");
+		payload.body = errorHandler.render(req,404, "Archivo no encontrado");
 		return _builder->build(payload);
 	}
 }

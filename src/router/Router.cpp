@@ -62,7 +62,7 @@ IRequestHandler* Router::resolve(Request& request) const
                     std::cerr << "[ERROR] Sanitización fallida: " << e.what() << std::endl;
     
                     ErrorPageHandler errorHandler(_absRoot);
-                    std::string body = errorHandler.render(403, "Acceso no permitido");
+                    std::string body = errorHandler.render(request, 403, "Acceso no permitido");
     
                     res.setStatus(403, "Forbidden");
                     res.setBody(body);

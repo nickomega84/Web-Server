@@ -2,6 +2,7 @@
 #define ERROR_PAGE_HANDLER_HPP
 
 #include <string>
+#include "../core/Request.hpp"
 
 class ErrorPageHandler {
     private:
@@ -24,7 +25,7 @@ class ErrorPageHandler {
         ErrorPageHandler& operator=(const ErrorPageHandler& other);
         ~ErrorPageHandler();
         
-        std::string render(int code, const std::string& fallbackText) const;
+        std::string render(const Request &request,int code, const std::string& fallbackText) const;
 };
 
 #endif

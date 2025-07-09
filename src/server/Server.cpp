@@ -194,7 +194,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 		std::cerr << "[ERROR][[   [CATCH]   ]]" << std::endl;
 		std::cerr << e.what() << std::endl;
 		additive_bff.setFinishedReading(true);
-		return (requestParseError(client_fd, pending_writes), 0);
+		return (requestParseError(additive_bff, client_fd, pending_writes), 0);
 	}
 	std::cout << "[DEBUG] [[  FINISHED READING REQUEST  ]]" << std::endl;
 
@@ -208,7 +208,7 @@ int Server::createResponse(const int client_fd, std::map<int, Response> &pending
 	
 	Request  req;
     if (!req.parse(additive_bff.get_buffer()))
-		return (requestParseError(client_fd, pending_writes), 0);
+		return (requestParseError(additive_bff, client_fd, pending_writes), 0);
 
 	req.setCfg(_cfg);
 
@@ -232,7 +232,7 @@ int Server::createResponse(const int client_fd, std::map<int, Response> &pending
 		payload.mime = "text/html";
 
 		ErrorPageHandler errorHandler(_rootPath);
-		payload.body = errorHandler.render(404, "Recurso no encontrado");
+		payload.body = errorHandler.render(req, 404, "Recurso no encontrado");
 
 		res = _responseBuilder->build(payload);
 		_error = true;
@@ -258,14 +258,18 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	return (std::cout << "[DEBUG][handleClientResponse] END" << std::endl, 0);
 }
 
-int Server::requestParseError(int client_fd, std::map<int, Response> &pending_writes)
+int Server::requestParseError(ClientBuffer &additive_bff, int client_fd, std::map<int, Response> &pending_writes)
 {
 	std::cout << "[DEBUG][requestParseError] START" << std::endl;
-   
-	ErrorPageHandler err(_rootPath);
+
+    Request  req;
+    if (!req.parse(additive_bff.get_buffer().c_str())) 
+        throw (std::runtime_error("[ERROR][readRequest] HTTP request contains errors"));
+
+    ErrorPageHandler err(_rootPath);
 	Response res400;
 	res400.setStatus(400, "Bad Request");
-	res400.setBody(err.render(400, "Bad Request"));
+	res400.setBody(err.render(req, 400, "Bad Request"));
 	pending_writes[client_fd] = res400;
 	_error = true;
     return (0);

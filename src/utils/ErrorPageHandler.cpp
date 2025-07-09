@@ -52,36 +52,90 @@ std::string ErrorPageHandler::readFile(const std::string& path) const {
     return ss.str();
 }
 
-std::string ErrorPageHandler::render(int code, const std::string& fallbackText) const 
+// std::string ErrorPageHandler::render(const Request &request, int code, const std::string& fallbackText) const 
+// {
+//     std::cout << "Rendering error page for code: " << code << std::endl;
+//     ConfigParser* cfg = request.getCfg();
+//     size_t serverIndex = request.getServerIndex();
+//     std::string relPathStr = cfg->getErrorPage(code, cfg->getServerBlocks()[serverIndex]);
+//     const char* relPath = relPathStr.c_str();
+//     std::cout << "Relative path from config: " << relPath << std::endl;
+//     // std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[0], "autoindex", "true");
+//     // const char* realPath =  
+//     try 
+//     {
+//         if (relPath == NULL) {
+//             std::cerr << "No error page found for code: " << code << std::endl;
+//             relPath = getErrorPagePath(500); // Fallback to 500 error page
+//         }
+//     } catch (const std::exception& e) 
+//     {
+//         std::cerr << "Error retrieving error page path: " << e.what() << std::endl;
+//         relPath = NULL; // Fallback to NULL if an error occurs
+//     }
+//     std::cout << "Relative path: " << (relPath ? relPath : "NULL") << std::endl;
+//     std::string fullPath = _rootPath + relPath;
+//     std::cout << "ErrorPageHandler: relPath: " << relPath << std::endl;
+//     std::cout << "\nPage_Handler: " << fullPath  << std::endl;
+//     if (relPath != NULL) 
+//     {
+//         std::cout << "Checking if file exists: " << fullPath << std::endl;
+//         if (fileExists(fullPath)) {
+//             std::cerr << "File exists: " << fullPath << std::endl;
+//             std::string content = readFile(fullPath);
+//             std::cerr << "File content content length: " << content << std::endl;
+//             if (!content.empty())
+//                 return content;
+//         }
+//     }
+//     std::ostringstream oss;
+//     oss << "<html><head><title>" << code << "</title></head>"
+//         << "<body><h1>" << code << "</h1><p>" << fallbackText << "</p></body></html>";
+//     return oss.str();
+// }
+
+
+std::string ErrorPageHandler::render(const Request &request, int code, const std::string& fallbackText) const 
 {
     std::cout << "Rendering error page for code: " << code << std::endl;
-    const char* relPath = getErrorPagePath(code);
-    try 
-    {
-        if (relPath == NULL) {
-            std::cerr << "No error page found for code: " << code << std::endl;
-            relPath = getErrorPagePath(500); // Fallback to 500 error page
+
+    ConfigParser* cfg = request.getCfg();
+    size_t serverIndex = request.getServerIndex();
+
+    std::string relPathStr;
+    try {
+        relPathStr = cfg->getErrorPage(code, cfg->getServerBlocks()[serverIndex]);
+
+        // 🔧 Aquí haces el trim si comienza con "./www"
+        const std::string prefix = "./www";
+        if (relPathStr.compare(0, prefix.size(), prefix) == 0) {
+            relPathStr = relPathStr.substr(prefix.size()); // quita "./www"
         }
-    } catch (const std::exception& e) 
-    {
+
+        if (relPathStr.empty()) {
+            std::cerr << "No error page found for code: " << code << std::endl;
+            relPathStr = getErrorPagePath(500); // fallback
+        }
+    } catch (const std::exception& e) {
         std::cerr << "Error retrieving error page path: " << e.what() << std::endl;
-        relPath = NULL; // Fallback to NULL if an error occurs
+        relPathStr.clear();  // fallback
     }
-    std::cout << "Relative path: " << (relPath ? relPath : "NULL") << std::endl;
-    std::string fullPath = _rootPath + relPath;
-    std::cout << "ErrorPageHandler: relPath: " << relPath << std::endl;
-    std::cout << "\nPage_Handler: " << fullPath  << std::endl;
-    if (relPath != NULL) 
-    {
+
+    std::cout << "Relative path (trimmed): " << relPathStr << std::endl;
+    std::string fullPath = _rootPath + relPathStr;
+    std::cout << "Page_Handler: " << fullPath << std::endl;
+
+    if (!relPathStr.empty()) {
         std::cout << "Checking if file exists: " << fullPath << std::endl;
         if (fileExists(fullPath)) {
             std::cerr << "File exists: " << fullPath << std::endl;
             std::string content = readFile(fullPath);
-            std::cerr << "File content content length: " << content << std::endl;
+            std::cerr << "File content length: " << content.length() << std::endl;
             if (!content.empty())
                 return content;
         }
     }
+
     std::ostringstream oss;
     oss << "<html><head><title>" << code << "</title></head>"
         << "<body><h1>" << code << "</h1><p>" << fallbackText << "</p></body></html>";

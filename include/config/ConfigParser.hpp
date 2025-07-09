@@ -6,6 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <stdexcept>
+#include <sstream>
 
 class ConfigParser {
     private:
@@ -33,7 +34,12 @@ class ConfigParser {
         std::string getLocation(const std::string& locationPath, const std::string& key) const;
         std::string getServerName(const IConfig* serverNode);
         std::string getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) ;
-        std::string getErrorPages(const IConfig* serverNode, const std::string& errorType);
+        // std::string getErrorPages(const IConfig* serverNode, const std::string& errorType);
+                // Nuevos métodos para gestión de páginas de error
+        std::string getErrorPage(int errorCode, const IConfig* serverNode = NULL) const;
+        bool hasErrorPagesLocation(const IConfig* serverNode = NULL) const;
+        bool validateErrorPagePath(const std::string& filePath) const;
+                
 		const std::vector<IConfig*>& getServerBlocks() const;
 
 		const IConfig* findLocationBlock(const IConfig* serverNode, const std::string& path) const;

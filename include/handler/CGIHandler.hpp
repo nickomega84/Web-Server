@@ -39,7 +39,7 @@ class CGIHandler : public IRequestHandler
         const ConfigParser& _cfg; // ConfigParser para acceder a la configuración del servidor
        
 		Response	handleCGI( const Request &req, Response &res);
-		Response	CGIerror(int status, std::string reason, std::string mime);
+		Response	CGIerror(const Request &req,int status, std::string reason, std::string mime);
 		int			identifyScriptType(const Request &req);
 		int			identifyMethod(const Request &req);
 		void		checkCfgPermission(const Request &req, std::string method);

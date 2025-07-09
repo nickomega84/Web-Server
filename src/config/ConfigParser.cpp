@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <stdexcept>
 
 // --- Lógica del Singleton ---
 ConfigParser::ConfigParser() : _configRoot(NULL) {}
@@ -218,16 +219,107 @@ const std::vector<IConfig*>& ConfigParser::getServerBlocks() const
     return _configRoot->getChildren();
 }
 
-std::string ConfigParser::getErrorPages(const IConfig* serverNode, const std::string& errorType) {
-    if (!serverNode) return "";
-    const IConfig* errorNode = serverNode->getChild("error_pages");
-    if (!errorNode) return "";
+// std::string ConfigParser::getErrorPages(const IConfig* serverNode, const std::string& errorType) {
+//     if (!serverNode) return "";
+//     const IConfig* errorNode = serverNode->getChild("error_pages");
+//     if (!errorNode) return "";
 
-    const IConfig* directiveNode = errorNode->getChild(errorType);
-    if (directiveNode && !directiveNode->getValues().empty()) {
-        return directiveNode->getValues()[0];
+//     const IConfig* directiveNode = errorNode->getChild(errorType);
+//     if (directiveNode && !directiveNode->getValues().empty()) {
+//         return directiveNode->getValues()[0];
+//     }
+//     return "";
+// }
+
+
+std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode) const {
+    if (!_configRoot) return "";
+    
+    // Solo códigos de error válidos
+    // if (errorCode != 404 && errorCode != 403 && errorCode != 400 && errorCode != 500 && errorCode != 502) {
+    //     std::cout << "[WARNING] Código de error no válido: " << errorCode << ". Usando página por defecto." << std::endl;
+    //     return "";
+    // }
+    
+    // Si no se proporciona un servidor específico, usa el primero
+    // size_t serverIndex = get
+    if (!serverNode) {
+        const std::vector<IConfig*>& servers = _configRoot->getChildren();
+        if (servers.empty() || servers[0]->getType() != "server") return "";
+        serverNode = servers[0];
+    }
+    
+    // Buscar el location /error_pages
+    const std::vector<IConfig*>& locations = serverNode->getChildren();
+    for (size_t i = 0; i < locations.size(); ++i) {
+        if (locations[i]->getType() == "location" && 
+            !locations[i]->getValues().empty() && 
+            locations[i]->getValues()[0] == "/error_pages") {
+            
+            // Buscar la directiva correspondiente al código de error
+            const std::vector<IConfig*>& directives = locations[i]->getChildren();
+            for (size_t j = 0; j < directives.size(); ++j) {
+                const std::string& directiveType = directives[j]->getType();
+                
+                // Mapear códigos de error a directivas
+                if ((errorCode == 404 && directiveType == "not_found") ||
+                    (errorCode == 403 && directiveType == "forbidden") ||
+                    (errorCode == 400 && directiveType == "bad_request") ||
+                    (errorCode == 502 && directiveType == "bad_getaway") ||
+                    (errorCode == 500 && directiveType == "internal_error")) {
+                    
+                    const std::vector<std::string>& values = directives[j]->getValues();
+                    if (!values.empty()) {
+                        std::string filePath = values[0];
+                        
+                        // Validar que el archivo tenga el formato correcto
+                        if (validateErrorPagePath(filePath)) {
+                            std::cout << "[INFO] Página de error " << errorCode << " configurada: " << filePath << std::endl;
+                            return filePath;
+                        } else {
+                            std::cout << "[WARNING] Página de error " << errorCode << " no sigue el formato correcto. Usando página por defecto." << std::endl;
+                            return "";
+                        }
+                    }
+                }
+            }
+            break;
+        }
     }
     return "";
+}
+
+bool ConfigParser::validateErrorPagePath(const std::string& filePath) const {
+    // Verifica si el archivo existe
+    std::ifstream file(filePath.c_str());
+    if (file.good()) {
+        return true;
+    }
+
+    std::cout << "[WARNING] Archivo de error no encontrado: " << filePath << std::endl;
+    return false;
+}
+
+bool ConfigParser::hasErrorPagesLocation(const IConfig* serverNode) const {
+    if (!_configRoot) return false;
+    
+    // Si no se proporciona un servidor específico, usa el primero
+    if (!serverNode) {
+        const std::vector<IConfig*>& servers = _configRoot->getChildren();
+        if (servers.empty() || servers[0]->getType() != "server") return false;
+        serverNode = servers[0];
+    }
+    
+    // Buscar el location /error_pages
+    const std::vector<IConfig*>& locations = serverNode->getChildren();
+    for (size_t i = 0; i < locations.size(); ++i) {
+        if (locations[i]->getType() == "location" && 
+            !locations[i]->getValues().empty() && 
+            locations[i]->getValues()[0] == "/error_pages") {
+            return true;
+        }
+    }
+    return false;
 }
 
 // En ConfigParser.cpp
