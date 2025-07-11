@@ -156,16 +156,21 @@ void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedRea
 
 	size_t serverIndex = findServerIndex(req);
 	req.setServerIndex(serverIndex);
-	std::cout << "[DEBUG][checkMaxContentLength] req.getServerIndex()" << req.getServerIndex() << std::endl;
+	std::cout << "[DEBUG][checkMaxContentLength] req.getServerIndex() = " << req.getServerIndex() << std::endl;
 
 	const IConfig* locationNode = _cfg.findLocationBlock(serverNodes[serverIndex], path);
 
-	std::string CfgBodySize = _cfg.getDirectiveValue(locationNode, "body_size", "1000000");
+	std::string default_value = MAX_DEFAULT_REQUEST_BODY_SIZE;
+	std::string CfgBodySize = _cfg.getDirectiveValue(locationNode, "body_size", default_value);
 	if (CfgBodySize.empty())
 	{
 		std::cout << "[DEBUG][checkMaxContentLength] no body_size on cfg" << std::endl;
 		return;
 	}
+	if (CfgBodySize == default_value)
+		CfgBodySize = _cfg.getDirectiveValue(serverNodes[serverIndex], "body_size", default_value);
+
+	std::cout << "[DEBUG][checkMaxContentLength] CfgBodySize = " << CfgBodySize << std::endl;
 	
 	ssize_t lenNmb;
 	ssize_t MaxLenNmb;
@@ -179,8 +184,11 @@ void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedRea
 	std::stringstream MaxLenght(CfgBodySize);
 	MaxLenght >> MaxLenNmb;
 
+	std::cout << "[DEBUG][checkMaxContentLength] lenNmb = " << lenNmb << " MaxLenNmb = " << MaxLenNmb << std::endl;
+
 	if (MaxLenght.fail())
 		throw (std::runtime_error("[ERROR][checkMaxContentLength] error on getDirectiveValue"));
 	if (lenNmb > MaxLenNmb)
 		throw (std::runtime_error("[ERROR][checkMaxContentLength] Request Entity Too Large"));
 }
+

@@ -266,8 +266,13 @@ int Server::requestParseError(ClientBuffer &additive_bff, int client_fd, std::ma
 	std::cout << "[DEBUG][requestParseError] START" << std::endl;
 
     Request  req;
-    if (!req.parse(additive_bff.get_buffer().c_str())) 
-        throw (std::runtime_error("[ERROR][readRequest] HTTP request contains errors"));
+	if (!req.parse(additive_bff.get_buffer().c_str())) 
+		throw (std::runtime_error("[ERROR][readRequest] HTTP request contains errors"));
+
+	size_t serverIndex = findServerIndex(req);
+	req.setServerIndex(serverIndex);
+
+	req.setCfg(_cfg);
 
     ErrorPageHandler err(_rootPath);
 	Response res400;

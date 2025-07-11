@@ -28,6 +28,7 @@
 #define PORT		8081
 #define MAX_EVENTS	64
 #define BUFFER_SIZE	1024
+#define MAX_DEFAULT_REQUEST_BODY_SIZE "1000000"
 
 #define PYTHON_INTERPRETER "/usr/bin/python3"
 #define SH_INTERPRETER "/usr/bin/sh"
