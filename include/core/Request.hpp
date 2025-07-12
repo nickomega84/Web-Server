@@ -20,10 +20,8 @@ class Request
         std::string _originalUri;
         std::string _basePath;  
 
-
 		ConfigParser* _cfg;
 		size_t _serverIndex;
-		
     public:
         Request();
         Request(const Request& other);

@@ -197,39 +197,51 @@ const std::vector<IConfig*>& ConfigParser::getServerBlocks() const
     return _configRoot->getChildren();
 }
 
-std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode) const {
-    if (!_configRoot) return "";
-    if (!serverNode) {
+std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode) const 
+{
+    if (!_configRoot) 
+		return "";
+
+    if (!serverNode) 
+	{
         const std::vector<IConfig*>& servers = _configRoot->getChildren();
         if (servers.empty() || servers[0]->getType() != "server") return "";
         serverNode = servers[0];
     }
-    
+
     const std::vector<IConfig*>& locations = serverNode->getChildren();
-    for (size_t i = 0; i < locations.size(); ++i) {
+/* 	if (locations.empty())
+		throw (std::runtime_error("[DEBUG][ConfigParser][getErrorPage] cannot getChildren()")); */
+
+    for (size_t i = 0; i < locations.size(); ++i) 
+	{
         if (locations[i]->getType() == "location" && 
-            !locations[i]->getValues().empty() && 
-            locations[i]->getValues()[0] == "/error_pages") {
+		!locations[i]->getValues().empty() && 
+		locations[i]->getValues()[0] == "/error_pages")
+		{
             
             const std::vector<IConfig*>& directives = locations[i]->getChildren();
             for (size_t j = 0; j < directives.size(); ++j) {
                 const std::string& directiveType = directives[j]->getType();
                 
                 if ((errorCode == 404 && directiveType == "not_found") ||
-                    (errorCode == 403 && directiveType == "forbidden") ||
-                    (errorCode == 400 && directiveType == "bad_request") ||
-                    (errorCode == 502 && directiveType == "bad_getaway") ||
-                    (errorCode == 500 && directiveType == "internal_error")) {
-                    
+				(errorCode == 403 && directiveType == "forbidden") ||
+				(errorCode == 400 && directiveType == "bad_request") ||
+				(errorCode == 502 && directiveType == "bad_getaway") ||
+				(errorCode == 500 && directiveType == "internal_error")) 
+				{
                     const std::vector<std::string>& values = directives[j]->getValues();
-                    if (!values.empty()) {
+                    if (!values.empty()) 
+					{
                         std::string filePath = values[0];
-                        
-                        if (validateErrorPagePath(filePath)) {
-                            std::cout << "[INFO] Página de error " << errorCode << " configurada: " << filePath << std::endl;
+                        if (validateErrorPagePath(filePath)) 
+						{
+                            std::cout << "[DEBUG] Página de error " << errorCode << " configurada: " << filePath << std::endl;
                             return filePath;
-                        } else {
-                            std::cout << "[WARNING] Página de error " << errorCode << " no sigue el formato correcto. Usando página por defecto." << std::endl;
+                        } 
+						else 
+						{
+                            std::cout << "[DEBUG] Página de error " << errorCode << " no sigue el formato correcto. Usando página por defecto." << std::endl;
                             return "";
                         }
                     }

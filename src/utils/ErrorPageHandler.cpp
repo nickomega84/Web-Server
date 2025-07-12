@@ -6,8 +6,9 @@
 
 const ErrorPageHandler::ErrorPageEntry ErrorPageHandler::errorPages[] = {
 	{400, "/error_pages/400.html"},
-    {404, "/error_pages/404.html"},
     {403, "/error_pages/403.html"},
+	{404, "/error_pages/404.html"},
+	{413, "/error_pages/413.html"},
     {500, "/error_pages/500.html"},
 	{502, "/error_pages/502.html"},
     {-1, NULL}
@@ -53,15 +54,21 @@ std::string ErrorPageHandler::readFile(const std::string& path) const {
 
 std::string ErrorPageHandler::render(const Request &request, int code, const std::string& fallbackText) const 
 {
-    std::cout << "Rendering error page for code: " << code << std::endl;
-
-    ConfigParser* cfg = request.getCfg();
-    size_t serverIndex = request.getServerIndex();
+    std::cout << "[DEBUG][ErrorPageHandler][Render] Rendering error page for code: " << code << std::endl;
 
     std::string relPathStr;
-    try {
-        relPathStr = cfg->getErrorPage(code, cfg->getServerBlocks()[serverIndex]);
+    try 
+	{
+		ConfigParser* cfg = request.getCfg();
+		if (!cfg)
+			throw (std::runtime_error("Cannot getCfg() on ErrorPageHandler::render"));			
+		size_t serverIndex = request.getServerIndex();
+		if (serverIndex < 0)
+			throw (std::runtime_error("Cannot getServerIndex() on ErrorPageHandler::render"));
 
+		IConfig* serverBlock = cfg->getServerBlocks()[serverIndex];
+
+        relPathStr = cfg->getErrorPage(code, serverBlock);
         const std::string prefix = "./www";
         if (relPathStr.compare(0, prefix.size(), prefix) == 0) {
             relPathStr = relPathStr.substr(prefix.size());
@@ -71,8 +78,10 @@ std::string ErrorPageHandler::render(const Request &request, int code, const std
             std::cerr << "No error page found for code: " << code << std::endl;
             relPathStr = getErrorPagePath(500);
         }
-    } catch (const std::exception& e) {
-        std::cerr << "Error retrieving error page path: " << e.what() << std::endl;
+    }
+	catch (const std::exception& e) 
+	{
+        std::cerr << "[ERROR][[   [CATCH]   ]][ErrorPageHandler][Render] Error retrieving error page path: " << e.what() << std::endl;
         relPathStr.clear();
     }
 
@@ -80,9 +89,11 @@ std::string ErrorPageHandler::render(const Request &request, int code, const std
     std::string fullPath = _rootPath + relPathStr;
     std::cout << "Page_Handler: " << fullPath << std::endl;
 
-    if (!relPathStr.empty()) {
+    if (!relPathStr.empty()) 
+	{
         std::cout << "Checking if file exists: " << fullPath << std::endl;
-        if (fileExists(fullPath)) {
+        if (fileExists(fullPath)) 
+		{
             std::cerr << "File exists: " << fullPath << std::endl;
             std::string content = readFile(fullPath);
             std::cerr << "File content length: " << content.length() << std::endl;

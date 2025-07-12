@@ -14,7 +14,7 @@ int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
 	Request  req;
 	if (additive_bff.getHeaderEnd() < 0)
 	{
-		if (!req.parse(additive_bff.get_buffer().c_str())) 
+		if (!req.parse(additive_bff.get_buffer().c_str()))
 			throw (std::runtime_error("[ERROR][readRequest] HTTP request contains errors"));
 		additive_bff.setRequest(req);	
 		if (!getCompleteHeader(additive_bff, req))
@@ -150,7 +150,7 @@ void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedRea
 	
 	const std::vector<IConfig*>& serverNodes = _cfg.getServerBlocks();
 	if (serverNodes.empty())
-		throw (std::runtime_error("[ERROR][checkMaxContentLength] error on getServerBlocks"));
+		throw (_error = 500, std::runtime_error("[ERROR][checkMaxContentLength] error on getServerBlocks"));
 
 	const std::string path = req.getPath();
 
@@ -187,8 +187,43 @@ void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedRea
 	std::cout << "[DEBUG][checkMaxContentLength] lenNmb = " << lenNmb << " MaxLenNmb = " << MaxLenNmb << std::endl;
 
 	if (MaxLenght.fail())
-		throw (std::runtime_error("[ERROR][checkMaxContentLength] error on getDirectiveValue"));
+		throw (_error = 500, std::runtime_error("[ERROR][checkMaxContentLength] error on getDirectiveValue"));
 	if (lenNmb > MaxLenNmb)
-		throw (std::runtime_error("[ERROR][checkMaxContentLength] Request Entity Too Large"));
+		throw (_error = 413, std::runtime_error("[ERROR][checkMaxContentLength] Request Entity Too Large"));
 }
 
+size_t Server::findServerIndex(Request& req)
+{
+	std::cout << "[DEBUG][findServerIndex] START" << std::endl;
+	
+	std::string requestHost = req.getHeader("host");
+	if (requestHost.empty())
+		return (std::cout << "[DEBUG][findServerIndex] serverIndex = 0" << std::endl, 0);
+
+	std::string serverHost;
+	std::string serverPort;
+	std::string serverName;
+	std::string::size_type pos = (requestHost.find(":"));
+	std::string requestIP;
+	std::string requestPort;
+
+	for (size_t i = 0; i < _serverList.size(); ++i)
+	{
+		serverName = _cfg.getServerName(_serverList[i]);
+
+		if (serverName == requestHost)
+			return (std::cout << "[DEBUG][findServerIndex] serverIndex = " << i << std::endl, i);
+		else if (pos != std::string::npos)
+		{
+			getHostAndPort(_serverList[i], serverHost, serverPort);
+
+			requestIP = requestHost.substr(0, pos);
+			requestPort = requestHost.substr(pos + 1);
+
+			if ((requestIP == serverHost || (requestIP == "localhost" && serverHost == "127.0.0.1")) \
+			&& requestPort ==  serverPort)
+				return (std::cout << "[DEBUG][findServerIndex] serverIndex = " << i << std::endl, i);
+		}
+	}
+	return (std::cout << "[DEBUG][findServerIndex] serverIndex = 0" << std::endl, 0);
+}

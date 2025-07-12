@@ -9,7 +9,7 @@
 #include "../include/factory/CGIHandlerFactory.hpp"
 
 Server::Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder):
-_cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _responseBuilder(builder), _router(Router(_rootPath)), _error(false)
+_cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _responseBuilder(builder), _router(Router(_rootPath)), _error(-1)
 {
 	IHandlerFactory* staticFactory = new StaticHandlerFactory(_rootPath, _responseBuilder, _cfg);
     _router.registerFactory("/", staticFactory);
@@ -82,22 +82,22 @@ void Server::startEpoll()
 			{
 				if (events[i].events & EPOLLIN)
 				{
-					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN START: client_fd = " << client_fd << std::endl;			
+					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN START"<< std::endl;			
 					if (handleClientRead(client_fd, pending_writes, client_buffers[client_fd]))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					if (client_buffers[client_fd].getFinishedReading() == true && ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
-					std::cout << "[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN" << std::endl;
+					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN END" << std::endl;
 				}
 				if (events[i].events & EPOLLOUT)
 				{
-					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLOUT START: client_fd = " << client_fd << std::endl;
+					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLOUT START" << std::endl;
 					if (handleClientResponse(client_fd, pending_writes))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					else if (ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					client_buffers[client_fd].reset();
-					std::cout << "[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT" << std::endl;
+					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLOUT END" << std::endl;
 				}
 			}
 		}
@@ -197,30 +197,66 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 		std::cerr << "[ERROR][[   [CATCH]   ]]" << std::endl;
 		std::cerr << e.what() << std::endl;
 		additive_bff.setFinishedReading(true);
-		return (requestParseError(additive_bff, client_fd, pending_writes), 0);
+		Response res = serverError(e.what(), additive_bff);
+		pending_writes[client_fd] = res;
+		return (0);
 	}
-	std::cout << "[DEBUG] [[  FINISHED READING REQUEST  ]]" << std::endl;
 
-	createResponse(client_fd, pending_writes, additive_bff);
+	std::cout << "[DEBUG] [[  FINISHED READING REQUEST  ]]" << std::endl;
+	Response res = createResponse(additive_bff);
+	pending_writes[client_fd] = res;
 	return (0);
 }
 
-int Server::createResponse(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff)
+Response Server::serverError(std::string description, ClientBuffer &additive_bff)
+{
+	std::cout << "[DEBUG][serverError] START" << std::endl;
+
+	Request req = additive_bff.getRequest();
+	req.setCfg(_cfg);
+	size_t index = findServerIndex(req);
+	req.setServerIndex(index);
+	
+	Payload payload;
+	if (_error == 500)
+		payload = createServerError(500, "Internal Server Error", description, req);
+	else if (_error == 404)
+		payload = createServerError(404, "Not Found", description, req);
+/* 	else if (_error == 407)
+		payload = createServerError(407, "Not Found", description, req); */
+	else
+		payload = createServerError(400, "Bad Request", description, req);
+	
+    return (_responseBuilder->build(payload));
+}
+
+Payload Server::createServerError(size_t status, std::string reason, std::string description, Request& req)
+{
+	std::cout << "[DEBUG][createServerError] START, error = " << status << std::endl;
+	
+	_error = -1;
+
+	Payload payload;
+	ErrorPageHandler errorHandler(_rootPath);
+	payload.body = errorHandler.render(req, status, description);
+	payload.keepAlive = false;
+	payload.status = status;
+	payload.reason = reason;
+	payload.mime = "text/html";
+	return (payload);
+}
+
+Response Server::createResponse(ClientBuffer &additive_bff)
 {
 	std::cout << "[DEBUG][createResponse] START" << std::endl;
 	
-	Request  req;
-    if (!req.parse(additive_bff.get_buffer()))
-		return (requestParseError(additive_bff, client_fd, pending_writes), 0);
-
+	Request req = additive_bff.getRequest();
 	req.setCfg(_cfg);
+	size_t index = findServerIndex(req);
+	req.setServerIndex(index);
 
-	size_t serverIndex = findServerIndex(req);
-	req.setServerIndex(serverIndex);
-
+	Response res;
 	IRequestHandler* handler = _router.resolve(req);
-    Response res;
-
     if (handler) 
 	{
         res = handler->handleRequest(req);
@@ -228,93 +264,30 @@ int Server::createResponse(const int client_fd, std::map<int, Response> &pending
     } 
 	else
 	{
-		Payload payload;
-		payload.keepAlive = true;
-		payload.status = 404;
-		payload.reason = "Not Found";
-		payload.mime = "text/html";
-
-		ErrorPageHandler errorHandler(_rootPath);
-		payload.body = errorHandler.render(req, 404, "Recurso no encontrado");
-
-		res = _responseBuilder->build(payload);
-		_error = true;
+		_error = 404;
+		std::string description = "Handler failure at Server::createResponse"; 
+		res = serverError(description, additive_bff);
 	}
-
-	pending_writes[client_fd] = res;
-	return 0;
+	return (res);
 }
 
 int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes)
 {
 	std::cout << "[DEBUG][handleClientResponse] START" << std::endl;
 	
-	std::string response = pending_writes[client_fd].toString();
+	Response& res = pending_writes[client_fd];
+	std::string response = res.toString();
+
 	ssize_t bytes_sent = send(client_fd, response.c_str(), response.length(), 0);
 	if (bytes_sent == 0)
 		return (std::cerr << "[ERROR][handleClientResponse] No data sent: " << client_fd << std::endl, 1);
 	if (bytes_sent < 0)
 		return (std::cerr << "[ERROR][handleClientResponse] Client disconnected: " << client_fd << std::endl, 1);
-	pending_writes.erase(client_fd);
-	if (_error == true)
-		return (_error = false, 1);
-	return (std::cout << "[DEBUG][handleClientResponse] END" << std::endl, 0);
-}
-
-int Server::requestParseError(ClientBuffer &additive_bff, int client_fd, std::map<int, Response> &pending_writes)
-{
-	std::cout << "[DEBUG][requestParseError] START" << std::endl;
-
-    Request  req;
-	if (!req.parse(additive_bff.get_buffer().c_str())) 
-		throw (std::runtime_error("[ERROR][readRequest] HTTP request contains errors"));
-
-	size_t serverIndex = findServerIndex(req);
-	req.setServerIndex(serverIndex);
-
-	req.setCfg(_cfg);
-
-    ErrorPageHandler err(_rootPath);
-	Response res400;
-	res400.setStatus(400, "Bad Request");
-	res400.setBody(err.render(req, 400, "Bad Request"));
-	pending_writes[client_fd] = res400;
-	_error = true;
-    return (0);
-}
-
-size_t Server::findServerIndex(Request& req)
-{
-	std::cout << "[DEBUG][findServerIndex] START" << std::endl;
 	
-	std::string requestHost = req.getHeader("host");
-	if (requestHost.empty())
-		return (std::cout << "[DEBUG][findServerIndex] serverIndex = 0" << std::endl, 0);
-
-	std::string serverHost;
-	std::string serverPort;
-	std::string serverName;
-	std::string::size_type pos = (requestHost.find(":"));
-	std::string requestIP;
-	std::string requestPort;
-
-	for (size_t i = 0; i < _serverList.size(); ++i)
-	{
-		serverName = _cfg.getServerName(_serverList[i]);
-
-		if (serverName == requestHost)
-			return (std::cout << "[DEBUG][findServerIndex] serverIndex = " << i << std::endl, i);
-		else if (pos != std::string::npos)
-		{
-			getHostAndPort(_serverList[i], serverHost, serverPort);
-
-			requestIP = requestHost.substr(0, pos);
-			requestPort = requestHost.substr(pos + 1);
-
-			if ((requestIP == serverHost || (requestIP == "localhost" && serverHost == "127.0.0.1")) \
-			&& requestPort ==  serverPort)
-				return (std::cout << "[DEBUG][findServerIndex] serverIndex = " << i << std::endl, i);
-		}
-	}
-	return (std::cout << "[DEBUG][findServerIndex] serverIndex = 0" << std::endl, 0);
+	bool should_we_close = (res.getHeader("connection") == "close");
+	pending_writes.erase(client_fd);
+	if (should_we_close)
+		return (std::cout << "[DEBUG][handleClientResponse] END connection closed" << std::endl, 1);
+	else
+		return (std::cout << "[DEBUG][handleClientResponse] END connection alive" << std::endl, 0);
 }

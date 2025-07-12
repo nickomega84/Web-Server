@@ -1,0 +1,229 @@
+[DEBUG] Token encontrado: server
+[DEBUG] Token encontrado: server_name
+[DEBUG] Token encontrado: example1.com
+[DEBUG] Token encontrado: port
+[DEBUG] Token encontrado: 8081
+[DEBUG] Token encontrado: host
+[DEBUG] Token encontrado: 127.0.0.1
+[DEBUG] Token encontrado: body_size
+[DEBUG] Token encontrado: 10
+[DEBUG] Token encontrado: index
+[DEBUG] Token encontrado: index.html
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./www
+[DEBUG] Token encontrado: get_allowed
+[DEBUG] Token encontrado: true
+[DEBUG] Token encontrado: post_allowed
+[DEBUG] Token encontrado: true
+[DEBUG] Token encontrado: delete_allowed
+[DEBUG] Token encontrado: true
+[DEBUG] Token encontrado: autoindex
+[DEBUG] Token encontrado: true
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./www
+[DEBUG] Token encontrado: index
+[DEBUG] Token encontrado: index.html
+[DEBUG] Token encontrado: allow_methods
+[DEBUG] Token encontrado: GET
+[DEBUG] Token encontrado: DELETE
+[DEBUG] Token encontrado: POST
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /uploads
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./uploads
+[DEBUG] Token encontrado: autoindex
+[DEBUG] Token encontrado: true
+[DEBUG] Token encontrado: allow_methods
+[DEBUG] Token encontrado: GET
+[DEBUG] Token encontrado: POST
+[DEBUG] Token encontrado: DELETE
+[DEBUG] Token encontrado: upload_path
+[DEBUG] Token encontrado: ./uploads
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /cgi-bin
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./cgi-bin
+[DEBUG] Token encontrado: cgi_path
+[DEBUG] Token encontrado: /usr/bin/python3.10
+[DEBUG] Token encontrado: allow_methods
+[DEBUG] Token encontrado: GET
+[DEBUG] Token encontrado: deleteOn
+[DEBUG] Token encontrado: false
+[DEBUG] Token encontrado: postOn
+[DEBUG] Token encontrado: false
+[DEBUG] Token encontrado: autoindex
+[DEBUG] Token encontrado: true
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /error_pages
+[DEBUG] Token encontrado: not_found
+[DEBUG] Token encontrado: ./www/error_pages/200.html
+[DEBUG] Token encontrado: forbidden
+[DEBUG] Token encontrado: ./www/error_pages/403.html
+[DEBUG] Token encontrado: bad_request
+[DEBUG] Token encontrado: ./www/error_pages/400.html
+[DEBUG] Token encontrado: bad_getaway
+[DEBUG] Token encontrado: ./www/error_pages/502.html
+[DEBUG] Token encontrado: server
+[DEBUG] Token encontrado: port
+[DEBUG] Token encontrado: 8082
+[DEBUG] Token encontrado: host
+[DEBUG] Token encontrado: 127.0.0.1
+[DEBUG] Token encontrado: server_name
+[DEBUG] Token encontrado: example2.com
+[DEBUG] Token encontrado: body_size
+[DEBUG] Token encontrado: 1000000
+[DEBUG] Token encontrado: index
+[DEBUG] Token encontrado: index.html
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./www
+[DEBUG] Token encontrado: get_allowed
+[DEBUG] Token encontrado: true
+[DEBUG] Token encontrado: post_allowed
+[DEBUG] Token encontrado: true
+[DEBUG] Token encontrado: delete_allowed
+[DEBUG] Token encontrado: false
+[DEBUG] Token encontrado: autoindex
+[DEBUG] Token encontrado: false
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./www
+[DEBUG] Token encontrado: index
+[DEBUG] Token encontrado: index.html
+[DEBUG] Token encontrado: allow_methods
+[DEBUG] Token encontrado: GET
+[DEBUG] Token encontrado: POST
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /uploads
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./uploads
+[DEBUG] Token encontrado: autoindex
+[DEBUG] Token encontrado: false
+[DEBUG] Token encontrado: allow_methods
+[DEBUG] Token encontrado: GET
+[DEBUG] Token encontrado: DELETE
+[DEBUG] Token encontrado: POST
+[DEBUG] Token encontrado: upload_path
+[DEBUG] Token encontrado: ./uploads
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /cgi-bin
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./www/cgi-bin
+[DEBUG] Token encontrado: cgi_path
+[DEBUG] Token encontrado: /usr/bin/python3.10
+[DEBUG] Token encontrado: cgi_ext
+[DEBUG] Token encontrado: .sh
+[DEBUG] Token encontrado: .py
+[DEBUG] Token encontrado: allow_methods
+[DEBUG] Token encontrado: GET
+[DEBUG] Token encontrado: deleteOn
+[DEBUG] Token encontrado: false
+[DEBUG] Token encontrado: postOn
+[DEBUG] Token encontrado: false
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /error_pages
+[DEBUG] Token encontrado: not_found
+[DEBUG] Token encontrado: /error_pages/200.html
+[DEBUG] Token encontrado: forbidden
+[DEBUG] Token encontrado: /error_pages/403.html
+[DEBUG] Token encontrado: bad_request
+[DEBUG] Token encontrado: /error_pages/400.html
+[DEBUG] Token encontrado: bad_getaway
+[DEBUG] Token encontrado: /error_pages/502.html
+[DEBUG][getServerName] START
+[INFO] Server name: example1.com
+[INFO] Max body size: 10
+[INFO] GET method allowed: true
+[INFO] POST method allowed: true
+[INFO] DELETE method allowed: true
+[DEBUG] CGI factory raw: ./cgi-bin
+[DEBUG] CGI directory: /home/dangonz3/webserv_final/www/cgi-bin
+[DEBUG][Router] absRoot: /home/dangonz3/webserv_final/www
+[DEBUG][StaticHandlerFactory] created with rootsDir: /home/dangonz3/webserv_final/www
+[DEBUG][UploadHandlerFactory] created with uploads path: /home/dangonz3/webserv_final/www/uploads
+[DEBUG][CGIHandlerFactory] created with uploads path: /home/dangonz3/webserv_final/www/cgi-bin
+[DEBUG][addListeningSocket] HOST = 127.0.0.1
+[DEBUG][addListeningSocket] PORT = 8081
+[DEBUG][addListeningSocket] New listenSocket fd = 3
+[DEBUG][addListeningSocket] HOST = 127.0.0.1
+[DEBUG][addListeningSocket] PORT = 8082
+[DEBUG][addListeningSocket] New listenSocket fd = 4
+
+✅ [DEBUG] Webserv setup. Listening for connections
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 6
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL] EPOLLIN START
+[DEBUG][readRequest] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: POST /uploads HTTP/1.1
+[DEBUG][Request] Path: /uploads
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[DEBUG][Request] Header found: Content-Length =  50889
+[DEBUG][Request] Header found: Content-Type =  multipart/form-data; boundary=------------------------bac862fa8ec54019
+[Request] POST method body may be to big to print
+[Request] Keep-Alive: true
+[Request] Path: /uploads
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][getCompleteHeader] START
+[DEBUG][checkBodyLimits] START
+[DEBUG][checkIsChunked] START
+[DEBUG][checkIsContentLength] START
+[DEBUG][checkMaxContentLength] START
+[DEBUG][findServerIndex] START
+[DEBUG][getServerName] START
+[DEBUG][findServerIndex] serverIndex = 0
+[DEBUG][checkMaxContentLength] req.getServerIndex() = 0
+[DEBUG][checkMaxContentLength] CfgBodySize = 10
+[DEBUG][checkMaxContentLength] lenNmb = 50889 MaxLenNmb = 10
+[DEBUG][serverError] START
+
+[DEBUG]-------------------[REQUEST] START-------------------
+[DEBUG][Request] Start line parsed: POST /uploads HTTP/1.1
+[DEBUG][Request] Path: /uploads
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
+[DEBUG][Request] Header found: Accept =  */*
+[DEBUG][Request] Header found: Content-Length =  50889
+[DEBUG][Request] Header found: Content-Type =  multipart/form-data; boundary=------------------------bac862fa8ec54019
+[Request] POST method body may be to big to print
+[Request] Keep-Alive: true
+[Request] Path: /uploads
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][findServerIndex] START
+[DEBUG][getServerName] START
+[DEBUG][findServerIndex] serverIndex = 0
+[DEBUG][ErrorPageHandler] initialized with root path: /home/dangonz3/webserv_final/www
+Rendering error page for code: 400
+[INFO] Página de error 400 configurada: ./www/error_pages/400.html
+Relative path (trimmed): /error_pages/400.html
+Page_Handler: /home/dangonz3/webserv_final/www/error_pages/400.html
+Checking if file exists: /home/dangonz3/webserv_final/www/error_pages/400.html
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLIN
+------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL] EPOLLOUT START
+[DEBUG][handleClientResponse] START
+[DEBUG][close_fd] client_fd: 6 closed
+[DEBUG][LOOP_EPOLL] terminado bucle EPOLLOUT
+
+❎ [DEBUG] Signal received, shutting down…
+[DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = 5
+[DEBUG] Server closed
+[DEBUG][StaticHandlerFactory] destroyed
+[DEBUG][UploadHandlerFactory] destroyed
+[DEBUG][CGIHandlerFactory] destroyed
+[DEBUG] Router destructor called

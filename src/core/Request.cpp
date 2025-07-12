@@ -35,7 +35,7 @@ bool Request::parse(const std::string& raw)
     std::string line;
 
     if (!std::getline(stream, line))
-        return (std::cerr << "[DEBUG][Request::parse] getline" << std::endl, false);
+        return (std::cerr << "[DEBUG][Request][parse] getline" << std::endl, false);
         
     std::istringstream firstLine(line);
     if (!(firstLine >> _method >> _uri >> _version))
