@@ -85,18 +85,18 @@ std::string ErrorPageHandler::render(const Request &request, int code, const std
         relPathStr.clear();
     }
 
-    std::cout << "Relative path (trimmed): " << relPathStr << std::endl;
+    std::cout << "[DEBUG][ErrorPageHandler][Render] Relative path (trimmed): " << relPathStr << std::endl;
     std::string fullPath = _rootPath + relPathStr;
-    std::cout << "Page_Handler: " << fullPath << std::endl;
+    std::cout << "[DEBUG][ErrorPageHandler][Render] Page_Handler: " << fullPath << std::endl;
 
     if (!relPathStr.empty()) 
 	{
-        std::cout << "Checking if file exists: " << fullPath << std::endl;
+        std::cout << "[DEBUG][ErrorPageHandler][Render] Checking if file exists: " << fullPath << std::endl;
         if (fileExists(fullPath)) 
 		{
-            std::cerr << "File exists: " << fullPath << std::endl;
+            std::cerr << "[DEBUG][ErrorPageHandler][Render] File exists: " << fullPath << std::endl;
             std::string content = readFile(fullPath);
-            std::cerr << "File content length: " << content.length() << std::endl;
+            std::cerr << "[DEBUG][ErrorPageHandler][Render] File content length: " << content.length() << std::endl;
             if (!content.empty())
                 return content;
         }

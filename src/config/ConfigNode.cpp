@@ -45,9 +45,13 @@ const std::vector<IConfig*>& ConfigNode::getChildren() const {
     return _children;
 }
 
-const IConfig* ConfigNode::getChild(const std::string& key) const {
-    for (size_t i = 0; i < _children.size(); ++i) {
-        if (_children[i]->getType() == key) {
+const IConfig* ConfigNode::getChild(const std::string& key) const 
+{
+    for (size_t i = 0; i < _children.size(); ++i) 
+	{
+/* 		std::cout << "[DEBUG][ConfigNode][getChild] OLAOLAOLA _children[" << i << "]->getType() = " << _children[i]->getType() << std::endl; */
+		
+		if (_children[i]->getType() == key) {
             return _children[i];
         }
     }

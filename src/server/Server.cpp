@@ -284,7 +284,14 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	if (bytes_sent < 0)
 		return (std::cerr << "[ERROR][handleClientResponse] Client disconnected: " << client_fd << std::endl, 1);
 	
-	bool should_we_close = (res.getHeader("connection") == "close");
+	std::string connection = res.getHeader("Connection"); 
+
+	std::cout << "[DEBUG][handleClientResponse] Connection = " << connection << std::endl;
+
+	bool should_we_close = (connection == "close");
+
+	std::cout << "[DEBUG][handleClientResponse] should_we_close = " << should_we_close << std::endl;
+
 	pending_writes.erase(client_fd);
 	if (should_we_close)
 		return (std::cout << "[DEBUG][handleClientResponse] END connection closed" << std::endl, 1);

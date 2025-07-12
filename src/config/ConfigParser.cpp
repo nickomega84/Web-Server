@@ -168,12 +168,18 @@ void ConfigParser::parse(IConfig* parent, std::vector<std::string>& tokens, size
 
 std::string ConfigParser::getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) 
 {
-    if (!node) 
-        return defaultValue;
+	if (!node) 
+		return defaultValue;
+
+/* 	std::cout << "[DEBUG][getDirectiveValue] OLAOLAOLA node = " << node << std::endl;
+	std::cout << "[DEBUG][getDirectiveValue] OLAOLAOLA key = " << key << std::endl; */
 
     const IConfig* child = node->getChild(key);
-    if (child && !child->getValues().empty())
-        return child->getValues()[0];
+
+/* 	std::cout << "[DEBUG][getDirectiveValue] OLAOLAOLA child = " << child << std::endl; */
+
+	if (child && !child->getValues().empty())
+		return child->getValues()[0];
 
     return defaultValue;
 }
