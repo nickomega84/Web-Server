@@ -212,18 +212,17 @@ Response Server::serverError(std::string description, ClientBuffer &additive_bff
 {
 	std::cout << "[DEBUG][serverError] START" << std::endl;
 
-	Request req = additive_bff.getRequest();
+	Request  req;
+	req.parse(additive_bff.get_buffer());
 	req.setCfg(_cfg);
-	size_t index = findServerIndex(req);
-	req.setServerIndex(index);
+	size_t serverIndex = findServerIndex(req);
+	req.setServerIndex(serverIndex);
 	
 	Payload payload;
 	if (_error == 500)
 		payload = createServerError(500, "Internal Server Error", description, req);
 	else if (_error == 404)
 		payload = createServerError(404, "Not Found", description, req);
-/* 	else if (_error == 407)
-		payload = createServerError(407, "Not Found", description, req); */
 	else
 		payload = createServerError(400, "Bad Request", description, req);
 	
@@ -250,10 +249,11 @@ Response Server::createResponse(ClientBuffer &additive_bff)
 {
 	std::cout << "[DEBUG][createResponse] START" << std::endl;
 	
-	Request req = additive_bff.getRequest();
+	Request  req;
+	req.parse(additive_bff.get_buffer());
 	req.setCfg(_cfg);
-	size_t index = findServerIndex(req);
-	req.setServerIndex(index);
+	size_t serverIndex = findServerIndex(req);
+	req.setServerIndex(serverIndex);
 
 	Response res;
 	IRequestHandler* handler = _router.resolve(req);

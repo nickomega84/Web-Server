@@ -31,8 +31,7 @@ Response UploadHandler::handleRequest(const Request& request)
 
     std::string fullPath = _uploadsPath + relativePath;
 
-    struct stat s;
-    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) 
+    if (method == "GET") 
 	{
         bool autoindexFlag = false;
         Response resAutoindex = uploadAutoindex(autoindexFlag, originalUri, fullPath, request);
@@ -44,6 +43,9 @@ Response UploadHandler::handleRequest(const Request& request)
     {
         Request modifiedRequest = request;
         modifiedRequest.setPath(relativePath);
+
+		std::cout << "[DEBUG][UploadHandler][handleRequest] OLAOLAOLAOLAOLAOLAOLAOLA modifiedRequest.setServerIndex = " << modifiedRequest.getServerIndex() << std::endl;
+
         StaticFileHandler staticHandler(_uploadsPath, _builder, _cfg);
         return (staticHandler.handleRequest(modifiedRequest));
     }
@@ -188,8 +190,7 @@ Response UploadHandler::uploadAutoindex(bool &autoindexFlag, std::string &uri, s
     payload.keepAlive = true;
 
     struct stat s;
-    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) 
-	{
+    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
         if (uri[uri.size() - 1] != '/')
             uri += "/";
 
@@ -197,8 +198,7 @@ Response UploadHandler::uploadAutoindex(bool &autoindexFlag, std::string &uri, s
         size_t serverIndex = request.getServerIndex();
         std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[serverIndex], "autoindex", "false");
 
-        if (autoindex == "true") 
-		{
+        if (autoindex == "true") {
             autoindexFlag = true;
             payload.status = 200;
             payload.reason = "OK";
@@ -208,12 +208,9 @@ Response UploadHandler::uploadAutoindex(bool &autoindexFlag, std::string &uri, s
         }
 
         std::string indexPath = fullPath + "index.html";
-        if (access(indexPath.c_str(), F_OK) == 0) 
-		{
+        if (access(indexPath.c_str(), F_OK) == 0) {
             fullPath = indexPath;
-        } 
-		else 
-		{
+        } else {
             autoindexFlag = true;
             payload.status = 403;
             payload.reason = "Forbidden";
