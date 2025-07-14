@@ -2,7 +2,7 @@
 
 Response AutoIndex::autoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request& request, IResponseBuilder* _builder)
 {
-    std::cout << "[DEBUG][UploadHandler][uploadAutoindex] START" << std::endl;
+    std::cout << "[DEBUG][AutoIndex][autoindex] START" << std::endl;
 	
 	Payload payload;
     payload.keepAlive = true;

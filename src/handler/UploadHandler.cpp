@@ -35,7 +35,7 @@ Response UploadHandler::handleRequest(const Request& request)
     if (method == "GET") 
 	{
         bool autoindexFlag = false;
-		std::cout << "[DEBUG][UploadHandler][autoindex]" << std::endl;
+		std::cout << "[DEBUG][UploadHandler][autoindex] START" << std::endl;
         Response resAutoindex = AutoIndex::autoindex(autoindexFlag, originalUri, fullPath, request, _builder);
         if (autoindexFlag)
             return resAutoindex;

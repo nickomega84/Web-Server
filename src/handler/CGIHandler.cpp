@@ -2,6 +2,7 @@
 #include "../../include/libraries.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/Utils.hpp"
+#include "../../include/utils/AutoIndex.hpp"
 #include "../../include/core/Request.hpp"
 
 CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, const ConfigParser& cfg): 
@@ -18,122 +19,54 @@ Response CGIHandler::handleRequest(const Request& req)
 {
 	std::cout << "[DEBUG][CGI][handleRequest] START" << std::endl;
 	
-    return (handleCGI(req, _res));
+    return (handleCGI(req));
 }
 
-Response CGIHandler::handleCGI(const Request &req, Response &res)
+Response CGIHandler::handleCGI(const Request &req)
 {
 	std::cout << "[DEBUG][CGI][handleCGI] START" << std::endl;
 
+	int indx = identifyScriptType(req);
+	if (!indx)
+		return (CGIerror(req, 404, "Bad Request", "text/html"));
+
+	indx += identifyMethod(req);
+
 	bool autoindexFlag = false;
-	std::string uri = req.getURI();
-	std::cout << "[DEBUG][StaticFileHandler][autoindex]" << std::endl;
-	Response resAutoindex = AutoIndex::autoindex(autoindexFlag, uri, fullPath, req, _builder);
+	Response resAutoindex = autoindexCGIAux(req, autoindexFlag);
 	if (autoindexFlag)
 		return (resAutoindex);
 
-	int indx = identifyScriptType(req);
-	if (!indx)
-		return (CGIerror(req ,404, "Bad Request", "text/html"), _res);
-
-	indx += identifyMethod(req);
 	if (indx < 3)
 		return (std::cerr << "[ERROR][CGI] unsupported method" << std::endl, \
-		CGIerror(req ,404, "Bad Request", "text/html"), _res);
+		CGIerror(req, 404, "Bad Request", "text/html"));
 	else if (indx == GET_PY)
-		handleGET(req, res, PYTHON_INTERPRETER);
+		return (handleGET(req, PYTHON_INTERPRETER));
 	else if (indx == GET_SH)
-		handleGET(req, res, SH_INTERPRETER);
+		return (handleGET(req, SH_INTERPRETER));
 	else if (indx == POST_PY)
-		handlePOST(req, res, PYTHON_INTERPRETER);
+		return (handlePOST(req, PYTHON_INTERPRETER));
 	else if (indx == POST_SH)
-		handlePOST(req, res, SH_INTERPRETER);
-	return (_res);
+		return (handlePOST(req, SH_INTERPRETER));
+	return (_resDefault);
 }
 
-int CGIHandler::identifyScriptType(const Request &req)
-{
-	std::cout << "[DEBUG][CGI][identifyScriptType] START" << std::endl;
-
-	std::string uri = req.getURI();
-	std::string path_part;
-	std::string::size_type query_pos = uri.find('?');
-	if (query_pos != std::string::npos)
-		path_part = uri.substr(0, query_pos);
-	else
-		path_part = uri;
-	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".py")
-		return (std::cout << "[DEBUG][CGI][identifyScriptType]: python" << std::endl, 1);
-	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".sh")
-		return (std::cout << "[DEBUG][CGI][identifyScriptType]: shell" << std::endl, 2);
-	return (std::cerr << "[ERROR][CGI][identifyScriptType] unsupported CGI type" << std::endl, 0);
-}
-
-int CGIHandler::identifyMethod(const Request &req)
-{
-	std::cout << "[DEBUG][CGI][identifyMethod] START" << std::endl;
-
-	std::string method = req.getMethod();
-	try
-	{
-		if (method == "GET")
-		{
-			std::cout << "[DEBUG][CGI][identifyMethod]: GET" << std::endl;
-			checkCfgPermission(req, "GET");
-			return (2);
-		}
-		if (method == "POST")
-		{
-			std::cout << "[DEBUG][CGI][identifyMethod]: POST" << std::endl;
-			checkCfgPermission(req, "POST");
-			return (4);
-		}
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << "[ERROR][CGI][checkCfgPermission]: " <<e.what() << std::endl;
-		return (0);
-	}
-	return (0);
-}
-
-void CGIHandler::checkCfgPermission(const Request &req, std::string method)
-{
-	std::cout << "[DEBUG][CGI][checkCfgPermission] START" << std::endl;
-	
-	ConfigParser *cfg = req.getCfg();
-	if (cfg == NULL)
-		throw (std::runtime_error("cannot get ConfigParser*"));
-	
-	const std::vector<IConfig*>& serverNodes = cfg->getServerBlocks();
-	if (serverNodes.empty())
-		throw (std::runtime_error("error on getServerBlocks"));
-
-	const std::string path = req.getPath();
-
-	size_t serverIndex = req.getServerIndex();
-	std::cout << "[DEBUG][CGI][checkCfgPermission] serverIndex = " << serverIndex << std::endl;
-
-	bool allowed = cfg->isMethodAllowed(serverNodes[serverIndex], path, method);
-	if (!allowed)
-		throw (std::runtime_error(method + " not allowed"));
-	return;
-}
-
-int CGIHandler::handleGET(const Request &req, Response &res, std::string interpreter)
+Response CGIHandler::handleGET(const Request &req, std::string interpreter)
 {
 	std::cout << "[DEBUG][CGI][handleGET] START" << std::endl;
 	
 	std::map<std::string, std::string> map;
-	if (getScript(req, map))
-		return (1);
+	Response resGetScript = getScript(req, map);
+	if (resGetScript.getStatus() != 200)
+		return (resGetScript);
+
 	char *argv[] = {(char *)interpreter.c_str(), (char *)map["name"].c_str(), NULL};
 
 	std::cout << "[DEBUG][CGI][handleGET] (char *)interpreter.c_str() = " << (char *)interpreter.c_str() << std::endl;
 
 	std::vector<std::string> env;
 	if (!getEnviroment(env, "GET", map["path"], map["queryString"], req))
-		return (CGIerror(req ,404, "Bad Request", "text/html"), 1);
+		return (CGIerror(req ,404, "Bad Request", "text/html"));
 
 	char** envp = new char*[env.size() + 1];
 	for (size_t i = 0; i < env.size(); ++i)
@@ -142,24 +75,24 @@ int CGIHandler::handleGET(const Request &req, Response &res, std::string interpr
 
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
-		return (std::cerr << "[ERROR] CGI pipe() on handleGET" << std::endl, \
-		CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+		return (std::cerr << "[ERROR] CGI pipe() on handleGET" << std::endl, delete[] envp, \
+		CGIerror(req, 500, "Internal Server Error", "text/plain"));
 
 	pid_t pid = fork();
 	if (pid < 0)
-		return (std::cerr << "[ERROR] CGI pid on handleGET" << std::endl, \
-		CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+		return (std::cerr << "[ERROR] CGI pid on handleGET" << std::endl, delete[] envp, \
+		CGIerror(req, 500, "Internal Server Error", "text/plain"));
 	if (!pid)
 	{
 		close (pipefd[0]);
 		if (dup2(pipefd[1], STDOUT_FILENO) < 0)
-			return (kill(getpid(), SIGTERM), delete[] envp, 1);
+			return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
 		close (pipefd[1]);
 
 		if (chdir(map["dir"].c_str()) < 0)
-			return (kill(getpid(), SIGTERM), delete[] envp, 1);
+			return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
 		execve((char *)interpreter.c_str(), argv, envp);
-		return (kill(getpid(), SIGTERM), delete[] envp, 1);
+		return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
 	}
 	else
 	{
@@ -174,27 +107,29 @@ int CGIHandler::handleGET(const Request &req, Response &res, std::string interpr
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
-			return (std::cerr << "[ERROR] CGI on waitpid()" << std::endl, \
-			CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+			return (std::cerr << "[ERROR] CGI on waitpid()" << std::endl, delete[] envp),\
+			CGIerror(req, 500, "Internal Server Error", "text/plain");
 
 		if (WIFSIGNALED(status))
-			return (std::cerr << "[ERROR] CGI child killed SIGTERM" << std::endl, \
-			CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+			return (std::cerr << "[ERROR] CGI child killed SIGTERM" << std::endl, delete[] envp),\
+			CGIerror(req, 500, "Internal Server Error", "text/plain");
 
-		if (createResponse(output, res))
-			return (std::cerr << "[ERROR] CGI couldn't create reponse" << std::endl, \
-			CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+		if (createResponse(output, _resDefault))
+			return (std::cerr << "[ERROR] CGI couldn't create reponse" << std::endl, delete[] envp),\
+			CGIerror(req, 500, "Internal Server Error", "text/plain");
 	}
-	return (delete[] envp, 0);
+	delete[] envp;
+	return (_resDefault);
 }
 
-int CGIHandler::handlePOST(const Request &req, Response &res, std::string interpreter)
+Response CGIHandler::handlePOST(const Request &req, std::string interpreter)
 {
 	std::cout << "[DEBUG][CGI][handlePOST] START" << std::endl;
 	
 	std::map<std::string, std::string> map;
-	if (getScript(req, map))
-		return (1);
+	Response resGetScript = getScript(req, map);
+	if (resGetScript.getStatus() != 200)
+		return (resGetScript);
 
 	char *argv[] = {(char *)interpreter.c_str(), (char *)map["name"].c_str(), NULL};
 
@@ -202,7 +137,7 @@ int CGIHandler::handlePOST(const Request &req, Response &res, std::string interp
 
 	std::vector<std::string> env;
 	if (!getEnviroment(env, "POST", map["path"], map["queryString"], req))
-		return (CGIerror(req ,404, "Bad Request", "text/html"), 1);
+		return (CGIerror(req ,404, "Bad Request", "text/html"));
 
 	char** envp = new char*[env.size() + 1];
 	for (size_t i = 0; i < env.size(); ++i)
@@ -211,32 +146,32 @@ int CGIHandler::handlePOST(const Request &req, Response &res, std::string interp
 
 	int pipeInput[2];
 	if (pipe(pipeInput) < 0)
-		return (std::cerr << "[ERROR] CGI on pipeInput" << std::endl, \
-		CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+		return (std::cerr << "[ERROR] CGI on pipeInput" << std::endl, delete[] envp,\
+		CGIerror(req, 500, "Internal Server Error", "text/plain"));
 	int pipeOutput[2];
 	if (pipe(pipeOutput) < 0)
-		return (std::cerr << "[ERROR] CGI on pipeOutput" << std::endl, \
-		CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+		return (std::cerr << "[ERROR] CGI on pipeOutput" << std::endl, delete[] envp,\
+		CGIerror(req, 500, "Internal Server Error", "text/plain"));
 
 	pid_t pid = fork();
 	if (pid < 0)
-		return (std::cerr << "[ERROR] CGI pid() on handlePOST" << std::endl, \
-		CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+		return (std::cerr << "[ERROR] CGI pid() on handlePOST" << std::endl, delete[] envp,\
+		CGIerror(req, 500, "Internal Server Error", "text/plain"));
 	if (!pid)
 	{
 		close (pipeInput[1]);
 		if (dup2(pipeInput[0], STDIN_FILENO) < 0)
-			return (kill(getpid(), SIGTERM), delete[] envp, 1);
+			return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
 		close (pipeInput[0]);
 		close (pipeOutput[0]);
 		if (dup2(pipeOutput[1], STDOUT_FILENO) < 0)
-			return (kill(getpid(), SIGTERM), delete[] envp, 1);
+			return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
 		close (pipeOutput[1]);
 
 		if (chdir(map["dir"].c_str()) < 0)
-			return (kill(getpid(), SIGTERM), delete[] envp, 1);
+			return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
 		execve((char *)interpreter.c_str(), argv, envp);
-		return (kill(getpid(), SIGTERM), delete[] envp, 1);
+		return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
 	}
 	else
 	{
@@ -249,7 +184,8 @@ int CGIHandler::handlePOST(const Request &req, Response &res, std::string interp
 		ssize_t bytes_written = write(pipeInput[1], body.c_str(), body.size());
 		if (bytes_written == -1 || static_cast<size_t>(bytes_written) != body.size())
 			return (std::cerr << "[ERROR] CGI write on handlePOST" << std::endl, \
-			CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, close(pipeInput[1]), close(pipeOutput[1]), close(pipeOutput[0]), 1);
+			delete[] envp, close(pipeInput[1]), close(pipeOutput[1]), close(pipeOutput[0]), \
+			CGIerror(req, 500, "Internal Server Error", "text/plain"));
 		close(pipeInput[1]);
 		close(pipeOutput[1]);
 		while ((count = read(pipeOutput[0], buffer, sizeof(buffer))) > 0)
@@ -258,123 +194,19 @@ int CGIHandler::handlePOST(const Request &req, Response &res, std::string interp
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
-			return (std::cerr << "[ERROR] CGI waitpid()" << std::endl, \
-			CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+			return (std::cerr << "[ERROR] CGI waitpid()" << std::endl, delete[] envp,\
+			CGIerror(req, 500, "Internal Server Error", "text/plain"));
 
 		if (WIFSIGNALED(status))
-			return (std::cerr << "[ERROR] CGI child was killed SIGTERM" << std::endl, \
-			CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+			return (std::cerr << "[ERROR] CGI child was killed SIGTERM" << std::endl, delete[] envp,\
+			CGIerror(req, 500, "Internal Server Error", "text/plain"));
 
-		if (createResponse(output, res))
-			return (std::cerr << "[ERROR] CGI couldn't createResponse()" << std::endl, \
-			CGIerror(req ,500, "Internal Server Error", "text/plain"), delete[] envp, 1);
+		if (createResponse(output, _resDefault))
+			return (std::cerr << "[ERROR] CGI couldn't createResponse()" << std::endl, delete[] envp,\
+			CGIerror(req, 500, "Internal Server Error", "text/plain"));
 	}
-	return (delete[] envp, 0);
-}
-
-int CGIHandler::getScript(const Request &req, std::map<std::string, std::string> &map)
-{
-	std::cout << "[DEBUG][CGI][getScript] START" << std::endl;
-	
-	std::string uri = req.getURI();
-	if (uri.empty())
-		return (std::cerr << "[ERROR][getURI] CGI couldn't get uri" << std::endl, \
-		CGIerror(req ,404, "Bad Request", "text/html"), 1);
-		
-	std::string scriptName = getScriptName(uri);
-	if (scriptName.empty())
-		return (std::cerr << "[ERROR][getScriptName] CGI couldn't get ScriptName" << std::endl, \
-		CGIerror(req ,404, "Bad Request", "text/html"), 1);
-
-	if (checkScriptAccess(_cgiRoot, scriptName))
-		return (CGIerror(req ,404, "Bad Request", "text/html"), 1);
-
-	map["dir"] = _cgiRoot + "/";
-	map["name"] = scriptName;
-	map["path"] = map["dir"] + map["name"];
-	map["queryString"] = getScriptQuery(uri);
-
-	std::cout << "[DEBUG][CGI][getScript] path = " << map["path"] << std::endl;
-	std::cout << "[DEBUG][CGI][getScript] query" << map["queryString"] << std::endl;
-	return (0);
-}
-
-std::string CGIHandler::getScriptName(const std::string &uri)
-{
-	std::cout << "[DEBUG][CGI][getScriptName] START" << std::endl;
-
-	std::string path;
-	std::string::size_type query_pos = uri.find('?');
-	if (query_pos != std::string::npos)
-		path = uri.substr(0, query_pos);
-	else
-		path = uri;
-
-	std::string::size_type pos_name = path.rfind("/");
-	if (pos_name == std::string::npos)
-		return (path);
-	else if (pos_name == path.length() - 1)
-		return ("");
-
-	return (path.substr(pos_name + 1));
-}
-
-std::string CGIHandler::getScriptQuery(const std::string &uri)
-{
-	std::cout << "[DEBUG][CGI][getScriptQuery] START" << std::endl;
-
-	std::string::size_type pos_query = uri.find("?");
-	if (pos_query == std::string::npos)
-		return ("");
-	return (uri.substr(pos_query + 1));
-}
-
-int CGIHandler::checkScriptAccess(std::string &dir, std::string &scriptName)
-{
-	std::cout << "[DEBUG][CGI][checkScriptAccess] START" << std::endl;
-
-    std::string fullPath = dir + "/" + scriptName;
-
-	std::cout << "[DEBUG][CGI][checkScriptAccess] fullPath = " << fullPath << std::endl;
-
-    if (access(fullPath.c_str(), F_OK) == -1) 
-        return (std::cerr << "[ERROR][CGI][checkScriptAccess] couldn't find script: " << \
-		fullPath << " — " << strerror(errno) << std::endl, 1);
-
-    if (access(fullPath.c_str(), X_OK) == -1)
-		return (std::cerr << "[ERROR][CGI][checkScriptAccess] can't execute script: " << \
-		fullPath << " — " << strerror(errno) << std::endl, 1);
-    return (0);
-}
-
-bool CGIHandler::getEnviroment(std::vector<std::string> &env, std::string method, std::string path, std::string queryString, const Request &req)
-{
-	std::cout << "[DEBUG][CGI][enviromentGET] START" << std::endl;
-	
-	env.push_back("PATH_INFO=" + path);
-	env.push_back("QUERY_STRING=" + queryString);
-	env.push_back("SCRIPT_NAME=" + path);
-	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
-
-	if (method == "GET")
-	{
-		env.push_back("REQUEST_METHOD=GET");
-		env.push_back("CONTENT_LENGTH=0");
-	}
-	else if (method == "POST")
-	{
-		env.push_back("REQUEST_METHOD=POST");
-		std::stringstream body_lenght;
-		body_lenght << req.getBody().length();
-		env.push_back("CONTENT_LENGTH=" + body_lenght.str());
-		env.push_back("CONTENT_TYPE=" + req.getHeader("Content-Type"));
-	}
-	else
-	{
-		std::cerr << "[ERROR][CGI][getEnviroment] invalid method: " << method << std::endl;
-		return (false);
-	}
-	return (true);
+	delete[] envp;
+	return (_resDefault);
 }
 
 int CGIHandler::createResponse(std::string output, Response &res)

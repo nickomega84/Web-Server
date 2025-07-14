@@ -65,7 +65,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
     }
 
 	bool autoindexFlag = false;
-	std::cout << "[DEBUG][StaticFileHandler][autoindex]" << std::endl;
+	std::cout << "[DEBUG][StaticFileHandler][autoindex] START" << std::endl;
 	Response resAutoindex = AutoIndex::autoindex(autoindexFlag, uri, fullPath, request, _builder);
 	if (autoindexFlag)
 		return (resAutoindex);
