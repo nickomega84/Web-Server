@@ -67,7 +67,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
 	if (autoindexFlag)
 		return (resAutoindex);
     
-    std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: AQUIIIIIIIIIIIIIIIIII " << fullPath << std::endl;
+    std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: " << fullPath << std::endl;
     if (!fileExists(fullPath)) {
         ErrorPageHandler errorHandler(_rootPath);
         payload.status = 404;
