@@ -1,4 +1,5 @@
 #include "../../include/handler/CGIHandler.hpp"
+#include "../../include/handler/StaticFileHandler.hpp"
 #include "../../include/libraries.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/Utils.hpp"
@@ -21,15 +22,6 @@ int CGIHandler::identifyScriptType(const Request &req)
 	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".sh")
 		return (std::cout << "[DEBUG][CGI][identifyScriptType]: shell" << std::endl, 2);
 	return (std::cerr << "[ERROR][CGI][identifyScriptType] unsupported CGI type" << std::endl, 0);
-}
-
-Response CGIHandler::autoindexCGIAux(const Request &req, bool &autoindexFlag)
-{
-	std::string uri = req.getURI();
-	std::string scriptName = getScriptName(uri);
-	std::string fullPath = _cgiRoot + "/" + scriptName;
-	std::cout << "[DEBUG][CGI][autoindexCGIAux] START" << std::endl;
-	return (AutoIndex::autoindex(autoindexFlag, uri, fullPath, req, _builder));
 }
 
 int CGIHandler::identifyMethod(const Request &req)
@@ -58,6 +50,34 @@ int CGIHandler::identifyMethod(const Request &req)
 		return (0);
 	}
 	return (0);
+}
+
+Response CGIHandler::autoindexCGIAux(const Request &req)
+{
+	std::cout << "[DEBUG][CGI][autoindexCGIAux] START" << std::endl;
+
+	bool autoindexFlag = false;
+	std::string uri = req.getURI();
+	std::string scriptName = getScriptName(uri);
+	std::string fullPath = _cgiRoot + "/" + scriptName;
+
+	Response res = AutoIndex::autoindex(autoindexFlag, uri, fullPath, req, _builder);
+	if (autoindexFlag)
+		return (res);
+
+	std::cout << "[DEBUG][CGI][autoindexCGIAux] staticHandler called" << std::endl;
+
+	std::string originalUri = req.getPath();
+    std::string cgiPrefix = "/cgi-bin";
+    std::string relativePath = originalUri;
+	if (originalUri.rfind(cgiPrefix, 0) == 0)
+		relativePath = originalUri.substr(cgiPrefix.length());
+	Request modifiedRequest = req;
+	modifiedRequest.setPath(relativePath);
+
+	StaticFileHandler staticHandler(_cgiRoot, _builder, _cfg);
+	res = staticHandler.handleRequest(modifiedRequest);
+	return (res);
 }
 
 void CGIHandler::checkCfgPermission(const Request &req, std::string method)

@@ -11,5 +11,6 @@ class AutoIndex
 {
     public:
 		static	Response	autoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request& request, IResponseBuilder* _builder);
-		static	std::string renderAutoindexPage(const std::string& displayPath, const std::string& physicalPath);
+		static	std::string	renderAutoindexPage(const std::string& displayPath, const std::string& physicalPath);
+		static	Response	autoIndexError(bool &autoindexFlag, IResponseBuilder* builder);
 };

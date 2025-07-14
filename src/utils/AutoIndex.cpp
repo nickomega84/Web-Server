@@ -1,12 +1,9 @@
 #include "../../include/utils/AutoIndex.hpp"
 
-Response AutoIndex::autoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request& request, IResponseBuilder* _builder)
+Response AutoIndex::autoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request& request, IResponseBuilder* builder)
 {
     std::cout << "[DEBUG][AutoIndex][autoindex] START" << std::endl;
 	
-	Payload payload;
-    payload.keepAlive = true;
-
     struct stat s;
     if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) 
 	{
@@ -18,43 +15,34 @@ Response AutoIndex::autoindex(bool &autoindexFlag, std::string &uri, std::string
 		size_t serverIndex = request.getServerIndex();
 		const IConfig* location_node = cfg->findLocationBlock(servers[serverIndex], uri);
 
-		std::string locationAutoindex = cfg->getDirectiveValue(location_node, "autoindex", "default");
-		if (locationAutoindex == "false")
-		{
-			autoindexFlag = true;
-			payload.status = 403;
-			payload.reason = "Forbidden";
-			payload.mime = "text/plain";
-			payload.body = "403 - Directory listing forbidden\nNo way dude!";
-			return _builder->build(payload);
-		}
-		std::string autoindex;
-		if (locationAutoindex == "default")
+		std::string autoindex = cfg->getDirectiveValue(location_node, "autoindex", "default");
+		if (autoindex == "default")
 			autoindex = cfg->getDirectiveValue(servers[serverIndex], "autoindex", "true");
 		if (autoindex == "true") 
 		{
 			autoindexFlag = true;
+			Payload payload;
+			payload.keepAlive = true;
 			payload.status = 200;
 			payload.reason = "OK";
 			payload.mime = "text/html";
 			payload.body = AutoIndex::renderAutoindexPage(uri, fullPath);
-			return _builder->build(payload);
+			return builder->build(payload);
 		}
-		
-		std::string indexPath = fullPath + "index.html";
-		if (access(indexPath.c_str(), F_OK) == 0) 
+		if (autoindex == "false")
 		{
-			fullPath = indexPath;
-		} 
-		else 
-		{
-			autoindexFlag = true;
-			payload.status = 403;
-			payload.reason = "Forbidden";
-			payload.mime = "text/plain";
-			payload.body = "403 - Directory listing forbidden";
-			return _builder->build(payload);
+			std::string indexFile = cfg->getDirectiveValue(location_node, "index", "default");
+			if (indexFile == "default")
+				indexFile = cfg->getDirectiveValue(servers[serverIndex], "index", "index.html");
+
+			std::string indexPath = fullPath + indexFile;
+			if (access(indexPath.c_str(), F_OK) == 0) 
+				fullPath = indexPath;
+			else
+				return (AutoIndex::autoIndexError(autoindexFlag, builder));
 		}
+		else
+			return (AutoIndex::autoIndexError(autoindexFlag, builder));
     }
     return Response();
 }
@@ -90,6 +78,17 @@ std::string AutoIndex::renderAutoindexPage(const std::string& displayPath, const
     }
 
     html += "</pre><hr></body></html>";
-
     return (html);
+}
+
+Response AutoIndex::autoIndexError(bool &autoindexFlag, IResponseBuilder* builder)
+{
+	autoindexFlag = true;
+	Payload payload;
+    payload.keepAlive = true;
+	payload.status = 403;
+	payload.reason = "Forbidden";
+	payload.mime = "text/plain";
+	payload.body = "403 - Directory listing forbidden";
+	return builder->build(payload);
 }

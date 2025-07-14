@@ -32,7 +32,7 @@ class CGIHandler: public IRequestHandler
 		int			createResponse(std::string output, Response &res);
 		
 		int			identifyScriptType(const Request &req);
-		Response	autoindexCGIAux(const Request &req, bool &autoindexFlag);
+		Response	autoindexCGIAux(const Request &req);
 		int			identifyMethod(const Request &req);
 		void		checkCfgPermission(const Request &req, std::string method);
 		

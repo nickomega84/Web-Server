@@ -27,15 +27,11 @@ Response CGIHandler::handleCGI(const Request &req)
 	std::cout << "[DEBUG][CGI][handleCGI] START" << std::endl;
 
 	int indx = identifyScriptType(req);
-	if (!indx)
-		return (CGIerror(req, 404, "Bad Request", "text/html"));
 
 	indx += identifyMethod(req);
 
-	bool autoindexFlag = false;
-	Response resAutoindex = autoindexCGIAux(req, autoindexFlag);
-	if (autoindexFlag)
-		return (resAutoindex);
+	if (indx == 2)
+		return(autoindexCGIAux(req));
 
 	if (indx < 3)
 		return (std::cerr << "[ERROR][CGI] unsupported method" << std::endl, \
