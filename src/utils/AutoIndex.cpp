@@ -36,7 +36,10 @@ Response AutoIndex::autoindex(bool &autoindexFlag, std::string &uri, std::string
 				indexFile = cfg->getDirectiveValue(servers[serverIndex], "index", "index.html");
 
 			std::string indexPath = fullPath + indexFile;
-			if (access(indexPath.c_str(), F_OK) == 0) 
+
+			std::cout << "OLAOLAOLA indexPath = " << indexPath << std::endl;
+
+			if (access(indexPath.c_str(), F_OK) == 0)
 				fullPath = indexPath;
 			else
 				return (AutoIndex::autoIndexError(autoindexFlag, builder));
