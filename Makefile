@@ -9,7 +9,6 @@ CXXFLAGS    := -g -Wall -Wextra -Werror -std=c++98 -MMD -MP -Iinclude
 SRC_DIR     := src
 OBJ_DIR     := obj
 INC_DIR     := include
-UPLOAD_DIR  := uploads
 
 # **************************************************************************** #
 #                                COLORES                                       #
@@ -33,7 +32,6 @@ CLEAR 		= \033[0m
 SRCS        := $(shell find $(SRC_DIR) -name "*.cpp")
 OBJS        := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS        := $(OBJS:.o=.d)
-UPLOADS     := $(shell find $(UPLOAD_DIR) -name "*.txt")
 
 # **************************************************************************** #
 #                                  REGLAS                                       #
