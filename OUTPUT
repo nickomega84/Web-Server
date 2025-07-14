@@ -1,0 +1,143 @@
+[DEBUG] Iniciando tokenización del archivo de configuración.
+[DEBUG][NEW_LINE]: server {
+[DEBUG] Encontrada palabra clave 'server'
+[DEBUG] Iniciando procesamiento del servidor 1
+[DEBUG] Token encontrado: server
+[DEBUG][NEW_LINE]:     server_name example1.com;
+[DEBUG] Token encontrado: server_name
+[DEBUG] Token encontrado: example1.com
+[DEBUG][NEW_LINE]:     port 8081;
+[DEBUG] Token encontrado: port
+[DEBUG] Token encontrado: 8081
+[DEBUG][NEW_LINE]:     host 127.0.0.1;
+[DEBUG] Token encontrado: host
+[DEBUG] Token encontrado: 127.0.0.1
+[DEBUG][NEW_LINE]:     body_size 1000;
+[DEBUG] Token encontrado: body_size
+[DEBUG] Token encontrado: 1000
+[DEBUG][NEW_LINE]:     index index.html;
+[DEBUG] Token encontrado: index
+[DEBUG] Token encontrado: index.html
+[DEBUG][NEW_LINE]:     root ./www;
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./www
+[DEBUG][NEW_LINE]: 
+[DEBUG][NEW_LINE]:     get_allowed true;
+[DEBUG] Token encontrado: get_allowed
+[DEBUG] Token encontrado: true
+[DEBUG][NEW_LINE]:     post_allowed true;
+[DEBUG] Token encontrado: post_allowed
+[DEBUG] Token encontrado: true
+[DEBUG][NEW_LINE]:     delete_allowed true;
+[DEBUG] Token encontrado: delete_allowed
+[DEBUG] Token encontrado: true
+[DEBUG][NEW_LINE]:     autoindex true;
+[DEBUG] Token encontrado: autoindex
+[DEBUG] Token encontrado: true
+[DEBUG][NEW_LINE]: 
+[DEBUG][NEW_LINE]:     location / {
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /
+[DEBUG][NEW_LINE]:         root ./www;
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./www
+[DEBUG][NEW_LINE]:         index index.html;
+[DEBUG] Token encontrado: index
+[DEBUG] Token encontrado: index.html
+[DEBUG][NEW_LINE]:         allow_methods GET DELETE POST;
+[DEBUG] Token encontrado: allow_methods
+[DEBUG] Token encontrado: GET
+[DEBUG] Token encontrado: DELETE
+[DEBUG] Token encontrado: POST
+[DEBUG][NEW_LINE]: 		body_size 2000000;
+[DEBUG] Token encontrado: body_size
+[DEBUG] Token encontrado: 2000000
+[DEBUG][NEW_LINE]:     }
+[DEBUG][NEW_LINE]: 
+[DEBUG][NEW_LINE]:     location /uploads {
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /uploads
+[DEBUG][NEW_LINE]:         root ./uploads;
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./uploads
+[DEBUG][NEW_LINE]:         autoindex true;
+[DEBUG] Token encontrado: autoindex
+[DEBUG] Token encontrado: true
+[DEBUG][NEW_LINE]:         allow_methods GET POST DELETE;
+[DEBUG] Token encontrado: allow_methods
+[DEBUG] Token encontrado: GET
+[DEBUG] Token encontrado: POST
+[DEBUG] Token encontrado: DELETE
+[DEBUG][NEW_LINE]:         upload_path ./uploads;
+[DEBUG] Token encontrado: upload_path
+[DEBUG] Token encontrado: ./uploads
+[DEBUG][NEW_LINE]: 		body_size 2000000;
+[DEBUG] Token encontrado: body_size
+[DEBUG] Token encontrado: 2000000
+[DEBUG][NEW_LINE]:     }
+[DEBUG][NEW_LINE]: 
+[DEBUG][NEW_LINE]:     location /cgi-bin {
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /cgi-bin
+[DEBUG][NEW_LINE]:         root ./cgi-bin;
+[DEBUG] Token encontrado: root
+[DEBUG] Token encontrado: ./cgi-bin
+[DEBUG][NEW_LINE]:         cgi_path /usr/bin/python3.10;
+[DEBUG] Token encontrado: cgi_path
+[DEBUG] Token encontrado: /usr/bin/python3.10
+[DEBUG][NEW_LINE]: 		allow_methods GET POST;
+[DEBUG] Token encontrado: allow_methods
+[DEBUG] Token encontrado: GET
+[DEBUG] Token encontrado: POST
+[DEBUG][NEW_LINE]:         deleteOn false;
+[DEBUG] Token encontrado: deleteOn
+[DEBUG] Token encontrado: false
+[DEBUG][NEW_LINE]:         postOn false;
+[DEBUG] Token encontrado: postOn
+[DEBUG] Token encontrado: false
+[DEBUG][NEW_LINE]:         autoindex true;
+[DEBUG] Token encontrado: autoindex
+[DEBUG] Token encontrado: true
+[DEBUG][NEW_LINE]: 		body_size 2000000;
+[DEBUG] Token encontrado: body_size
+[DEBUG] Token encontrado: 2000000
+[DEBUG][NEW_LINE]:     }
+[DEBUG][NEW_LINE]: 
+[DEBUG][NEW_LINE]:     location /error_pages {
+[DEBUG] Token encontrado: location
+[DEBUG] Token encontrado: /error_pages
+[DEBUG][NEW_LINE]:         not_found ./www/error_pages/200.html;
+[DEBUG] Token encontrado: not_found
+[DEBUG] Token encontrado: ./www/error_pages/200.html
+[DEBUG][NEW_LINE]:         forbidden ./www/error_pages/403.html;
+[DEBUG] Token encontrado: forbidden
+[DEBUG] Token encontrado: ./www/error_pages/403.html
+[DEBUG][NEW_LINE]:         bad_request ./www/error_pages/400.html;
+[DEBUG] Token encontrado: bad_request
+[DEBUG] Token encontrado: ./www/error_pages/400.html
+[DEBUG][NEW_LINE]:         bad_getaway ./www/error_pages/502.html;
+[DEBUG] Token encontrado: bad_getaway
+[DEBUG] Token encontrado: ./www/error_pages/502.html
+[DEBUG][NEW_LINE]:     }
+[DEBUG][NEW_LINE]: }
+[DEBUG] Validación exitosa para bloque servidor
+[DEBUG] Servidor 1 validado y agregado.
+[DEBUG] Tokenización completada. Total tokens válidos: 114
+[DEBUG] Servidores válidos procesados: 1
+[DEBUG][getServerName] START
+[INFO] Server name: example1.com
+[INFO] Max body size: 1000
+[INFO] GET method allowed: true
+[INFO] POST method allowed: true
+[INFO] DELETE method allowed: true
+[DEBUG] CGI factory raw: ./cgi-bin
+[DEBUG] CGI directory: /home/dangonz3/webserv_final_malfunciona/www/cgi-bin
+[DEBUG][Router] absRoot: /home/dangonz3/webserv_final_malfunciona/www
+[DEBUG][StaticHandlerFactory] created with rootsDir: /home/dangonz3/webserv_final_malfunciona/www
+[DEBUG][UploadHandlerFactory] created with uploads path: /home/dangonz3/webserv_final_malfunciona/www/uploads
+[DEBUG][CGIHandlerFactory] created with uploads path: /home/dangonz3/webserv_final_malfunciona/www/cgi-bin
+[DEBUG][addListeningSocket] HOST = 127.0.0.1
+[DEBUG][addListeningSocket] PORT = 8081
+[DEBUG][addListeningSocket] New listenSocket fd = 3
+
+✅ [DEBUG] Webserv setup. Listening for connections

@@ -32,8 +32,9 @@ class ConfigParser {
                 
 		const std::vector<IConfig*>& getServerBlocks() const;
 
-		const IConfig* findLocationBlock(const IConfig* serverNode, const std::string& path) const;
-		bool isMethodAllowed(const IConfig* serverNode, const std::string& path, const std::string& method) const;
+		const IConfig*	findLocationBlock(const IConfig* serverNode, const std::string& path) const;
+		bool			validateServerTokens(const std::vector<std::string>& serverTokens) const;
+		bool			isMethodAllowed(const IConfig* serverNode, const std::string& path, const std::string& method) const;
 	};
 
 #endif

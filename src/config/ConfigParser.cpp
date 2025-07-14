@@ -28,6 +28,10 @@ bool ConfigParser::load(const std::string& filePath) {
     }
     try {
         std::vector<std::string> tokens = tokenize(file);
+        if(tokens.empty()) {
+            std::cerr << "Error: No se pudieron tokenizar los datos del archivo " << filePath << std::endl;
+            return false;
+        }
         size_t index = 0;
         while (index < tokens.size()) {
             parse(_configRoot, tokens, index);
@@ -114,30 +118,106 @@ std::vector<std::string> ConfigParser::tokenize(std::ifstream& file) {
     std::string line;
     const std::string delimiters = " \t\r\n";
     const std::string special_chars = "{};";
+    
+    std::cout << "[DEBUG] Iniciando tokenización del archivo de configuración." << std::endl;
+    
+    int processed_servers = 0;
+    int brace_count = 0;
+    bool inside_server = false;
+    bool found_server_keyword = false;
+    std::vector<std::string> current_server_tokens;
+    
     while (std::getline(file, line)) {
+        std::cout << "[DEBUG][NEW_LINE]: " << line << std::endl;
+        
+     
         size_t comment_pos = line.find('#');
-        if (comment_pos != std::string::npos) line.erase(comment_pos);
-        size_t current_pos = 0;
-        while (current_pos < line.length()) {
-            size_t start = line.find_first_not_of(delimiters, current_pos);
-            if (start == std::string::npos) 
+        if (comment_pos != std::string::npos) {
+            line.erase(comment_pos);
+        }
+        
+ 
+        if (line.find_first_not_of(" \t") == std::string::npos) {
+            continue;
+        }
+        
+        
+        if (line.find("server") != std::string::npos && !inside_server) {
+            found_server_keyword = true;
+            std::cout << "[DEBUG] Encontrada palabra clave 'server'" << std::endl;
+        }
+        
+        // Check if we found opening brace after server keyword
+        if (found_server_keyword && line.find("{") != std::string::npos && !inside_server) {
+            inside_server = true;
+            found_server_keyword = false;
+            brace_count = 0;
+            current_server_tokens.clear();
+            std::cout << "[DEBUG] Iniciando procesamiento del servidor " << (processed_servers + 1) << std::endl;
+        }
+        
+        if (inside_server || found_server_keyword) {
+            // Tokenize the current line and store in temporary vector
+            size_t current_pos = 0;
+            while (current_pos < line.length()) {
+                size_t start = line.find_first_not_of(delimiters, current_pos);
+                if (start == std::string::npos) {
                     break;
-            if (special_chars.find(line[start]) != std::string::npos) {
-                tokens.push_back(line.substr(start, 1));
-                current_pos = start + 1;
-                continue;
-            }
-            size_t end = line.find_first_of(delimiters + special_chars, start);
-            if (end == std::string::npos) {
-                tokens.push_back(line.substr(start));
-                break;
-            } else {
-                std::cout << "[DEBUG] Token encontrado: " << line.substr(start, end - start) << std::endl;
-                tokens.push_back(line.substr(start, end - start));
-                current_pos = end;
+                }
+                
+                if (special_chars.find(line[start]) != std::string::npos) {
+                    current_server_tokens.push_back(line.substr(start, 1));
+                    
+                    // Track braces to know when server block ends
+                    if (line[start] == '{') {
+                        brace_count++;
+                        if (!inside_server && found_server_keyword) {
+                            inside_server = true;
+                            found_server_keyword = false;
+                            std::cout << "[DEBUG] Iniciando procesamiento del servidor " << (processed_servers + 1) << std::endl;
+                        }
+                    } else if (line[start] == '}') {
+                        brace_count--;
+                        if (brace_count == 0 && inside_server) {
+                            // End of server block - validate before adding
+                            if (validateServerTokens(current_server_tokens)) {
+                                // Server is valid, add tokens to main vector
+                                for (size_t i = 0; i < current_server_tokens.size(); ++i) {
+                                    tokens.push_back(current_server_tokens[i]);
+                                }
+                                processed_servers++;
+                                std::cout << "[DEBUG] Servidor " << processed_servers << " validado y agregado." << std::endl;
+                            } else {
+                                std::cout << "[DEBUG] Servidor descartado por errores de validación." << std::endl;
+                            }
+                            
+                            inside_server = false;
+                            current_server_tokens.clear();
+                        }
+                    }
+                    
+                    current_pos = start + 1;
+                    continue;
+                }
+                
+                size_t end = line.find_first_of(delimiters + special_chars, start);
+                if (end == std::string::npos) {
+                    std::string token = line.substr(start);
+                    std::cout << "[DEBUG][TOKEN]: " << token << std::endl;
+                    current_server_tokens.push_back(token);
+                    break;
+                } else {
+                    std::string token = line.substr(start, end - start);
+                    std::cout << "[DEBUG][TOKEN]: " << token << std::endl;
+                    current_server_tokens.push_back(token);
+                    current_pos = end;
+                }
             }
         }
     }
+    
+    std::cout << "[DEBUG] Tokenización completada. Total tokens válidos: " << tokens.size() << std::endl;
+    std::cout << "[DEBUG] Servidores válidos procesados: " << processed_servers << std::endl;
     return tokens;
 }
 
@@ -168,18 +248,12 @@ void ConfigParser::parse(IConfig* parent, std::vector<std::string>& tokens, size
 
 std::string ConfigParser::getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) 
 {
-	if (!node) 
-		return defaultValue;
-
-/* 	std::cout << "[DEBUG][getDirectiveValue] OLAOLAOLA node = " << node << std::endl;
-	std::cout << "[DEBUG][getDirectiveValue] OLAOLAOLA key = " << key << std::endl; */
+    if (!node) 
+        return defaultValue;
 
     const IConfig* child = node->getChild(key);
-
-/* 	std::cout << "[DEBUG][getDirectiveValue] OLAOLAOLA child = " << child << std::endl; */
-
-	if (child && !child->getValues().empty())
-		return child->getValues()[0];
+    if (child && !child->getValues().empty())
+        return child->getValues()[0];
 
     return defaultValue;
 }
@@ -203,51 +277,39 @@ const std::vector<IConfig*>& ConfigParser::getServerBlocks() const
     return _configRoot->getChildren();
 }
 
-std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode) const 
-{
-    if (!_configRoot) 
-		return "";
-
-    if (!serverNode) 
-	{
+std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode) const {
+    if (!_configRoot) return "";
+    if (!serverNode) {
         const std::vector<IConfig*>& servers = _configRoot->getChildren();
         if (servers.empty() || servers[0]->getType() != "server") return "";
         serverNode = servers[0];
     }
-
+    
     const std::vector<IConfig*>& locations = serverNode->getChildren();
-/* 	if (locations.empty())
-		throw (std::runtime_error("[DEBUG][ConfigParser][getErrorPage] cannot getChildren()")); */
-
-    for (size_t i = 0; i < locations.size(); ++i) 
-	{
+    for (size_t i = 0; i < locations.size(); ++i) {
         if (locations[i]->getType() == "location" && 
-		!locations[i]->getValues().empty() && 
-		locations[i]->getValues()[0] == "/error_pages")
-		{
+            !locations[i]->getValues().empty() && 
+            locations[i]->getValues()[0] == "/error_pages") {
             
             const std::vector<IConfig*>& directives = locations[i]->getChildren();
             for (size_t j = 0; j < directives.size(); ++j) {
                 const std::string& directiveType = directives[j]->getType();
                 
                 if ((errorCode == 404 && directiveType == "not_found") ||
-				(errorCode == 403 && directiveType == "forbidden") ||
-				(errorCode == 400 && directiveType == "bad_request") ||
-				(errorCode == 502 && directiveType == "bad_getaway") ||
-				(errorCode == 500 && directiveType == "internal_error")) 
-				{
+                    (errorCode == 403 && directiveType == "forbidden") ||
+                    (errorCode == 400 && directiveType == "bad_request") ||
+                    (errorCode == 502 && directiveType == "bad_getaway") ||
+                    (errorCode == 500 && directiveType == "internal_error")) {
+                    
                     const std::vector<std::string>& values = directives[j]->getValues();
-                    if (!values.empty()) 
-					{
+                    if (!values.empty()) {
                         std::string filePath = values[0];
-                        if (validateErrorPagePath(filePath)) 
-						{
-                            std::cout << "[DEBUG] Página de error " << errorCode << " configurada: " << filePath << std::endl;
+                        
+                        if (validateErrorPagePath(filePath)) {
+                            std::cout << "[INFO] Página de error " << errorCode << " configurada: " << filePath << std::endl;
                             return filePath;
-                        } 
-						else 
-						{
-                            std::cout << "[DEBUG] Página de error " << errorCode << " no sigue el formato correcto. Usando página por defecto." << std::endl;
+                        } else {
+                            std::cout << "[WARNING] Página de error " << errorCode << " no sigue el formato correcto. Usando página por defecto." << std::endl;
                             return "";
                         }
                     }
@@ -340,4 +402,122 @@ const IConfig* ConfigParser::findLocationBlock(const IConfig* serverNode, const 
         }
     }
     return bestMatch;
+}
+
+bool ConfigParser::validateServerTokens(const std::vector<std::string>& serverTokens) const {
+    if (serverTokens.empty()) {
+        std::cout << "[DEBUG] Validación falló: tokens vacíos" << std::endl;
+        return false;
+    }
+    
+    // Check basic structure: server { ... }
+    if (serverTokens.size() < 3) {
+        std::cout << "[DEBUG] Validación falló: estructura mínima no cumplida" << std::endl;
+        return false;
+    }
+    
+    if (serverTokens[0] != "server") {
+        std::cout << "[DEBUG] Validación falló: no comienza con 'server'" << std::endl;
+        return false;
+    }
+    
+    if (serverTokens[1] != "{") {
+        std::cout << "[DEBUG] Validación falló: no tiene '{' después de 'server'" << std::endl;
+        return false;
+    }
+    
+    if (serverTokens.back() != "}") {
+        std::cout << "[DEBUG] Validación falló: no termina con '}'" << std::endl;
+        return false;
+    }
+    
+    
+    int brace_count = 0;
+    for (size_t i = 0; i < serverTokens.size(); ++i) {
+        if (serverTokens[i] == "{") {
+            brace_count++;
+        } else if (serverTokens[i] == "}") {
+            brace_count--;
+            if (brace_count < 0) {
+                std::cout << "[DEBUG] Validación falló: llaves desbalanceadas" << std::endl;
+                return false;
+            }
+        }
+    }
+    
+    if (brace_count != 0) {
+        std::cout << "[DEBUG] Validación falló: llaves no balanceadas" << std::endl;
+        return false;
+    }
+    
+    // Validate directive syntax - check for malformed directives like "port8081;"
+    for (size_t i = 1; i < serverTokens.size() - 1; ++i) {
+        const std::string& token = serverTokens[i];
+        
+        // Skip special characters and location blocks
+        if (token == "{" || token == "}" || token == ";" || token == "location") {
+            continue;
+        }
+        
+        // Check for malformed directives (directive mixed with value)
+        if (token.find("port") == 0 && token.length() > 4) {
+            std::cout << "[ERROR] Validación falló: directiva 'port' mal formada: " << token << std::endl;
+            std::cout << "[ERROR] Formato correcto: 'port 8081;'" << std::endl;
+            return false;
+        }
+        
+        if (token.find("server_name") == 0 && token.length() > 11) {
+            std::cout << "[ERROR] Validación falló: directiva 'server_name' mal formada: " << token << std::endl;
+            std::cout << "[ERROR] Formato correcto: 'server_name config1.com;'" << std::endl;
+            return false;
+        }
+        
+        if (token.find("host") == 0 && token.length() > 4) {
+            std::cout << "[ERROR] Validación falló: directiva 'host' mal formada: " << token << std::endl;
+            std::cout << "[ERROR] Formato correcto: 'host 127.0.0.1;'" << std::endl;
+            return false;
+        }
+        
+        if (token.find("root") == 0 && token.length() > 4) {
+            std::cout << "[ERROR] Validación falló: directiva 'root' mal formada: " << token << std::endl;
+            std::cout << "[ERROR] Formato correcto: 'root ./www;'" << std::endl;
+            return false;
+        }
+        
+        if (token.find("index") == 0 && token != "index.html" && token.length() > 5) {
+            std::cout << "[ERROR] Validación falló: directiva 'index' mal formada: " << token << std::endl;
+            std::cout << "[ERROR] Formato correcto: 'index index.html;'" << std::endl;
+            return false;
+        }
+        
+        if (token.find("body_size") == 0 && token.length() > 9) {
+            std::cout << "[ERROR] Validación falló: directiva 'body_size' mal formada: " << token << std::endl;
+            std::cout << "[ERROR] Formato correcto: 'body_size 100000;'" << std::endl;
+            return false;
+        }
+        
+        // Check for tokens that contain semicolons but shouldn't
+        if (token.find(';') != std::string::npos && token != ";") {
+            std::cout << "[ERROR] Validación falló: token mal formado con ';' incluido: " << token << std::endl;
+            std::cout << "[ERROR] Los tokens deben estar separados por espacios" << std::endl;
+            return false;
+        }
+    }
+    
+    // Check for required directive (like port)
+    bool hasPort = false;
+    for (size_t i = 0; i < serverTokens.size() - 1; ++i) {
+        if (serverTokens[i] == "port") {
+            hasPort = true;
+            break;
+        }
+    }
+    
+    if (!hasPort) {
+        std::cout << "[DEBUG] Validación falló: falta directiva 'port'" << std::endl;
+        return false;
+    }
+    
+    std::cout << "[DEBUG] Validación exitosa para bloque servidor" << std::endl;
+    return true;
 }
