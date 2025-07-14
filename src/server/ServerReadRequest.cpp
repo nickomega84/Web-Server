@@ -159,11 +159,8 @@ void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedRea
 	std::cout << "[DEBUG][checkMaxContentLength] req.getServerIndex() = " << req.getServerIndex() << std::endl;
 
 	const IConfig* locationNode = _cfg.findLocationBlock(serverNodes[serverIndex], path);
-	std::cout << "[DEBUG][checkMaxContentLength] serverIndex locationNode = " << locationNode << std::endl;
 
 	std::string default_value = MAX_DEFAULT_REQUEST_BODY_SIZE;
-
-	std::cout << "[DEBUG][checkMaxContentLength] -------------------------------------------------- " << std::endl;
 	std::string CfgBodySize = _cfg.getDirectiveValue(locationNode, "body_size", default_value);
 
 	if (CfgBodySize.empty())
