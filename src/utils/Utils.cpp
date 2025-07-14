@@ -144,38 +144,3 @@ std::string Utils::resolveAndValidateFile(const std::string& absRoot, const std:
 	::close(fd);
 	return abs;
 }
-
-std::string Utils::renderAutoindexPage(const std::string& displayPath, const std::string& physicalPath)
-{
-    std::string currentPath = displayPath;
-    if (currentPath.empty() || currentPath[currentPath.length() - 1] != '/')
-        currentPath += '/';
-
-    std::string html = "<html><head><title>Index of " + currentPath + "</title></head>";
-    html += "<body><h1>Index of " + currentPath + "</h1><hr><pre>";
-
-    DIR* dir = opendir(physicalPath.c_str());
-    if (dir)
-    {
-        struct dirent* entry;
-        while ((entry = readdir(dir)))
-        {
-            std::string entryName = entry->d_name;
-            if (entryName != "." && entryName != "..")
-            {
-                std::string href = currentPath + entryName;
-                html += "<a href=\"" + href + "\">" + entryName + "</a><br>";
-            }
-        }
-        closedir(dir);
-    }
-    else
-    {
-        std::cerr << "[ERROR][renderAutoindexPage] No se pudo abrir el directorio: " << physicalPath << std::endl;
-        html += "Error: No se puede listar el contenido del directorio.";
-    }
-
-    html += "</pre><hr></body></html>";
-
-    return (html);
-}

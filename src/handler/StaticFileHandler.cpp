@@ -2,6 +2,7 @@
 #include "../../include/utils/Utils.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/MimeTypes.hpp"
+#include "../../include/utils/AutoIndex.hpp"
 #include "../../include/response/IResponseBuilder.hpp"
 #include "../../include/config/ConfigParser.hpp"
 #include <iostream>
@@ -43,6 +44,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
     std::string method = request.getMethod();
     std::string fullPath = _rootPath + uri;
 
+
     Payload payload;
     payload.keepAlive = true;
 
@@ -63,7 +65,8 @@ Response StaticFileHandler::handleRequest(const Request& request)
     }
 
 	bool autoindexFlag = false;
-	Response resAutoindex = staticAutoindex(autoindexFlag, uri, fullPath, request, payload);
+	std::cout << "[DEBUG][StaticFileHandler][autoindex]" << std::endl;
+	Response resAutoindex = AutoIndex::autoindex(autoindexFlag, uri, fullPath, request, _builder);
 	if (autoindexFlag)
 		return (resAutoindex);
     
@@ -159,20 +162,27 @@ bool StaticFileHandler::checkCfgPermission(const Request &req, std::string metho
     return (cfg->isMethodAllowed(serverNodes[serverIndex], path, method));
 }
 
-Response StaticFileHandler::staticAutoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request &request, Payload &payload) 
+/* Response StaticFileHandler::staticAutoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request &request, Payload &payload) 
 {
     struct stat s;
-    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
+    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) 
+	{
         if (uri[uri.size() - 1] != '/')
             uri += "/";
 
         ConfigParser* cfg = request.getCfg();
+		std::vector<IConfig*> servers = cfg->getServerBlocks();
         size_t serverIndex = request.getServerIndex();
-        std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[serverIndex], "autoindex", "true");
+		const IConfig* location_node = cfg->findLocationBlock(servers[serverIndex], uri);
+
+		std::string autoindex = cfg->getDirectiveValue(location_node, "autoindex", "default");
+		if (autoindex == "default")
+	        autoindex = cfg->getDirectiveValue(servers[serverIndex], "autoindex", "true");
 
         std::string indexPath = fullPath + "index.html";
 
-        if (autoindex == "true") {
+        if (autoindex == "true") 
+		{
             autoindexFlag = true;
             payload.status = 200;
             payload.reason = "OK";
@@ -180,16 +190,19 @@ Response StaticFileHandler::staticAutoindex(bool &autoindexFlag, std::string &ur
             payload.body = Utils::renderAutoindexPage(request.getURI(), fullPath);
             return _builder->build(payload);
         }
-        else if (access(indexPath.c_str(), F_OK) == 0) {
+        else if (access(indexPath.c_str(), F_OK) == 0) 
+		{
             fullPath = indexPath;
-        } else {
+        }
+		else
+		{
             autoindexFlag = true;
             payload.status = 403;
             payload.reason = "Forbidden";
             payload.mime = "text/plain";
-            payload.body = "403 - Directory listing forbidden";
+            payload.body = "403 - Directory listing forbidden\nNo way dude!";
             return _builder->build(payload);
         }
     }
     return Response();
-}
+} */

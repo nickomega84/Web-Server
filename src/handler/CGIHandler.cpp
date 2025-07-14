@@ -21,6 +21,36 @@ Response CGIHandler::handleRequest(const Request& req)
     return (handleCGI(req, _res));
 }
 
+Response CGIHandler::handleCGI(const Request &req, Response &res)
+{
+	std::cout << "[DEBUG][CGI][handleCGI] START" << std::endl;
+
+	bool autoindexFlag = false;
+	std::string uri = req.getURI();
+	std::cout << "[DEBUG][StaticFileHandler][autoindex]" << std::endl;
+	Response resAutoindex = AutoIndex::autoindex(autoindexFlag, uri, fullPath, req, _builder);
+	if (autoindexFlag)
+		return (resAutoindex);
+
+	int indx = identifyScriptType(req);
+	if (!indx)
+		return (CGIerror(req ,404, "Bad Request", "text/html"), _res);
+
+	indx += identifyMethod(req);
+	if (indx < 3)
+		return (std::cerr << "[ERROR][CGI] unsupported method" << std::endl, \
+		CGIerror(req ,404, "Bad Request", "text/html"), _res);
+	else if (indx == GET_PY)
+		handleGET(req, res, PYTHON_INTERPRETER);
+	else if (indx == GET_SH)
+		handleGET(req, res, SH_INTERPRETER);
+	else if (indx == POST_PY)
+		handlePOST(req, res, PYTHON_INTERPRETER);
+	else if (indx == POST_SH)
+		handlePOST(req, res, SH_INTERPRETER);
+	return (_res);
+}
+
 int CGIHandler::identifyScriptType(const Request &req)
 {
 	std::cout << "[DEBUG][CGI][identifyScriptType] START" << std::endl;
@@ -88,29 +118,6 @@ void CGIHandler::checkCfgPermission(const Request &req, std::string method)
 	if (!allowed)
 		throw (std::runtime_error(method + " not allowed"));
 	return;
-}
-
-Response CGIHandler::handleCGI(const Request &req, Response &res)
-{
-	std::cout << "[DEBUG][CGI][handleCGI] START" << std::endl;
-
-	int indx = identifyScriptType(req);
-	if (!indx)
-		return (CGIerror(req ,404, "Bad Request", "text/html"), _res);
-
-	indx += identifyMethod(req);
-	if (indx < 3)
-		return (std::cerr << "[ERROR][CGI] unsupported method" << std::endl, \
-		CGIerror(req ,404, "Bad Request", "text/html"), _res);
-	else if (indx == GET_PY)
-		handleGET(req, res, PYTHON_INTERPRETER);
-	else if (indx == GET_SH)
-		handleGET(req, res, SH_INTERPRETER);
-	else if (indx == POST_PY)
-		handlePOST(req, res, PYTHON_INTERPRETER);
-	else if (indx == POST_SH)
-		handlePOST(req, res, SH_INTERPRETER);
-	return (_res);
 }
 
 int CGIHandler::handleGET(const Request &req, Response &res, std::string interpreter)

@@ -5,6 +5,7 @@
 #include "../../include/handler/StaticFileHandler.hpp"
 #include "../../include/utils/ErrorPageHandler.hpp"
 #include "../../include/utils/MimeTypes.hpp"
+#include "../../include/utils/AutoIndex.hpp"
 #include "../../include/response/IResponseBuilder.hpp"
 #include <iostream>
 
@@ -34,7 +35,8 @@ Response UploadHandler::handleRequest(const Request& request)
     if (method == "GET") 
 	{
         bool autoindexFlag = false;
-        Response resAutoindex = uploadAutoindex(autoindexFlag, originalUri, fullPath, request);
+		std::cout << "[DEBUG][UploadHandler][autoindex]" << std::endl;
+        Response resAutoindex = AutoIndex::autoindex(autoindexFlag, originalUri, fullPath, request, _builder);
         if (autoindexFlag)
             return resAutoindex;
     }
@@ -44,7 +46,7 @@ Response UploadHandler::handleRequest(const Request& request)
         Request modifiedRequest = request;
         modifiedRequest.setPath(relativePath);
 
-		std::cout << "[DEBUG][UploadHandler][handleRequest] OLAOLAOLAOLAOLAOLAOLAOLA modifiedRequest.setServerIndex = " << modifiedRequest.getServerIndex() << std::endl;
+		std::cout << "[DEBUG][UploadHandler][handleRequest] modifiedRequest.setServerIndex = " << modifiedRequest.getServerIndex() << std::endl;
 
         StaticFileHandler staticHandler(_uploadsPath, _builder, _cfg);
         return (staticHandler.handleRequest(modifiedRequest));
@@ -182,7 +184,7 @@ bool UploadHandler::checkCfgPermission(const Request &req, std::string method)
 	return (cfg->isMethodAllowed(serverNodes[serverIndex], path, method));
 }
 
-Response UploadHandler::uploadAutoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request& request) 
+/* Response UploadHandler::uploadAutoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request& request) 
 {
     std::cout << "[DEBUG][UploadHandler][uploadAutoindex] START" << std::endl;
 	
@@ -190,34 +192,53 @@ Response UploadHandler::uploadAutoindex(bool &autoindexFlag, std::string &uri, s
     payload.keepAlive = true;
 
     struct stat s;
-    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) {
+    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) 
+	{
         if (uri[uri.size() - 1] != '/')
             uri += "/";
 
-        ConfigParser* cfg = request.getCfg();
-        size_t serverIndex = request.getServerIndex();
-        std::string autoindex = cfg->getDirectiveValue(cfg->getServerBlocks()[serverIndex], "autoindex", "false");
+		ConfigParser* cfg = request.getCfg();
+		std::vector<IConfig*> servers = cfg->getServerBlocks();
+		size_t serverIndex = request.getServerIndex();
+		const IConfig* location_node = cfg->findLocationBlock(servers[serverIndex], uri);
 
-        if (autoindex == "true") {
-            autoindexFlag = true;
-            payload.status = 200;
-            payload.reason = "OK";
-            payload.mime = "text/html";
-            payload.body = Utils::renderAutoindexPage(uri, fullPath);
-            return _builder->build(payload);
-        }
-
-        std::string indexPath = fullPath + "index.html";
-        if (access(indexPath.c_str(), F_OK) == 0) {
-            fullPath = indexPath;
-        } else {
-            autoindexFlag = true;
-            payload.status = 403;
-            payload.reason = "Forbidden";
-            payload.mime = "text/plain";
-            payload.body = "403 - Directory listing forbidden";
-            return _builder->build(payload);
-        }
+		std::string locationAutoindex = cfg->getDirectiveValue(location_node, "autoindex", "default");
+		if (locationAutoindex == "false")
+		{
+			autoindexFlag = true;
+			payload.status = 403;
+			payload.reason = "Forbidden";
+			payload.mime = "text/plain";
+			payload.body = "403 - Directory listing forbidden\nNo way dude!";
+			return _builder->build(payload);
+		}
+		std::string autoindex;
+		if (locationAutoindex == "default")
+			autoindex = cfg->getDirectiveValue(servers[serverIndex], "autoindex", "true");
+		if (autoindex == "true") 
+		{
+			autoindexFlag = true;
+			payload.status = 200;
+			payload.reason = "OK";
+			payload.mime = "text/html";
+			payload.body = Utils::renderAutoindexPage(uri, fullPath);
+			return _builder->build(payload);
+		}
+		
+		std::string indexPath = fullPath + "index.html";
+		if (access(indexPath.c_str(), F_OK) == 0) 
+		{
+			fullPath = indexPath;
+		} 
+		else 
+		{
+			autoindexFlag = true;
+			payload.status = 403;
+			payload.reason = "Forbidden";
+			payload.mime = "text/plain";
+			payload.body = "403 - Directory listing forbidden";
+			return _builder->build(payload);
+		}
     }
     return Response();
-}
+} */
