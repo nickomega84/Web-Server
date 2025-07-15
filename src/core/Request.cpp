@@ -19,11 +19,28 @@ Request& Request::operator=(const Request& other)
 		_version = other._version;
 		_headers = other._headers;
 		_body = other._body;
-        _cfg = other._cfg;
-		_serverIndex = other._serverIndex;
+		_path = other._path;
+		_queryString = other._queryString;
+		_keepAlive = other._keepAlive;
+		_physicalPath = other._physicalPath;
+		_originalUri = other._originalUri;
+		_basePath = other._basePath;  
 	}
 	return *this;
 }
+
+std::string _method;
+std::string _uri;
+std::string _version;
+std::map<std::string, std::string> _headers;
+std::string _body;
+std::string _path;
+std::string _queryString;
+bool _keepAlive;
+std::string _physicalPath;
+std::string _originalUri;
+std::string _basePath;  
+
 Request::~Request() 
 {}
 

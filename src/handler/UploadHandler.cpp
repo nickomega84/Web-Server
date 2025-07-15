@@ -33,12 +33,9 @@ Response UploadHandler::handleRequest(const Request& request)
 
     if (method == "GET") 
 	{
-        bool autoindexFlag = false;
+        std::cout << "[DEBUG][UploadHandler][autoindex] START" << std::endl;
 
-		std::cout << "OLAOLAOLA [DEBUG][UploadHandler][handleRequest] originalUri = " << originalUri << std::endl;
-		std::cout << "OLAOLAOLA [DEBUG][UploadHandler][handleRequest] fullPath = " << fullPath << std::endl;
-
-		std::cout << "[DEBUG][UploadHandler][autoindex] START" << std::endl;
+		bool autoindexFlag = false;
         Response resAutoindex = AutoIndex::autoindex(autoindexFlag, originalUri, fullPath, request, _builder);
         if (autoindexFlag)
             return resAutoindex;
@@ -46,10 +43,10 @@ Response UploadHandler::handleRequest(const Request& request)
 
     if (method == "GET" || method == "HEAD" || method == "DELETE")
     {
-        Request modifiedRequest = request;
+        std::cout << "[DEBUG][UploadHandler][handleRequest] staticHandler" << std::endl;
+		
+		Request modifiedRequest = request;
         modifiedRequest.setPath(relativePath);
-
-		std::cout << "[DEBUG][UploadHandler][handleRequest] staticHandler" << std::endl;
 
         StaticFileHandler staticHandler(_uploadsPath, _builder, _cfg);
         return (staticHandler.handleRequest(modifiedRequest));

@@ -67,7 +67,7 @@ Response CGIHandler::autoindexCGIAux(const Request &req)
 	if (autoindexFlag)
 		return (res);
 
-	std::cout << "[DEBUG][CGI][autoindexCGIAux] staticHandler called" << std::endl;
+	std::cout << "[DEBUG][CGI][autoindexCGIAux] staticHandler called" << std::endl; //si llegamos aqui es que no queremos listar los directorios queremos el archivo, para conseguirlo llamamos a static handler
 
 	std::string cgiPrefix = "/cgi-bin";
     std::string relativePath = req.getPath();
