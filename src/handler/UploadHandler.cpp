@@ -24,17 +24,20 @@ Response UploadHandler::handleRequest(const Request& request)
 
     std::string uploadsPrefix = "/uploads";
     std::string relativePath = originalUri;
-    if (originalUri.rfind(uploadsPrefix, 0) == 0)
-        relativePath = originalUri.substr(uploadsPrefix.length());
+	if (originalUri.rfind(uploadsPrefix, 0) == 0)
+		relativePath = originalUri.substr(uploadsPrefix.length());
+	if (relativePath.empty() || relativePath[0] != '/')
+		relativePath = "/" + relativePath;
 
-    if (relativePath.empty() || relativePath[0] != '/')
-        relativePath = "/" + relativePath;
-
-    std::string fullPath = _uploadsPath + relativePath;
+    std::string fullPath = _uploadsPath + relativePath;	
 
     if (method == "GET") 
 	{
         bool autoindexFlag = false;
+
+		std::cout << "OLAOLAOLA [DEBUG][UploadHandler][handleRequest] originalUri = " << originalUri << std::endl;
+		std::cout << "OLAOLAOLA [DEBUG][UploadHandler][handleRequest] fullPath = " << fullPath << std::endl;
+
 		std::cout << "[DEBUG][UploadHandler][autoindex] START" << std::endl;
         Response resAutoindex = AutoIndex::autoindex(autoindexFlag, originalUri, fullPath, request, _builder);
         if (autoindexFlag)
@@ -46,7 +49,7 @@ Response UploadHandler::handleRequest(const Request& request)
         Request modifiedRequest = request;
         modifiedRequest.setPath(relativePath);
 
-		std::cout << "[DEBUG][UploadHandler][handleRequest] modifiedRequest.setServerIndex = " << modifiedRequest.getServerIndex() << std::endl;
+		std::cout << "[DEBUG][UploadHandler][handleRequest] staticHandler" << std::endl;
 
         StaticFileHandler staticHandler(_uploadsPath, _builder, _cfg);
         return (staticHandler.handleRequest(modifiedRequest));

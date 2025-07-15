@@ -28,53 +28,6 @@ void Router::registerFactory(const std::string& pathPrefix, IHandlerFactory* fac
 	_routes[pathPrefix] = factory;
 }
 
-/* IRequestHandler* Router::resolve(Request& request) const
-{
-    Response res;
-    const std::string& uri = request.getURI();
-    std::cout << "[DEBUG][ROUTER][resolve] IRequestHandler* Router::resolve(Request& request) const\n"
-              << "[DEBUG][ROUTER][resolve] Request URI: " << uri << std::endl;
-    
-    for (std::map<std::string,IHandlerFactory*>::const_reverse_iterator it = _routes.rbegin();
-         it != _routes.rend(); ++it)
-    {
-        if (uri == it->first || uri.find(it->first) == 0)
-        {
-            try 
-			{
-                std::string basePath = it->first;
-                std::string relativePath = uri.substr(basePath.length());
-                if (relativePath.empty() || relativePath[0] != '/')
-                    relativePath = "/" + relativePath;
-                request.setBasePath(basePath);
-
-				request.setPath(relativePath); //?
-
-                std::string abs = Utils::mapUriToPath(_absRoot, uri);
-                std::string safe = Utils::validateFilesystemEntry(abs);
-                request.setPhysicalPath(safe);
-                
-				std::cout << "[ERROR][ROUTER][resolve] FINISHED" << std::endl;
-                return it->second->createHandler();
-            }
-            catch (const std::exception& e) 
-			{
-                    std::cerr << "[ERROR][ROUTER][resolve] Sanitización fallida: " << e.what() << std::endl;
-    
-                    ErrorPageHandler errorHandler(_absRoot);
-                    std::string body = errorHandler.render(request, 403, "Acceso no permitido");
-    
-                    res.setStatus(403, "Forbidden");
-                    res.setBody(body);
-                    res.setHeader("Content-Type", "text/html");
-                    res.setHeader("Content-Length", Utils::intToString(body.length()));
-                    return NULL;
-            }
-        }
-    }
-    return NULL;
-} */
-
 IRequestHandler* Router::resolve(Request& request) const
 {
     Response res;
@@ -97,7 +50,13 @@ IRequestHandler* Router::resolve(Request& request) const
                 if (relativePath.empty() || relativePath[0] != '/')
                     relativePath = "/" + relativePath;
 
+				std::cerr << "[ERROR][Router::resolve] relativePath = " << relativePath << std::endl;
+				std::cerr << "[ERROR][Router::resolve] uri = " << uri << std::endl;
+				
                 std::string abs = Utils::mapUriToPath(_absRoot, uri);
+
+				std::cerr << "[ERROR][Router::resolve] abs = " << abs << std::endl;
+
                 std::string safe = Utils::validateFilesystemEntry(abs);
                 request.setPhysicalPath(safe);
 

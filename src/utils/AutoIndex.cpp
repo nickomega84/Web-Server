@@ -10,16 +10,18 @@ Response AutoIndex::autoindex(bool &autoindexFlag, std::string &uri, std::string
         if (uri[uri.size() - 1] != '/')
             uri += "/";
 
-		ConfigParser* cfg = request.getCfg();
-		std::vector<IConfig*> servers = cfg->getServerBlocks();
-		size_t serverIndex = request.getServerIndex();
-		const IConfig* location_node = cfg->findLocationBlock(servers[serverIndex], uri);
+		ConfigParser* 			cfg = request.getCfg();
+		std::vector<IConfig*>	servers = cfg->getServerBlocks();
+		size_t					serverIndex = request.getServerIndex();
+		const IConfig*			location_node = cfg->findLocationBlock(servers[serverIndex], uri);
 
 		std::string autoindex = cfg->getDirectiveValue(location_node, "autoindex", "default");
 		if (autoindex == "default")
 			autoindex = cfg->getDirectiveValue(servers[serverIndex], "autoindex", "true");
 		if (autoindex == "true") 
 		{
+			std::cout << "[DEBUG][AutoIndex][autoindex] true" << std::endl;
+			
 			autoindexFlag = true;
 			Payload payload;
 			payload.keepAlive = true;
@@ -31,6 +33,8 @@ Response AutoIndex::autoindex(bool &autoindexFlag, std::string &uri, std::string
 		}
 		if (autoindex == "false")
 		{
+			std::cout << "[DEBUG][AutoIndex][autoindex] false" << std::endl;
+
 			std::string indexFile = cfg->getDirectiveValue(location_node, "index", "default");
 			if (indexFile == "default")
 				indexFile = cfg->getDirectiveValue(servers[serverIndex], "index", "index.html");

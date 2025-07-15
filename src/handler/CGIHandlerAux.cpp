@@ -56,22 +56,28 @@ Response CGIHandler::autoindexCGIAux(const Request &req)
 {
 	std::cout << "[DEBUG][CGI][autoindexCGIAux] START" << std::endl;
 
-	bool autoindexFlag = false;
 	std::string uri = req.getURI();
-	std::string scriptName = getScriptName(uri);
-	std::string fullPath = _cgiRoot + "/" + scriptName;
+	std::string fullPath = _cgiRoot;
+	std::string pathPart = req.getPath();
+	if (pathPart.length() > std::string("/cgi-bin").length())
+		fullPath += pathPart.substr(std::string("/cgi-bin").length());
 
+	bool autoindexFlag = false;
 	Response res = AutoIndex::autoindex(autoindexFlag, uri, fullPath, req, _builder);
 	if (autoindexFlag)
 		return (res);
 
 	std::cout << "[DEBUG][CGI][autoindexCGIAux] staticHandler called" << std::endl;
 
-	std::string originalUri = req.getPath();
-    std::string cgiPrefix = "/cgi-bin";
-    std::string relativePath = originalUri;
-	if (originalUri.rfind(cgiPrefix, 0) == 0)
-		relativePath = originalUri.substr(cgiPrefix.length());
+	std::string cgiPrefix = "/cgi-bin";
+    std::string relativePath = req.getPath();
+
+	if (relativePath.rfind(cgiPrefix, 0) == 0)
+		relativePath = relativePath.substr(cgiPrefix.length());
+
+	if (relativePath.empty() || relativePath[0] != '/')
+		relativePath = "/" + relativePath;
+
 	Request modifiedRequest = req;
 	modifiedRequest.setPath(relativePath);
 
