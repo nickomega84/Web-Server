@@ -78,7 +78,7 @@ void Server::getHostAndPort(IConfig* server, std::string &host, std::string &por
 	}
 }
 
-void Server::closeAddListeningSocket(std::string str, struct addrinfo *output, int listen_socket)
+void Server::closeAddListeningSocket(const std::string &str, struct addrinfo *output, int listen_socket)
 {
 	if (output != NULL)
 		freeaddrinfo(output);

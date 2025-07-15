@@ -1,7 +1,7 @@
 #include "../../include/utils/AutoIndex.hpp"
 #include "../../include/utils/MimeTypes.hpp"
 
-Response AutoIndex::autoindex(bool &autoindexFlag, std::string uri, std::string fullPath, const Request& request, IResponseBuilder* builder)
+Response AutoIndex::autoindex(bool &autoindexFlag, std::string uri, std::string fullPath, const Request& request, IResponseBuilder* _builder)
 {
     std::cout << "[DEBUG][AutoIndex][autoindex] START" << std::endl;
 	
@@ -28,12 +28,12 @@ Response AutoIndex::autoindex(bool &autoindexFlag, std::string uri, std::string 
 			payload.reason = "OK";
 			payload.mime = "text/html";
 			payload.body = AutoIndex::renderAutoindexPage(uri, fullPath);
-			return builder->build(payload);
+			return _builder->build(payload);
 		}
 		if (autoindex == "false")
-			return (renderIndexFile(cfg, location_node, servers[serverIndex], fullPath, autoindexFlag, builder));
+			return (renderIndexFile(cfg, location_node, servers[serverIndex], fullPath, autoindexFlag, _builder));
 		else
-			return (AutoIndex::autoIndexError(autoindexFlag, builder));
+			return (AutoIndex::autoIndexError(autoindexFlag, _builder));
     }
     return Response();
 }
@@ -97,7 +97,7 @@ std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder)
     payload.keepAlive = true;
 	payload.status = 200;
 	payload.reason = "OK";
-	payload.mime = MimeTypes::getContentType(indexPath);;
+	payload.mime = MimeTypes::getContentType(indexPath);
 
 	std::cout << "OLAOLAOLA [DEBUG][AutoIndex][renderIndexFile] indexPath.c_str() = " << indexPath.c_str() << std::endl;
 

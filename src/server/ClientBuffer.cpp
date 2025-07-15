@@ -34,9 +34,9 @@ void ClientBuffer::add_buffer(std::string buffer)
 
 std::string& ClientBuffer::get_buffer() {return (persistent_buffer);}
 
-void ClientBuffer::setNmbRead(ssize_t n) {nmb_read = n;}
+// void ClientBuffer::setNmbRead(ssize_t n) {nmb_read = n;}
 
-ssize_t ClientBuffer::getNmbRead() const {return (nmb_read);}
+// ssize_t ClientBuffer::getNmbRead() const {return (nmb_read);}
 
 void ClientBuffer::setClientFd(int fd) {client_fd = fd;}
 
@@ -46,9 +46,9 @@ void ClientBuffer::setChunked(bool bol) {chunked = bol;}
 
 bool ClientBuffer::getChunked() const {return (chunked);}
 
-void ClientBuffer::setChunkedEnd(bool bol) {chunkedEnd = bol;}
+// void ClientBuffer::setChunkedEnd(bool bol) {chunkedEnd = bol;}
 
-bool ClientBuffer::getChunkedEnd() const {return (chunkedEnd);}
+// bool ClientBuffer::getChunkedEnd() const {return (chunkedEnd);}
 
 int ClientBuffer::setContentLenght(std::string newContentLenght)
 {

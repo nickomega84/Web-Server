@@ -61,14 +61,14 @@ int Response::getStatus()
 	return (_statusCode);
 }
 
-std::string Response::getHeaders()
-{
-	std::string headers;
-	std::map<std::string, std::string>::const_iterator it;
-	for (it = _headers.begin(); it != _headers.end(); ++it)
-		headers += it->first + ": " + it->second + "\r\n";
-	return(headers);
-}
+// std::string Response::getHeaders()
+// {
+// 	std::string headers;
+// 	std::map<std::string, std::string>::const_iterator it;
+// 	for (it = _headers.begin(); it != _headers.end(); ++it)
+// 		headers += it->first + ": " + it->second + "\r\n";
+// 	return(headers);
+// }
 
 std::string Response::getHeader(std::string key)
 {

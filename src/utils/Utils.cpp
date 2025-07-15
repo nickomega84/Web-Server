@@ -19,16 +19,16 @@ std::string Utils::intToString(int value) {
 	return oss.str();
 }
 
-std::string Utils::trim(const std::string& str) {
-    if (str.empty()) return str;
+// std::string Utils::trim(const std::string& str) {
+//     if (str.empty()) return str;
 
-    size_t start = str.find_first_not_of(" \t\r\n");
-    size_t end = str.find_last_not_of(" \t\r\n");
+//     size_t start = str.find_first_not_of(" \t\r\n");
+//     size_t end = str.find_last_not_of(" \t\r\n");
 
-    if (start == std::string::npos || end == std::string::npos)
-        return "";
-    return str.substr(start, end - start + 1);
-}
+//     if (start == std::string::npos || end == std::string::npos)
+//         return "";
+//     return str.substr(start, end - start + 1);
+// }
 
 std::string Utils::normalisePath(std::string p)
 {
@@ -119,28 +119,28 @@ std::string Utils::resolveAndValidateDir(const std::string& raw)
     return norm;
 }
 
-std::string Utils::resolveAndValidateFile(const std::string& absRoot, const std::string& uri)
-{
-	std::string joined = absRoot;
-	if (joined[joined.size()-1] != '/' && uri[0] != '/'){
+// std::string Utils::resolveAndValidateFile(const std::string& absRoot, const std::string& uri)
+// {
+// 	std::string joined = absRoot;
+// 	if (joined[joined.size()-1] != '/' && uri[0] != '/'){
 
-		joined += "/";
-		joined += (uri[0] == '/') ? uri.substr(1) : uri;
-	}
+// 		joined += "/";
+// 		joined += (uri[0] == '/') ? uri.substr(1) : uri;
+// 	}
 
-	std::string abs = Utils::normalisePath(joined);
+// 	std::string abs = Utils::normalisePath(joined);
 
-	if (abs.compare(0, absRoot.size(), absRoot) != 0)
-		throw std::runtime_error("Path-traversal detectado: " + uri);
+// 	if (abs.compare(0, absRoot.size(), absRoot) != 0)
+// 		throw std::runtime_error("Path-traversal detectado: " + uri);
 
-	int fd = ::open(abs.c_str(), O_RDONLY | O_NOFOLLOW);
-	if (fd == -1)
-	{
-		if (errno == ELOOP)
-			throw std::runtime_error("Symlink no permitido: " + abs);
-		throw std::runtime_error("No se puede abrir archivo: " + abs + " (" + strerror(errno) + ")");
-	}
+// 	int fd = ::open(abs.c_str(), O_RDONLY | O_NOFOLLOW);
+// 	if (fd == -1)
+// 	{
+// 		if (errno == ELOOP)
+// 			throw std::runtime_error("Symlink no permitido: " + abs);
+// 		throw std::runtime_error("No se puede abrir archivo: " + abs + " (" + strerror(errno) + ")");
+// 	}
 
-	::close(fd);
-	return abs;
-}
+// 	::close(fd);
+// 	return abs;
+// }
