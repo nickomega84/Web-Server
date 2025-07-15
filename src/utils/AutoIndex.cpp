@@ -97,7 +97,7 @@ std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder)
     payload.keepAlive = true;
 	payload.status = 200;
 	payload.reason = "OK";
-	payload.mime = MimeTypes::getContentType(indexPath);;
+	payload.mime = MimeTypes::getContentType(indexPath);
 
 	std::cout << "OLAOLAOLA [DEBUG][AutoIndex][renderIndexFile] indexPath.c_str() = " << indexPath.c_str() << std::endl;
 

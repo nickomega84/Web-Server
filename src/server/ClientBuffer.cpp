@@ -1,7 +1,7 @@
 #include "../../include/server/ClientBuffer.hpp"
 
 ClientBuffer::ClientBuffer(): nmb_read(0), client_fd(-1), chunked(false), \
-chunkedEnd(false), contentLenght(0), headerEnd(-1), finishedReading(false)
+chunkedEnd(false), contentLenght(0), headerEnd(-1), finishedReading(false), _cookies(false)
 {}
 
 ClientBuffer::ClientBuffer(const ClientBuffer& other)
@@ -74,6 +74,10 @@ bool ClientBuffer::getFinishedReading() const {return (finishedReading);}
 void ClientBuffer::setRequest(Request& req) {_req = req;}
 
 Request& ClientBuffer::getRequest() {return (_req);}
+
+void ClientBuffer::setCookies(bool flag) {_cookies = flag;}
+
+bool ClientBuffer::getCookies() {return (_cookies);}
 
 void ClientBuffer::reset()
 {
