@@ -30,5 +30,7 @@
 #define BUFFER_SIZE	1024
 #define MAX_DEFAULT_REQUEST_BODY_SIZE "1000000"
 
+#define COOKIES true
+
 #define PYTHON_INTERPRETER "/usr/bin/python3"
 #define SH_INTERPRETER "/usr/bin/sh"

@@ -134,6 +134,10 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &
 	clientFdList.push_back(client_fd);
 	ClientBuffer newClientBuffer;
 	client_buffers[client_fd] = newClientBuffer;
+
+	if (COOKIES == true)
+		
+
 	std::cout << "[DEBUG][accept_connection] New connection accepted() fd = " << client_fd << std::endl;
 	return (0);
 }

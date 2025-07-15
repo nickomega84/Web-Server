@@ -7,6 +7,7 @@
 #include "../include/server/ClientBuffer.hpp"
 #include "../include/core/Response.hpp"
 #include "../include/factory/StaticHandlerFactory.hpp"
+#include "../include/server/Cookies.hpp"
 
 extern volatile sig_atomic_t g_signal_received;
 
@@ -25,6 +26,7 @@ class Server
 		size_t		_error;
 		std::vector<IHandlerFactory*> factory_ptr;
 		std::vector<IConfig*> _serverList;
+		std::map<int, Cookies> _cookieList;
         
         Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
 		Server(const Server& other);
