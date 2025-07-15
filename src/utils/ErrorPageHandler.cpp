@@ -30,7 +30,7 @@ ErrorPageHandler& ErrorPageHandler::operator=(const ErrorPageHandler& other) {
 
 ErrorPageHandler::~ErrorPageHandler() {}
 
-const char* ErrorPageHandler::getErrorPagePath(int code) const {
+const char* ErrorPageHandler::getErrorPagePath(int code) {
     for (int i = 0; errorPages[i].code != -1; ++i) {
         if (errorPages[i].code == code)
             return errorPages[i].file;
@@ -43,7 +43,7 @@ bool ErrorPageHandler::fileExists(const std::string& path) const {
     return (stat(path.c_str(), &buffer) == 0);
 }
 
-std::string ErrorPageHandler::readFile(const std::string& path) const {
+std::string ErrorPageHandler::readFile(const std::string& path){
     std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
     if (!file.is_open())
         return "";
@@ -63,8 +63,8 @@ std::string ErrorPageHandler::render(const Request &request, int code, const std
 		if (!cfg)
 			throw (std::runtime_error("Cannot getCfg() on ErrorPageHandler::render"));			
 		size_t serverIndex = request.getServerIndex();
-		if (serverIndex < 0)
-			throw (std::runtime_error("Cannot getServerIndex() on ErrorPageHandler::render"));
+		// if (serverIndex < 0)
+		// 	throw (std::runtime_error("Cannot getServerIndex() on ErrorPageHandler::render"));
 
 		IConfig* serverBlock = cfg->getServerBlocks()[serverIndex];
 

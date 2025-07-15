@@ -40,9 +40,9 @@ Server::~Server()
 	delete _responseBuilder;
 }
 
-void Server::setRouter(const Router& router) {
-	this->_router = router;
-}
+// void Server::setRouter(const Router& router) {
+// 	this->_router = router;
+// }
 
 void Server::startEpoll()
 {

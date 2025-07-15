@@ -35,7 +35,7 @@ class Server
 		void		setUpServers();
 		int			addListeningSocket(IConfig* server);
         void		getHostAndPort(IConfig* server, std::string &host, std::string &port);
-		void		closeAddListeningSocket(std::string str, struct addrinfo *output, int listen_socket);
+        static      void    closeAddListeningSocket(const std::string &str, struct addrinfo *output, int listen_socket);
 
 		int			init_epoll();
         int			accept_connection(int listen_socket, int epollfd, std::vector<int> &client_fds, std::map<int, ClientBuffer> &client_buffers);
@@ -45,13 +45,13 @@ class Server
 
 		int			readRequest(int client_fd, ClientBuffer &additive_bff);
 		bool		getCompleteHeader(ClientBuffer &additive_bff, Request &req);
-		void		checkBodyLimits(ClientBuffer &additive_bff, Request &req);
-		bool		checkIsChunked(ClientBuffer &additive_bff, Request &req);
+		void		checkBodyLimits(ClientBuffer &additive_bff,  Request &req);
+		bool		checkIsChunked(ClientBuffer &additive_bff, const Request &req);
 		bool		checkIsContentLength(ClientBuffer &additive_bff, Request &req);
 		void		checkMaxContentLength(std::string contentLenght, ssize_t chunkedReadBytes, Request &req);
 		bool		areWeFinishedReading(ClientBuffer &additive_bff, Request &req);
 		void		validateChunkedBody(ClientBuffer &additive_bff);
-		size_t		findServerIndex(Request &req);
+		size_t		findServerIndex(const Request &req);
 
 		int			handleClientRead(const int client_fd, std::map<int, Response> &pending_writes, ClientBuffer &additive_bff);
 		Response	serverError(std::string description, ClientBuffer &additive_bff);

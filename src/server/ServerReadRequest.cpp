@@ -61,7 +61,7 @@ void Server::checkBodyLimits(ClientBuffer &additive_bff, Request &req)
 		throw (std::runtime_error("[ERROR][checkBodyLimits] No body limits on POST request"));
 }
 
-bool Server::checkIsChunked(ClientBuffer &additive_bff, Request &req)
+bool Server::checkIsChunked(ClientBuffer &additive_bff, const Request &req)
 {
 	std::cout << "[DEBUG][checkIsChunked] START" << std::endl;
 	
@@ -193,7 +193,7 @@ void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedRea
 		throw (_error = 413, std::runtime_error("[ERROR][checkMaxContentLength] Request Entity Too Large"));
 }
 
-size_t Server::findServerIndex(Request& req)
+size_t Server::findServerIndex(const Request& req)
 {
 	std::cout << "[DEBUG][findServerIndex] START" << std::endl;
 	

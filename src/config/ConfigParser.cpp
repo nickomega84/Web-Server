@@ -45,29 +45,29 @@ bool ConfigParser::load(const std::string& filePath) {
     return true;
 }
 
-std::string ConfigParser::getGlobal(const std::string& key) const 
-{
-    if (!_configRoot) 
-		return "";
+// std::string ConfigParser::getGlobal(const std::string& key) const 
+// {
+//     if (!_configRoot) 
+// 		return "";
 
-    const std::vector<IConfig*>& servers = _configRoot->getChildren();
-    if (servers.empty() || servers[0]->getType() != "server") 
-		return "";
+//     const std::vector<IConfig*>& servers = _configRoot->getChildren();
+//     if (servers.empty() || servers[0]->getType() != "server") 
+// 		return "";
 
-    const IConfig* serverNode = servers[0];
-    const IConfig* directiveNode = serverNode->getChild(key);
+//     const IConfig* serverNode = servers[0];
+//     const IConfig* directiveNode = serverNode->getChild(key);
 
-    if (directiveNode && !directiveNode->getValues().empty()) {
-        return directiveNode->getValues()[0];
-    }
+//     if (directiveNode && !directiveNode->getValues().empty()) {
+//         return directiveNode->getValues()[0];
+//     }
     
-    if (key == "listen") {
-        const IConfig* listenNode = serverNode->getChild("listen");
-        if(listenNode && !listenNode->getValues().empty()) return listenNode->getValues()[0];
-    }
+//     if (key == "listen") {
+//         const IConfig* listenNode = serverNode->getChild("listen");
+//         if(listenNode && !listenNode->getValues().empty()) return listenNode->getValues()[0];
+//     }
     
-    return "";
-}
+//     return "";
+// }
 
 std::string ConfigParser::getGlobalAlt(IConfig* server, const std::string& key) const 
 {
@@ -89,25 +89,25 @@ std::string ConfigParser::getGlobalAlt(IConfig* server, const std::string& key) 
     return "";
 }
 
-std::string ConfigParser::getLocation(const std::string& locationPath, const std::string& key) const {
-    if (!_configRoot) return "";
-    const std::vector<IConfig*>& servers = _configRoot->getChildren();
-    if (servers.empty() || servers[0]->getType() != "server") return "";
+// std::string ConfigParser::getLocation(const std::string& locationPath, const std::string& key) const {
+//     if (!_configRoot) return "";
+//     const std::vector<IConfig*>& servers = _configRoot->getChildren();
+//     if (servers.empty() || servers[0]->getType() != "server") return "";
 
-    const IConfig* serverNode = servers[0];
-    const std::vector<IConfig*>& locations = serverNode->getChildren();
+//     const IConfig* serverNode = servers[0];
+//     const std::vector<IConfig*>& locations = serverNode->getChildren();
 
-    for (size_t i = 0; i < locations.size(); ++i) {
-        if (locations[i]->getType() == "location" && !locations[i]->getValues().empty() && locations[i]->getValues()[0] == locationPath) {
-            const IConfig* directiveNode = locations[i]->getChild(key);
-            if (directiveNode && !directiveNode->getValues().empty()) {
-                return directiveNode->getValues()[0];
-            }
-            break; 
-        }
-    }
-    return "";
-}
+//     for (size_t i = 0; i < locations.size(); ++i) {
+//         if (locations[i]->getType() == "location" && !locations[i]->getValues().empty() && locations[i]->getValues()[0] == locationPath) {
+//             const IConfig* directiveNode = locations[i]->getChild(key);
+//             if (directiveNode && !directiveNode->getValues().empty()) {
+//                 return directiveNode->getValues()[0];
+//             }
+//             break; 
+//         }
+//     }
+//     return "";
+// }
 
 const IConfig* ConfigParser::getConfig() const {
     return _configRoot;
@@ -331,25 +331,25 @@ bool ConfigParser::validateErrorPagePath(const std::string& filePath) const {
     return false;
 }
 
-bool ConfigParser::hasErrorPagesLocation(const IConfig* serverNode) const {
-    if (!_configRoot) return false;
+// bool ConfigParser::hasErrorPagesLocation(const IConfig* serverNode) const {
+//     if (!_configRoot) return false;
 
-    if (!serverNode) {
-        const std::vector<IConfig*>& servers = _configRoot->getChildren();
-        if (servers.empty() || servers[0]->getType() != "server") return false;
-        serverNode = servers[0];
-    }
+//     if (!serverNode) {
+//         const std::vector<IConfig*>& servers = _configRoot->getChildren();
+//         if (servers.empty() || servers[0]->getType() != "server") return false;
+//         serverNode = servers[0];
+//     }
     
-    const std::vector<IConfig*>& locations = serverNode->getChildren();
-    for (size_t i = 0; i < locations.size(); ++i) {
-        if (locations[i]->getType() == "location" && 
-            !locations[i]->getValues().empty() && 
-            locations[i]->getValues()[0] == "/error_pages") {
-            return true;
-        }
-    }
-    return false;
-}
+//     const std::vector<IConfig*>& locations = serverNode->getChildren();
+//     for (size_t i = 0; i < locations.size(); ++i) {
+//         if (locations[i]->getType() == "location" && 
+//             !locations[i]->getValues().empty() && 
+//             locations[i]->getValues()[0] == "/error_pages") {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
 
 bool ConfigParser::isMethodAllowed(const IConfig* serverNode, const std::string& path, const std::string& method) const 
 {

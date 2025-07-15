@@ -7,24 +7,24 @@ DefaultResponseBuilder::DefaultResponseBuilder() {}
 
 DefaultResponseBuilder::~DefaultResponseBuilder() {}
 
-Response DefaultResponseBuilder::buildErrorResponse(int code, const std::string& msg) {
-    Response res;
-    std::ostringstream oss;
-    oss << "<html><body><h1>Error " << code << ": " << msg << "</h1></body></html>";
-    std::string body = oss.str();
+// Response DefaultResponseBuilder::buildErrorResponse(int code, const std::string& msg) {
+//     Response res;
+//     std::ostringstream oss;
+//     oss << "<html><body><h1>Error " << code << ": " << msg << "</h1></body></html>";
+//     std::string body = oss.str();
 
-    res.setStatus(code, msg);
-    res.setHeader("Content-Type", "text/html");
-    res.setBody(body);
-    res.setHeader("Content-Length", Utils::intToString(body.length()));
-    return res;
-}
+//     res.setStatus(code, msg);
+//     res.setHeader("Content-Type", "text/html");
+//     res.setBody(body);
+//     res.setHeader("Content-Length", Utils::intToString(body.length()));
+//     return res;
+// }
 
-Response DefaultResponseBuilder::buildEmptyResponse(int code, const std::string& msg) {
-    Response res;
-    res.setStatus(code, msg);
-    return res;
-}
+// Response DefaultResponseBuilder::buildEmptyResponse(int code, const std::string& msg) {
+//     Response res;
+//     res.setStatus(code, msg);
+//     return res;
+// }
 
 Response DefaultResponseBuilder::build(const Payload& p)
 {

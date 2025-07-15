@@ -129,10 +129,10 @@ const std::string& Request::getQueryString() const
     return _queryString; 
 }
 
-bool    Request::isKeepAlive() const
-{ 
-        return _keepAlive; 
-}
+// bool    Request::isKeepAlive() const
+// { 
+//         return _keepAlive; 
+// }
 
 const std::string& Request::Request::getMethod() const 
 {
@@ -144,15 +144,15 @@ const std::string& Request::getURI() const
     return _uri; 
 }
 
-const std::string& Request::getVersion() const 
-{
-    return _version; 
-}
+// const std::string& Request::getVersion() const 
+// {
+//     return _version; 
+// }
 
-const std::map<std::string, std::string>& Request::getHeaders() const 
-{
-    return _headers; 
-}
+// const std::map<std::string, std::string>& Request::getHeaders() const 
+// {
+//     return _headers; 
+// }
 
 const std::string& Request::getHeader(const std::string& key) const 
 {
@@ -173,10 +173,10 @@ void Request::setPhysicalPath(const std::string &p)
 	_physicalPath = p;
 }
 
-const std::string &Request::getPhysicalPath() const
-{
-	return (_physicalPath);
-}
+// const std::string &Request::getPhysicalPath() const
+// {
+// 	return (_physicalPath);
+// }
 
 void Request::setPath(const std::string& path)
 {
