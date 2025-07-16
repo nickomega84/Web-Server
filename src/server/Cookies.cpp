@@ -1,16 +1,19 @@
 #include "../include/server/Cookies.hpp"
 
-Cookies::Cookies(): _connections(0), _cookieTime(0) {}
+Cookies::Cookies(): _connections(0), _cookieKey(0) {}
 
 Cookies::Cookies(const Cookies& other) 
 {
-	_connections = other._connections;
+	*this = other;
 };
 
 Cookies& Cookies::operator=(const Cookies& other) 
 {
 	if (this != &other)
+	{
 		_connections = other._connections;
+		_cookieKey = other._cookieKey;
+	}
 	return (*this);
 };
 

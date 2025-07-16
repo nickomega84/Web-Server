@@ -135,9 +135,6 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &
 	ClientBuffer newClientBuffer;
 	client_buffers[client_fd] = newClientBuffer;
 
-	if (COOKIES == true)
-		checkCookies(client_fd, client_buffers);
-
 	std::cout << "[DEBUG][accept_connection] New connection accepted() fd = " << client_fd << std::endl;
 	return (0);
 }
@@ -205,8 +202,8 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 		pending_writes[client_fd] = res;
 		return (0);
 	}
-
 	std::cout << "[DEBUG] [[  FINISHED READING REQUEST  ]]" << std::endl;
+
 	Response res = createResponse(additive_bff);
 	pending_writes[client_fd] = res;
 	return (0);
@@ -259,6 +256,9 @@ Response Server::createResponse(ClientBuffer &additive_bff)
 	size_t serverIndex = findServerIndex(req);
 	req.setServerIndex(serverIndex);
 
+	if (COOKIES == true)
+		checkCookies(req);
+
 	Response res;
 	IRequestHandler* handler = _router.resolve(req);
     if (handler) 
@@ -303,20 +303,16 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 		return (std::cout << "[DEBUG][handleClientResponse] END connection alive" << std::endl, 0);
 }
 
-void Server::checkCookies(int client_fd, std::map<int, ClientBuffer> &client_buffers)
+void Server::checkCookies(Request &req)
 {
 	std::cout << "[DEBUG][checkCookies] START" << std::endl;
-	
-	Request  req;
-	ClientBuffer &additive_bff = client_buffers[client_fd];
-	req.parse(additive_bff.get_buffer());
 	
 	Cookies cookie;
 	std::string cookieHeader = req.getHeader("Cookie");
 	if (cookieHeader.empty())
 	{
 		cookie = createCookie();
-		_cookieList[cookie.getTime()] = cookie;
+		_cookieList[cookie.getKey()] = cookie;
 		cookie.increaseConnections();
 	}
 	else
@@ -327,8 +323,7 @@ void Server::checkCookies(int client_fd, std::map<int, ClientBuffer> &client_buf
 			std::cerr << "[ERROR][checkCookies] cannot find session_id"  << std::endl;
 			return;
 		}
-		std::string cookieTime = cookieHeader.substr(pos + 11);
-
+		std::string cookieTime = cookieHeader.substr(pos + 11);	
 	}
 }
 
@@ -338,12 +333,13 @@ Cookies Server::createCookie()
 
 	time_t creation_time;
 	time(&creation_time);
-	size_t cookieKey = static_cast<size_t>(creation_time);
+	size_t cookieKeyNmb = static_cast<size_t>(creation_time);
 	std::stringstream ss;
-	ss << cookieKey;
-	newCookie.setTime(ss.str());
+	ss << cookieKeyNmb;
+	std::string cookieKey = ss.str();
+	newCookie.setKey(cookieKey);
 
-	std::cout << "OLAOLAOLAOLA newCookie.getTime() = " << newCookie.getTime() << std::endl;
+	std::cout << "OLAOLAOLAOLA newCookie.getTime() = " << newCookie.getKey() << std::endl;
 
 	return (newCookie);
 }
