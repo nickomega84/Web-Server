@@ -300,7 +300,6 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 
 void Server::checkCookies(Request &req)
 {
-	std::cout << "OLAOLAOLAOLA [DEBUG][checkCookies] START" << std::endl;
 	
 	std::string cookieHeader = req.getHeader("cookie");
 	if (cookieHeader.empty())
@@ -309,7 +308,6 @@ void Server::checkCookies(Request &req)
 		newCookie = createCookie();
 		_cookieList[newCookie.getKey()] = newCookie;
 		req.setCookie(newCookie);
-		std::cout << "OLAOLAOLAOLA [DEBUG][checkCookies] newCookie set, connections = " << req.getCookie().getConnections() << std::endl;
 	}
 	else
 	{
@@ -323,7 +321,6 @@ void Server::checkCookies(Request &req)
 		Cookies &oldCookie = _cookieList[cookieKey];
 		oldCookie.increaseConnections();
 		req.setCookie(oldCookie);
-		std::cout << "PAPAPAPA OLAOLAOLAOLA [DEBUG][checkCookies] oldCookie set, connections = " << req.getCookie().getConnections() << std::endl;
 	}
 }
 
@@ -338,8 +335,6 @@ Cookies Server::createCookie()
 	ss << cookieKeyNmb;
 	std::string cookieKey = ss.str();
 	newCookie.setKey(cookieKey);
-
-	std::cout << "OLAOLAOLAOLA [DEBUG][createCookie] newCookie.getKey() = " << newCookie.getKey() << std::endl;
 
 	return (newCookie);
 }

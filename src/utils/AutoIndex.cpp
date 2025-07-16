@@ -77,16 +77,12 @@ std::string AutoIndex::renderAutoindexPage(const std::string& displayPath, const
 Response AutoIndex::renderIndexFile(ConfigParser* &cfg, const IConfig* &location_node, const IConfig* server, \
 std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder)
 {
-	std::cout << "OLAOLAOLA [DEBUG][AutoIndex][renderIndexFile] START" << std::endl;
-
 	std::string indexFile = cfg->getDirectiveValue(location_node, "index", "default");
 	if (indexFile == "default")
 		indexFile = cfg->getDirectiveValue(server, "index", "index.html");
 	if (!fullPath.empty() && fullPath[fullPath.length() - 1] != '/')
 		fullPath += '/';
 	std::string indexPath = fullPath + indexFile;
-
-	std::cout << "OLAOLAOLA [DEBUG][AutoIndex][renderIndexFile] indexPath = " << indexPath << std::endl;
 
 	if (access(indexPath.c_str(), F_OK))
 		return (AutoIndex::autoIndexError(autoindexFlag, builder));
@@ -98,8 +94,6 @@ std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder)
 	payload.status = 200;
 	payload.reason = "OK";
 	payload.mime = MimeTypes::getContentType(indexPath);
-
-	std::cout << "OLAOLAOLA [DEBUG][AutoIndex][renderIndexFile] indexPath.c_str() = " << indexPath.c_str() << std::endl;
 
 	std::ifstream file(indexPath.c_str());
 	if (!file.is_open())

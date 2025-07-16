@@ -132,14 +132,12 @@ Response StaticFileHandler::doGET(std::string fullPath, Payload& payload, const 
 			std::string headerValue = "session_id=" + cookieKey + "; Path=/; Max-Age=3600; HttpOnly";
 			res.setHeader("Set-Cookie", headerValue);
 
-			std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler] header implementado res.getHeader(Set-Cookie) = " << res.getHeader("Set-Cookie") << std::endl;
 			return (res);
 		}
 		else if (cookie.getConnections() > 0)
 		{
 			std::string cookieFile = getCookieFile(cookie.getConnections());
 
-			std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler] cookieFile = " << cookieFile << std::endl;
 
 			std::string fileContentCookie = readFile(cookieFile);
 			if (fileContentCookie.empty())
@@ -151,7 +149,6 @@ Response StaticFileHandler::doGET(std::string fullPath, Payload& payload, const 
 				payload.mime = "text/html";
 				payload.body = errorHandler.render(req, 404, "Archivo no encontrado");
 
-				std::cout << "OLAOLAOLAOLA [ERROR][StaticFileHandler] devuelto fileContentCookie" << std::endl;
 				return _builder->build(payload);
 			}
 			else
@@ -161,7 +158,6 @@ Response StaticFileHandler::doGET(std::string fullPath, Payload& payload, const 
 				payload.reason = "OK";
 				payload.mime = MimeTypes::getContentType(fullPath);
 				
-				std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler] devuelto archivo cookieFile = " << cookieFile << std::endl;
 				return _builder->build(payload);
 			}
 
@@ -231,8 +227,6 @@ bool StaticFileHandler::checkCfgPermission(const Request &req, std::string metho
 
 std::string StaticFileHandler::getCookieFile(size_t connections)
 {
-	std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler][getCookieFile] START" << std::endl;
-
 	std::string file;
 	size_t file_index = connections % 3;
 
@@ -242,9 +236,6 @@ std::string StaticFileHandler::getCookieFile(size_t connections)
 		file = _rootPath + "/" + COOKIE_FILE1;
 	else if (file_index == 0)
 		file = _rootPath + "/" + COOKIE_FILE2;
-
-	std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler][getCookieFile] connections = " << connections << std::endl;
-	std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler][getCookieFile] file = " << file << std::endl;
 
 	return (file);
 }
