@@ -1,6 +1,7 @@
 #include "../include/server/Cookies.hpp"
 
-Cookies::Cookies(): _connections(0), _cookieKey(0) {}
+Cookies::Cookies(): _connections(0) 
+{}
 
 Cookies::Cookies(const Cookies& other) 
 {
@@ -24,7 +25,7 @@ void Cookies::increaseConnections()
 	_connections++;
 }
 
-size_t Cookies::getConnections()
+size_t Cookies::getConnections() const
 {
 	return (_connections);
 }
@@ -34,7 +35,7 @@ void Cookies::setKey(std::string key)
 	_cookieKey = key;
 }
 
-std::string Cookies::getKey()
+const std::string Cookies::getKey() const
 {
 	return (_cookieKey);
 }

@@ -118,29 +118,3 @@ std::string Utils::resolveAndValidateDir(const std::string& raw)
     ::closedir(d);
     return norm;
 }
-
-// std::string Utils::resolveAndValidateFile(const std::string& absRoot, const std::string& uri)
-// {
-// 	std::string joined = absRoot;
-// 	if (joined[joined.size()-1] != '/' && uri[0] != '/'){
-
-// 		joined += "/";
-// 		joined += (uri[0] == '/') ? uri.substr(1) : uri;
-// 	}
-
-// 	std::string abs = Utils::normalisePath(joined);
-
-// 	if (abs.compare(0, absRoot.size(), absRoot) != 0)
-// 		throw std::runtime_error("Path-traversal detectado: " + uri);
-
-// 	int fd = ::open(abs.c_str(), O_RDONLY | O_NOFOLLOW);
-// 	if (fd == -1)
-// 	{
-// 		if (errno == ELOOP)
-// 			throw std::runtime_error("Symlink no permitido: " + abs);
-// 		throw std::runtime_error("No se puede abrir archivo: " + abs + " (" + strerror(errno) + ")");
-// 	}
-
-// 	::close(fd);
-// 	return abs;
-// }

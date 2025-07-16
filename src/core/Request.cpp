@@ -24,22 +24,11 @@ Request& Request::operator=(const Request& other)
 		_keepAlive = other._keepAlive;
 		_physicalPath = other._physicalPath;
 		_originalUri = other._originalUri;
-		_basePath = other._basePath;  
+		_basePath = other._basePath;
+		_cookie = other._cookie;
 	}
 	return *this;
 }
-
-std::string _method;
-std::string _uri;
-std::string _version;
-std::map<std::string, std::string> _headers;
-std::string _body;
-std::string _path;
-std::string _queryString;
-bool _keepAlive;
-std::string _physicalPath;
-std::string _originalUri;
-std::string _basePath;  
 
 Request::~Request() 
 {}
@@ -202,4 +191,15 @@ size_t Request::getServerIndex() const
 {
 	return (_serverIndex);
 }
+
+void Request::setCookie(Cookies &cookie)
+{
+	_cookie = cookie;
+}
+
+const Cookies& Request::getCookie() const
+{
+	return (_cookie);
+}	
+
 

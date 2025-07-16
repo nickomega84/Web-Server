@@ -94,9 +94,9 @@ std::string ErrorPageHandler::render(const Request &request, int code, const std
         std::cout << "[DEBUG][ErrorPageHandler][Render] Checking if file exists: " << fullPath << std::endl;
         if (fileExists(fullPath)) 
 		{
-            std::cerr << "[DEBUG][ErrorPageHandler][Render] File exists: " << fullPath << std::endl;
+            std::cout << "[DEBUG][ErrorPageHandler][Render] File exists: " << fullPath << std::endl;
             std::string content = readFile(fullPath);
-            std::cerr << "[DEBUG][ErrorPageHandler][Render] File content length: " << content.length() << std::endl;
+            std::cout << "[DEBUG][ErrorPageHandler][Render] File content length: " << content.length() << std::endl;
             if (!content.empty())
                 return content;
         }

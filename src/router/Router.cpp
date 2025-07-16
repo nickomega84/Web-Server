@@ -50,12 +50,12 @@ IRequestHandler* Router::resolve(Request& request) const
                 if (relativePath.empty() || relativePath[0] != '/')
                     relativePath = "/" + relativePath;
 
-				std::cerr << "[ERROR][Router::resolve] relativePath = " << relativePath << std::endl;
-				std::cerr << "[ERROR][Router::resolve] uri = " << uri << std::endl;
+				std::cout << "[DEBUG][Router::resolve] relativePath = " << relativePath << std::endl;
+				std::cout << "[DEBUG][Router::resolve] uri = " << uri << std::endl;
 				
                 std::string abs = Utils::mapUriToPath(_absRoot, uri);
 
-				std::cerr << "[ERROR][Router::resolve] abs = " << abs << std::endl;
+				std::cout << "[DEBUG][Router::resolve] abs = " << abs << std::endl;
 
                 std::string safe = Utils::validateFilesystemEntry(abs);
                 request.setPhysicalPath(safe);

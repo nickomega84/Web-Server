@@ -16,8 +16,6 @@ class ClientBuffer
 		bool finishedReading;
 		Request _req;
 
-		bool _cookies;
-
 	public:
 		ClientBuffer();
 		ClientBuffer(const ClientBuffer& other);
@@ -50,9 +48,6 @@ class ClientBuffer
 
 		void setRequest(Request& req);
 		Request& getRequest();
-
-		void setCookies(bool flag);
-		bool getCookies();
 
 		void reset();
 };

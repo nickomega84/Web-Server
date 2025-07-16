@@ -28,6 +28,11 @@ static bool fileExists(const std::string& path)
 
 static std::string readFile(const std::string& path) 
 {
+	std::string empty;
+	if (access(path.c_str(), F_OK) == -1) 
+		return (std::cerr << "[ERROR][StaticFileHandler][readFile] couldn't read file: " << \
+		path << " — " << strerror(errno) << std::endl, empty);
+	
 	std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
 	std::ostringstream ss;
 	ss << file.rdbuf();
@@ -43,7 +48,6 @@ Response StaticFileHandler::handleRequest(const Request& request)
     std::string qs = request.getQueryString();
     std::string method = request.getMethod();
     std::string fullPath = _rootPath + uri;
-
 
     Payload payload;
     payload.keepAlive = true;
@@ -76,7 +80,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
         payload.status = 404;
         payload.reason = "Not Found";
         payload.mime = "text/html";
-        payload.body = errorHandler.render(request ,404, "Archivo no encontrado");
+        payload.body = errorHandler.render(request, 404, "Archivo no encontrado");
         return _builder->build(payload);
     }
 
@@ -86,7 +90,7 @@ Response StaticFileHandler::handleRequest(const Request& request)
     return doGET(fullPath, payload, request);
 }
 
-Response StaticFileHandler::doGET(std::string fullPath,  Payload& payload, const Request& req)
+Response StaticFileHandler::doGET(std::string fullPath, Payload& payload, const Request& req)
 {
 	std::cout << "[DEBUG][StaticFileHandler][doGET] method called for file: " << fullPath << std::endl;
 	
@@ -96,16 +100,79 @@ Response StaticFileHandler::doGET(std::string fullPath,  Payload& payload, const
 		payload.status = 403;
 		payload.reason = "Forbidden";
 		payload.mime = "text/html";
-		payload.body = errorHandler.render(req,403, "Prohibido borrar el archivo");
+		payload.body = errorHandler.render(req, 403, "Prohibido");
 		return _builder->build(payload);
 	}
 
+	std::string fileContent = readFile(fullPath);
+	if (fileContent.empty())
+	{
+		std::cerr << "[ERROR][StaticFileHandler] DELETE failed" << std::endl;
+		ErrorPageHandler errorHandler(_rootPath);
+		payload.status = 404;
+		payload.reason = "Not Found";
+		payload.mime = "text/html";
+		payload.body = errorHandler.render(req, 404, "Archivo no encontrado");
+		return _builder->build(payload);
+	}
+
+	Cookies cookie;
+	if (COOKIES == true)
+	{
+		cookie = req.getCookie();
+		if (cookie.getConnections() == 0)
+		{
+			payload.body = fileContent;
+			payload.status = 200;
+			payload.reason = "OK";
+			payload.mime = MimeTypes::getContentType(fullPath);
+			
+			Response res = _builder->build(payload);
+			std::string cookieKey = cookie.getKey();
+			std::string headerValue = "session_id=" + cookieKey + "; Path=/; Max-Age=3600; HttpOnly";
+			res.setHeader("Set-Cookie", headerValue);
+
+			std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler] header implementado res.getHeader(Set-Cookie) = " << res.getHeader("Set-Cookie") << std::endl;
+			return (res);
+		}
+		else if (cookie.getConnections() > 0)
+		{
+			std::string cookieFile = getCookieFile(cookie.getConnections());
+
+			std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler] cookieFile = " << cookieFile << std::endl;
+
+			std::string fileContentCookie = readFile(cookieFile);
+			if (fileContentCookie.empty())
+			{
+				std::cout << "[ERROR][StaticFileHandler] DELETE failed" << std::endl;
+				ErrorPageHandler errorHandler(_rootPath);
+				payload.status = 404;
+				payload.reason = "Not Found";
+				payload.mime = "text/html";
+				payload.body = errorHandler.render(req, 404, "Archivo no encontrado");
+
+				std::cout << "OLAOLAOLAOLA [ERROR][StaticFileHandler] devuelto fileContentCookie" << std::endl;
+				return _builder->build(payload);
+			}
+			else
+			{
+				payload.body = fileContentCookie;
+				payload.status = 200;
+				payload.reason = "OK";
+				payload.mime = MimeTypes::getContentType(fullPath);
+				
+				std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler] devuelto archivo cookieFile = " << cookieFile << std::endl;
+				return _builder->build(payload);
+			}
+
+		}
+	}
+
+	payload.body = fileContent;
 	payload.status = 200;
     payload.reason = "OK";
     payload.mime = MimeTypes::getContentType(fullPath);
-    payload.body = readFile(fullPath);
     return _builder->build(payload);
-
 }
 
 Response StaticFileHandler::doDELETE(std::string fullPath, Payload& payload, const Request& req)
@@ -162,47 +229,22 @@ bool StaticFileHandler::checkCfgPermission(const Request &req, std::string metho
     return (cfg->isMethodAllowed(serverNodes[serverIndex], path, method));
 }
 
-/* Response StaticFileHandler::staticAutoindex(bool &autoindexFlag, std::string &uri, std::string &fullPath, const Request &request, Payload &payload) 
+std::string StaticFileHandler::getCookieFile(size_t connections)
 {
-    struct stat s;
-    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) 
-	{
-        if (uri[uri.size() - 1] != '/')
-            uri += "/";
+	std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler][getCookieFile] START" << std::endl;
 
-        ConfigParser* cfg = request.getCfg();
-		std::vector<IConfig*> servers = cfg->getServerBlocks();
-        size_t serverIndex = request.getServerIndex();
-		const IConfig* location_node = cfg->findLocationBlock(servers[serverIndex], uri);
+	std::string file;
+	size_t file_index = connections % 3;
 
-		std::string autoindex = cfg->getDirectiveValue(location_node, "autoindex", "default");
-		if (autoindex == "default")
-	        autoindex = cfg->getDirectiveValue(servers[serverIndex], "autoindex", "true");
+	if (file_index == 1)
+		file = _rootPath + "/" + COOKIE_FILE0;
+	else if (file_index == 2)
+		file = _rootPath + "/" + COOKIE_FILE1;
+	else if (file_index == 0)
+		file = _rootPath + "/" + COOKIE_FILE2;
 
-        std::string indexPath = fullPath + "index.html";
+	std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler][getCookieFile] connections = " << connections << std::endl;
+	std::cout << "OLAOLAOLAOLA [DEBUG][StaticFileHandler][getCookieFile] file = " << file << std::endl;
 
-        if (autoindex == "true") 
-		{
-            autoindexFlag = true;
-            payload.status = 200;
-            payload.reason = "OK";
-            payload.mime = "text/html";
-            payload.body = Utils::renderAutoindexPage(request.getURI(), fullPath);
-            return _builder->build(payload);
-        }
-        else if (access(indexPath.c_str(), F_OK) == 0) 
-		{
-            fullPath = indexPath;
-        }
-		else
-		{
-            autoindexFlag = true;
-            payload.status = 403;
-            payload.reason = "Forbidden";
-            payload.mime = "text/plain";
-            payload.body = "403 - Directory listing forbidden\nNo way dude!";
-            return _builder->build(payload);
-        }
-    }
-    return Response();
-} */
+	return (file);
+}

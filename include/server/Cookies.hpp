@@ -16,7 +16,7 @@ class Cookies
 		~Cookies();
 
 		void increaseConnections();
-		size_t getConnections();
+		size_t getConnections() const;
 		void setKey(std::string key);
-		std::string getKey();
+		const std::string getKey() const;
 };

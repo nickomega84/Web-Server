@@ -125,16 +125,15 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &
 
 	if ((client_fd = ::accept(listen_socket, NULL, NULL)) < 0)
 		return (std::cerr << "[ERROR] accepting incoming connection, fd = " << client_fd << std::endl, 1);
-
 	if (ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_ADD, EPOLLIN))
 		return (close(client_fd), std::cerr << "[ERROR] accepting incoming connection, fd = " << client_fd << std::endl, 1);
-
+	
 	fcntl(client_fd, F_SETFL, O_NONBLOCK);
 
 	clientFdList.push_back(client_fd);
 	ClientBuffer newClientBuffer;
 	client_buffers[client_fd] = newClientBuffer;
-
+	
 	std::cout << "[DEBUG][accept_connection] New connection accepted() fd = " << client_fd << std::endl;
 	return (0);
 }
@@ -305,25 +304,30 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 
 void Server::checkCookies(Request &req)
 {
-	std::cout << "[DEBUG][checkCookies] START" << std::endl;
+	std::cout << "OLAOLAOLAOLA [DEBUG][checkCookies] START" << std::endl;
 	
-	Cookies cookie;
-	std::string cookieHeader = req.getHeader("Cookie");
+	std::string cookieHeader = req.getHeader("cookie");
 	if (cookieHeader.empty())
 	{
-		cookie = createCookie();
-		_cookieList[cookie.getKey()] = cookie;
-		cookie.increaseConnections();
+		Cookies newCookie;
+		newCookie = createCookie();
+		_cookieList[newCookie.getKey()] = newCookie;
+		req.setCookie(newCookie);
+		std::cout << "OLAOLAOLAOLA [DEBUG][checkCookies] newCookie set, connections = " << req.getCookie().getConnections() << std::endl;
 	}
 	else
 	{
 		size_t pos = cookieHeader.find("session_id");
-		if (pos != std::string::npos)
+		if (pos == std::string::npos)
 		{
 			std::cerr << "[ERROR][checkCookies] cannot find session_id"  << std::endl;
 			return;
 		}
-		std::string cookieTime = cookieHeader.substr(pos + 11);	
+		std::string cookieKey = cookieHeader.substr(pos + 11);
+		Cookies &oldCookie = _cookieList[cookieKey];
+		oldCookie.increaseConnections();
+		req.setCookie(oldCookie);
+		std::cout << "PAPAPAPA OLAOLAOLAOLA [DEBUG][checkCookies] oldCookie set, connections = " << req.getCookie().getConnections() << std::endl;
 	}
 }
 
@@ -339,7 +343,7 @@ Cookies Server::createCookie()
 	std::string cookieKey = ss.str();
 	newCookie.setKey(cookieKey);
 
-	std::cout << "OLAOLAOLAOLA newCookie.getTime() = " << newCookie.getKey() << std::endl;
+	std::cout << "OLAOLAOLAOLA [DEBUG][createCookie] newCookie.getKey() = " << newCookie.getKey() << std::endl;
 
 	return (newCookie);
 }

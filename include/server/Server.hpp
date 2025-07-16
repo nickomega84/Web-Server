@@ -59,7 +59,7 @@ class Server
 		Response	createResponse(ClientBuffer &additive_bff);
 		int			handleClientResponse(const int client_fd, std::map<int, Response> &pending_writes);
 
-		void		checkCookies(int client_fd, std::map<int, ClientBuffer> &client_buffers);
+		void		checkCookies(Request &req);
 		Cookies		createCookie();
 
 	public:

@@ -4,24 +4,26 @@
 #include "../include/libraries.hpp"
 #include "../../include/config/ConfigParser.hpp"
 #include "../include/core/Request.hpp"
+#include "../include/server/Cookies.hpp"
 
 class Request 
 {
     private:
-        std::string _method;
-        std::string _uri;
-        std::string _version;
-        std::map<std::string, std::string> _headers;
-        std::string _body;
-        std::string _path;
-        std::string _queryString;
-        bool _keepAlive;
-		std::string _physicalPath;
-        std::string _originalUri;
-        std::string _basePath;  
+        std::string		_method;
+        std::string		_uri;
+        std::string		_version;
+        std::map<std::string, std::string>	_headers;
+        std::string		_body;
+        std::string		_path;
+        std::string		_queryString;
+        bool			_keepAlive;
+		std::string		_physicalPath;
+        std::string		_originalUri;
+        std::string		_basePath;
+		ConfigParser*	_cfg;
+		size_t			_serverIndex;
+		Cookies			_cookie;
 
-		ConfigParser* _cfg;
-		size_t _serverIndex;
     public:
         Request();
         Request(const Request& other);
@@ -45,13 +47,12 @@ class Request
         const std::string& getOriginalUri() const { return _originalUri; }
         void setBasePath(const std::string& basePath) { _basePath = basePath; }
         const std::string& getBasePath() const { return _basePath; }
-
-
 		void setCfg(ConfigParser &parser);
 		ConfigParser* getCfg() const;
 		void setServerIndex(size_t serverIndex);
 		size_t getServerIndex() const;
-		
+		void setCookie(Cookies &cookie);
+		const Cookies& getCookie() const;
 };
 
 #endif
