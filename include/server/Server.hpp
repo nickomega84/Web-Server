@@ -26,7 +26,7 @@ class Server
 		size_t		_error;
 		std::vector<IHandlerFactory*> factory_ptr;
 		std::vector<IConfig*> _serverList;
-		std::map<int, Cookies> _cookieList;
+		std::map<std::string, Cookies> _cookieList;
         
         Server(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
 		Server(const Server& other);
@@ -58,6 +58,9 @@ class Server
 		Payload		createServerError(size_t status, std::string reason, std::string description, Request& req);
 		Response	createResponse(ClientBuffer &additive_bff);
 		int			handleClientResponse(const int client_fd, std::map<int, Response> &pending_writes);
+
+		void		checkCookies(int client_fd, std::map<int, ClientBuffer> &client_buffers);
+		Cookies		createCookie();
 
 	public:
 		static Server&	getInstance(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
