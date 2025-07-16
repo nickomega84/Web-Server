@@ -26,6 +26,8 @@ Request& Request::operator=(const Request& other)
 		_originalUri = other._originalUri;
 		_basePath = other._basePath;
 		_cookie = other._cookie;
+		_cfg = other._cfg;
+		_serverIndex = other._serverIndex;
 	}
 	return *this;
 }

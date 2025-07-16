@@ -216,7 +216,7 @@ bool StaticFileHandler::checkCfgPermission(const Request &req, std::string metho
 	
 	const std::vector<IConfig*>& serverNodes = cfg->getServerBlocks();
 	if (serverNodes.empty())
-		return (std::cerr << "[ERROR][static][checkCfgPermission] error ocheckCfgPermissionn  getServerBlocks", false);
+		return (std::cerr << "[ERROR][static][checkCfgPermission] getServerBlocks", false);
 
 	const std::string path = req.getPath();
 	size_t serverIndex = req.getServerIndex();
