@@ -201,5 +201,3 @@ const Cookies& Request::getCookie() const
 {
 	return (_cookie);
 }	
-
-

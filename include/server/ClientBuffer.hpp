@@ -22,32 +22,32 @@ class ClientBuffer
 		ClientBuffer& operator=(const ClientBuffer& other);
 		~ClientBuffer();
 
-		void add_buffer(std::string buffer);
+		void	add_buffer(std::string buffer);
 		std::string& get_buffer();
 
-		void setNmbRead(ssize_t n);
+		void	setNmbRead(ssize_t n);
  		ssize_t getNmbRead() const;
 
-		void setClientFd(int fd);
-		int getClientFd() const;
+		void	setClientFd(int fd);
+		int		getClientFd() const;
 
-		int setContentLenght(std::string contentLenght);
+		int		setContentLenght(std::string contentLenght);
 		ssize_t getContentLenght() const;
 
-		void setChunked(bool bol);
-		bool getChunked() const;
+		void	setChunked(bool bol);
+		bool	getChunked() const;
 
-		void setChunkedEnd(bool bol);
-		bool getChunkedEnd() const;
+		void	setChunkedEnd(bool bol);
+		bool	getChunkedEnd() const;
 
-		void setHeaderEnd(ssize_t pos);
+		void	setHeaderEnd(ssize_t pos);
 		ssize_t getHeaderEnd() const;
 
-		void setFinishedReading(bool bol);
-		bool getFinishedReading() const;
+		void	setFinishedReading(bool bol);
+		bool	getFinishedReading() const;
 
-		void setRequest(Request& req);
-		Request& getRequest();
+		void	setRequest(Request& req);
+		Request&	getRequest();
 
-		void reset();
+		void	reset();
 };

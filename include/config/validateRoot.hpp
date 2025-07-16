@@ -3,12 +3,12 @@
 
 #include "../include/libraries.hpp"
 
-class validateRoot {    
-    private:
-        std::string configFilePath; 
-    public:
-    void validationRoot();
-        validateRoot(const std::string& configFilePath);
+class validateRoot {
+	private:
+		std::string configFilePath; 
+	public:
+	void validationRoot();
+		validateRoot(const std::string& configFilePath);
 };
 
 #endif

@@ -63,8 +63,6 @@ std::string ErrorPageHandler::render(const Request &request, int code, const std
 		if (!cfg)
 			throw (std::runtime_error("Cannot getCfg() on ErrorPageHandler::render"));			
 		size_t serverIndex = request.getServerIndex();
-		// if (serverIndex < 0)
-		// 	throw (std::runtime_error("Cannot getServerIndex() on ErrorPageHandler::render"));
 
 		IConfig* serverBlock = cfg->getServerBlocks()[serverIndex];
 

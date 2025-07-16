@@ -39,6 +39,3 @@ void validateRoot::validationRoot() {
         throw std::runtime_error("Error: Invalid root path detected in configuration file.");
     }
 }
-
-
-

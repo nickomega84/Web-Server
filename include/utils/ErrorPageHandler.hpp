@@ -15,17 +15,17 @@ class ErrorPageHandler {
     
         static const ErrorPageEntry errorPages[];
     
-        static const char* getErrorPagePath(int code);
-        bool fileExists(const std::string& path) const;
-        static std::string readFile(const std::string& path);
+        static const char*	getErrorPagePath(int code);
+        bool				fileExists(const std::string& path) const;
+        static std::string	readFile(const std::string& path);
 
     public:
-        explicit ErrorPageHandler(const std::string& rootPath);
+        explicit	ErrorPageHandler(const std::string& rootPath);
         ErrorPageHandler(const ErrorPageHandler& other);
         ErrorPageHandler& operator=(const ErrorPageHandler& other);
         ~ErrorPageHandler();
         
-        std::string render(const Request &request,int code, const std::string& fallbackText) const;
+        std::string	render(const Request &request,int code, const std::string& fallbackText) const;
 };
 
 #endif

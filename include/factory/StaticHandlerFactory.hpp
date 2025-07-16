@@ -14,7 +14,6 @@ class StaticHandlerFactory : public IHandlerFactory
         IResponseBuilder* _builder;
         const ConfigParser& _cfg;
 
-
     public:
         StaticHandlerFactory(const std::string& rootDir, IResponseBuilder*  builder, const ConfigParser& cfg);
         virtual ~StaticHandlerFactory();

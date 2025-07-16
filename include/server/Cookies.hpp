@@ -15,8 +15,8 @@ class Cookies
 		Cookies& operator=(const Cookies& other);
 		~Cookies();
 
-		void increaseConnections();
-		size_t getConnections() const;
-		void setKey(std::string key);
-		const std::string getKey() const;
+		void	increaseConnections();
+		size_t	getConnections() const;
+		void	setKey(std::string key);
+		const	std::string getKey() const;
 };

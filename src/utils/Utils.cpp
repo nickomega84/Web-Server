@@ -19,17 +19,6 @@ std::string Utils::intToString(int value) {
 	return oss.str();
 }
 
-// std::string Utils::trim(const std::string& str) {
-//     if (str.empty()) return str;
-
-//     size_t start = str.find_first_not_of(" \t\r\n");
-//     size_t end = str.find_last_not_of(" \t\r\n");
-
-//     if (start == std::string::npos || end == std::string::npos)
-//         return "";
-//     return str.substr(start, end - start + 1);
-// }
-
 std::string Utils::normalisePath(std::string p)
 {
     std::vector<std::string> stk;

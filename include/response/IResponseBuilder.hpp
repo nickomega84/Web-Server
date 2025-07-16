@@ -8,11 +8,11 @@
 class IResponseBuilder {
 public:
     virtual ~IResponseBuilder() {}
-    virtual Response build(const Payload& p) = 0;
+    virtual Response	build(const Payload& p) = 0;
 
-	virtual void setStatus(Response& res, int code, const std::string& reason) = 0;
-	virtual void setBody(Response& res, const std::string& body) = 0;
-	virtual void setHeader(Response& res, const std::string& key, const std::string& value) = 0;
+	virtual void		setStatus(Response& res, int code, const std::string& reason) = 0;
+	virtual void		setBody(Response& res, const std::string& body) = 0;
+	virtual void		setHeader(Response& res, const std::string& key, const std::string& value) = 0;
 };
 
 #endif

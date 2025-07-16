@@ -17,13 +17,13 @@ class Response
 		Response& operator=(const Response& other);
 		~Response();
 		
-		void setStatus(int code, const std::string& text);
-		void setHeader(const std::string& key, const std::string& value);
-		void setBody(const std::string& body);
+		void				setStatus(int code, const std::string& text);
+		void				setHeader(const std::string& key, const std::string& value);
+		void				setBody(const std::string& body);
 		
-		const std::string&  getBody() const;
 		int                 getStatus();
 		std::string         getHeaders();
+		const std::string&  getBody() const;
 		std::string			getHeader(std::string key);
 		std::string         getBody();
 

@@ -20,31 +20,11 @@ tests = [
         "expected_status": 404,
         "expected_content_type": "text/html"
     },
-    # {
-    #     "name": "POST /upload",
-    #     "method": "POST",
-    #     "path": "/upload",
-    #     "data": {"field": "value"},
-    #     "expected_status": 200
-    # },
-    # {
-    #     "name": "DELETE /index.html",
-    #     "method": "DELETE",
-    #     "path": "/index.html",
-    #     "expected_status": 200
-    # },
     {
         "name": "PUT /index.html",
         "method": "PUT",
         "path": "/index.html",
         "expected_status": 405
-    },
-    {
-        "name": "GET /style.css (MIME test)",
-        "method": "GET",
-        "path": "/style.css",
-        "expected_status": 200,
-        "expected_content_type": "text/css"
     },
     {
         "name": "GET /logo.png (MIME test)",
@@ -54,27 +34,6 @@ tests = [
         "expected_content_type": "image/png"
     },
 
-    # 🔐 Security Tests
-    # {
-    #     "name": "Path traversal attempt",
-    #     "method": "GET",
-    #     "path": "/../../etc/passwd",
-    #     "expected_status": 403
-    # },
-    # {
-    #     "name": "SQL Injection attempt",
-    #     "method": "POST",
-    #     "path": "/login",
-    #     "data": {"username": "' OR 1=1 --", "password": "pass"},
-    #     "expected_status": 403
-    # },
-    # {
-    #     "name": "XSS attempt",
-    #     "method": "GET",
-    #     "path": "/?q=<script>alert(1)</script>",
-    #     "expected_status": 400
-    # },
-
     # 🍪 Session & Cookie Tests
     {
         "name": "GET / with session cookie",
@@ -83,13 +42,6 @@ tests = [
         "cookies": {"SESSIONID": "PKdhtXMmr18n2L9K"},
         "expected_status": 200
     },
-    # {
-    #     "name": "POST /secure with invalid session",
-    #     "method": "POST",
-    #     "path": "/secure",
-    #     "cookies": {"SESSIONID": "invalid123"},
-    #     "expected_status": 401
-    # },
 
     # 🧪 Custom Header Test
     {

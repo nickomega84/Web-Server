@@ -15,9 +15,9 @@ class Router
 		Router& operator=(const Router& other);
 		~Router();
 
-		void registerFactory(const std::string& pathPrefix, IHandlerFactory* factory);
-		IRequestHandler* resolve(Request& request) const;
-		std::string getUriWithoutQuery(std::string uriWithString) const;
+		void				registerFactory(const std::string& pathPrefix, IHandlerFactory* factory);
+		IRequestHandler*	resolve(Request& request) const;
+		std::string			getUriWithoutQuery(std::string uriWithString) const;
 
 
 };
