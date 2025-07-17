@@ -1,12 +1,13 @@
 #include "../../include/utils/AutoIndex.hpp"
 #include "../../include/utils/MimeTypes.hpp"
+#include "../../include/utils/ErrorPageHandler.hpp"
 
 Response AutoIndex::autoindex(bool &autoindexFlag, std::string uri, std::string fullPath, const Request& request, IResponseBuilder* _builder)
 {
     std::cout << "[DEBUG][AutoIndex][autoindex] START" << std::endl;
-	
+
     struct stat s;
-    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode)) 
+    if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode))
 	{
         if (uri[uri.size() - 1] != '/')
             uri += "/";
@@ -19,7 +20,7 @@ Response AutoIndex::autoindex(bool &autoindexFlag, std::string uri, std::string 
 		std::string autoindex = cfg->getDirectiveValue(location_node, "autoindex", "default");
 		if (autoindex == "default")
 			autoindex = cfg->getDirectiveValue(servers[serverIndex], "autoindex", "true");
-		if (autoindex == "true") 
+		if (autoindex == "true")
 		{
 			autoindexFlag = true;
 			Payload payload;
@@ -31,9 +32,9 @@ Response AutoIndex::autoindex(bool &autoindexFlag, std::string uri, std::string 
 			return _builder->build(payload);
 		}
 		if (autoindex == "false")
-			return (renderIndexFile(cfg, location_node, servers[serverIndex], fullPath, autoindexFlag, _builder));
+			return (renderIndexFile(cfg, location_node, servers[serverIndex], fullPath, autoindexFlag, _builder, request));
 		else
-			return (AutoIndex::autoIndexError(autoindexFlag, _builder));
+			return (AutoIndex::autoIndexError(autoindexFlag, _builder, request, fullPath));
     }
     return Response();
 }
@@ -41,7 +42,7 @@ Response AutoIndex::autoindex(bool &autoindexFlag, std::string uri, std::string 
 std::string AutoIndex::renderAutoindexPage(const std::string& displayPath, const std::string& physicalPath)
 {
     std::cout << "[DEBUG][AutoIndex][renderAutoindexPage] START" << std::endl;
-	
+
 	std::string currentPath = displayPath;
     if (currentPath.empty() || currentPath[currentPath.length() - 1] != '/')
         currentPath += '/';
@@ -56,11 +57,11 @@ std::string AutoIndex::renderAutoindexPage(const std::string& displayPath, const
         while ((entry = readdir(dir)))
         {
             std::string entryName = entry->d_name;
-            if (entryName != "." && entryName != "..")
-            {
+            // if (entryName != "." && entryName != "..")
+            // {
                 std::string href = currentPath + entryName;
                 html += "<a href=\"" + href + "\">" + entryName + "</a><br>";
-            }
+            // }
         }
         closedir(dir);
     }
@@ -75,7 +76,7 @@ std::string AutoIndex::renderAutoindexPage(const std::string& displayPath, const
 }
 
 Response AutoIndex::renderIndexFile(ConfigParser* &cfg, const IConfig* &location_node, const IConfig* server, \
-std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder)
+std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder, const Request& request)
 {
 	std::string indexFile = cfg->getDirectiveValue(location_node, "index", "default");
 	if (indexFile == "default")
@@ -85,7 +86,7 @@ std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder)
 	std::string indexPath = fullPath + indexFile;
 
 	if (access(indexPath.c_str(), F_OK))
-		return (AutoIndex::autoIndexError(autoindexFlag, builder));
+		return (AutoIndex::autoIndexError(autoindexFlag, builder, request, fullPath));
 	fullPath = indexPath;
 
 	autoindexFlag = true;
@@ -97,7 +98,7 @@ std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder)
 
 	std::ifstream file(indexPath.c_str());
 	if (!file.is_open())
-		return (AutoIndex::autoIndexError(autoindexFlag, builder));
+		return (AutoIndex::autoIndexError(autoindexFlag, builder, request, indexPath));
 	std::stringstream ss;
 	ss << file.rdbuf();
 	payload.body = ss.str();
@@ -105,16 +106,20 @@ std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder)
 	return builder->build(payload);
 }
 
-Response AutoIndex::autoIndexError(bool &autoindexFlag, IResponseBuilder* builder)
+Response AutoIndex::autoIndexError(bool &autoindexFlag, IResponseBuilder* builder, const Request& request, std::string fullPath)
 {
 	std::cout << "[DEBUG][AutoIndex][autoIndexError] START" << std::endl;
-	
+
+    ErrorPageHandler errorHandler(fullPath);
+    std::cout << fullPath << std::endl;
+
 	autoindexFlag = true;
 	Payload payload;
     payload.keepAlive = true;
-	payload.status = 403;
-	payload.reason = "Forbidden";
-	payload.mime = "text/plain";
-	payload.body = "403 - Directory listing forbidden";
+	payload.status = 404;
+	payload.reason = "Not found";
+	payload.mime = "text/html";
+    payload.body = errorHandler.render(request,404, "Archivo no encontrado");
 	return builder->build(payload);
 }
+
