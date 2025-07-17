@@ -13,7 +13,16 @@ class AutoIndex
 		static	Response	autoindex(bool &autoindexFlag, std::string uri, std::string fullPath, \
 		const Request& request, IResponseBuilder* builder);
 		static	std::string	renderAutoindexPage(const std::string& displayPath, const std::string& physicalPath);
-		static	Response	renderIndexFile(ConfigParser* &cfg, const IConfig* &location_node, \
-		const IConfig* server, std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder);
-		static	Response	autoIndexError(bool &autoindexFlag, IResponseBuilder* builder);
+		// static	Response	renderIndexFile(ConfigParser* &cfg, const IConfig* &location_node, 
+		// const IConfig* server, std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder);
+		// static	Response	autoIndexError(bool &autoindexFlag, IResponseBuilder* builder);
+
+
+
+        static Response renderIndexFile(ConfigParser* &cfg, const IConfig* &location_node, const IConfig* server, \
+            std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder, const Request& request);
+        static Response autoIndexError(bool &autoindexFlag, IResponseBuilder* builder, const Request& request, std::string fullPath);
+
+            
 };
+
