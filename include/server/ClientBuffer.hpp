@@ -11,7 +11,7 @@ class ClientBuffer
 		int client_fd;
 		bool chunked;
 		bool chunkedEnd;
-		ssize_t contentLenght;
+		ssize_t contentLength;
 		ssize_t headerEnd;
 		bool finishedReading;
 		Request _req;
@@ -31,8 +31,8 @@ class ClientBuffer
 		void	setClientFd(int fd);
 		int		getClientFd() const;
 
-		int		setContentLenght(std::string contentLenght);
-		ssize_t getContentLenght() const;
+		int		setcontentLength(std::string contentLength);
+		ssize_t getcontentLength() const;
 
 		void	setChunked(bool bol);
 		bool	getChunked() const;

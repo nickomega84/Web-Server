@@ -34,9 +34,6 @@ bool Server::getCompleteHeader(ClientBuffer &additive_bff, Request &req)
 	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
 	if (pos == std::string::npos)
 		return (std::cout << "[DEBUG][getCompleteHeader] we didn't read all the header" << std::endl, false);
-
-	if (req.getMethod() == "POST" && req.getBody().empty())
-		return (std::cout << "[DEBUG][getCompleteHeader] empty body, we need to keep reading" << std::endl, false);
 	
 	if (req.getMethod() == "POST")
 		checkBodyLimits(additive_bff, req);
@@ -51,14 +48,13 @@ void Server::checkBodyLimits(ClientBuffer &additive_bff, Request &req)
 	std::cout << "[DEBUG][checkBodyLimits] START" << std::endl;
 
 	bool chuncked = checkIsChunked(additive_bff, req);
-	bool contentLenght = checkIsContentLength(additive_bff, req);
+	bool contentLength = checkIsContentLength(additive_bff, req);
 
-	if (contentLenght && chuncked)
-		throw (std::runtime_error("[ERROR][checkBodyLimits] both ContentLenght and Chunked on HTTP request"));
-	else if (contentLenght || chuncked)
-		return;
-	else
-		throw (std::runtime_error("[ERROR][checkBodyLimits] No body limits on POST request"));
+	if (contentLength && chuncked)
+		throw (std::runtime_error("[ERROR][checkBodyLimits] both contentLength and Chunked on HTTP request"));
+	
+	else if (!contentLength && !chuncked && req.getMethod() == "POST")
+		throw (std::runtime_error("[ERROR][checkBodyLimits] No body limits (Content-Length or Chunked) on POST request"));
 }
 
 bool Server::checkIsChunked(ClientBuffer &additive_bff, const Request &req)
@@ -76,13 +72,13 @@ bool Server::checkIsContentLength(ClientBuffer &additive_bff, Request &req)
 {
 	std::cout << "[DEBUG][checkIsContentLength] START" << std::endl;
 	
-	std::string contentLenght = req.getHeader("content-length");
-	if (contentLenght.empty())
+	std::string contentLength = req.getHeader("content-length");
+	if (contentLength.empty())
 		return (false);
-	if (additive_bff.setContentLenght(contentLenght))
+	if (additive_bff.setcontentLength(contentLength))
 		throw (std::runtime_error("[ERROR][checkIsContentLength] Content-Length is not a number"));
-	checkMaxContentLength(contentLenght, 0, req);
-	return (std::cout << "[DEBUG][checkIsContentLength] is content lenght = " << additive_bff.getContentLenght() << std::endl, true);
+	checkMaxContentLength(contentLength, 0, req);
+	return (std::cout << "[DEBUG][checkIsContentLength] is content lenght = " << additive_bff.getcontentLength() << std::endl, true);
 }
 
 bool Server::areWeFinishedReading(ClientBuffer &additive_bff, Request &req)
@@ -100,12 +96,12 @@ bool Server::areWeFinishedReading(ClientBuffer &additive_bff, Request &req)
 		else
 			return (std::cout << "[DEBUG][areWeFinishedReading](Chunked) we still need to read" << std::endl, false);
 	}
-	else if (additive_bff.getContentLenght() > 0)
+	else if (additive_bff.getcontentLength() > 0)
 	{
-		if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getContentLenght())
-			return (std::cout << "[DEBUG][areWeFinishedReading](ContentLenght) we still need to read" << std::endl, false);
+		if (static_cast<ssize_t>(additive_bff.get_buffer().length()) - additive_bff.getHeaderEnd() < additive_bff.getcontentLength())
+			return (std::cout << "[DEBUG][areWeFinishedReading](contentLength) we still need to read" << std::endl, false);
 		else
-			return (std::cout << "[DEBUG][areWeFinishedReading](ContentLenght) finished reading" << std::endl, true);
+			return (std::cout << "[DEBUG][areWeFinishedReading](contentLength) finished reading" << std::endl, true);
 	}
 	return (true);
 }
@@ -144,7 +140,7 @@ void Server::validateChunkedBody(ClientBuffer &additive_bff)
 	}
 }
 
-void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedReadBytes, Request &req)
+void Server::checkMaxContentLength(std::string contentLength, ssize_t chunkedReadBytes, Request &req)
 {
 	std::cout << "[DEBUG][checkMaxContentLength] START" << std::endl;
 	
@@ -179,7 +175,7 @@ void Server::checkMaxContentLength(std::string contentLenght, ssize_t chunkedRea
 		lenNmb = chunkedReadBytes;
 	else
 	{
-		std::stringstream lenght(contentLenght);
+		std::stringstream lenght(contentLength);
 		lenght >> lenNmb;
 	}
 	std::stringstream MaxLenght(CfgBodySize);
