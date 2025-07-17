@@ -32,7 +32,6 @@ class Server
 		Server(const Server& other);
         Server& operator=(const Server& other);
 
-		void		setUpServers();
 		int			addListeningSocket(IConfig* server);
         void		getHostAndPort(IConfig* server, std::string &host, std::string &port);
         static      void    closeAddListeningSocket(const std::string &str, struct addrinfo *output, int listen_socket);
@@ -65,6 +64,7 @@ class Server
 	public:
 		static Server&	getInstance(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);
         ~Server();
+		void			setUpServers();
 		void			setRouter(const Router &router);
         void			startEpoll();
 };

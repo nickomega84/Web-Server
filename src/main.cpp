@@ -113,6 +113,7 @@ int main(int argc, char** argv)
 
         IResponseBuilder* responseBuilder = new DefaultResponseBuilder();
         Server& server = Server::getInstance(parser, cgiDir, rootPath, uploadPath, responseBuilder);
+		server.setUpServers();
 
         std::cout << "\n✅ [DEBUG] Webserv setup. Listening for connections" << std::endl;
 

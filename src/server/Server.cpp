@@ -20,7 +20,6 @@ _cfg(cfg), _cgiPath(cgiPath), _rootPath(rootPath), _uploadPath(uploadPath), _res
 	IHandlerFactory* cgiFactory = new CGIHandlerFactory(_cgiPath, _responseBuilder, _cfg);
     _router.registerFactory("/cgi-bin", cgiFactory);
 	factory_ptr.push_back(cgiFactory);
-	setUpServers();
 }
 
 Server& Server::getInstance(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder)

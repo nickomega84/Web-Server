@@ -30,7 +30,7 @@
 #define BUFFER_SIZE	1024
 #define MAX_DEFAULT_REQUEST_BODY_SIZE "1000000"
 
-#define COOKIES true
+#define COOKIES false
 #define COOKIE_FILE0 "cookie_file0.png"
 #define COOKIE_FILE1 "cookie_file1.png"	
 #define COOKIE_FILE2 "cookie_file2.png"

@@ -34,7 +34,7 @@ Response AutoIndex::autoindex(bool &autoindexFlag, std::string uri, std::string 
 		if (autoindex == "false")
 			return (renderIndexFile(cfg, location_node, servers[serverIndex], fullPath, autoindexFlag, _builder, request));
 		else
-			return (AutoIndex::autoIndexError(autoindexFlag, _builder, request, fullPath));
+			return (AutoIndex::autoIndexError2(autoindexFlag, _builder, request, fullPath));
     }
     return Response();
 }
@@ -119,7 +119,23 @@ Response AutoIndex::autoIndexError(bool &autoindexFlag, IResponseBuilder* builde
 	payload.status = 404;
 	payload.reason = "Not found";
 	payload.mime = "text/html";
-    payload.body = errorHandler.render(request,404, "Archivo no encontrado");
+    payload.body = errorHandler.render(request, 404, "Archivo no encontrado");
 	return builder->build(payload);
 }
 
+Response AutoIndex::autoIndexError2(bool &autoindexFlag, IResponseBuilder* builder, const Request& request, std::string fullPath)
+{
+	std::cout << "[DEBUG][AutoIndex][autoIndexError2] START" << std::endl;
+
+    ErrorPageHandler errorHandler(fullPath);
+    std::cout << fullPath << std::endl;
+
+	autoindexFlag = true;
+	Payload payload;
+    payload.keepAlive = true;
+	payload.status = 403;
+	payload.reason = "Cannot access";
+	payload.mime = "text/html";
+    payload.body = errorHandler.render(request, 403, "Cannot access");
+	return builder->build(payload);
+}
