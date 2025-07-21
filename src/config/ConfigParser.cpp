@@ -134,19 +134,14 @@ std::vector<std::string> ConfigParser::tokenize(std::ifstream& file) {
                         }
                     } else if (line[start] == '}') {
                         brace_count--;
-                        if (brace_count == 0 && inside_server) {
-                            // End of server block - validate before adding
-                            if (validateServerTokens(current_server_tokens)) {
-                                // Server is valid, add tokens to main vector
+                        if (brace_count == 0 && inside_server) 
+						{
                                 for (size_t i = 0; i < current_server_tokens.size(); ++i) {
                                     tokens.push_back(current_server_tokens[i]);
                                 }
                                 processed_servers++;
                                 std::cout << "[DEBUG] Servidor " << processed_servers << " validado y agregado." << std::endl;
-                            } else {
-                                std::cout << "[DEBUG] Servidor descartado por errores de validación." << std::endl;
-                            }
-                            
+                          
                             inside_server = false;
                             current_server_tokens.clear();
                         }
@@ -200,7 +195,7 @@ void ConfigParser::parse(IConfig* parent, std::vector<std::string>& tokens, size
     static_cast<ConfigNode*>(parent)->addChild(node);
 }
 
-std::string ConfigParser::getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) 
+std::string ConfigParser::getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) const
 {
     if (!node) 
         return defaultValue;
@@ -260,10 +255,10 @@ std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode)
                         std::string filePath = values[0];
                         
                         if (validateErrorPagePath(filePath)) {
-                            std::cout << "[INFO] Página de error " << errorCode << " configurada: " << filePath << std::endl;
+                            std::cout << "[DEBUG] Página de error " << errorCode << " configurada: " << filePath << std::endl;
                             return filePath;
                         } else {
-                            std::cout << "[WARNING] Página de error " << errorCode << " no sigue el formato correcto. Usando página por defecto." << std::endl;
+                            std::cout << "[DEBUG] Página de error " << errorCode << " no sigue el formato correcto. Usando página por defecto." << std::endl;
                             return "";
                         }
                     }
@@ -281,7 +276,7 @@ bool ConfigParser::validateErrorPagePath(const std::string& filePath) const {
         return true;
     }
 
-    std::cout << "[WARNING] Archivo de error no encontrado: " << filePath << std::endl;
+    std::cout << "[DEBUG] Archivo de error no encontrado: " << filePath << std::endl;
     return false;
 }
 
@@ -338,13 +333,13 @@ const IConfig* ConfigParser::findLocationBlock(const IConfig* serverNode, const 
     return bestMatch;
 }
 
-bool ConfigParser::validateServerTokens(const std::vector<std::string>& serverTokens) const {
+bool ConfigParser::validateServerTokens(const std::vector<std::string>& serverTokens) const 
+{
     if (serverTokens.empty()) {
         std::cout << "[DEBUG] Validación falló: tokens vacíos" << std::endl;
         return false;
     }
     
-    // Check basic structure: server { ... }
     if (serverTokens.size() < 3) {
         std::cout << "[DEBUG] Validación falló: estructura mínima no cumplida" << std::endl;
         return false;
@@ -384,16 +379,15 @@ bool ConfigParser::validateServerTokens(const std::vector<std::string>& serverTo
         return false;
     }
     
-    // Validate directive syntax - check for malformed directives like "port8081;"
     for (size_t i = 1; i < serverTokens.size() - 1; ++i) {
         const std::string& token = serverTokens[i];
         
-        // Skip special characters and location blocks
+
         if (token == "{" || token == "}" || token == ";" || token == "location") {
             continue;
         }
         
-        // Check for malformed directives (directive mixed with value)
+
         if (token.find("port") == 0 && token.length() > 4) {
             std::cout << "[ERROR] Validación falló: directiva 'port' mal formada: " << token << std::endl;
             std::cout << "[ERROR] Formato correcto: 'port 8081;'" << std::endl;
@@ -430,15 +424,13 @@ bool ConfigParser::validateServerTokens(const std::vector<std::string>& serverTo
             return false;
         }
         
-        // Check for tokens that contain semicolons but shouldn't
         if (token.find(';') != std::string::npos && token != ";") {
             std::cout << "[ERROR] Validación falló: token mal formado con ';' incluido: " << token << std::endl;
             std::cout << "[ERROR] Los tokens deben estar separados por espacios" << std::endl;
             return false;
         }
     }
-    
-    // Check for required directive (like port)
+
     bool hasPort = false;
     for (size_t i = 0; i < serverTokens.size() - 1; ++i) {
         if (serverTokens[i] == "port") {
@@ -454,4 +446,32 @@ bool ConfigParser::validateServerTokens(const std::vector<std::string>& serverTo
     
     std::cout << "[DEBUG] Validación exitosa para bloque servidor" << std::endl;
     return true;
+}
+
+std::pair<int, std::string> ConfigParser::getRedirection(const IConfig* block) const 
+{
+    if (!block)
+        return (std::make_pair(0, ""));
+
+    const IConfig* returnNode = block->getChild("return");
+    if (!returnNode)
+        return (std::make_pair(0, ""));
+
+    const std::vector<std::string>& values = returnNode->getValues();
+    if (values.size() < 2)
+        return (std::make_pair(0, ""));
+
+    int code = 0;
+    const std::string& codeStr = values[0];
+    const std::string& url = values[1];
+
+    std::stringstream ss(codeStr);
+    ss >> code;
+    if (ss.fail())
+        return (std::make_pair(0, ""));
+
+    if ((code >= 301 && code <= 303) || code == 307 || code == 308)
+        return (std::make_pair(code, url));
+
+    return (std::make_pair(0, ""));
 }

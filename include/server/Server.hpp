@@ -34,7 +34,7 @@ class Server
 
 		int			addListeningSocket(IConfig* server);
         void		getHostAndPort(IConfig* server, std::string &host, std::string &port);
-        static      void    closeAddListeningSocket(const std::string &str, struct addrinfo *output, int listen_socket);
+        static void	closeAddListeningSocket(const std::string &str, struct addrinfo *output, int listen_socket);
 
 		int			init_epoll();
         int			accept_connection(int listen_socket, int epollfd, std::vector<int> &client_fds, std::map<int, ClientBuffer> &client_buffers);
@@ -60,6 +60,8 @@ class Server
 
 		void		checkCookies(Request &req);
 		Cookies		createCookie();
+		bool		processRedirection(const Request& req, Response& redirectResponse);
+		std::string	getReasonForStatus(int code);
 
 	public:
 		static Server&	getInstance(ConfigParser& cfg, std::string cgiPath, const std::string& rootPath, std::string uploadPath, IResponseBuilder *builder);

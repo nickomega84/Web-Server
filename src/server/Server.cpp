@@ -1,9 +1,9 @@
-#include "../../include/server/Server.hpp"
-#include "../../include/core/Request.hpp"
-#include "../../include/core/Response.hpp"
-#include "../../include/server/ClientBuffer.hpp"
-#include "../../include/utils/ErrorPageHandler.hpp"
-#include "../../include/config/ConfigParser.hpp"
+#include "../include/server/Server.hpp"
+#include "../include/core/Request.hpp"
+#include "../include/core/Response.hpp"
+#include "../include/server/ClientBuffer.hpp"
+#include "../include/utils/ErrorPageHandler.hpp"
+#include "../include/config/ConfigParser.hpp"
 #include "../include/factory/IHandlerFactory.hpp"
 #include "../include/factory/UploadHandlerFactory.hpp"
 #include "../include/factory/CGIHandlerFactory.hpp"
@@ -250,6 +250,10 @@ Response Server::createResponse(ClientBuffer &additive_bff)
 	size_t serverIndex = findServerIndex(req);
 	req.setServerIndex(serverIndex);
 
+	Response redirectResponse;
+	if (processRedirection(req, redirectResponse)) 
+		return redirectResponse;
+
 	if (COOKIES == true)
 		checkCookies(req);
 
@@ -295,45 +299,4 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 		return (std::cout << "[DEBUG][handleClientResponse] END connection closed" << std::endl, 1);
 	else
 		return (std::cout << "[DEBUG][handleClientResponse] END connection alive" << std::endl, 0);
-}
-
-void Server::checkCookies(Request &req)
-{
-	
-	std::string cookieHeader = req.getHeader("cookie");
-	if (cookieHeader.empty())
-	{
-		Cookies newCookie;
-		newCookie = createCookie();
-		_cookieList[newCookie.getKey()] = newCookie;
-		req.setCookie(newCookie);
-	}
-	else
-	{
-		size_t pos = cookieHeader.find("session_id");
-		if (pos == std::string::npos)
-		{
-			std::cerr << "[ERROR][checkCookies] cannot find session_id"  << std::endl;
-			return;
-		}
-		std::string cookieKey = cookieHeader.substr(pos + 11);
-		Cookies &oldCookie = _cookieList[cookieKey];
-		oldCookie.increaseConnections();
-		req.setCookie(oldCookie);
-	}
-}
-
-Cookies Server::createCookie()
-{
-	Cookies newCookie;
-
-	time_t creation_time;
-	time(&creation_time);
-	size_t cookieKeyNmb = static_cast<size_t>(creation_time);
-	std::stringstream ss;
-	ss << cookieKeyNmb;
-	std::string cookieKey = ss.str();
-	newCookie.setKey(cookieKey);
-
-	return (newCookie);
 }

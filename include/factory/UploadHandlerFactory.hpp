@@ -1,6 +1,6 @@
 
-#ifndef UPLOADHANDLERFACTORY_HPP
-#define UPLOADHANDLERFACTORY_HPP
+#ifndef UploadHandlerFACTORY_HPP
+#define UploadHandlerFACTORY_HPP
 
 #include "../include/libraries.hpp"
 #include "../include/response/IResponseBuilder.hpp"

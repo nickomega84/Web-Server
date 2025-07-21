@@ -58,7 +58,7 @@ Response CGIHandler::handleGET(const Request &req, std::string interpreter)
 
 	char *argv[] = {(char *)interpreter.c_str(), (char *)map["name"].c_str(), NULL};
 
-	std::cout << "[DEBUG][CGI][handleGET] (char *)interpreter.c_str() = " << (char *)interpreter.c_str() << std::endl;
+	std::cout << "[DEBUG][CGI][handleGET] interpreter = " << (char *)interpreter.c_str() << std::endl;
 
 	std::vector<std::string> env;
 	if (!getEnviroment(env, "GET", map["path"], map["queryString"], req))
@@ -72,47 +72,65 @@ Response CGIHandler::handleGET(const Request &req, std::string interpreter)
 	int pipefd[2];
 	if (pipe(pipefd) < 0)
 		return (std::cerr << "[ERROR] CGI pipe() on handleGET" << std::endl, delete[] envp, \
-		CGIerror(req, 500, "Internal Server Error", "text/plain"));
+		CGIerror(req, 500, "Internal Server Error", "text/html"));
 
+	time_t time_start;
+	time(&time_start);
+	
+	std::cout << "[DEBUG][CGI] [[ START SCRIPT ]]" << std::endl;
+	
 	pid_t pid = fork();
 	if (pid < 0)
 		return (std::cerr << "[ERROR] CGI pid on handleGET" << std::endl, delete[] envp, \
-		CGIerror(req, 500, "Internal Server Error", "text/plain"));
+		CGIerror(req, 500, "Internal Server Error", "text/html"));
 	if (!pid)
 	{
 		close (pipefd[0]);
 		if (dup2(pipefd[1], STDOUT_FILENO) < 0)
-			return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
+			return (delete[] envp, kill(getpid(), SIGTERM), _resDefault);
 		close (pipefd[1]);
 
 		if (chdir(map["dir"].c_str()) < 0)
-			return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
+			return (delete[] envp, kill(getpid(), SIGTERM), _resDefault);
+
 		execve((char *)interpreter.c_str(), argv, envp);
-		return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
+		return (delete[] envp, kill(getpid(), SIGTERM), _resDefault);
 	}
 	else
 	{
 		char buffer[BUFFER_SIZE];
 		std::string output;
 		ssize_t count;
-
+		
+		int flags = fcntl(pipefd[0], F_GETFL, 0);
+		fcntl(pipefd[0], F_SETFL, flags | O_NONBLOCK);
+		
 		close(pipefd[1]);
-		while ((count = read(pipefd[0], buffer, sizeof(buffer))) > 0)
-			output.append(buffer, count);
+		while (true)
+		{
+			count =  read(pipefd[0], buffer, sizeof(buffer));
+			if (count > 0)
+				output.append(buffer, count);
+			if (count == 0)
+				break;
+			if (!checkScriptTime(time_start))
+				return (kill(pid, SIGTERM), close(pipefd[0]), delete[] envp, \
+				CGIerror(req, 508, "Loop Detected", "text/html"));	
+		}
 		close(pipefd[0]);
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
 			return (std::cerr << "[ERROR] CGI on waitpid()" << std::endl, delete[] envp),\
-			CGIerror(req, 500, "Internal Server Error", "text/plain");
-
+			CGIerror(req, 500, "Internal Server Error", "text/html");
+	
 		if (WIFSIGNALED(status))
 			return (std::cerr << "[ERROR] CGI child killed SIGTERM" << std::endl, delete[] envp),\
-			CGIerror(req, 500, "Internal Server Error", "text/plain");
+			CGIerror(req, 500, "Internal Server Error", "text/html");
 
 		if (createResponse(output, _resDefault))
 			return (std::cerr << "[ERROR] CGI couldn't create reponse" << std::endl, delete[] envp),\
-			CGIerror(req, 500, "Internal Server Error", "text/plain");
+			CGIerror(req, 500, "Internal Server Error", "text/html");
 	}
 	delete[] envp;
 	return (_resDefault);
@@ -129,7 +147,7 @@ Response CGIHandler::handlePOST(const Request &req, std::string interpreter)
 
 	char *argv[] = {(char *)interpreter.c_str(), (char *)map["name"].c_str(), NULL};
 
-	std::cout << "[DEBUG][CGI][handleGET] (char *)interpreter.c_str() = " << (char *)interpreter.c_str() << std::endl;
+	std::cout << "[DEBUG][CGI][handleGET] interpreter = " << (char *)interpreter.c_str() << std::endl;
 
 	std::vector<std::string> env;
 	if (!getEnviroment(env, "POST", map["path"], map["queryString"], req))
@@ -143,22 +161,29 @@ Response CGIHandler::handlePOST(const Request &req, std::string interpreter)
 	int pipeInput[2];
 	if (pipe(pipeInput) < 0)
 		return (std::cerr << "[ERROR] CGI on pipeInput" << std::endl, delete[] envp,\
-		CGIerror(req, 500, "Internal Server Error", "text/plain"));
+		CGIerror(req, 500, "Internal Server Error", "text/html"));
+	
 	int pipeOutput[2];
 	if (pipe(pipeOutput) < 0)
 		return (std::cerr << "[ERROR] CGI on pipeOutput" << std::endl, delete[] envp,\
-		CGIerror(req, 500, "Internal Server Error", "text/plain"));
+		CGIerror(req, 500, "Internal Server Error", "text/html"));
+
+	time_t time_start;
+	time(&time_start);
+	
+	std::cout << "[DEBUG][CGI] [[ START SCRIPT ]]" << std::endl;
 
 	pid_t pid = fork();
 	if (pid < 0)
 		return (std::cerr << "[ERROR] CGI pid() on handlePOST" << std::endl, delete[] envp,\
-		CGIerror(req, 500, "Internal Server Error", "text/plain"));
+		CGIerror(req, 500, "Internal Server Error", "text/html"));
 	if (!pid)
 	{
 		close (pipeInput[1]);
 		if (dup2(pipeInput[0], STDIN_FILENO) < 0)
 			return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
 		close (pipeInput[0]);
+
 		close (pipeOutput[0]);
 		if (dup2(pipeOutput[1], STDOUT_FILENO) < 0)
 			return (kill(getpid(), SIGTERM), delete[] envp, _resDefault);
@@ -175,31 +200,41 @@ Response CGIHandler::handlePOST(const Request &req, std::string interpreter)
 		std::string output;
 		ssize_t count;
 		std::string body = req.getBody();
-
+		
 		close(pipeInput[0]);
 		ssize_t bytes_written = write(pipeInput[1], body.c_str(), body.size());
 		if (bytes_written == -1 || static_cast<size_t>(bytes_written) != body.size())
 			return (std::cerr << "[ERROR] CGI write on handlePOST" << std::endl, \
 			delete[] envp, close(pipeInput[1]), close(pipeOutput[1]), close(pipeOutput[0]), \
-			CGIerror(req, 500, "Internal Server Error", "text/plain"));
+			CGIerror(req, 500, "Internal Server Error", "text/html"));
 		close(pipeInput[1]);
+
 		close(pipeOutput[1]);
-		while ((count = read(pipeOutput[0], buffer, sizeof(buffer))) > 0)
-			output.append(buffer, count);
+		while (true)
+		{
+			count =  read(pipeOutput[0], buffer, sizeof(buffer));
+			if (count > 0)
+				output.append(buffer, count);
+			if (count == 0)
+				break;
+			if (!checkScriptTime(time_start))
+				return (kill(pid, SIGTERM), close(pipeOutput[0]), delete[] envp, \
+				CGIerror(req, 508, "Loop Detected", "text/html"));	
+		}
 		close(pipeOutput[0]);
 
 		int status;
 		if (waitpid(pid, &status, 0) == -1)
 			return (std::cerr << "[ERROR] CGI waitpid()" << std::endl, delete[] envp,\
-			CGIerror(req, 500, "Internal Server Error", "text/plain"));
-
+			CGIerror(req, 500, "Internal Server Error", "text/html"));
+			
 		if (WIFSIGNALED(status))
 			return (std::cerr << "[ERROR] CGI child was killed SIGTERM" << std::endl, delete[] envp,\
-			CGIerror(req, 500, "Internal Server Error", "text/plain"));
+			CGIerror(req, 500, "Internal Server Error", "text/html"));
 
 		if (createResponse(output, _resDefault))
 			return (std::cerr << "[ERROR] CGI couldn't createResponse()" << std::endl, delete[] envp,\
-			CGIerror(req, 500, "Internal Server Error", "text/plain"));
+			CGIerror(req, 500, "Internal Server Error", "text/html"));
 	}
 	delete[] envp;
 	return (_resDefault);
@@ -210,7 +245,7 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	std::cout << "[DEBUG][CGI][createResponse] START" << std::endl;
 	
     _builder->setStatus(res, 200, "OK");
-
+	
 	std::string cgi_headers_str;
 	std::string cgi_body_str;
 	std::string::size_type header_end_pos = output.find("\r\n\r\n");
@@ -227,7 +262,7 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	cgi_body_str = output.substr(header_end_pos + header_lenght);
 	cgi_headers_str = output.substr(0, header_end_pos);
 
-    _builder->setBody(res, cgi_body_str);
+	_builder->setBody(res, cgi_body_str);
 
 	std::stringstream ss(cgi_headers_str);
 	std::string line;
@@ -243,7 +278,7 @@ int CGIHandler::createResponse(std::string output, Response &res)
 				header_value = header_value.substr(first_char_pos);
 			else
 				header_value = "";
-            _builder->setHeader(res, header_name, header_value);
+			_builder->setHeader(res, header_name, header_value);
 		}
 	}
 
@@ -252,14 +287,13 @@ int CGIHandler::createResponse(std::string output, Response &res)
 	ssBodySize << bodySize;
 	std::string bodySizeStr = ssBodySize.str();
 	if (res.getHeader("Content-Length").empty())
-        _builder->setHeader(res, "Content-Length", bodySizeStr);
-	
+		_builder->setHeader(res, "Content-Length", bodySizeStr);
 	return (0);
 }
 
 Response CGIHandler::CGIerror(const Request &req, int status, std::string reason, std::string mime) 
 {
-    ErrorPageHandler  errorHandler(_cgiRoot);
+	ErrorPageHandler  errorHandler(_cgiRoot);
     std::cerr << "[ERROR][CGI][CGIerror]req , status: " << status << std::endl;
 	Payload payload;
 	payload.status = status;
@@ -268,4 +302,13 @@ Response CGIHandler::CGIerror(const Request &req, int status, std::string reason
 	payload.keepAlive = true;
     payload.body = errorHandler.render(req, status, reason);
 	return (_builder->build(payload));
+}
+
+bool CGIHandler::checkScriptTime(time_t time_start)
+{
+	static time_t time_running; 
+	time(&time_running);
+	if (time_running - time_start > CGI_WAIT_TIME)
+		return (std::cerr << "[ERROR][CGI][checkScriptTime] dead script" << std::endl, false);
+	return (true);
 }

@@ -27,9 +27,6 @@ int Server::addListeningSocket(IConfig* server)
 	std::string port;	
 	getHostAndPort(server, host, port);
 
-	std::cout << "[DEBUG][addListeningSocket] HOST = " << host << std::endl;
-	std::cout << "[DEBUG][addListeningSocket] PORT = " << port << std::endl;
-
 	struct addrinfo input;
 	::bzero(&input, sizeof(input));
 	input.ai_flags = AI_PASSIVE;
@@ -39,7 +36,8 @@ int Server::addListeningSocket(IConfig* server)
 
 	if (getaddrinfo(host.empty() ? NULL : host.c_str(), port.c_str(), &input, &output))
 		return (closeAddListeningSocket("calling getaddrinfo()", output, listen_socket), 1);
-	if ((listen_socket = ::socket(output->ai_family, output->ai_socktype, output->ai_protocol)) < 0)
+	listen_socket = socket(output->ai_family, output->ai_socktype, output->ai_protocol);
+	if (listen_socket < 0)
 		return (closeAddListeningSocket("creating server socket", output, listen_socket), 1);
 	int opt = 1;
 	if (setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
@@ -52,7 +50,9 @@ int Server::addListeningSocket(IConfig* server)
 	listen_sockets.push_back(listen_socket);
 	freeaddrinfo(output);
 
-	std::cout << "[DEBUG][addListeningSocket] New listenSocket fd = " << listen_socket << std::endl;
+	std::cout << "[INFO][addListeningSocket] New listenSocket fd = " << listen_socket << std::endl;
+	std::cout << "[INFO][addListeningSocket] HOST = " << host << std::endl;
+	std::cout << "[INFO][addListeningSocket] PORT = " << port << std::endl;
 	return (0);
 }
 

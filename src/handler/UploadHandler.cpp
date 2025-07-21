@@ -13,19 +13,20 @@ UploadHandler::UploadHandler(const std::string& uploadsPath, IResponseBuilder* b
 _uploadsPath(uploadsPath), _builder(builder), _cfg(cfg)
 {}
 
-UploadHandler::~UploadHandler() {}
+UploadHandler::~UploadHandler() 
+{}
 
-Response UploadHandler::handleRequest(const Request& request) 
+Response UploadHandler::handleRequest(const Request& req) 
 {
 	std::cout << "[DEBUG][UploadHandler][handleRequest] START" << std::endl;
 
-	std::string method = request.getMethod();
-    std::string originalUri = request.getPath();
+	std::string method = req.getMethod();
+    std::string originalUri = req.getPath();
 
     std::string uploadsPrefix = "/uploads";
     std::string relativePath = originalUri;
-	if (originalUri.rfind(uploadsPrefix, 0) == 0)
-		relativePath = originalUri.substr(uploadsPrefix.length());
+	if (relativePath.rfind(uploadsPrefix, 0) == 0)
+		relativePath = relativePath.substr(uploadsPrefix.length());
 	if (relativePath.empty() || relativePath[0] != '/')
 		relativePath = "/" + relativePath;
 
@@ -36,16 +37,16 @@ Response UploadHandler::handleRequest(const Request& request)
         std::cout << "[DEBUG][UploadHandler][autoindex] START" << std::endl;
 
 		bool autoindexFlag = false;
-        Response resAutoindex = AutoIndex::autoindex(autoindexFlag, originalUri, fullPath, request, _builder);
+        Response resAutoindex = AutoIndex::autoindex(autoindexFlag, originalUri, fullPath, req, _builder);
         if (autoindexFlag)
             return resAutoindex;
     }
 
-    if (method == "GET" || method == "HEAD" || method == "DELETE")
+    if (method == "GET" || method == "DELETE")
     {
         std::cout << "[DEBUG][UploadHandler][handleRequest] staticHandler" << std::endl;
 		
-		Request modifiedRequest = request;
+		Request modifiedRequest = req;
         modifiedRequest.setPath(relativePath);
 
         StaticFileHandler staticHandler(_uploadsPath, _builder, _cfg);
@@ -56,102 +57,43 @@ Response UploadHandler::handleRequest(const Request& request)
 		return (std::cerr << "[ERROR][UploadHandler] 405 not a POST method" << std::endl, \
 		uploadResponse(405, "Method Not Allowed", "text/plain", "405 - Method Not Allowed"));
 
-	if (!checkCfgPermission(request, "POST"))
+	if (!checkCfgPermission(req, "POST"))
 		return (std::cerr << "[ERROR][UploadHandler] 403 forbidden method" << std::endl, \
 		uploadResponse(400, "Bad Request", "text/html", ""));
 
-	std::string contentType = request.getHeader("content-type");
-
-	std::cout << "[DEBUG][UploadHandler] contentType = " << contentType << std::endl;
-
-	if (contentType.empty() || contentType.find("multipart/form-data") == std::string::npos)
-		return (std::cerr << "[ERROR][UploadHandler] 400 unsupported format, contentType = " << contentType << std::endl, \
-		uploadResponse(400, "Bad Request", "text/html", ""));
-
-	std::string body = request.getBody();
-	std::string boundary = getBoundary(contentType);
-	if (boundary.empty())
-		return (std::cout << "[ERROR][UploadHandler] Cannot get boundary" << std::endl, \
-		uploadResponse(400, "Bad Request", "text/html", ""));
-
-	std::string fileName;
-	std::string fileContent;
-	if (!parseMultipartBody(body, boundary, fileName, fileContent))
-		return (std::cout << "[ERROR][UploadHandler] Cannot parse body" << std::endl, \
-		uploadResponse(400, "Bad Request", "text/html", ""));
-
-	if (fileName.empty() || fileContent.empty())
-		return (std::cout << "[ERROR][UploadHandler] Empty fileName or content" << std::endl, \
-		uploadResponse(400, "Bad Request", "text/html", ""));
-	
-	std::string destinationPath = _uploadsPath + "/" + fileName;
-	std::cout << "[DEBUG][UploadHandler] destinationPath = " << destinationPath << std::endl;
-
-	std::ofstream outputFile(destinationPath.c_str(), std::ios::out | std::ios::binary);
-	if (!outputFile.is_open()) 
-		return (std::cout << "[ERROR][UploadHandler] 500 Cannot open file: " << destinationPath << std::endl, \
-		uploadResponse(500, "Internal Server Error", "text/plain", "500 - Cannot save file"));
-
-	outputFile.write(fileContent.data(), fileContent.size());
-	outputFile.close();
-
-	return (std::cout << "[DEBUG][UploadHandler] UPLOADED file: " << destinationPath << std::endl, \
-	uploadResponse(200, "OK", "text/plain", "File received and uploaded"));
+	return (getBodyType(req));
 }
 
-std::string UploadHandler::getBoundary(std::string& contentType)
+Response UploadHandler::getBodyType(const Request& req)
 {
-	std::string boundaryMarker = "boundary=";
-	size_t pos = contentType.find(boundaryMarker);
-	if (pos == std::string::npos)
-		return "";
-	pos += boundaryMarker.length();
-	return (contentType.substr(pos));
-}
+	std::cout << "[DEBUG][UploadHandler][getBodyType]" << std::endl;
 
-bool UploadHandler::parseMultipartBody(const std::string& body, const std::string& boundary, std::string& fileName, std::string& fileContent)
-{
-    std::string boundaryDelimiter = "--" + boundary;
-    std::string finalBoundaryDelimiter = "--" + boundary + "--";
+	std::string contentType = req.getHeader("content-type");
 
-    size_t startPos = body.find(boundaryDelimiter);
-    if (startPos == std::string::npos)
-        return false;
-    startPos += boundaryDelimiter.length();
-    if (body.substr(startPos, 2) == "\r\n")
-        startPos += 2;
+	if (contentType.empty())
+		return (std::cerr << "[ERROR][UploadHandler] 400 empty content-type, contentType = " << contentType << std::endl, \
+		uploadResponse(400, "Bad Request", "text/html", ""));
 
-    size_t endPos = body.find(boundaryDelimiter, startPos);
-    if (endPos == std::string::npos)
-        return false;
-    std::string firsPart = body.substr(startPos, endPos - startPos);
+	std::cout << "[DEBUG][UploadHandler][getBodyType] Content-Type = " << contentType << std::endl;
 
-    size_t headerEndPos = firsPart.find("\r\n\r\n");
-    if (headerEndPos == std::string::npos)
-        return false;
-    std::string headers = firsPart.substr(0, headerEndPos);
-    fileContent = firsPart.substr(headerEndPos + 4);
-
-    if (fileContent.length() >= 2 &&
-    fileContent.substr(fileContent.length() - 2) == "\r\n")
-        fileContent.erase(fileContent.length() - 2);
-
-    size_t cdPos = headers.find("Content-Disposition:");
-    if (cdPos == std::string::npos)
-        return false;
-
-    size_t filenamePos = headers.find("filename=\"", cdPos);
-    if (filenamePos == std::string::npos)
-        return false;
-    filenamePos += 10;
-
-    size_t filenameEndPos = headers.find("\"", filenamePos);
-    if (filenameEndPos == std::string::npos)
-        return false;
-
-    fileName = headers.substr(filenamePos, filenameEndPos - filenamePos);
-
-    return (!fileName.empty());
+	if(contentType.find("multipart/form-data") != std::string::npos)
+		return (handleMultipartUpload(req, contentType));
+	else if (
+	contentType.find("image/jpeg") != std::string::npos || \
+	contentType.find("image/png") != std::string::npos || \
+	contentType.find("image/gif") != std::string::npos || \
+	contentType.find("text/plain") != std::string::npos || \
+	contentType.find("text/css") != std::string::npos || \
+	contentType.find("text/csv") != std::string::npos || \
+	contentType.find("text/html") != std::string::npos || \
+	contentType.find("application/pdf") != std::string::npos || \
+	contentType.find("application/zip") != std::string::npos || \
+	contentType.find("video/mp4") != std::string::npos || \
+	contentType.find("application/octet-stream") != std::string::npos)
+		return (handleRawUpload(req));
+	else if (contentType.find("application/x-www-form-urlencoded") != std::string::npos)
+		return (handleUrlEncodedUpload(req));
+	return (uploadResponse(415, "Unsupported Media Type", "text/html", ""));
 }
 
 Response UploadHandler::uploadResponse(int status, std::string reason, std::string mime, std::string body) 

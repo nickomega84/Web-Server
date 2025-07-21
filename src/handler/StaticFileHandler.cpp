@@ -12,6 +12,7 @@ StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* 
     (void) _cfg;
     std::cout << "[DEBUG][StaticFileHandler] initialized with root and builder\n";
 }
+
 StaticFileHandler::~StaticFileHandler() {}
 
 static bool fileExists(const std::string& path) 

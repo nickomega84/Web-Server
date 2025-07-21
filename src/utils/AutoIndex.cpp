@@ -56,12 +56,9 @@ std::string AutoIndex::renderAutoindexPage(const std::string& displayPath, const
         struct dirent* entry;
         while ((entry = readdir(dir)))
         {
-            std::string entryName = entry->d_name;
-            // if (entryName != "." && entryName != "..")
-            // {
-                std::string href = currentPath + entryName;
-                html += "<a href=\"" + href + "\">" + entryName + "</a><br>";
-            // }
+			std::string entryName = entry->d_name;
+			std::string href = currentPath + entryName;
+			html += "<a href=\"" + href + "\">" + entryName + "</a><br>";
         }
         closedir(dir);
     }

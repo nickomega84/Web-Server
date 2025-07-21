@@ -152,7 +152,6 @@ void Server::checkMaxContentLength(std::string contentLength, ssize_t chunkedRea
 
 	size_t serverIndex = findServerIndex(req);
 	req.setServerIndex(serverIndex);
-	std::cout << "[DEBUG][checkMaxContentLength] req.getServerIndex() = " << req.getServerIndex() << std::endl;
 
 	const IConfig* locationNode = _cfg.findLocationBlock(serverNodes[serverIndex], path);
 

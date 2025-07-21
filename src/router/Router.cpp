@@ -57,9 +57,13 @@ IRequestHandler* Router::resolve(Request& request) const
 
 				std::cout << "[DEBUG][Router::resolve] abs = " << abs << std::endl;
 
-                std::string safe = Utils::validateFilesystemEntry(abs);
-                request.setPhysicalPath(safe);
-
+				if (request.getMethod() != "POST")
+				{
+                	std::string safe = Utils::validateFilesystemEntry(abs);
+                	request.setPhysicalPath(safe);
+				}
+				else
+					request.setPhysicalPath(abs);
                 return it->second->createHandler();
             }
             catch (const std::exception& e) 

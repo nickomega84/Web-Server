@@ -30,6 +30,7 @@ class CGIHandler: public IRequestHandler
 		Response	handleGET(const Request &req, std::string interpreter);
         Response	handlePOST(const Request &req, std::string interpreter);
 		int			createResponse(std::string output, Response &res);
+		bool		checkScriptTime(time_t time_start);
 		
 		int			identifyScriptType(const Request &req);
 		Response	autoindexCGIAux(const Request &req);

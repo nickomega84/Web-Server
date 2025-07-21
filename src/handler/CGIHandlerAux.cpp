@@ -132,7 +132,7 @@ Response CGIHandler::getScript(const Request &req, std::map<std::string, std::st
 	map["queryString"] = getScriptQuery(uri);
 
 	std::cout << "[DEBUG][CGI][getScript] path = " << map["path"] << std::endl;
-	std::cout << "[DEBUG][CGI][getScript] query" << map["queryString"] << std::endl;
+	std::cout << "[DEBUG][CGI][getScript] query = " << map["queryString"] << std::endl;
 	return (_resDefault);
 }
 
