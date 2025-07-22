@@ -27,7 +27,11 @@ class UploadHandler : public IRequestHandler
 		Response 	handleUrlEncodedUpload(const Request& req); 
 		std::string	urlDecode(const std::string& encoded);
 
-		Response	uploadResponse(int status, std::string reason, std::string mime, std::string body);
+		// Response	uploadResponse(int status, std::string reason, std::string mime, std::string body);
+        // Response    uploadResponse(const Request &req, int status, std::string reason, std::string mime, std::string body);
+        Response    uploadResponse(const Request &req, int status, const std::string &reason, const std::string &mime, const std::string &body);
+
+
 		bool		checkCfgPermission(const Request &req, std::string method);
 };
 

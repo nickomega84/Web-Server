@@ -34,8 +34,7 @@ Response CGIHandler::handleCGI(const Request &req)
 		return(autoindexCGIAux(req));
 
 	if (indx < 3)
-		return (std::cerr << "[ERROR][CGI] unsupported method" << std::endl, \
-		CGIerror(req, 404, "Bad Request", "text/html"));
+		return (std::cerr << "[ERROR][CGI] unsupported method aquiiiii" << std::endl, CGIerror(req, 403, "Forbidden", "text/html"));
 	else if (indx == GET_PY)
 		return (handleGET(req, PYTHON_INTERPRETER));
 	else if (indx == GET_SH)
@@ -219,7 +218,7 @@ Response CGIHandler::handlePOST(const Request &req, std::string interpreter)
 				break;
 			if (!checkScriptTime(time_start))
 				return (kill(pid, SIGTERM), close(pipeOutput[0]), delete[] envp, \
-				CGIerror(req, 508, "Loop Detected", "text/html"));	
+				CGIerror(req, 504, "Loop Detected", "text/html"));	
 		}
 		close(pipeOutput[0]);
 

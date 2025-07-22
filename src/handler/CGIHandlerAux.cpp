@@ -27,30 +27,31 @@ int CGIHandler::identifyScriptType(const Request &req)
 int CGIHandler::identifyMethod(const Request &req)
 {
 	std::cout << "[DEBUG][CGI][identifyMethod] START" << std::endl;
-
 	std::string method = req.getMethod();
+
 	try
 	{
 		if (method == "GET")
 		{
 			std::cout << "[DEBUG][CGI][identifyMethod]: GET" << std::endl;
 			checkCfgPermission(req, "GET");
-			return (2);
+			return (2);  // Permiso concedido
 		}
-		if (method == "POST")
+		else if (method == "POST")
 		{
 			std::cout << "[DEBUG][CGI][identifyMethod]: POST" << std::endl;
 			checkCfgPermission(req, "POST");
-			return (4);
+			return (2);  // Permiso concedido
 		}
 	}
 	catch (const std::exception& e)
 	{
-		std::cout << "[ERROR][CGI][checkCfgPermission]: " <<e.what() << std::endl;
-		return (0);
+		std::cout << "[ERROR][CGI][identifyMethod]: " << e.what() << std::endl;
+		return (0);  // Permiso denegado o error
 	}
-	return (0);
+	return (0);  // Método no reconocido o error
 }
+
 
 Response CGIHandler::autoindexCGIAux(const Request &req)
 {

@@ -54,18 +54,20 @@ Response StaticFileHandler::handleRequest(const Request& request)
     payload.keepAlive = true;
 
     if (method != "GET" && method != "DELETE") {
+        ErrorPageHandler errorHandler(_rootPath);
         payload.status = 405;
         payload.reason = "Method Not Allowed";
         payload.mime = "text/plain";
-        payload.body = "405 - Method Not Allowed";
+        payload.body = errorHandler.render(request, 405, "Method Not Allowed");
         return _builder->build(payload);
     }
 
     if (qs.find("<script") != std::string::npos || uri.find("..") != std::string::npos) {
+        ErrorPageHandler errorHandler(_rootPath);
         payload.status = 400;
         payload.reason = "Bad Request";
         payload.mime = "text/plain";
-        payload.body = "400 - Bad Request";
+        payload.body = errorHandler.render(request, 400, "Bad Request");
         return _builder->build(payload);
     }
 
@@ -126,6 +128,7 @@ Response StaticFileHandler::doGET(std::string fullPath, Payload& payload, const 
 			payload.body = fileContent;
 			payload.status = 200;
 			payload.reason = "OK";
+            payload.keepAlive = req.isKeepAlive();
 			payload.mime = MimeTypes::getContentType(fullPath);
 			
 			Response res = _builder->build(payload);
@@ -157,6 +160,7 @@ Response StaticFileHandler::doGET(std::string fullPath, Payload& payload, const 
 				payload.body = fileContentCookie;
 				payload.status = 200;
 				payload.reason = "OK";
+                payload.keepAlive = true;
 				payload.mime = MimeTypes::getContentType(fullPath);
 				
 				return _builder->build(payload);

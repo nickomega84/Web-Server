@@ -6,17 +6,17 @@ Response UploadHandler::handleMultipartUpload(const Request& req, std::string co
 	std::string boundary = getBoundary(contentType);
 	if (boundary.empty())
 		return (std::cout << "[ERROR][UploadHandler] Cannot get boundary" << std::endl, \
-		uploadResponse(400, "Bad Request", "text/html", ""));
+		uploadResponse(req,400, "Bad Request", "text/html", ""));
 
 	std::string fileName;
 	std::string fileContent;
 	if (!parseMultipartBody(body, boundary, fileName, fileContent))
 		return (std::cout << "[ERROR][UploadHandler] Cannot parse body" << std::endl, \
-		uploadResponse(400, "Bad Request", "text/html", ""));
+		uploadResponse(req,400, "Bad Request", "text/html", ""));
 
 	if (fileName.empty() || fileContent.empty())
 		return (std::cout << "[ERROR][UploadHandler] Empty fileName or content" << std::endl, \
-		uploadResponse(400, "Bad Request", "text/html", ""));
+		uploadResponse(req,400, "Bad Request", "text/html", ""));
 	
 	std::string destinationPath = _uploadsPath + "/" + fileName;
 	std::cout << "[DEBUG][UploadHandler] destinationPath = " << destinationPath << std::endl;
@@ -24,13 +24,13 @@ Response UploadHandler::handleMultipartUpload(const Request& req, std::string co
 	std::ofstream outputFile(destinationPath.c_str(), std::ios::out | std::ios::binary);
 	if (!outputFile.is_open()) 
 		return (std::cout << "[ERROR][UploadHandler] 500 Cannot open file: " << destinationPath << std::endl, \
-		uploadResponse(500, "Internal Server Error", "text/plain", "500 - Cannot save file"));
+		uploadResponse(req,500, "Internal Server Error", "text/plain", "500 - Cannot save file"));
 
 	outputFile.write(fileContent.data(), fileContent.size());
 	outputFile.close();
 
 	std::cout << "[DEBUG][UploadHandler] UPLOADED file: " << destinationPath << std::endl;
-	return (uploadResponse(200, "OK", "text/plain", "File received and uploaded"));
+	return (uploadResponse(req,200, "OK", "text/plain", "File received and uploaded"));
 }
 
 std::string UploadHandler::getBoundary(const std::string& contentType)
@@ -95,7 +95,7 @@ Response UploadHandler::handleRawUpload(const Request& req)
 	std::string fileContent = req.getBody();
     if (fileContent.empty())
 		return (std::cerr << "[ERROR][UploadHandler] Empty body for raw upload" << std::endl,
-		uploadResponse(400, "Bad Request", "text/html", "Request body is empty."));
+		uploadResponse(req,400, "Bad Request", "text/html", "Request body is empty."));
 
     std::string path = req.getPath();
     size_t lastSlash = path.rfind("/");
@@ -111,13 +111,13 @@ Response UploadHandler::handleRawUpload(const Request& req)
     std::ofstream outputFile(destinationPath.c_str(), std::ios::out | std::ios::binary);
     if (!outputFile.is_open())
 		return (std::cerr << "[ERROR][UploadHandler] 500 Cannot open file: " << destinationPath << std::endl,
-		uploadResponse(500, "Internal Server Error", "text/html", "500 - Cannot save file"));
+		uploadResponse(req,500, "Internal Server Error", "text/html", "500 - Cannot save file"));
 
     outputFile.write(fileContent.c_str(), fileContent.size());
     outputFile.close();
 
     std::cout << "[DEBUG][UploadHandler] UPLOADED raw file: " << destinationPath << std::endl;
-    return (uploadResponse(200, "OK", "text/html", "File received and uploaded"));
+    return (uploadResponse(req,200, "OK", "text/html", "File received and uploaded"));
 }
 
 Response UploadHandler::handleUrlEncodedUpload(const Request& req) 
@@ -128,7 +128,7 @@ Response UploadHandler::handleUrlEncodedUpload(const Request& req)
 
     size_t separatorPos = body.find('=');
     if (separatorPos == std::string::npos)
-        return (uploadResponse(400, "Bad Request", "text/html", "Invalid urlencoded format."));
+        return (uploadResponse(req,400, "Bad Request", "text/html", "Invalid urlencoded format."));
 
     std::string fileName = body.substr(0, separatorPos);
     std::string fileContentEncoded = body.substr(separatorPos + 1);
@@ -139,13 +139,13 @@ Response UploadHandler::handleUrlEncodedUpload(const Request& req)
     std::ofstream outputFile(destinationPath.c_str(), std::ios::out | std::ios::binary);
 
     if (!outputFile.is_open())
-        return (uploadResponse(500, "Internal Server Error", "text/html", "Cannot save file"));
+        return (uploadResponse(req,500, "Internal Server Error", "text/html", "Cannot save file"));
 
     outputFile.write(fileContentDecoded.c_str(), fileContentDecoded.size());
     outputFile.close();
 
 	std::cout << "[DEBUG][UploadHandler] UPLOADED encoded file: " << destinationPath << std::endl;
-    return (uploadResponse(200, "OK", "text/html", "File received and uploaded"));
+    return (uploadResponse(req,200, "OK", "text/html", "File received and uploaded"));
 }
 
 std::string UploadHandler::urlDecode(const std::string& encoded) 

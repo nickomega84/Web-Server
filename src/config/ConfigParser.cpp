@@ -244,11 +244,30 @@ std::string ConfigParser::getErrorPage(int errorCode, const IConfig* serverNode)
             for (size_t j = 0; j < directives.size(); ++j) {
                 const std::string& directiveType = directives[j]->getType();
                 
-                if ((errorCode == 404 && directiveType == "not_found") ||
-                    (errorCode == 403 && directiveType == "forbidden") ||
-                    (errorCode == 400 && directiveType == "bad_request") ||
-                    (errorCode == 502 && directiveType == "bad_getaway") ||
-                    (errorCode == 500 && directiveType == "internal_error")) {
+                if (
+                    // --- 1xx no tienen error page ---
+                    // --- 3xx Redirecciones ---
+                    (errorCode == 300 && directiveType == "multiple_choices")    ||
+                    (errorCode == 301 && directiveType == "moved_permanently") ||
+                    (errorCode == 302 && directiveType == "found")             ||
+                    (errorCode == 303 && directiveType == "see_other")         ||
+                    (errorCode == 305 && directiveType == "use_proxy")         ||
+                    (errorCode == 307 && directiveType == "temporary_redirect")||
+                    // --- 4xx Errores de cliente ---
+                    (errorCode == 400 && directiveType == "bad_request")           ||
+                    (errorCode == 401 && directiveType == "unauthorized")          ||
+                    (errorCode == 403 && directiveType == "forbidden")             ||
+                    (errorCode == 404 && directiveType == "not_found")             ||
+                    (errorCode == 405 && directiveType == "method_not_allowed")    ||
+                    (errorCode == 413 && directiveType == "payload_too_large")     ||
+                    (errorCode == 414 && directiveType == "uri_too_long")          ||
+                    (errorCode == 415 && directiveType == "unsupported_media")     ||
+                    // --- 5xx Errores de servidor ---
+                    (errorCode == 500 && directiveType == "internal_error")        ||
+                    (errorCode == 502 && directiveType == "bad_getaway")           ||
+                    (errorCode == 503 && directiveType == "service_unavailable")
+                   )
+                {
                     
                     const std::vector<std::string>& values = directives[j]->getValues();
                     if (!values.empty()) {
