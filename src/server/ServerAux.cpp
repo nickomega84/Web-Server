@@ -51,7 +51,6 @@ bool Server::processRedirection(const Request& req, Response& redirectResponse)
 
     std::pair<int, std::string> redirection = _cfg.getRedirection(locationBlock);
 
-    // Si no se encontró en 'location', comprobar en el bloque 'server' como fallback.
     if (redirection.first == 0)
         redirection = _cfg.getRedirection(serverBlock);
 

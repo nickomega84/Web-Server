@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 
-Request::Request(): _cfg(NULL), _serverIndex(-1)
+Request::Request(): _cfg(NULL), _serverIndex(-1), _redirection(false)
 {}
 
 Request::Request(const Request& other)
@@ -28,6 +28,7 @@ Request& Request::operator=(const Request& other)
 		_cookie = other._cookie;
 		_cfg = other._cfg;
 		_serverIndex = other._serverIndex;
+		_redirection = other._redirection;
 	}
 	return *this;
 }
@@ -100,17 +101,18 @@ bool Request::parse(const std::string& raw)
         _keepAlive = (getHeader("Connection") == "keep-alive");
     }
    
+	#ifndef NDEBUG
 	if (_method != "POST")
-	    std::cout << "[Request] Body: " << _body << std::endl;
-	else
-		std::cout << "[Request] POST method body may be to big to print" << std::endl;
+		std::cout << "[Request] Body: " << _body << std::endl;
+
+	std::cout << "[Request] POST method body may be to big to print" << std::endl;
 	std::cout << "[Request] Keep-Alive: " << (_keepAlive ? "true" : "false") << std::endl;
-    std::cout << "[Request] Path: " << _path << "\n"
-              << "[Request] Query String: " << _queryString << std::endl;
-    #ifndef NDEBUG
-        std::cout << "[DEBUG][Request] Request parsing completed successfully." << std::endl;
-        
-        std::cout << "[DEBUG]-------------------[REQUEST] END-------------------\n" << std::endl;
+	std::cout << "[Request] Path: " << _path << "\n"
+		<< "[Request] Query String: " << _queryString << std::endl;
+	std::cout << "[DEBUG][Request] Request parsing completed successfully." << std::endl;
+		
+	std::cout << "[DEBUG]-------------------[REQUEST] END-------------------\n" << std::endl;
+
     #endif
     return (true);
 }
@@ -188,3 +190,13 @@ const Cookies& Request::getCookie() const
 {
 	return (_cookie);
 }	
+
+void Request::setRedirection(bool redirection)
+{
+	_redirection = redirection;
+}
+
+bool Request::getRedirection() const
+{
+	return (_redirection);
+}

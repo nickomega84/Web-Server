@@ -196,7 +196,11 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	char     str_buffer[BUFFER_SIZE];
     ssize_t  n = recv(client_fd, str_buffer, sizeof(str_buffer) - 1, 0);
     if (n == 0) 
-	    return (std::cout << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl, 1);
+	    return (
+		#ifndef NDEBUG
+		std::cout << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl,
+		#endif
+		1);
 	if (n < 0)
 		return (0);
 
@@ -243,7 +247,7 @@ Response Server::serverError(std::string description, ClientBuffer &additive_bff
 	else if (_error == 404)
 		payload = createServerError(404, "Not Found", description, req);
 	else if (_error == 413)
-		payload = createServerError(413, "Request Entity Too Large", description, req);
+		payload = createServerError(413, "Not Found", description, req);
 	else
 		payload = createServerError(400, "Bad Request", description, req);
 	
@@ -332,7 +336,15 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 
 	pending_writes.erase(client_fd);
 	if (should_we_close)
-	    return (std::cout << "[DEBUG][handleClientResponse] END connection closed" << std::endl, 1);
+	    return (
+		#ifndef NDEBUG
+		std::cout << "[DEBUG][handleClientResponse] END connection closed" << std::endl,
+		#endif
+		1);
 	else
-	    return (std::cout << "[DEBUG][handleClientResponse] END connection alive" << std::endl, 0);
+	    return (
+		#ifndef NDEBUG
+		std::cout << "[DEBUG][handleClientResponse] END connection alive" << std::endl,
+		#endif
+		0);
 }

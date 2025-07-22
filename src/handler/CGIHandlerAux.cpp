@@ -18,24 +18,33 @@ int CGIHandler::identifyScriptType(const Request &req)
 	else
 		path_part = uri;
 	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".py")
-		return (std::cout << "[DEBUG][CGI][identifyScriptType]: python" << std::endl, 1);
+		return (std::cout << "[DEBUG][CGI][identifyScriptType]: python" << std::endl, 2);
 	if (path_part.length() > 3 && path_part.substr(path_part.length() - 3) == ".sh")
-		return (std::cout << "[DEBUG][CGI][identifyScriptType]: shell" << std::endl, 2);
-	return (std::cerr << "[ERROR][CGI][identifyScriptType] unsupported CGI type" << std::endl, 0);
+		return (std::cout << "[DEBUG][CGI][identifyScriptType]: shell" << std::endl, 4);
+	return (
+		#ifndef NDEBUG
+		std::cout << "[DEBUG][CGI][identifyScriptType] not a valid CGI" << std::endl,
+		#endif
+		0);
 }
 
 int CGIHandler::identifyMethod(const Request &req)
 {
+	#ifndef NDEBUG
 	std::cout << "[DEBUG][CGI][identifyMethod] START" << std::endl;
+	#endif
+	
 	std::string method = req.getMethod();
 
 	try
 	{
 		if (method == "GET")
 		{
+			#ifndef NDEBUG
 			std::cout << "[DEBUG][CGI][identifyMethod]: GET" << std::endl;
+			#endif
 			checkCfgPermission(req, "GET");
-			return (2);  // Permiso concedido
+			return (1);
 		}
 		else if (method == "POST")
 		{   
@@ -43,7 +52,7 @@ int CGIHandler::identifyMethod(const Request &req)
 			std::cout << "[DEBUG][CGI][identifyMethod]: POST" << std::endl;
             #endif
 			checkCfgPermission(req, "POST");
-			return (2);  // Permiso concedido
+			return (2);
 		}
 	}
 	catch (const std::exception& e)
@@ -51,15 +60,28 @@ int CGIHandler::identifyMethod(const Request &req)
         #ifndef NDEBUG
 		std::cout << "[ERROR][CGI][identifyMethod]: " << e.what() << std::endl;
         #endif
-		return (0);  // Permiso denegado o error
+		return (0);
 	}
-	return (0);  // Método no reconocido o error
+	return (0);
 }
-
 
 Response CGIHandler::autoindexCGIAux(const Request &req)
 {
+	#ifndef NDEBUG
 	std::cout << "[DEBUG][CGI][autoindexCGIAux] START" << std::endl;
+	#endif
+	
+	try
+	{
+		checkCfgPermission(req, req.getMethod());
+	}
+	catch (const std::exception& e)
+	{
+		#ifndef NDEBUG
+		std::cout << "[ERROR][CGI][autoindexCGIAux][autoindexCGIAux]: " << e.what() << std::endl;
+		#endif
+		return (CGIerror(req, 403, " Forbidden", "text/html"));
+	}
 
 	std::string uri = req.getURI();
 	std::string fullPath = _cgiRoot;
@@ -72,7 +94,9 @@ Response CGIHandler::autoindexCGIAux(const Request &req)
 	if (autoindexFlag)
 		return (res);
 
+	#ifndef NDEBUG
 	std::cout << "[DEBUG][CGI][autoindexCGIAux] staticHandler called" << std::endl; //si llegamos aqui es que no queremos listar los directorios queremos el archivo, para conseguirlo llamamos a static handler
+	#endif
 
 	std::string cgiPrefix = "/cgi-bin";
     std::string relativePath = req.getPath();
@@ -85,6 +109,7 @@ Response CGIHandler::autoindexCGIAux(const Request &req)
 
 	Request modifiedRequest = req;
 	modifiedRequest.setPath(relativePath);
+	modifiedRequest.setRedirection(true);
 
 	StaticFileHandler staticHandler(_cgiRoot, _builder, _cfg);
 	res = staticHandler.handleRequest(modifiedRequest);

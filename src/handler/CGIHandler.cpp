@@ -36,18 +36,21 @@ Response CGIHandler::handleCGI(const Request &req)
 
 	indx += identifyMethod(req);
 
-	if (indx == 2)
+	std::string method = req.getMethod();
+	if (indx < 3)
 		return(autoindexCGIAux(req));
 
+	std::cout << "OLAOLAOLAOLAOLA indx = " << indx << std::endl;
+
 	if (indx < 3)
-		return (std::cerr << "[ERROR][CGI] unsupported method aquiiiii" << std::endl, CGIerror(req, 403, "Forbidden", "text/html"));
-	else if (indx == GET_PY)
+		return (std::cerr << "[ERROR][CGI] unsupported method = " << req.getMethod() << std::endl, CGIerror(req, 403, "Forbidden", "text/html"));
+	else if (indx == 3)
 		return (handleGET(req, PYTHON_INTERPRETER));
-	else if (indx == GET_SH)
-		return (handleGET(req, SH_INTERPRETER));
-	else if (indx == POST_PY)
+	else if (indx == 4)
 		return (handlePOST(req, PYTHON_INTERPRETER));
-	else if (indx == POST_SH)
+	else if (indx == 5)
+		return (handleGET(req, SH_INTERPRETER));
+	else if (indx == 6)
 		return (handlePOST(req, SH_INTERPRETER));
 	return (_resDefault);
 }
@@ -161,7 +164,7 @@ Response CGIHandler::handlePOST(const Request &req, std::string interpreter)
 	char *argv[] = {(char *)interpreter.c_str(), (char *)map["name"].c_str(), NULL};
 
 	#ifndef NDEBUG
-    std::cout << "[DEBUG][CGI][handleGET] interpreter = " << (char *)interpreter.c_str() << std::endl;
+    std::cout << "[DEBUG][CGI][handlePOST] interpreter = " << (char *)interpreter.c_str() << std::endl;
     #endif
 
 	std::vector<std::string> env;

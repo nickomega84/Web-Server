@@ -126,9 +126,7 @@ int main(int argc, char** argv)
         Server& server = Server::getInstance(parser, cgiDir, rootPath, uploadPath, responseBuilder);
 		server.setUpServers();
 
-        #ifndef NDEBUG
         std::cout << "\n✅ [DEBUG] Webserv setup. Listening for connections" << std::endl;
-        #endif
 
         server.startEpoll();
     }

@@ -15,8 +15,11 @@ const char* MimeTypes::getContentType(const std::string& path)
 {
 	std::size_t dot = path.find_last_of('.');
 	std::string ext = path.substr(dot);
-    std::cout << "[DEBUG] MimeTypes::getContentType() called with extension: " << ext << "\n" << std::endl;
 
+	#ifndef NDEBUG
+    std::cout << "[DEBUG] MimeTypes::getContentType() called with extension: " << ext << "\n" << std::endl;
+	#endif
+	
 	if (ext == ext_html) return ("text/html"); 
 	if (ext == ext_css)  return ("text/css");
 	if (ext == ext_js)   return ("application/javascript");

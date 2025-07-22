@@ -23,6 +23,7 @@ class Request
 		ConfigParser*	_cfg;
 		size_t			_serverIndex;
 		Cookies			_cookie;
+		bool			_redirection;
 
 	public:
 		Request();
@@ -53,6 +54,8 @@ class Request
 		size_t getServerIndex() const;
 		void setCookie(Cookies &cookie);
 		const Cookies& getCookie() const;
+		void setRedirection(bool autoindex);
+		bool getRedirection() const;
 };
 
 #endif

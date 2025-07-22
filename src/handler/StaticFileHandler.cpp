@@ -11,7 +11,7 @@ StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* 
 {
     (void) _cfg;
     #ifndef NDEBUG
-    std::cout << "[DEBUG][StaticFileHandler] initialized with root and builder\n";
+    std::cout << "[DEBUG][StaticFileHandler] initialized" << std::endl;
     #endif
 }
 
@@ -49,10 +49,13 @@ Response StaticFileHandler::handleRequest(const Request& request)
     #ifndef NDEBUG
     std::cout << "[DEBUG][StaticFileHandler][handleRequest] START" << std::endl;
     #endif
+
     std::string uri = request.getPath();
+
     #ifndef NDEBUG
     std::cout << "[DEBUG][StaticFileHandler] Request URI: " << uri << std::endl;
     #endif
+
     std::string qs = request.getQueryString();
     std::string method = request.getMethod();
     std::string fullPath = _rootPath + uri;
@@ -60,14 +63,29 @@ Response StaticFileHandler::handleRequest(const Request& request)
     Payload payload;
     payload.keepAlive = true;
 
-    if (method != "GET" && method != "DELETE") {
-        ErrorPageHandler errorHandler(_rootPath);
+    if (method != "GET" && method != "DELETE") 
+	{
+        std::cerr << "[ERROR][StaticFileHandler] invalid method = " << method << std::endl;
+		
+		ErrorPageHandler errorHandler(_rootPath);
         payload.status = 405;
         payload.reason = "Method Not Allowed";
         payload.mime = "text/plain";
         payload.body = errorHandler.render(request, 405, "Method Not Allowed");
         return _builder->build(payload);
     }
+
+	if (!request.getRedirection() && !checkCfgPermission(request, method))
+	{
+		std::cerr << "[ERROR][StaticFileHandler] not allowed method = " << method << std::endl;
+
+		ErrorPageHandler errorHandler(_rootPath);
+		payload.status = 403;
+		payload.reason = "Forbidden";
+		payload.mime = "text/html";
+		payload.body = errorHandler.render(request, 403, "Forbidden");
+		return _builder->build(payload);
+	}
 
     if (qs.find("<script") != std::string::npos || uri.find("..") != std::string::npos) {
         ErrorPageHandler errorHandler(_rootPath);
@@ -78,16 +96,22 @@ Response StaticFileHandler::handleRequest(const Request& request)
         return _builder->build(payload);
     }
 
-	bool autoindexFlag = false;
-    #ifndef NDEBUG
-	std::cout << "[DEBUG][StaticFileHandler][autoindex] START" << std::endl;
-    #endif
-	Response resAutoindex = AutoIndex::autoindex(autoindexFlag, uri, fullPath, request, _builder);
-	if (autoindexFlag)
-		return (resAutoindex);
-    #ifndef NDEBUG
-    std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: " << fullPath << std::endl;
-    #endif
+	if (method == "GET")
+	{
+		#ifndef NDEBUG
+		std::cout << "[DEBUG][StaticFileHandler][autoindex] START" << std::endl;
+		#endif
+
+		bool autoindexFlag = false;
+		Response resAutoindex = AutoIndex::autoindex(autoindexFlag, uri, fullPath, request, _builder);
+		if (autoindexFlag)
+			return (resAutoindex);
+		
+		#ifndef NDEBUG
+		std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: " << fullPath << std::endl;
+		#endif
+	}
+
     if (!fileExists(fullPath)) {
         ErrorPageHandler errorHandler(_rootPath);
         payload.status = 404;
@@ -106,10 +130,10 @@ Response StaticFileHandler::handleRequest(const Request& request)
 Response StaticFileHandler::doGET(std::string fullPath, Payload& payload, const Request& req)
 {
     #ifndef NDEBUG
-	std::cout << "DEBUG][StaticFileHandler][doGET] method called for file: " << fullPath << std::endl;
+	std::cout << "[DEBUG][StaticFileHandler][doGET] method called for file: " << fullPath << std::endl;
     #endif
 	
-	if (!checkCfgPermission(req, "GET"))
+	if (!req.getRedirection() && !checkCfgPermission(req, "GET"))
 	{
 		ErrorPageHandler errorHandler(_rootPath);
 		payload.status = 403;
@@ -193,7 +217,8 @@ Response StaticFileHandler::doDELETE(std::string fullPath, Payload& payload, con
     #ifndef NDEBUG
 	std::cout << "[DEBUG][StaticFileHandler][doDELETE] method called for file: " << fullPath << std::endl;
 	#endif
-	if (!checkCfgPermission(req, "DELETE"))
+	
+	if (!req.getRedirection() && !checkCfgPermission(req, "DELETE"))
 	{
 		ErrorPageHandler errorHandler(_rootPath);
 		payload.status = 403;

@@ -7,14 +7,6 @@
 #include "../include/core/Response.hpp"
 #include "../include/response/IResponseBuilder.hpp"
 
-enum Type
-{
-	GET_PY = 3,
-	GET_SH = 4,
-	POST_PY = 5,
-	POST_SH = 6,
-};
-
 class IResponseBuilder;
 
 class CGIHandler: public IRequestHandler

@@ -9,16 +9,12 @@
 #include <iostream>
 #include <sys/stat.h>
 
-UploadHandler::UploadHandler(const std::string &uploadsPath,
-	IResponseBuilder *builder,
-	const ConfigParser &cfg) : _uploadsPath(uploadsPath), _builder(builder),
-	_cfg(cfg)
-{
-}
+UploadHandler::UploadHandler(const std::string &uploadsPath, IResponseBuilder *builder,	const ConfigParser &cfg):
+ _uploadsPath(uploadsPath), _builder(builder), _cfg(cfg)
+{}
 
 UploadHandler::~UploadHandler()
-{
-}
+{}
 
 Response UploadHandler::handleRequest(const Request &req)
 {
@@ -39,7 +35,13 @@ Response UploadHandler::handleRequest(const Request &req)
 	std::string fullPath = _uploadsPath + relativePath;
 	if (method == "GET")
 	{
-        #ifndef NDEBUG
+		if (!checkCfgPermission(req, method))
+		{
+			std::cerr << "[ERROR][UploadHandler] 403 forbidden method" << std::endl; 
+			return uploadResponse(req, 403, "Forbidden", "text/html", "");
+		}
+		
+		#ifndef NDEBUG
 		std::cout << "[DEBUG][UploadHandler][autoindex] START" << std::endl;
         #endif
 		autoindexFlag = false;
@@ -53,20 +55,29 @@ Response UploadHandler::handleRequest(const Request &req)
         #ifndef NDEBUG
 		std::cout << "[DEBUG][UploadHandler][handleRequest] staticHandler" << std::endl;
         #endif
+
+		if (!checkCfgPermission(req, method))
+		{
+			std::cerr << "[ERROR][UploadHandler] 403 forbidden method" << std::endl; 
+			return uploadResponse(req, 403, "Forbidden", "text/html", "");
+		}
+
 		modifiedRequest = req;
 		modifiedRequest.setPath(relativePath);
+		modifiedRequest.setRedirection(true);
+		
 		StaticFileHandler staticHandler(_uploadsPath, _builder, _cfg);
 		return (staticHandler.handleRequest(modifiedRequest));
 	}
-	// Solo POST está permitido
-    if (method != "POST") {
-        std::cerr << "[ERROR][UploadHandler] 405 not a POST method\n";
+    if (method != "POST") 
+	{
+        std::cerr << "[ERROR][UploadHandler] 405 not a POST method" << std::endl; 
         return uploadResponse(req, 405, "Method Not Allowed", "text/html", "405 - Method Not Allowed");
     }
 
-    // Permisos de POST según configuración
-    if (!checkCfgPermission(req, "POST")) {
-        std::cerr << "[ERROR][UploadHandler] 403 forbidden method\n";
+    if (!checkCfgPermission(req, "POST")) 
+	{
+        std::cerr << "[ERROR][UploadHandler] 403 forbidden method" << std::endl; 
         return uploadResponse(req, 403, "Forbidden", "text/html", "");
     }
 	return (getBodyType(req));
@@ -85,6 +96,8 @@ Response UploadHandler::getBodyType(const Request &req)
     #endif
 	if (contentType.find("multipart/form-data") != std::string::npos)
 		return (handleMultipartUpload(req, contentType));
+	else if (contentType.find("application/x-www-form-urlencoded") != std::string::npos)
+		return (handleUrlEncodedUpload(req));
 	else if (contentType.find("image/jpeg") != std::string::npos
 		|| contentType.find("image/png") != std::string::npos
 		|| contentType.find("image/gif") != std::string::npos
@@ -97,8 +110,6 @@ Response UploadHandler::getBodyType(const Request &req)
 		|| contentType.find("video/mp4") != std::string::npos
 		|| contentType.find("application/octet-stream") != std::string::npos)
 		return (handleRawUpload(req));
-	else if (contentType.find("application/x-www-form-urlencoded") != std::string::npos)
-		return (handleUrlEncodedUpload(req));
 	return uploadResponse(req ,415, "Unsupported Media Type", "text/html","");
 }
 
@@ -109,7 +120,6 @@ Response UploadHandler::uploadResponse(const Request &req, int status, const std
 	payload.status = status;
 	payload.reason = reason;
 	payload.mime = mime;
-	// Si no nos pasan body, renderizamos la plantilla de error
 	if (body.empty())
 	{
 		ErrorPageHandler errorHandler(_uploadsPath);
@@ -122,19 +132,6 @@ Response UploadHandler::uploadResponse(const Request &req, int status, const std
 	payload.keepAlive = true;
 	return (_builder->build(payload));
 }
-
-// Response UploadHandler::uploadResponse(int status, std::string reason,
-// 	std::string mime, std::string body)
-// {
-// 	Payload	payload;
-
-// 	payload.status = status;
-// 	payload.reason = reason;
-// 	payload.mime = mime;
-// 	payload.body = body;
-// 	payload.keepAlive = true;
-// 	return (_builder->build(payload));
-// }
 
 bool UploadHandler::checkCfgPermission(const Request &req, std::string method)
 {

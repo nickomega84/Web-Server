@@ -4,7 +4,9 @@
 
 Response AutoIndex::autoindex(bool &autoindexFlag, std::string uri, std::string fullPath, const Request& request, IResponseBuilder* _builder)
 {
-    std::cout << "[DEBUG][AutoIndex][autoindex] START" << std::endl;
+    #ifndef NDEBUG
+	std::cout << "[DEBUG][AutoIndex][autoindex] START" << std::endl;
+	#endif
 
     struct stat s;
     if (stat(fullPath.c_str(), &s) == 0 && S_ISDIR(s.st_mode))
@@ -41,7 +43,9 @@ Response AutoIndex::autoindex(bool &autoindexFlag, std::string uri, std::string 
 
 std::string AutoIndex::renderAutoindexPage(const std::string& displayPath, const std::string& physicalPath)
 {
-    std::cout << "[DEBUG][AutoIndex][renderAutoindexPage] START" << std::endl;
+    #ifndef NDEBUG
+	std::cout << "[DEBUG][AutoIndex][renderAutoindexPage] START" << std::endl;
+	#endif
 
 	std::string currentPath = displayPath;
     if (currentPath.empty() || currentPath[currentPath.length() - 1] != '/')
@@ -84,8 +88,8 @@ std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder, const Requ
 
 	if (access(indexPath.c_str(), F_OK))
 		return (AutoIndex::autoIndexError(autoindexFlag, builder, request, fullPath));
-	fullPath = indexPath;
 
+	fullPath = indexPath;
 	autoindexFlag = true;
 	Payload payload;
     payload.keepAlive = true;
@@ -105,7 +109,7 @@ std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder, const Requ
 
 Response AutoIndex::autoIndexError(bool &autoindexFlag, IResponseBuilder* builder, const Request& request, std::string fullPath)
 {
-	std::cout << "[DEBUG][AutoIndex][autoIndexError] START" << std::endl;
+	std::cerr << "[ERROR][AutoIndex][autoIndexError] START" << std::endl;
 
     ErrorPageHandler errorHandler(fullPath);
     std::cout << fullPath << std::endl;
@@ -122,7 +126,7 @@ Response AutoIndex::autoIndexError(bool &autoindexFlag, IResponseBuilder* builde
 
 Response AutoIndex::autoIndexError2(bool &autoindexFlag, IResponseBuilder* builder, const Request& request, std::string fullPath)
 {
-	std::cout << "[DEBUG][AutoIndex][autoIndexError2] START" << std::endl;
+	std::cerr << "[ERROR][AutoIndex][autoIndexError2] START" << std::endl;
 
     ErrorPageHandler errorHandler(fullPath);
     std::cout << fullPath << std::endl;
