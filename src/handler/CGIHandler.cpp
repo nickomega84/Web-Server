@@ -40,8 +40,6 @@ Response CGIHandler::handleCGI(const Request &req)
 	if (indx < 3)
 		return(autoindexCGIAux(req));
 
-	std::cout << "OLAOLAOLAOLAOLA indx = " << indx << std::endl;
-
 	if (indx < 3)
 		return (std::cerr << "[ERROR][CGI] unsupported method = " << req.getMethod() << std::endl, CGIerror(req, 403, "Forbidden", "text/html"));
 	else if (indx == 3)

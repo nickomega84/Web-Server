@@ -79,6 +79,10 @@ std::string AutoIndex::renderAutoindexPage(const std::string& displayPath, const
 Response AutoIndex::renderIndexFile(ConfigParser* &cfg, const IConfig* &location_node, const IConfig* server, \
 std::string fullPath, bool &autoindexFlag, IResponseBuilder* builder, const Request& request)
 {
+	#ifndef NDEBUG
+	std::cout << "[DEBUG][AutoIndex][renderIndexFile] START" << std::endl;
+	#endif
+	
 	std::string indexFile = cfg->getDirectiveValue(location_node, "index", "default");
 	if (indexFile == "default")
 		indexFile = cfg->getDirectiveValue(server, "index", "index.html");
