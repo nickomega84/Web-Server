@@ -38,15 +38,19 @@ int CGIHandler::identifyMethod(const Request &req)
 			return (2);  // Permiso concedido
 		}
 		else if (method == "POST")
-		{
+		{   
+            #ifndef NDEBUG
 			std::cout << "[DEBUG][CGI][identifyMethod]: POST" << std::endl;
+            #endif
 			checkCfgPermission(req, "POST");
 			return (2);  // Permiso concedido
 		}
 	}
 	catch (const std::exception& e)
 	{
+        #ifndef NDEBUG
 		std::cout << "[ERROR][CGI][identifyMethod]: " << e.what() << std::endl;
+        #endif
 		return (0);  // Permiso denegado o error
 	}
 	return (0);  // Método no reconocido o error
@@ -89,8 +93,9 @@ Response CGIHandler::autoindexCGIAux(const Request &req)
 
 void CGIHandler::checkCfgPermission(const Request &req, std::string method)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][CGI][checkCfgPermission] START" << std::endl;
-	
+	#endif
 	ConfigParser *cfg = req.getCfg();
 	if (cfg == NULL)
 		throw (std::runtime_error("cannot get ConfigParser*"));
@@ -102,8 +107,9 @@ void CGIHandler::checkCfgPermission(const Request &req, std::string method)
 	const std::string path = req.getPath();
 
 	size_t serverIndex = req.getServerIndex();
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][CGI][checkCfgPermission] serverIndex = " << serverIndex << std::endl;
-
+    #endif
 	bool allowed = cfg->isMethodAllowed(serverNodes[serverIndex], path, method);
 	if (!allowed)
 		throw (std::runtime_error(method + " not allowed"));
@@ -112,8 +118,9 @@ void CGIHandler::checkCfgPermission(const Request &req, std::string method)
 
 Response CGIHandler::getScript(const Request &req, std::map<std::string, std::string> &map)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][CGI][getScript] START" << std::endl;
-	
+    #endif
 	std::string uri = req.getURI();
 	if (uri.empty())
 		return (std::cerr << "[ERROR][getURI] CGI couldn't get uri" << std::endl, \
@@ -131,9 +138,10 @@ Response CGIHandler::getScript(const Request &req, std::map<std::string, std::st
 	map["name"] = scriptName;
 	map["path"] = map["dir"] + map["name"];
 	map["queryString"] = getScriptQuery(uri);
-
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][CGI][getScript] path = " << map["path"] << std::endl;
 	std::cout << "[DEBUG][CGI][getScript] query = " << map["queryString"] << std::endl;
+    #endif
 	return (_resDefault);
 }
 
@@ -159,8 +167,9 @@ std::string CGIHandler::getScriptName(const std::string &uri)
 
 std::string CGIHandler::getScriptQuery(const std::string &uri)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][CGI][getScriptQuery] START" << std::endl;
-
+    #endif
 	std::string::size_type pos_query = uri.find("?");
 	if (pos_query == std::string::npos)
 		return ("");
@@ -169,8 +178,9 @@ std::string CGIHandler::getScriptQuery(const std::string &uri)
 
 int CGIHandler::checkScriptAccess(std::string &dir, std::string &scriptName)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][CGI][checkScriptAccess] START" << std::endl;
-
+    #endif
     std::string fullPath = dir + "/" + scriptName;
 
 	std::cout << "[DEBUG][CGI][checkScriptAccess] fullPath = " << fullPath << std::endl;
@@ -187,8 +197,9 @@ int CGIHandler::checkScriptAccess(std::string &dir, std::string &scriptName)
 
 bool CGIHandler::getEnviroment(std::vector<std::string> &env, std::string method, std::string path, std::string queryString, const Request &req)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][CGI][enviromentGET] START" << std::endl;
-	
+	#endif
 	env.push_back("PATH_INFO=" + path);
 	env.push_back("QUERY_STRING=" + queryString);
 	env.push_back("SCRIPT_NAME=" + path);

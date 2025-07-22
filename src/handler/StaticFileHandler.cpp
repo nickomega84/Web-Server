@@ -10,14 +10,18 @@
 StaticFileHandler::StaticFileHandler(const std::string& root, IResponseBuilder* b, const ConfigParser& cfg): _rootPath(root), _builder(b), _cfg(cfg)
 {
     (void) _cfg;
+    #ifndef NDEBUG
     std::cout << "[DEBUG][StaticFileHandler] initialized with root and builder\n";
+    #endif
 }
 
 StaticFileHandler::~StaticFileHandler() {}
 
 static bool fileExists(const std::string& path) 
 {
+    #ifndef NDEBUG
     std::cout << "[DEBUG][StaticFileHandler] Verifying file existence, file: " << path << std::endl;
+    #endif
     std::ifstream file(path.c_str());
     if (!file) {
         return false;
@@ -42,10 +46,13 @@ static std::string readFile(const std::string& path)
 
 Response StaticFileHandler::handleRequest(const Request& request)
 {
+    #ifndef NDEBUG
     std::cout << "[DEBUG][StaticFileHandler][handleRequest] START" << std::endl;
-
+    #endif
     std::string uri = request.getPath();
+    #ifndef NDEBUG
     std::cout << "[DEBUG][StaticFileHandler] Request URI: " << uri << std::endl;
+    #endif
     std::string qs = request.getQueryString();
     std::string method = request.getMethod();
     std::string fullPath = _rootPath + uri;
@@ -72,12 +79,15 @@ Response StaticFileHandler::handleRequest(const Request& request)
     }
 
 	bool autoindexFlag = false;
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][StaticFileHandler][autoindex] START" << std::endl;
+    #endif
 	Response resAutoindex = AutoIndex::autoindex(autoindexFlag, uri, fullPath, request, _builder);
 	if (autoindexFlag)
 		return (resAutoindex);
-    
+    #ifndef NDEBUG
     std::cout << "[DEBUG][StaticFileHandler] Serving file fullPath: " << fullPath << std::endl;
+    #endif
     if (!fileExists(fullPath)) {
         ErrorPageHandler errorHandler(_rootPath);
         payload.status = 404;
@@ -95,7 +105,9 @@ Response StaticFileHandler::handleRequest(const Request& request)
 
 Response StaticFileHandler::doGET(std::string fullPath, Payload& payload, const Request& req)
 {
-	std::cout << "[DEBUG][StaticFileHandler][doGET] method called for file: " << fullPath << std::endl;
+    #ifndef NDEBUG
+	std::cout << "DEBUG][StaticFileHandler][doGET] method called for file: " << fullPath << std::endl;
+    #endif
 	
 	if (!checkCfgPermission(req, "GET"))
 	{
@@ -178,8 +190,9 @@ Response StaticFileHandler::doGET(std::string fullPath, Payload& payload, const 
 
 Response StaticFileHandler::doDELETE(std::string fullPath, Payload& payload, const Request& req)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][StaticFileHandler][doDELETE] method called for file: " << fullPath << std::endl;
-		
+	#endif
 	if (!checkCfgPermission(req, "DELETE"))
 	{
 		ErrorPageHandler errorHandler(_rootPath);
@@ -192,7 +205,9 @@ Response StaticFileHandler::doDELETE(std::string fullPath, Payload& payload, con
 
 	if (!std::remove(fullPath.c_str()))
 	{
+        #ifndef NDEBUG
 		std::cout << "[DEBUG][StaticFileHandler] DELETE successful" << std::endl;
+        #endif
 		payload.status = 200;
 		payload.reason = "OK";
 		payload.mime = "text/html";
@@ -213,8 +228,9 @@ Response StaticFileHandler::doDELETE(std::string fullPath, Payload& payload, con
 
 bool StaticFileHandler::checkCfgPermission(const Request &req, std::string method)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][static][checkCfgPermission] START" << std::endl;
-	
+    #endif
 	ConfigParser *cfg = req.getCfg();
 	if (cfg == NULL)
 		return (std::cerr << "[ERROR][static][checkCfgPermission] cannot get ConfigParser*", false);
@@ -225,8 +241,9 @@ bool StaticFileHandler::checkCfgPermission(const Request &req, std::string metho
 
 	const std::string path = req.getPath();
 	size_t serverIndex = req.getServerIndex();
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][static][checkCfgPermission] serverIndex = " << serverIndex << std::endl;
-
+    #endif
     return (cfg->isMethodAllowed(serverNodes[serverIndex], path, method));
 }
 

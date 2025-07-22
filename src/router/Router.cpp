@@ -4,7 +4,9 @@
 
 Router::Router(const std::string& absRoot) : _absRoot(absRoot)
 {
+    #ifndef NDEBUG
     std::cout << "[DEBUG][Router] absRoot: " << _absRoot << std::endl;
+    #endif
 }
 Router::Router(const Router& other) 
 {
@@ -20,7 +22,9 @@ Router& Router::operator=(const Router& other)
 
 Router::~Router() 
 {
+    #ifndef NDEBUG
     std::cout << "[DEBUG] Router destructor called" << std::endl;
+    #endif
 }
 
 void Router::registerFactory(const std::string& pathPrefix, IHandlerFactory* factory)
@@ -35,7 +39,9 @@ IRequestHandler* Router::resolve(Request& request) const
     const std::string& uriWithQuery = request.getURI();
     std::string uri = getUriWithoutQuery(uriWithQuery);
 
+    #ifndef NDEBUG
     std::cout << "[DEBUG][Router] URI sin query: " << uri << std::endl;
+    #endif
 
     for (std::map<std::string,IHandlerFactory*>::const_reverse_iterator it = _routes.rbegin(); it != _routes.rend(); ++it)
     {
@@ -50,12 +56,18 @@ IRequestHandler* Router::resolve(Request& request) const
                 if (relativePath.empty() || relativePath[0] != '/')
                     relativePath = "/" + relativePath;
 
-				std::cout << "[DEBUG][Router::resolve] relativePath = " << relativePath << std::endl;
-				std::cout << "[DEBUG][Router::resolve] uri = " << uri << std::endl;
+				#ifndef NDEBUG
+                    std::cout << "[DEBUG][Router::resolve] relativePath = " << relativePath << std::endl;
+                    #endif
+				#ifndef NDEBUG
+                std::cout << "[DEBUG][Router::resolve] uri = " << uri << std::endl;
+                #endif
 				
                 std::string abs = Utils::mapUriToPath(_absRoot, uri);
 
-				std::cout << "[DEBUG][Router::resolve] abs = " << abs << std::endl;
+				#ifndef NDEBUG
+                std::cout << "[DEBUG][Router::resolve] abs = " << abs << std::endl;
+                #endif
 
 				if (request.getMethod() != "POST")
 				{

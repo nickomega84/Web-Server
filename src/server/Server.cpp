@@ -56,43 +56,59 @@ void Server::startEpoll()
 		int event_nmb = epoll_wait(epollfd, events, MAX_EVENTS, -1);
 		if (event_nmb == -1)
 		{
-			std::cout << "[DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = " << epollfd << std::endl;
+            #ifndef NDEBUG
+                std::cout << "[DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = " << epollfd << std::endl;
+            #endif
 			break;
 		}
 		for (int i = 0; i < event_nmb; i++)
 		{
-			std::cout << "------------------------LOOP_EPOLL++------------------------" << std::endl;
+            #ifndef NDEBUG
+			    std::cout << "------------------------LOOP_EPOLL++------------------------" << std::endl;
+            #endif
 			client_fd = events[i].data.fd;
 			if (std::find(listen_sockets.begin(), listen_sockets.end(), client_fd) != listen_sockets.end())
 			{
-				std::cout << "[DEBUG][LOOP_EPOLL] accept_connection" << std::endl;
+                #ifndef NDEBUG
+                    std::cout << "[DEBUG][LOOP_EPOLL] accept_connection" << std::endl;
+                #endif
 				accept_connection(client_fd, epollfd, clientFdList, client_buffers);
 			}
 			else if (events[i].events & EPOLLERR || events[i].events & EPOLLHUP || !(events[i].events & (EPOLLIN | EPOLLOUT)))
 			{
-				std::cout << "[DEBUG][LOOP_EPOLL] EPOLLERR EPOLLHUP" << std::endl;
+                #ifndef NDEBUG
+                    std::cout << "[DEBUG][LOOP_EPOLL] EPOLLERR EPOLLHUP" << std::endl;
+                #endif
 				close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 			}
 			else
 			{
 				if (events[i].events & EPOLLIN)
 				{
-					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN START"<< std::endl;			
+                    #ifndef NDEBUG
+                        std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN START"<< std::endl;			
+                    #endif
 					if (handleClientRead(client_fd, pending_writes, client_buffers[client_fd]))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					if (client_buffers[client_fd].getFinishedReading() == true && ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLOUT))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
-					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN END" << std::endl;
+                        #ifndef NDEBUG
+                            std::cout << "[DEBUG][LOOP_EPOLL] EPOLLIN END" << std::endl;
+                        #endif
 				}
 				if (events[i].events & EPOLLOUT)
 				{
-					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLOUT START" << std::endl;
+                    #ifndef NDEBUG
+                        std::cout << "[DEBUG][LOOP_EPOLL] EPOLLOUT START" << std::endl;
+                    #endif
 					if (handleClientResponse(client_fd, pending_writes))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					else if (ft_epoll_ctl(client_fd, epollfd, EPOLL_CTL_MOD, EPOLLIN))
 						close_fd(client_fd, epollfd, clientFdList, pending_writes, client_buffers);
 					client_buffers[client_fd].reset();
-					std::cout << "[DEBUG][LOOP_EPOLL] EPOLLOUT END" << std::endl;
+                    #ifndef NDEBUG
+                        std::cout << "[DEBUG][LOOP_EPOLL] EPOLLOUT END" << std::endl;
+                    #endif
 				}
 			}
 		}
@@ -129,7 +145,9 @@ int Server::accept_connection(int listen_socket, int epollfd, std::vector<int> &
 	ClientBuffer newClientBuffer;
 	client_buffers[client_fd] = newClientBuffer;
 	
-	std::cout << "[DEBUG][accept_connection] New connection accepted() fd = " << client_fd << std::endl;
+    #ifndef NDEBUG
+    std::cout << "[DEBUG][accept_connection] New connection accepted() fd = " << client_fd << std::endl;
+    #endif
 	return (0);
 }
 
@@ -153,7 +171,9 @@ void Server::close_fd(const int fd, int epollfd, std::vector<int> &clientFdList,
 	pending_writes.erase(fd);
 	client_buffers.erase(fd);
 	close(fd);
-	std::cout << "[DEBUG][close_fd] client_fd: " << fd << " closed" << std::endl;
+    #ifndef NDEBUG
+     std::cout << "[DEBUG][close_fd] client_fd: " << fd << " closed" << std::endl;
+    #endif
 }
 
 void Server::freeEpoll(int epollfd, std::vector<int> &clientFdList)
@@ -176,7 +196,7 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 	char     str_buffer[BUFFER_SIZE];
     ssize_t  n = recv(client_fd, str_buffer, sizeof(str_buffer) - 1, 0);
     if (n == 0) 
-		return (std::cout << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl, 1);
+	    return (std::cout << "[DEBUG][handleClientRead] Client fd = " << client_fd << " closed connection" << std::endl, 1);
 	if (n < 0)
 		return (0);
 
@@ -196,7 +216,9 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 		pending_writes[client_fd] = res;
 		return (0);
 	}
-	std::cout << "[DEBUG] [[  FINISHED READING REQUEST  ]]" << std::endl;
+    #ifndef NDEBUG
+    std::cout << "[DEBUG] [[  FINISHED READING REQUEST  ]]" << std::endl;
+    #endif
 
 	Response res = createResponse(additive_bff);
 	pending_writes[client_fd] = res;
@@ -205,7 +227,9 @@ int Server::handleClientRead(const int client_fd, std::map<int, Response> &pendi
 
 Response Server::serverError(std::string description, ClientBuffer &additive_bff)
 {
-	std::cout << "[DEBUG][serverError] START" << std::endl;
+    #ifndef NDEBUG
+    std::cout << "[DEBUG][serverError] START" << std::endl;
+    #endif
 
 	Request  req;
 	req.parse(additive_bff.get_buffer());
@@ -226,7 +250,9 @@ Response Server::serverError(std::string description, ClientBuffer &additive_bff
 
 Payload Server::createServerError(size_t status, std::string reason, std::string description, Request& req)
 {
-	std::cout << "[DEBUG][createServerError] START, error = " << status << std::endl;
+    #ifndef NDEBUG
+    std::cout << "[DEBUG][createServerError] START, error = " << status << std::endl;
+    #endif
 	
 	_error = -1;
 
@@ -242,7 +268,9 @@ Payload Server::createServerError(size_t status, std::string reason, std::string
 
 Response Server::createResponse(ClientBuffer &additive_bff)
 {
-	std::cout << "[DEBUG][createResponse] START" << std::endl;
+    #ifndef NDEBUG
+    std::cout << "[DEBUG][createResponse] START" << std::endl;
+    #endif
 	
 	Request  req;
 	req.parse(additive_bff.get_buffer());
@@ -275,7 +303,9 @@ Response Server::createResponse(ClientBuffer &additive_bff)
 
 int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &pending_writes)
 {
-	std::cout << "[DEBUG][handleClientResponse] START" << std::endl;
+    #ifndef NDEBUG
+    std::cout << "[DEBUG][handleClientResponse] START" << std::endl;
+    #endif
 	
 	Response& res = pending_writes[client_fd];
 	std::string response = res.toString();
@@ -288,15 +318,19 @@ int Server::handleClientResponse(const int client_fd,  std::map<int, Response> &
 	
 	std::string connection = res.getHeader("Connection"); 
 
-	std::cout << "[DEBUG][handleClientResponse] Connection = " << connection << std::endl;
+    #ifndef NDEBUG
+    std::cout << "[DEBUG][handleClientResponse] Connection = " << connection << std::endl;
+    #endif
 
 	bool should_we_close = (connection == "close");
 
-	std::cout << "[DEBUG][handleClientResponse] should_we_close = " << should_we_close << std::endl;
+    #ifndef NDEBUG
+    std::cout << "[DEBUG][handleClientResponse] should_we_close = " << should_we_close << std::endl;
+    #endif
 
 	pending_writes.erase(client_fd);
 	if (should_we_close)
-		return (std::cout << "[DEBUG][handleClientResponse] END connection closed" << std::endl, 1);
+	    return (std::cout << "[DEBUG][handleClientResponse] END connection closed" << std::endl, 1);
 	else
-		return (std::cout << "[DEBUG][handleClientResponse] END connection alive" << std::endl, 0);
+	    return (std::cout << "[DEBUG][handleClientResponse] END connection alive" << std::endl, 0);
 }

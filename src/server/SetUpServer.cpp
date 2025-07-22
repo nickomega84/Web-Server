@@ -49,10 +49,11 @@ int Server::addListeningSocket(IConfig* server)
 	fcntl(listen_socket, F_SETFL, O_NONBLOCK);
 	listen_sockets.push_back(listen_socket);
 	freeaddrinfo(output);
-
+    #ifndef NDEBUG
 	std::cout << "[INFO][addListeningSocket] New listenSocket fd = " << listen_socket << std::endl;
 	std::cout << "[INFO][addListeningSocket] HOST = " << host << std::endl;
 	std::cout << "[INFO][addListeningSocket] PORT = " << port << std::endl;
+    #endif
 	return (0);
 }
 

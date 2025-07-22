@@ -29,8 +29,9 @@ int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
 
 bool Server::getCompleteHeader(ClientBuffer &additive_bff, Request &req)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][getCompleteHeader] START" << std::endl;
-	
+	#endif
 	size_t pos = additive_bff.get_buffer().find("\r\n\r\n");
 	if (pos == std::string::npos)
 		return (std::cout << "[DEBUG][getCompleteHeader] we didn't read all the header" << std::endl, false);
@@ -39,13 +40,17 @@ bool Server::getCompleteHeader(ClientBuffer &additive_bff, Request &req)
 		checkBodyLimits(additive_bff, req);
 
 	additive_bff.setHeaderEnd(pos + 4);
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][getCompleteHeader] finished reading header" << std::endl;
+    #endif
 	return (true);
 }
 
 void Server::checkBodyLimits(ClientBuffer &additive_bff, Request &req)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][checkBodyLimits] START" << std::endl;
+    #endif
 
 	bool chuncked = checkIsChunked(additive_bff, req);
 	bool contentLength = checkIsContentLength(additive_bff, req);
@@ -59,8 +64,9 @@ void Server::checkBodyLimits(ClientBuffer &additive_bff, Request &req)
 
 bool Server::checkIsChunked(ClientBuffer &additive_bff, const Request &req)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][checkIsChunked] START" << std::endl;
-	
+	#endif
 	std::string transferEncoding = req.getHeader("transfer-encoding");
 	if (transferEncoding != "chunked")
 		return (false);
@@ -70,8 +76,9 @@ bool Server::checkIsChunked(ClientBuffer &additive_bff, const Request &req)
 
 bool Server::checkIsContentLength(ClientBuffer &additive_bff, Request &req)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][checkIsContentLength] START" << std::endl;
-	
+	#endif
 	std::string contentLength = req.getHeader("content-length");
 	if (contentLength.empty())
 		return (false);
@@ -83,16 +90,16 @@ bool Server::checkIsContentLength(ClientBuffer &additive_bff, Request &req)
 
 bool Server::areWeFinishedReading(ClientBuffer &additive_bff, Request &req)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][areWeFinishedReading] START" << std::endl;
-
+    #endif
 	if (additive_bff.getChunked())
 	{
 		ssize_t alreadyRead = additive_bff.get_buffer().length() - additive_bff.getHeaderEnd();
 		checkMaxContentLength("", alreadyRead, req);
 		
 		if (additive_bff.get_buffer().find("0\r\n\r\n") != std::string::npos)
-			return (validateChunkedBody(additive_bff), \
-			std::cout << "[DEBUG][areWeFinishedReading](Chunked) finished reading" << std::endl, true);
+			return (validateChunkedBody(additive_bff),std::cout << "[DEBUG][areWeFinishedReading](Chunked) finished reading" << std::endl, true);
 		else
 			return (std::cout << "[DEBUG][areWeFinishedReading](Chunked) we still need to read" << std::endl, false);
 	}
@@ -108,8 +115,9 @@ bool Server::areWeFinishedReading(ClientBuffer &additive_bff, Request &req)
 
 void Server::validateChunkedBody(ClientBuffer &additive_bff)
 {
+    #ifndef NDEBUG
 	std::cout << "[DEBUG][validateChunkedBody] START" << std::endl;
-
+    #endif
 	const std::string buffer = additive_bff.get_buffer();
 	size_t start_pos = buffer.find("\r\n\r\n") + 4;
 	size_t end_pos;
@@ -190,8 +198,9 @@ void Server::checkMaxContentLength(std::string contentLength, ssize_t chunkedRea
 
 size_t Server::findServerIndex(const Request& req)
 {
-	std::cout << "[DEBUG][findServerIndex] START" << std::endl;
-	
+    #ifndef NDEBUG
+	    std::cout << "[DEBUG][findServerIndex] START" << std::endl;
+	#endif
 	std::string requestHost = req.getHeader("host");
 	if (requestHost.empty())
 		return (std::cout << "[DEBUG][findServerIndex] serverIndex = 0" << std::endl, 0);

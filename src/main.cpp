@@ -22,7 +22,9 @@ volatile sig_atomic_t g_signal_received = 0;
 static void sigHandler(int sig)
 {
     if (sig == SIGINT || sig == SIGTERM) g_signal_received = 1;
+    #ifndef NDEBUG
     std::cout << "\n❎ [DEBUG] Signal received, shutting down…" << std::endl;
+    #endif
 }
 
 static std::string getDirectiveValue(const IConfig* node, const std::string& key, const std::string& defaultValue) 
@@ -71,20 +73,25 @@ int main(int argc, char** argv)
         validator.validationRoot();
 
         std::string serverName = parser.getServerName(serverNode);
+        #ifndef NDEBUG
         std::cout << "[INFO] Server name: " << serverName << std::endl;
-        
+        #endif
         std::string bodySize = getDirectiveValue(serverNode, "body_size", "1000000");
+        #ifndef NDEBUG
         std::cout << "[INFO] Max body size: " << bodySize << std::endl;
-
+        #endif
         std::string getAllowedValue = getDirectiveValue(serverNode, "get_allowed", "true");
+        #ifndef NDEBUG
         std::cout << "[INFO] GET method allowed: " << getAllowedValue << std::endl;
-
+        #endif
         std::string postAllowedValue = getDirectiveValue(serverNode, "post_allowed", "true");
+        #ifndef NDEBUG
         std::cout << "[INFO] POST method allowed: " << postAllowedValue << std::endl;
-
+        #endif
         std::string deleteAllowedValue = getDirectiveValue(serverNode, "delete_allowed", "false");
+        #ifndef NDEBUG
         std::cout << "[INFO] DELETE method allowed: " << deleteAllowedValue << std::endl;
-
+        #endif
         std::string rootPathConf = getDirectiveValue(serverNode, "root", "./www");
         std::string rootPath = Utils::resolveAndValidateDir(rootPathConf);
 
@@ -99,9 +106,13 @@ int main(int argc, char** argv)
         }
 
         std::string cgiDirRaw = getDirectiveValue(cgiLocationNode, "root", "cgi-bin");
+        #ifndef NDEBUG
         std::cout << "[DEBUG] CGI factory raw: " << cgiDirRaw << std::endl;
+        #endif
         std::string cgiDir = Utils::resolveAndValidateDir(rootPath + "/" + cgiDirRaw);
+        #ifndef NDEBUG
         std::cout << "[DEBUG] CGI directory: " << cgiDir << std::endl;
+        #endif
 
         std::string cgiPath = getDirectiveValue(cgiLocationNode, "cgi_path", "/usr/bin/python");
 
@@ -115,7 +126,9 @@ int main(int argc, char** argv)
         Server& server = Server::getInstance(parser, cgiDir, rootPath, uploadPath, responseBuilder);
 		server.setUpServers();
 
+        #ifndef NDEBUG
         std::cout << "\n✅ [DEBUG] Webserv setup. Listening for connections" << std::endl;
+        #endif
 
         server.startEpoll();
     }
@@ -125,6 +138,8 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
+    #ifndef NDEBUG
     std::cout << "[DEBUG] Server closed" << std::endl;
+    #endif
     return EXIT_SUCCESS;
 }

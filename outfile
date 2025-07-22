@@ -15,10 +15,10 @@
 [DEBUG][NEW_LINE]:     autoindex false;
 [DEBUG][NEW_LINE]: 
 [DEBUG][NEW_LINE]:     location / {
-[DEBUG][NEW_LINE]: 		; autoindex true;
-[DEBUG][NEW_LINE]: 		; index mono.gif;
+[DEBUG][NEW_LINE]: 		autoindex true;
+[DEBUG][NEW_LINE]: 		index mono.gif;
 [DEBUG][NEW_LINE]:         root ./www;
-[DEBUG][NEW_LINE]:         allow_methods;
+[DEBUG][NEW_LINE]:         allow_methods GET POST; 
 [DEBUG][NEW_LINE]: 
 [DEBUG][NEW_LINE]:     }
 [DEBUG][NEW_LINE]: 
@@ -27,6 +27,7 @@
 [DEBUG][NEW_LINE]: 		index fat-monkey.gif;
 [DEBUG][NEW_LINE]:         root ./uploads;
 [DEBUG][NEW_LINE]:         upload_path ./uploads;
+[DEBUG][NEW_LINE]:         allow_methods GET POST;
 [DEBUG][NEW_LINE]:     }
 [DEBUG][NEW_LINE]: 
 [DEBUG][NEW_LINE]:     location /cgi-bin {
@@ -67,7 +68,7 @@
 [DEBUG][NEW_LINE]: 
 [DEBUG][NEW_LINE]: }
 [DEBUG] Servidor 1 validado y agregado.
-[DEBUG] Tokenización completada. Total tokens válidos: 152
+[DEBUG] Tokenización completada. Total tokens válidos: 156
 [DEBUG] Servidores válidos procesados: 1
 [DEBUG][getServerName] START
 [INFO] Server name: example1.com
@@ -90,19 +91,32 @@
 [DEBUG][LOOP_EPOLL] accept_connection
 [DEBUG][accept_connection] New connection accepted() fd = 5
 ------------------------LOOP_EPOLL++------------------------
+[DEBUG][LOOP_EPOLL] accept_connection
+[DEBUG][accept_connection] New connection accepted() fd = 6
+------------------------LOOP_EPOLL++------------------------
 [DEBUG][LOOP_EPOLL] EPOLLIN START
 [DEBUG][readRequest] START
-
-[DEBUG]-------------------[REQUEST] START-------------------
-[DEBUG][Request] Start line parsed: GET /logo.png HTTP/1.1
-[DEBUG][Request] Path: /logo.png
+[DEBUG][Request] Start line parsed: GET /fgfgdsfxc HTTP/1.1
+[DEBUG][Request] Path: /fgfgdsfxc
 [DEBUG][Request] Query String: 
 [DEBUG][Request] Header found: Host =  localhost:8081
-[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
-[DEBUG][Request] Header found: Accept =  */*
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Cache-Control =  max-age=0
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
 [Request] Body: 
 [Request] Keep-Alive: true
-[Request] Path: /logo.png
+[Request] Path: /fgfgdsfxc
 [Request] Query String: 
 [DEBUG][Request] Request parsing completed successfully.
 [DEBUG]-------------------[REQUEST] END-------------------
@@ -112,17 +126,27 @@
 [DEBUG][areWeFinishedReading] START
 [DEBUG] [[  FINISHED READING REQUEST  ]]
 [DEBUG][createResponse] START
-
-[DEBUG]-------------------[REQUEST] START-------------------
-[DEBUG][Request] Start line parsed: GET /logo.png HTTP/1.1
-[DEBUG][Request] Path: /logo.png
+[DEBUG][Request] Start line parsed: GET /fgfgdsfxc HTTP/1.1
+[DEBUG][Request] Path: /fgfgdsfxc
 [DEBUG][Request] Query String: 
 [DEBUG][Request] Header found: Host =  localhost:8081
-[DEBUG][Request] Header found: User-Agent =  curl/7.81.0
-[DEBUG][Request] Header found: Accept =  */*
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Cache-Control =  max-age=0
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
 [Request] Body: 
 [Request] Keep-Alive: true
-[Request] Path: /logo.png
+[Request] Path: /fgfgdsfxc
 [Request] Query String: 
 [DEBUG][Request] Request parsing completed successfully.
 [DEBUG]-------------------[REQUEST] END-------------------
@@ -131,26 +155,15 @@
 [DEBUG][getServerName] START
 [DEBUG][findServerIndex] serverIndex = 0
 [DEBUG][processRedirection] START
-[DEBUG][Router] URI sin query: /logo.png
-[DEBUG][Router::resolve] relativePath = /logo.png
-[DEBUG][Router::resolve] uri = /logo.png
+[DEBUG][Router] URI sin query: /fgfgdsfxc
+[DEBUG][Router::resolve] relativePath = /fgfgdsfxc
+[DEBUG][Router::resolve] uri = /fgfgdsfxc
 [DEBUG][Utils::mapUriToPath] absRoot: /sgoinfre/students/dbonilla/webServer/www
-[DEBUG][Utils::mapUriToPath] uri: /logo.png
-[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/logo.png
-[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/logo.png
-[DEBUG][Router::resolve] abs = /sgoinfre/students/dbonilla/webServer/www/logo.png
-[DEBUG][Utils::validateFilesystemEntry] START absPath: /sgoinfre/students/dbonilla/webServer/www/logo.png
-[DEBUG][Utils::validateFilesystemEntry] END
-[DEBUG][StaticFileHandler] initialized with root and builder
-[DEBUG][StaticFileHandler][handleRequest] START
-[DEBUG][StaticFileHandler] Request URI: /logo.png
-[DEBUG][StaticFileHandler][autoindex] START
-[DEBUG][AutoIndex][autoindex] START
-[DEBUG][StaticFileHandler] Serving file fullPath: /sgoinfre/students/dbonilla/webServer/www/logo.png
-[DEBUG][StaticFileHandler] Verifying file existence, file: /sgoinfre/students/dbonilla/webServer/www/logo.png
-[DEBUG][StaticFileHandler][doGET] method called for file: /sgoinfre/students/dbonilla/webServer/www/logo.png
-[DEBUG][static][checkCfgPermission] START
-[DEBUG][static][checkCfgPermission] serverIndex = 0
+[DEBUG][Utils::mapUriToPath] uri: /fgfgdsfxc
+[DEBUG][Utils::mapUriToPath] joined: /sgoinfre/students/dbonilla/webServer/www/fgfgdsfxc
+[DEBUG][Utils::mapUriToPath] norm: /sgoinfre/students/dbonilla/webServer/www/fgfgdsfxc
+[DEBUG][Router::resolve] abs = /sgoinfre/students/dbonilla/webServer/www/fgfgdsfxc
+[DEBUG][Utils::validateFilesystemEntry] START absPath: /sgoinfre/students/dbonilla/webServer/www/fgfgdsfxc
 [DEBUG][ErrorPageHandler] initialized with root path: /sgoinfre/students/dbonilla/webServer/www
 [DEBUG][ErrorPageHandler][Render] Rendering error page for code: 403
 [DEBUG] Página de error 403 configurada: ./www/error_pages/403.html
@@ -159,20 +172,62 @@
 [DEBUG][ErrorPageHandler][Render] Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/error_pages/403.html
 [DEBUG][ErrorPageHandler][Render] File exists: /sgoinfre/students/dbonilla/webServer/www/error_pages/403.html
 [DEBUG][ErrorPageHandler][Render] File content length: 318
-[DEBUG][DefaultResponseBuilder] Setting response status: 403 Forbidden
+[DEBUG][serverError] START
+[DEBUG][Request] Start line parsed: GET /fgfgdsfxc HTTP/1.1
+[DEBUG][Request] Path: /fgfgdsfxc
+[DEBUG][Request] Query String: 
+[DEBUG][Request] Header found: Host =  localhost:8081
+[DEBUG][Request] Header found: Connection =  keep-alive
+[DEBUG][Request] Header found: Cache-Control =  max-age=0
+[DEBUG][Request] Header found: sec-ch-ua =  "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+[DEBUG][Request] Header found: sec-ch-ua-mobile =  ?0
+[DEBUG][Request] Header found: sec-ch-ua-platform =  "Linux"
+[DEBUG][Request] Header found: Upgrade-Insecure-Requests =  1
+[DEBUG][Request] Header found: User-Agent =  Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+[DEBUG][Request] Header found: Accept =  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+[DEBUG][Request] Header found: Sec-Fetch-Site =  none
+[DEBUG][Request] Header found: Sec-Fetch-Mode =  navigate
+[DEBUG][Request] Header found: Sec-Fetch-User =  ?1
+[DEBUG][Request] Header found: Sec-Fetch-Dest =  document
+[DEBUG][Request] Header found: Accept-Encoding =  gzip, deflate, br, zstd
+[DEBUG][Request] Header found: Accept-Language =  es-ES,es;q=0.9,nl;q=0.8,en;q=0.7
+[Request] Body: 
+[Request] Keep-Alive: true
+[Request] Path: /fgfgdsfxc
+[Request] Query String: 
+[DEBUG][Request] Request parsing completed successfully.
+[DEBUG]-------------------[REQUEST] END-------------------
+
+[DEBUG][findServerIndex] START
+[DEBUG][getServerName] START
+[DEBUG][findServerIndex] serverIndex = 0
+[DEBUG][createServerError] START, error = 404
+[DEBUG][ErrorPageHandler] initialized with root path: /sgoinfre/students/dbonilla/webServer/www
+[DEBUG][ErrorPageHandler][Render] Rendering error page for code: 404
+[DEBUG] Página de error 404 configurada: ./www/error_pages/404.html
+[DEBUG][ErrorPageHandler][Render] Relative path (trimmed): /error_pages/404.html
+[DEBUG][ErrorPageHandler][Render] Page_Handler: /sgoinfre/students/dbonilla/webServer/www/error_pages/404.html
+[DEBUG][ErrorPageHandler][Render] Checking if file exists: /sgoinfre/students/dbonilla/webServer/www/error_pages/404.html
+[DEBUG][ErrorPageHandler][Render] File exists: /sgoinfre/students/dbonilla/webServer/www/error_pages/404.html
+[DEBUG][ErrorPageHandler][Render] File content length: 318
+[DEBUG][DefaultResponseBuilder] Setting response status: 404 Not Found
 [DEBUG][DefaultResponseBuilder] Setting response Content-Type: text/html
 [DEBUG][DefaultResponseBuilder] Setting response Content-Length: 318
-[DEBUG][DefaultResponseBuilder] Setting response Connection: keep-alive
+[DEBUG][DefaultResponseBuilder] Setting response Connection: close
 [DEBUG][LOOP_EPOLL] EPOLLIN END
 ------------------------LOOP_EPOLL++------------------------
 [DEBUG][LOOP_EPOLL] EPOLLOUT START
 [DEBUG][handleClientResponse] START
-[DEBUG][handleClientResponse] Connection = keep-alive
-[DEBUG][handleClientResponse] should_we_close = 0
-[DEBUG][handleClientResponse] END connection alive
-[DEBUG][LOOP_EPOLL] EPOLLOUT END
-------------------------LOOP_EPOLL++------------------------
-[DEBUG][LOOP_EPOLL] EPOLLIN START
-[DEBUG][handleClientRead] Client fd = 5 closed connection
+[DEBUG][handleClientResponse] Connection = close
+[DEBUG][handleClientResponse] should_we_close = 1
+[DEBUG][handleClientResponse] END connection closed
 [DEBUG][close_fd] client_fd: 5 closed
-[DEBUG][LOOP_EPOLL] EPOLLIN END
+[DEBUG][LOOP_EPOLL] EPOLLOUT END
+
+❎ [DEBUG] Signal received, shutting down…
+[DEBUG][LOOP EPOLL] epoll_wait() ended, epollfd = 4
+[DEBUG] Server closed
+[DEBUG][StaticHandlerFactory] destroyed
+[DEBUG][UploadHandlerFactory] destroyed
+[DEBUG][CGIHandlerFactory] destroyed
+[DEBUG] Router destructor called

@@ -5,12 +5,16 @@
 CGIHandlerFactory::CGIHandlerFactory(const std::string& cgiRoot, IResponseBuilder*  builder, const ConfigParser& cfg): _cgiRoot(cgiRoot), _builder(builder), _cfg(cfg)
 {
     (void) _cfg;
-	std::cout << "[DEBUG][CGIHandlerFactory] created with uploads path: " << _cgiRoot << "\n";
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGIHandlerFactory] created with uploads path: " << _cgiRoot << "\n";
+    #endif
 }
 
 CGIHandlerFactory::~CGIHandlerFactory()
 {
-	std::cout << "[DEBUG][CGIHandlerFactory] destroyed\n";
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGIHandlerFactory] destroyed\n";
+    #endif
 }
 
 IRequestHandler* CGIHandlerFactory::createHandler() const

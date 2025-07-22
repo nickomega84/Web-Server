@@ -37,8 +37,10 @@ Request::~Request()
 
 bool Request::parse(const std::string& raw)
 {
-    std::cout << "\n[DEBUG]-------------------[REQUEST] START-------------------" << std::endl;
-	
+    #ifdef NDEBUG
+        std::cout << "\n[DEBUG]-------------------[REQUEST] START-------------------" << std::endl;
+	#endif
+    
 	std::istringstream stream(raw);
     std::string line;
 
@@ -59,20 +61,21 @@ bool Request::parse(const std::string& raw)
         _path        = _uri;
         _queryString.clear();
     }
-
+    #ifndef NDEBUG
     std::cout << "[DEBUG][Request] Start line parsed: " << _method << " " << _uri << " " << _version << "\n";
 
     std::cout << "[DEBUG][Request] Path: " << _path << std::endl;
     std::cout << "[DEBUG][Request] Query String: " << _queryString << std::endl;
-
+    #endif
     while (std::getline(stream, line) && line != "\r" && line != "\n") {
         size_t pos = line.find(':');
         if (pos == std::string::npos) continue;
 
         std::string key   = line.substr(0, pos);
         std::string value = line.substr(pos + 1);
-
+        #ifndef NDEBUG
         std::cout << "[DEBUG][Request] Header found: " << key << " = " << value << "\n";
+        #endif
         for (size_t i = 0; i < key.size(); ++i) {
             key[i] = std::tolower(key[i]);
         }
@@ -104,9 +107,11 @@ bool Request::parse(const std::string& raw)
 	std::cout << "[Request] Keep-Alive: " << (_keepAlive ? "true" : "false") << std::endl;
     std::cout << "[Request] Path: " << _path << "\n"
               << "[Request] Query String: " << _queryString << std::endl;
-    std::cout << "[DEBUG][Request] Request parsing completed successfully." << std::endl;
-    
-    std::cout << "[DEBUG]-------------------[REQUEST] END-------------------\n" << std::endl;
+    #ifndef NDEBUG
+        std::cout << "[DEBUG][Request] Request parsing completed successfully." << std::endl;
+        
+        std::cout << "[DEBUG]-------------------[REQUEST] END-------------------\n" << std::endl;
+    #endif
     return (true);
 }
 

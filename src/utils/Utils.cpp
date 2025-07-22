@@ -42,8 +42,12 @@ std::string Utils::normalisePath(std::string p)
 
 std::string Utils::mapUriToPath(const std::string& absRoot, const std::string& uri)
 {
+    #ifndef NDEBUG
     std::cout << "[DEBUG][Utils::mapUriToPath] absRoot: " << absRoot << std::endl;
+    #endif
+    #ifndef NDEBUG
     std::cout << "[DEBUG][Utils::mapUriToPath] uri: " << uri << std::endl;
+    #endif
 
     std::string joined = absRoot;
 
@@ -55,10 +59,14 @@ std::string Utils::mapUriToPath(const std::string& absRoot, const std::string& u
     else
         joined += uri;
 
-    std::cout << "[DEBUG][Utils::mapUriToPath] joined: " << joined << std::endl;
+    #ifndef NDEBUG
+        std::cout << "[DEBUG][Utils::mapUriToPath] joined: " << joined << std::endl;
+        #endif
 
     std::string norm = normalisePath(joined);
+    #ifndef NDEBUG
     std::cout << "[DEBUG][Utils::mapUriToPath] norm: " << norm << std::endl;
+    #endif
 
     if (norm.compare(0, absRoot.size(), absRoot) != 0)
         throw std::runtime_error("Path-traversal: " + uri);
@@ -70,7 +78,9 @@ std::string Utils::validateFilesystemEntry(const std::string& absPath)
 {
     struct stat sb;
 
+    #ifndef NDEBUG
     std::cout << "[DEBUG][Utils::validateFilesystemEntry] START absPath: " << absPath << std::endl;
+    #endif
 
 	if (::lstat(absPath.c_str(), &sb) == -1)
 		throw std::runtime_error("[ERROR][Utils::validateFilesystemEntry] Not found: " + absPath);
@@ -85,7 +95,9 @@ std::string Utils::validateFilesystemEntry(const std::string& absPath)
         ::close(fd);
     }
 
-	std::cout << "[DEBUG][Utils::validateFilesystemEntry] END" << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][Utils::validateFilesystemEntry] END" << std::endl;
+    #endif
     return absPath;
 }
 

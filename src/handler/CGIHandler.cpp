@@ -9,7 +9,9 @@ CGIHandler::CGIHandler(const std::string& cgiRoot, IResponseBuilder* builder, co
 _cgiRoot(cgiRoot), _builder(builder), _cfg(cfg)
 {
 	(void )_cfg;
-	std::cout << "[DEBUG][CGIHandler Constructor]: cgiRoot = " << _cgiRoot << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGIHandler Constructor]: cgiRoot = " << _cgiRoot << std::endl;
+    #endif
 }
 
 CGIHandler::~CGIHandler()
@@ -17,14 +19,18 @@ CGIHandler::~CGIHandler()
 
 Response CGIHandler::handleRequest(const Request& req)
 {
-	std::cout << "[DEBUG][CGI][handleRequest] START" << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGI][handleRequest] START" << std::endl;
+    #endif
 	
     return (handleCGI(req));
 }
 
 Response CGIHandler::handleCGI(const Request &req)
 {
-	std::cout << "[DEBUG][CGI][handleCGI] START" << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGI][handleCGI] START" << std::endl;
+    #endif
 
 	int indx = identifyScriptType(req);
 
@@ -48,7 +54,9 @@ Response CGIHandler::handleCGI(const Request &req)
 
 Response CGIHandler::handleGET(const Request &req, std::string interpreter)
 {
-	std::cout << "[DEBUG][CGI][handleGET] START" << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGI][handleGET] START" << std::endl;
+    #endif
 	
 	std::map<std::string, std::string> map;
 	Response resGetScript = getScript(req, map);
@@ -57,7 +65,9 @@ Response CGIHandler::handleGET(const Request &req, std::string interpreter)
 
 	char *argv[] = {(char *)interpreter.c_str(), (char *)map["name"].c_str(), NULL};
 
-	std::cout << "[DEBUG][CGI][handleGET] interpreter = " << (char *)interpreter.c_str() << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGI][handleGET] interpreter = " << (char *)interpreter.c_str() << std::endl;
+    #endif
 
 	std::vector<std::string> env;
 	if (!getEnviroment(env, "GET", map["path"], map["queryString"], req))
@@ -76,7 +86,9 @@ Response CGIHandler::handleGET(const Request &req, std::string interpreter)
 	time_t time_start;
 	time(&time_start);
 	
-	std::cout << "[DEBUG][CGI] [[ START SCRIPT ]]" << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGI] [[ START SCRIPT ]]" << std::endl;
+    #endif
 	
 	pid_t pid = fork();
 	if (pid < 0)
@@ -137,7 +149,9 @@ Response CGIHandler::handleGET(const Request &req, std::string interpreter)
 
 Response CGIHandler::handlePOST(const Request &req, std::string interpreter)
 {
-	std::cout << "[DEBUG][CGI][handlePOST] START" << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGI][handlePOST] START" << std::endl;
+    #endif
 	
 	std::map<std::string, std::string> map;
 	Response resGetScript = getScript(req, map);
@@ -146,7 +160,9 @@ Response CGIHandler::handlePOST(const Request &req, std::string interpreter)
 
 	char *argv[] = {(char *)interpreter.c_str(), (char *)map["name"].c_str(), NULL};
 
-	std::cout << "[DEBUG][CGI][handleGET] interpreter = " << (char *)interpreter.c_str() << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGI][handleGET] interpreter = " << (char *)interpreter.c_str() << std::endl;
+    #endif
 
 	std::vector<std::string> env;
 	if (!getEnviroment(env, "POST", map["path"], map["queryString"], req))
@@ -170,7 +186,9 @@ Response CGIHandler::handlePOST(const Request &req, std::string interpreter)
 	time_t time_start;
 	time(&time_start);
 	
-	std::cout << "[DEBUG][CGI] [[ START SCRIPT ]]" << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGI] [[ START SCRIPT ]]" << std::endl;
+    #endif
 
 	pid_t pid = fork();
 	if (pid < 0)
@@ -241,7 +259,9 @@ Response CGIHandler::handlePOST(const Request &req, std::string interpreter)
 
 int CGIHandler::createResponse(std::string output, Response &res)
 {
-	std::cout << "[DEBUG][CGI][createResponse] START" << std::endl;
+	#ifndef NDEBUG
+    std::cout << "[DEBUG][CGI][createResponse] START" << std::endl;
+    #endif
 	
     _builder->setStatus(res, 200, "OK");
 	

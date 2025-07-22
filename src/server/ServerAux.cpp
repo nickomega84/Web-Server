@@ -42,8 +42,10 @@ Cookies Server::createCookie()
 
 bool Server::processRedirection(const Request& req, Response& redirectResponse)
 {
+    #ifndef NDEBUG
+
     std::cout << "[DEBUG][processRedirection] START" << std::endl;
-	
+	#endif
     const IConfig* serverBlock = _cfg.getServerBlocks()[req.getServerIndex()];
     const IConfig* locationBlock = _cfg.findLocationBlock(serverBlock, req.getPath());
 
@@ -56,8 +58,10 @@ bool Server::processRedirection(const Request& req, Response& redirectResponse)
     if (redirection.first == 0)
         return (false);
 
+    #ifndef NDEBUG
     std::cout << "[DEBUG][processRedirection] Redirection triggered: " 
               << redirection.first << " -> " << redirection.second << std::endl;
+    #endif
 
     Payload payload;
     payload.status = redirection.first;

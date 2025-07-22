@@ -15,7 +15,9 @@ const ErrorPageHandler::ErrorPageEntry ErrorPageHandler::errorPages[] = {
 };
 
 ErrorPageHandler::ErrorPageHandler(const std::string& rootPath) : _rootPath(rootPath) {
+    #ifndef NDEBUG
     std::cout << "[DEBUG][ErrorPageHandler] initialized with root path: " << _rootPath << std::endl;
+    #endif
 }
 
 ErrorPageHandler::ErrorPageHandler(const ErrorPageHandler& other) : _rootPath(other._rootPath) {}
@@ -54,7 +56,9 @@ std::string ErrorPageHandler::readFile(const std::string& path){
 
 std::string ErrorPageHandler::render(const Request &request, int code, const std::string& fallbackText) const 
 {
+    #ifndef NDEBUG
     std::cout << "[DEBUG][ErrorPageHandler][Render] Rendering error page for code: " << code << std::endl;
+    #endif
 
     std::string relPathStr;
     try 
@@ -83,18 +87,28 @@ std::string ErrorPageHandler::render(const Request &request, int code, const std
         relPathStr.clear();
     }
 
+    #ifndef NDEBUG
     std::cout << "[DEBUG][ErrorPageHandler][Render] Relative path (trimmed): " << relPathStr << std::endl;
+    #endif
     std::string fullPath = _rootPath + relPathStr;
+    #ifndef NDEBUG
     std::cout << "[DEBUG][ErrorPageHandler][Render] Page_Handler: " << fullPath << std::endl;
+    #endif
 
     if (!relPathStr.empty()) 
 	{
+        #ifndef NDEBUG
         std::cout << "[DEBUG][ErrorPageHandler][Render] Checking if file exists: " << fullPath << std::endl;
+        #endif
         if (fileExists(fullPath)) 
 		{
+            #ifndef NDEBUG
             std::cout << "[DEBUG][ErrorPageHandler][Render] File exists: " << fullPath << std::endl;
+            #endif
             std::string content = readFile(fullPath);
+            #ifndef NDEBUG
             std::cout << "[DEBUG][ErrorPageHandler][Render] File content length: " << content.length() << std::endl;
+            #endif
             if (!content.empty())
                 return content;
         }
