@@ -172,7 +172,7 @@ void Server::close_fd(const int fd, int epollfd, std::vector<int> &clientFdList,
 	client_buffers.erase(fd);
 	close(fd);
     #ifndef NDEBUG
-     std::cout << "[DEBUG][close_fd] client_fd: " << fd << " closed" << std::endl;
+    	std::cout << "[DEBUG][close_fd] client_fd: " << fd << " closed" << std::endl;
     #endif
 }
 
@@ -242,6 +242,8 @@ Response Server::serverError(std::string description, ClientBuffer &additive_bff
 		payload = createServerError(500, "Internal Server Error", description, req);
 	else if (_error == 404)
 		payload = createServerError(404, "Not Found", description, req);
+	else if (_error == 413)
+		payload = createServerError(413, "Request Entity Too Large", description, req);
 	else
 		payload = createServerError(400, "Bad Request", description, req);
 	

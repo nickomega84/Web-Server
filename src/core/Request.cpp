@@ -37,7 +37,7 @@ Request::~Request()
 
 bool Request::parse(const std::string& raw)
 {
-    #ifdef NDEBUG
+    #ifndef NDEBUG
         std::cout << "\n[DEBUG]-------------------[REQUEST] START-------------------" << std::endl;
 	#endif
     

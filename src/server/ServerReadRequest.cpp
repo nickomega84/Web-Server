@@ -6,7 +6,9 @@
 
 int Server::readRequest(int client_fd, ClientBuffer &additive_bff)
 {
-	std::cout << "[DEBUG][readRequest] START" << std::endl;
+	#ifndef NDEBUG
+		std::cout << "[DEBUG][readRequest] START" << std::endl;
+	#endif
 	
 	if (additive_bff.getClientFd() == -1)
 		additive_bff.setClientFd(client_fd);
