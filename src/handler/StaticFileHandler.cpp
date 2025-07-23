@@ -164,7 +164,7 @@ Response StaticFileHandler::doGET(std::string fullPath, Payload& payload, const 
 			payload.body = fileContent;
 			payload.status = 200;
 			payload.reason = "OK";
-            payload.keepAlive = req.isKeepAlive();
+            payload.keepAlive = true;
 			payload.mime = MimeTypes::getContentType(fullPath);
 			
 			Response res = _builder->build(payload);

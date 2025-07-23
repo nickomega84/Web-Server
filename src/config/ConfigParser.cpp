@@ -105,8 +105,7 @@ std::vector<std::string> ConfigParser::tokenize(std::ifstream& file) {
             std::cout << "[DEBUG] Encontrada palabra clave 'server'" << std::endl;
             #endif
         }
-        
-        // Check if we found opening brace after server keyword
+    
         if (found_server_keyword && line.find("{") != std::string::npos && !inside_server) {
             inside_server = true;
             found_server_keyword = false;
@@ -118,7 +117,6 @@ std::vector<std::string> ConfigParser::tokenize(std::ifstream& file) {
         }
         
         if (inside_server || found_server_keyword) {
-            // Tokenize the current line and store in temporary vector
             size_t current_pos = 0;
             while (current_pos < line.length()) {
                 size_t start = line.find_first_not_of(delimiters, current_pos);
@@ -129,7 +127,7 @@ std::vector<std::string> ConfigParser::tokenize(std::ifstream& file) {
                 if (special_chars.find(line[start]) != std::string::npos) {
                     current_server_tokens.push_back(line.substr(start, 1));
                     
-                    // Track braces to know when server block ends
+    
                     if (line[start] == '{') {
                         brace_count++;
                         if (!inside_server && found_server_keyword) {

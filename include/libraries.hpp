@@ -35,7 +35,7 @@
 #define COOKIE_FILE1 "cookie_file1.png"	
 #define COOKIE_FILE2 "cookie_file2.png"
 
-#define CGI_WAIT_TIME 5 //secs
+#define CGI_WAIT_TIME 5
 
 #define PYTHON_INTERPRETER "/usr/bin/python3"
 #define SH_INTERPRETER "/usr/bin/sh"

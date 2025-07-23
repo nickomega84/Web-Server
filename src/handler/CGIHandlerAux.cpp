@@ -95,7 +95,7 @@ Response CGIHandler::autoindexCGIAux(const Request &req)
 		return (res);
 
 	#ifndef NDEBUG
-	std::cout << "[DEBUG][CGI][autoindexCGIAux] staticHandler called" << std::endl; //si llegamos aqui es que no queremos listar los directorios queremos el archivo, para conseguirlo llamamos a static handler
+	std::cout << "[DEBUG][CGI][autoindexCGIAux] staticHandler called" << std::endl;
 	#endif
 
 	std::string cgiPrefix = "/cgi-bin";
